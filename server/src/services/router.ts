@@ -6,6 +6,7 @@ import {
   canUseTokens,
   isOnCooldown,
   canUseProvider,
+  canUseProviderMinute,
   canUseProviderTokens,
   getSoonestCooldownExpiry,
 } from './ratelimit.js';
@@ -707,6 +708,10 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
 
     if (isOnCooldown(entry.platform, entry.model_id, key.id)) { note('cooldown'); continue; }
     if (!canUseProvider(entry.platform, key.id)) { note('provider-daily-cap'); continue; }
+    // Account-wide per-minute budget, checked before the per-model gates: a model
+    // with a NULL rpm_limit would otherwise sail past them and spend a budget its
+    // siblings share.
+    if (!canUseProviderMinute(entry.platform, key.id)) { note('provider-minute-cap'); continue; }
     if (!canMakeRequest(entry.platform, entry.model_id, key.id, limits)) { note('rpm/rpd-limit'); continue; }
     if (!canUseTokens(entry.platform, entry.model_id, key.id, estimatedTokens, limits)) { note('tpm/tpd-limit'); continue; }
     if (!canUseProviderTokens(entry.platform, key.id, entry.model_id, estimatedTokens)) { note('provider-daily-token-cap'); continue; }
@@ -788,6 +793,7 @@ export function hasOtherUsableKey(modelDbId: number, excludingKeyId: number, ski
     if (skipKeys?.has(`${m.platform}:${m.model_id}:${k.id}`)) continue;
     if (isOnCooldown(m.platform, m.model_id, k.id)) continue;
     if (!canUseProvider(m.platform, k.id)) continue;
+    if (!canUseProviderMinute(m.platform, k.id)) continue;
     if (!canMakeRequest(m.platform, m.model_id, k.id, limits)) continue;
     // A per-minute token spike on the failed key doesn't mean a fresh key lacks
     // headroom; a nominal 1-token probe only rules out a key already at its
@@ -932,6 +938,7 @@ export function getOrderedFusionChain(): FusionCandidate[] {
       (e.key_id == null || kid === e.key_id) &&
       !isOnCooldown(e.platform, e.model_id, kid) &&
       canUseProvider(e.platform, kid) &&
+      canUseProviderMinute(e.platform, kid) &&
       canMakeRequest(e.platform, e.model_id, kid, limits) &&
       canUseProviderTokens(e.platform, kid, e.model_id, 1),
     );

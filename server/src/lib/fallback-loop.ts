@@ -38,7 +38,7 @@ import {
   isProviderDegradedError,
 } from './error-classify.js';
 import { sanitizeProviderErrorMessage } from './error-redaction.js';
-import { checkKeyHealth } from '../services/health.js';
+import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js';
 import { getSetting } from '../db/index.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
 
@@ -213,6 +213,10 @@ export function recordUpstreamSuccess(route: RouteResult, rateLimitTokens: numbe
   recordRequest(route.platform, route.modelId, route.keyId);
   recordTokens(route.platform, route.modelId, route.keyId, rateLimitTokens);
   recordSuccess(route.modelDbId);
+  // A served request is the strongest possible evidence the key works, so clear
+  // any stale 'error' status left by an earlier transport blip instead of waiting
+  // for the next health pass to make the key routable again.
+  markKeyHealthyFromRequest(route.keyId);
 }
 
 // ── Attempt trail ─────────────────────────────────────────────────────────────

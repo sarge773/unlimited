@@ -204,6 +204,16 @@ const DEFAULT_PROVIDER_DAILY_TOKEN_CAPS: Record<string, number> = {
   navy: 150_000,
 };
 
+// Per-minute caps that apply to the whole provider account rather than one model.
+// The per-model rpm_limit cannot express these: NVIDIA NIM meters ~40 requests a
+// minute across the entire account, so glm-4.7, minimax-m3 and deepseek all draw
+// from one bucket. Without an account-level gate the router sees each model's own
+// rpm as unspent — and a model row whose rpm_limit is NULL escapes pre-throttling
+// entirely — so it keeps dispatching and eats real 429s.
+const DEFAULT_PROVIDER_MINUTE_REQUEST_CAPS: Record<string, number> = {
+  nvidia: 40,
+};
+
 export function getProviderDailyRequestCap(platform: string): number | null {
   const raw = process.env[`PROVIDER_DAILY_REQUEST_CAP_${platform.toUpperCase()}`];
   if (raw !== undefined && raw.trim() !== '') {
@@ -211,6 +221,17 @@ export function getProviderDailyRequestCap(platform: string): number | null {
     if (Number.isFinite(n) && n >= 0) return n === 0 ? null : n;
   }
   return DEFAULT_PROVIDER_DAILY_REQUEST_CAPS[platform] ?? null;
+}
+
+/** Account-wide requests-per-minute cap, or null when the provider has none.
+ *  `PROVIDER_MINUTE_REQUEST_CAP_<PLATFORM>=0` disables the gate for that platform. */
+export function getProviderMinuteRequestCap(platform: string): number | null {
+  const raw = process.env[`PROVIDER_MINUTE_REQUEST_CAP_${platform.toUpperCase()}`];
+  if (raw !== undefined && raw.trim() !== '') {
+    const n = Number(raw);
+    if (Number.isFinite(n) && n >= 0) return n === 0 ? null : n;
+  }
+  return DEFAULT_PROVIDER_MINUTE_REQUEST_CAPS[platform] ?? null;
 }
 
 export function getProviderDailyTokenCap(platform: string): number | null {
@@ -267,6 +288,29 @@ export function canUseProvider(platform: string, keyId: number, now = Date.now()
   const cap = getProviderDailyRequestCap(platform);
   if (cap === null) return true;
   return providerDailyRequestCount(platform, keyId, now) < cap;
+}
+
+/** Requests in the last minute for a provider account+key, across every model. */
+export function providerMinuteRequestCount(platform: string, keyId: number, now = Date.now()): number {
+  const persisted = countPersistedProviderRequests(platform, keyId, MINUTE, now);
+  if (persisted !== undefined) return persisted;
+  // DB-unavailable fallback: sum the per-model rpm windows for this platform+key.
+  let total = 0;
+  for (const [key, w] of windows) {
+    if (key.startsWith(`${platform}:`) && key.endsWith(`:${keyId}:rpm`)) {
+      total += pruneTimestamps(w.timestamps, MINUTE, now).length;
+    }
+  }
+  return total;
+}
+
+// False when this provider account+key has spent its shared per-minute request
+// budget, so the router skips every model on that provider rather than learning
+// the limit again from a 429 on each one in turn.
+export function canUseProviderMinute(platform: string, keyId: number, now = Date.now()): boolean {
+  const cap = getProviderMinuteRequestCap(platform);
+  if (cap === null) return true;
+  return providerMinuteRequestCount(platform, keyId, now) < cap;
 }
 
 type ModelQuotaRow = { tpd_limit: number | null; monthly_token_budget: string | null };
