@@ -16,5 +16,8 @@ server/data/
 deploy-pi.sh
 update-hermes.sh
 
+# Koyeb deploy secrets — never commit
+koyeb.env.example
+
 # Monetization planning — private, never committed
 monetization/
