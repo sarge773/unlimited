@@ -146,6 +146,51 @@ export function resetLeases(): void {
   leases.clear();
 }
 
+// ── Provisional usage ─────────────────────────────────────────────────────────
+// Every gate below adds in-flight leases on top of the recorded counters. This is
+// what closes the check-then-act race: routeRequest is synchronous but usage is
+// only written after the awaited provider call, so N concurrent requests all read
+// the same pre-check and every one of them passes — then they collectively blow
+// through the limit and collect real 429s. Counting leases makes the second
+// caller see the first one's request.
+//
+// A lease is released just after the success write, so for a brief instant a
+// completed request is counted twice. That errs toward under-dispatching by one,
+// which is the safe direction for a free tier, and lasts microseconds.
+
+function provisionalRequests(platform: string, modelId: string, keyId: number, now: number): number {
+  pruneLeases(now);
+  let count = 0;
+  for (const lease of leases.values()) {
+    if (lease.platform === platform && lease.modelId === modelId && lease.keyId === keyId) count++;
+  }
+  return count;
+}
+
+function provisionalTokens(platform: string, modelId: string, keyId: number, now: number): number {
+  pruneLeases(now);
+  let total = 0;
+  for (const lease of leases.values()) {
+    if (lease.platform === platform && lease.modelId === modelId && lease.keyId === keyId) total += lease.tokens;
+  }
+  return total;
+}
+
+/** In-flight requests for a provider account+key across every model — the
+ *  provider-wide analogue, for the account-level gates. */
+function provisionalProviderRequests(platform: string, keyId: number, now: number): number {
+  return inFlightForKey(platform, keyId, now);
+}
+
+function provisionalProviderTokens(platform: string, keyId: number, now: number): number {
+  pruneLeases(now);
+  let total = 0;
+  for (const lease of leases.values()) {
+    if (lease.platform === platform && lease.keyId === keyId) total += lease.tokens;
+  }
+  return total;
+}
+
 function recordUsage(
   platform: string,
   modelId: string,
@@ -250,13 +295,16 @@ export function canMakeRequest(
   limits: { rpm: number | null; rpd: number | null; tpm: number | null; tpd: number | null },
 ): boolean {
   const now = Date.now();
+  // In-flight requests count against both windows: a lease means the request is
+  // happening now, so it belongs to this minute and to today.
+  const inFlight = provisionalRequests(platform, modelId, keyId, now);
 
   if (limits.rpm !== null) {
-    if (requestCount(platform, modelId, keyId, MINUTE, now) >= limits.rpm) return false;
+    if (requestCount(platform, modelId, keyId, MINUTE, now) + inFlight >= limits.rpm) return false;
   }
 
   if (limits.rpd !== null) {
-    if (requestCount(platform, modelId, keyId, DAY, now) >= limits.rpd) return false;
+    if (requestCount(platform, modelId, keyId, DAY, now) + inFlight >= limits.rpd) return false;
   }
 
   return true;
@@ -270,15 +318,17 @@ export function canUseTokens(
   limits: { tpm: number | null; tpd: number | null },
 ): boolean {
   const now = Date.now();
+  // Tokens already promised to in-flight attempts on this model+key.
+  const inFlight = provisionalTokens(platform, modelId, keyId, now);
 
   if (limits.tpm !== null) {
     const used = tokenCount(platform, modelId, keyId, MINUTE, now);
-    if (used + estimatedTokens > limits.tpm) return false;
+    if (used + inFlight + estimatedTokens > limits.tpm) return false;
   }
 
   if (limits.tpd !== null) {
     const used = tokenCount(platform, modelId, keyId, DAY, now);
-    if (used + estimatedTokens > limits.tpd) return false;
+    if (used + inFlight + estimatedTokens > limits.tpd) return false;
   }
 
   return true;
@@ -388,7 +438,8 @@ export function providerDailyRequestCount(platform: string, keyId: number, now =
 export function canUseProvider(platform: string, keyId: number, now = Date.now()): boolean {
   const cap = getProviderDailyRequestCap(platform);
   if (cap === null) return true;
-  return providerDailyRequestCount(platform, keyId, now) < cap;
+  const used = providerDailyRequestCount(platform, keyId, now) + provisionalProviderRequests(platform, keyId, now);
+  return used < cap;
 }
 
 /** Requests in the last minute for a provider account+key, across every model. */
@@ -411,7 +462,8 @@ export function providerMinuteRequestCount(platform: string, keyId: number, now 
 export function canUseProviderMinute(platform: string, keyId: number, now = Date.now()): boolean {
   const cap = getProviderMinuteRequestCap(platform);
   if (cap === null) return true;
-  return providerMinuteRequestCount(platform, keyId, now) < cap;
+  const used = providerMinuteRequestCount(platform, keyId, now) + provisionalProviderRequests(platform, keyId, now);
+  return used < cap;
 }
 
 type ModelQuotaRow = { tpd_limit: number | null; monthly_token_budget: string | null };
@@ -510,7 +562,8 @@ export function canUseProviderTokens(
 ): boolean {
   const cap = getProviderDailyTokenCap(platform);
   if (cap === null) return true;
-  const used = providerDailyTokenCount(platform, keyId, now);
+  const used = providerDailyTokenCount(platform, keyId, now)
+    + providerBilledTokens(platform, modelId, provisionalProviderTokens(platform, keyId, now));
   return used + providerBilledTokens(platform, modelId, estimatedTokens) <= cap;
 }
 
