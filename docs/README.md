@@ -8,6 +8,7 @@ This index points to the focused guides in the repository. The root [README](../
 - [Docker deployment](../docker/README.md) — container configuration and persistent storage.
 - [Desktop app](../desktop/README.md) — build and package the Electron application.
 - [Android with Termux](install/android-termux.md) — experimental local installation using Node's built-in SQLite driver.
+- [Koyeb (free, no credit card)](deploy/koyeb.md) — deploy to Koyeb's free tier with an encrypted Hugging Face Dataset as the persistent backup target, and transfer local provider keys to the remote instance.
 
 ## Configure and operate
 
