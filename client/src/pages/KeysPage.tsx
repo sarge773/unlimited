@@ -13,6 +13,7 @@ import { UnifiedKeySection } from '@/components/keys/unified-key-section'
 import { ProxySettingsSection } from '@/components/keys/proxy-settings-section'
 import { AnthropicSection } from '@/components/keys/anthropic-section'
 import { ProviderList } from '@/components/keys/provider-list'
+import { ProviderChecklistSection } from '@/components/keys/provider-checklist-section'
 import { AddKeyDialog } from '@/components/keys/add-key-dialog'
 import { ExportKeysDialog } from '@/components/keys/export-keys-dialog'
 import { AgentCompatibilitySection } from '@/components/keys/agent-compatibility-section'
@@ -103,7 +104,12 @@ export default function KeysPage() {
           <QuotaSignalsSection states={(healthData?.quotaStates ?? []).slice(0, 24)} />
         )}
 
-        {tab === 'providers' && <ProviderList onAddKey={() => setAddOpen(true)} />}
+        {tab === 'providers' && (
+          <>
+            <ProviderChecklistSection />
+            <ProviderList onAddKey={() => setAddOpen(true)} />
+          </>
+        )}
       </div>
 
       <AddKeyDialog open={addOpen} onOpenChange={setAddOpen} />
