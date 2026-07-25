@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import Database from 'better-sqlite3';
 import { afterEach, describe, expect, it } from 'vitest';
-import { backupDbNow, restoreDbBackupIfNeeded } from '../../lib/db-backup.js';
+import { backupDbNow, restoreDbBackupIfNeeded, parseHuggingFaceTarget } from '../../lib/db-backup.js';
 
 const ORIGINAL_BACKUP_PATH = process.env.FREEAPI_DB_BACKUP_PATH;
 const ORIGINAL_BACKUP_TARGET = process.env.FREEAPI_DB_BACKUP_TARGET;
@@ -50,5 +50,60 @@ describe('encrypted SQLite backup', () => {
     const restored = new Database(dbPath);
     expect((restored.prepare('SELECT name FROM items').get() as { name: string }).name).toBe('survived');
     restored.close();
+  });
+});
+
+describe('parseHuggingFaceTarget', () => {
+  it('parses a dataset /resolve URL into a commit API URL + file path', () => {
+    const out = parseHuggingFaceTarget(
+      'https://huggingface.co/datasets/tayyabimam/freeLLMAPI/resolve/main/freeapi.db.backup',
+    );
+    expect(out).toEqual({
+      commitUrl: 'https://huggingface.co/api/datasets/tayyabimam/freeLLMAPI/commit/main',
+      filePath: 'freeapi.db.backup',
+    });
+  });
+
+  it('parses a legacy model /resolve URL (no /models prefix) into a models commit URL', () => {
+    const out = parseHuggingFaceTarget(
+      'https://huggingface.co/bert/base/resolve/main/config.json',
+    );
+    expect(out).toEqual({
+      commitUrl: 'https://huggingface.co/api/models/bert/base/commit/main',
+      filePath: 'config.json',
+    });
+  });
+
+  it('parses a nested file path under a dataset', () => {
+    const out = parseHuggingFaceTarget(
+      'https://huggingface.co/datasets/acme/data/resolve/main/backups/db.bin',
+    );
+    expect(out).toEqual({
+      commitUrl: 'https://huggingface.co/api/datasets/acme/data/commit/main',
+      filePath: 'backups/db.bin',
+    });
+  });
+
+  it('parses a non-main revision', () => {
+    const out = parseHuggingFaceTarget(
+      'https://huggingface.co/datasets/acme/data/resolve/v1.2/freeapi.db.backup',
+    );
+    expect(out).toEqual({
+      commitUrl: 'https://huggingface.co/api/datasets/acme/data/commit/v1.2',
+      filePath: 'freeapi.db.backup',
+    });
+  });
+
+  it('returns null for a non-HF URL', () => {
+    expect(parseHuggingFaceTarget('https://example.com/datasets/x/y/resolve/main/z')).toBeNull();
+  });
+
+  it('returns null for an HF URL that is not a /resolve path', () => {
+    expect(parseHuggingFaceTarget('https://huggingface.co/api/datasets/x/y')).toBeNull();
+    expect(parseHuggingFaceTarget('https://huggingface.co/datasets/x/y/tree/main')).toBeNull();
+  });
+
+  it('returns null for an invalid URL', () => {
+    expect(parseHuggingFaceTarget('not a url')).toBeNull();
   });
 });
