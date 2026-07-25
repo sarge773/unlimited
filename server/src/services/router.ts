@@ -8,6 +8,9 @@ import {
   canUseProvider,
   canUseProviderMinute,
   canUseProviderTokens,
+  canUseKeyConcurrency,
+  acquireLease,
+  releaseLease,
   getSoonestCooldownExpiry,
 } from './ratelimit.js';
 import {
@@ -146,6 +149,20 @@ export interface RouteResult {
   // exhaustion (escalate the cooldown) from a transient per-minute spike.
   rpdLimit: number | null;
   tpdLimit: number | null;
+  /**
+   * Frees the in-flight lease taken when this route was selected. Idempotent.
+   *
+   * Callers should invoke it once the attempt is finished, however it finished —
+   * the shared fallback loop does so from a `finally` so no exit path can leak.
+   *
+   * Optional, and every call site uses `release?.()`, for a specific reason: the
+   * invocation sits in a `finally`, and a TypeError thrown there would *replace*
+   * the in-flight provider exception with a useless one, turning a diagnosable
+   * 429 into a mystery 500. A route that arrives without it (a test double, a
+   * future construction path) should quietly fall back to the lease ageing out
+   * rather than destroy the error being propagated.
+   */
+  release?: () => void;
 }
 
 // ── Routing token estimate: cap the reserved OUTPUT, not the full max_tokens ──
@@ -712,6 +729,10 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
     // with a NULL rpm_limit would otherwise sail past them and spend a budget its
     // siblings share.
     if (!canUseProviderMinute(entry.platform, key.id)) { note('provider-minute-cap'); continue; }
+    // Skip a key that already has its allowed requests in the air. Without this,
+    // parallel streams all pick the same key and 429 each other on providers that
+    // meter concurrency per credential.
+    if (!canUseKeyConcurrency(entry.platform, key.id)) { note('key-concurrency'); continue; }
     if (!canMakeRequest(entry.platform, entry.model_id, key.id, limits)) { note('rpm/rpd-limit'); continue; }
     if (!canUseTokens(entry.platform, entry.model_id, key.id, estimatedTokens, limits)) { note('tpm/tpd-limit'); continue; }
     if (!canUseProviderTokens(entry.platform, key.id, entry.model_id, estimatedTokens)) { note('provider-daily-token-cap'); continue; }
@@ -732,6 +753,9 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
     if (!resolvedProvider) { note('no-resolved-provider'); continue; }
 
     roundRobinIndex.set(rrKey, idx);
+    // Taken only once the key has cleared every gate and is definitely being
+    // returned, so a rejected candidate never consumes concurrency budget.
+    const leaseId = acquireLease(entry.platform, entry.model_id, key.id, estimatedTokens);
     return {
       provider: resolvedProvider,
       modelId: entry.model_id,
@@ -742,6 +766,7 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
       displayName: entry.display_name,
       rpdLimit: limits.rpd,
       tpdLimit: limits.tpd,
+      release: () => releaseLease(leaseId),
     };
   }
 

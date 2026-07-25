@@ -270,6 +270,11 @@ async function runModelCall(
       }
       // Non-retryable (auth, validation) — this slot/judge is done.
       break;
+    } finally {
+      // Panel slots run concurrently, so a leaked lease here would starve the
+      // rest of the panel of its own keys' concurrency budget. The route object
+      // stays usable as a data carrier after release.
+      route.release?.();
     }
   }
 
@@ -353,6 +358,8 @@ async function runJudgeStreaming(
         continue;
       }
       break;
+    } finally {
+      route.release?.();
     }
   }
   return { ok: false, error: lastError ?? 'no available key for judge' };

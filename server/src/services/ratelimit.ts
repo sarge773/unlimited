@@ -45,6 +45,107 @@ function withDb<T>(fn: (db: RateLimitDb) => T): T | undefined {
   }
 }
 
+// ── In-flight leases ──────────────────────────────────────────────────────────
+// Usage is only recorded *after* an attempt succeeds, so between key selection
+// and that write the router has no idea a request is already in the air. A lease
+// makes that window visible. Today it backs the per-key concurrency cap; it is
+// also the hook for counting provisional usage against the quota gates, which is
+// what closes the check-then-act race under parallel load.
+//
+// Leases live in memory only: they describe requests this process currently has
+// open, so there is nothing meaningful to persist and a restart correctly starts
+// from zero.
+
+interface Lease {
+  platform: string;
+  modelId: string;
+  keyId: number;
+  tokens: number;
+  createdAt: number;
+}
+
+const leases = new Map<number, Lease>();
+let nextLeaseId = 1;
+
+// A lease should always be released explicitly by the fallback loop's finally
+// block. This bound is the backstop for a path that somehow doesn't: without it
+// a single leaked lease would count against a key's concurrency budget forever.
+// Comfortably longer than the per-attempt provider timeout.
+const LEASE_MAX_AGE_MS = 2 * MINUTE;
+
+function pruneLeases(now: number): void {
+  if (leases.size === 0) return;
+  for (const [id, lease] of leases) {
+    if (now - lease.createdAt > LEASE_MAX_AGE_MS) leases.delete(id);
+  }
+}
+
+/**
+ * Concurrent in-flight requests allowed per key, or null for unlimited.
+ *
+ * Some free tiers meter concurrency per credential rather than per minute, so
+ * parallel streams on one key mostly 429 each other. But most do not, and
+ * capping by default would serialise every provider and cost real throughput —
+ * so this is opt-in. There is deliberately no built-in per-platform table: the
+ * providers that behave this way are not documented well enough to assert a
+ * number for them here, and a wrong default is worse than none.
+ *
+ * `MAX_CONCURRENT_REQUESTS_PER_KEY_<PLATFORM>` sets it for one platform;
+ * `MAX_CONCURRENT_REQUESTS_PER_KEY` sets a fallback for all of them.
+ */
+export function getKeyConcurrencyLimit(platform: string): number | null {
+  const raw = process.env[`MAX_CONCURRENT_REQUESTS_PER_KEY_${platform.toUpperCase()}`]
+    ?? process.env.MAX_CONCURRENT_REQUESTS_PER_KEY;
+  if (raw !== undefined && raw.trim() !== '') {
+    const n = Number(raw);
+    if (Number.isInteger(n) && n > 0) return n;
+  }
+  return null;
+}
+
+/** Requests this process currently has in flight against one platform+key. */
+export function inFlightForKey(platform: string, keyId: number, now = Date.now()): number {
+  pruneLeases(now);
+  let count = 0;
+  for (const lease of leases.values()) {
+    if (lease.platform === platform && lease.keyId === keyId) count++;
+  }
+  return count;
+}
+
+/** False when this key already has its allowed number of requests in the air.
+ *  Always true when no cap is configured, which is the default. */
+export function canUseKeyConcurrency(platform: string, keyId: number, now = Date.now()): boolean {
+  const limit = getKeyConcurrencyLimit(platform);
+  if (limit === null) return true;
+  return inFlightForKey(platform, keyId, now) < limit;
+}
+
+/** Take a lease for an attempt about to be dispatched. Returns the id to release. */
+export function acquireLease(
+  platform: string,
+  modelId: string,
+  keyId: number,
+  tokens: number,
+  now = Date.now(),
+): number {
+  pruneLeases(now);
+  const id = nextLeaseId++;
+  leases.set(id, { platform, modelId, keyId, tokens, createdAt: now });
+  return id;
+}
+
+/** Release a lease. Idempotent, so a double release from overlapping cleanup
+ *  paths is harmless. */
+export function releaseLease(leaseId: number): void {
+  leases.delete(leaseId);
+}
+
+/** Test seam: drop all leases. */
+export function resetLeases(): void {
+  leases.clear();
+}
+
 function recordUsage(
   platform: string,
   modelId: string,
