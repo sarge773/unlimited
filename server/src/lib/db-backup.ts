@@ -77,6 +77,70 @@ function decryptBackup(payload: Buffer): Buffer {
   return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
 }
 
+// Hugging Face Dataset/Model repos serve downloads via /resolve/{rev}/{path}
+// (302 → CDN), but uploads must go through the commit API at
+// /api/{type}/{ns}/{repo}/commit/{rev} with a JSON-lines payload of base64
+// file content. A plain PUT to the /resolve URL fails silently (HF returns 404
+// or 405), so the backup never lands and the next cold start has nothing to
+// restore — surfacing as the "create your account" loop on ephemeral hosts.
+// Detect HF /resolve URLs and route the upload through the commit API.
+export function parseHuggingFaceTarget(target: string): { commitUrl: string; filePath: string } | null {
+  let url: URL;
+  try {
+    url = new URL(target);
+  } catch {
+    return null;
+  }
+  if (url.hostname !== 'huggingface.co') return null;
+
+  // /datasets/{ns}/{repo}/resolve/{rev}/{path...}  →  /api/datasets/{ns}/{repo}/commit/{rev}
+  // /{ns}/{repo}/resolve/{rev}/{path...}           →  /api/models/{ns}/{repo}/commit/{rev}  (legacy model path)
+  const parts = url.pathname.split('/').filter(Boolean);
+  let type: 'datasets' | 'models' | null = null;
+  let rest: string[] = [];
+  if (parts[0] === 'datasets' && parts.length >= 5 && parts[3] === 'resolve') {
+    type = 'datasets';
+    rest = parts.slice(1);
+  } else if (parts.length >= 4 && parts[2] === 'resolve') {
+    type = 'models';
+    rest = parts;
+  } else {
+    return null;
+  }
+  const ns = rest[0];
+  const repo = rest[1];
+  const rev = rest[3];
+  const filePath = rest.slice(4).join('/');
+  if (!ns || !repo || !rev || !filePath) return null;
+  const commitUrl = `https://huggingface.co/api/${type}/${ns}/${repo}/commit/${rev}`;
+  return { commitUrl, filePath };
+}
+
+async function uploadToHuggingFace(
+  commitUrl: string,
+  filePath: string,
+  payload: Buffer,
+  token: string,
+): Promise<void> {
+  const body = [
+    { key: 'header', value: { summary: `chore: update ${filePath}` } },
+    { key: 'file', value: { path: filePath, content: payload.toString('base64'), encoding: 'base64' } },
+  ];
+  const res = await fetch(commitUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-ndjson',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: body.map((line) => JSON.stringify(line)).join('\n'),
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`backup upload failed: HF commit HTTP ${res.status}${detail ? ` — ${detail.slice(0, 200)}` : ''}`);
+  }
+}
+
 async function readTarget(target: string): Promise<Buffer | null> {
   if (isHttpTarget(target)) {
     const headers: Record<string, string> = {};
@@ -94,8 +158,14 @@ async function readTarget(target: string): Promise<Buffer | null> {
 
 async function writeTarget(target: string, payload: Buffer): Promise<void> {
   if (isHttpTarget(target)) {
-    const headers: Record<string, string> = { 'Content-Type': 'application/octet-stream' };
     const token = process.env.FREEAPI_DB_BACKUP_TOKEN?.trim();
+    const hf = parseHuggingFaceTarget(target);
+    if (hf) {
+      if (!token) throw new Error('FREEAPI_DB_BACKUP_TOKEN is required for Hugging Face backup uploads');
+      await uploadToHuggingFace(hf.commitUrl, hf.filePath, payload, token);
+      return;
+    }
+    const headers: Record<string, string> = { 'Content-Type': 'application/octet-stream' };
     if (token) headers.Authorization = `Bearer ${token}`;
     const res = await fetch(target, {
       method: 'PUT',
