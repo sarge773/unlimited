@@ -30,6 +30,13 @@ function pruneTimestamps(timestamps: number[], windowMs: number, now: number): n
 const MINUTE = 60 * 1000;
 const DAY = 24 * 60 * MINUTE;
 
+/** Milliseconds elapsed since the most recent midnight UTC. Used as the window
+ *  width for provider-account daily caps, which reset on a day boundary rather
+ *  than sliding. Never exceeds DAY, so it stays inside the usage-table retention. */
+function msSinceUtcMidnight(now: number): number {
+  return now - new Date(now).setUTCHours(0, 0, 0, 0);
+}
+
 function withDb<T>(fn: (db: RateLimitDb) => T): T | undefined {
   try {
     return fn(getDb());
@@ -235,15 +242,20 @@ function countPersistedProviderRequests(
 }
 
 // Total requests today for a provider account+key, summed across every model.
+// "Today" is the window since midnight UTC, not a sliding 24h: real provider
+// account caps (OpenRouter, NVIDIA) reset on a wall-clock day boundary, so a
+// sliding window keeps a provider benched well past its actual reset — a burst
+// at 23:00 UTC would still be counted against the account at 22:00 the next day.
 export function providerDailyRequestCount(platform: string, keyId: number, now = Date.now()): number {
-  const persisted = countPersistedProviderRequests(platform, keyId, DAY, now);
+  const windowMs = msSinceUtcMidnight(now);
+  const persisted = countPersistedProviderRequests(platform, keyId, windowMs, now);
   if (persisted !== undefined) return persisted;
   // DB-unavailable fallback: sum the per-model rpd windows for this platform+key.
   // Window key format is "platform:modelId:keyId:rpd" (modelId may contain ':').
   let total = 0;
   for (const [key, w] of windows) {
     if (key.startsWith(`${platform}:`) && key.endsWith(`:${keyId}:rpd`)) {
-      total += pruneTimestamps(w.timestamps, DAY, now).length;
+      total += pruneTimestamps(w.timestamps, windowMs, now).length;
     }
   }
   return total;
@@ -323,8 +335,10 @@ function sumPersistedProviderTokens(
   });
 }
 
+// Midnight-UTC boundary, for the same reason as providerDailyRequestCount.
 export function providerDailyTokenCount(platform: string, keyId: number, now = Date.now()): number {
-  const persisted = sumPersistedProviderTokens(platform, keyId, DAY, now);
+  const windowMs = msSinceUtcMidnight(now);
+  const persisted = sumPersistedProviderTokens(platform, keyId, windowMs, now);
   if (persisted !== undefined) return persisted;
 
   let total = 0;
@@ -332,8 +346,11 @@ export function providerDailyTokenCount(platform: string, keyId: number, now = D
   for (const [key, w] of windows) {
     if (!key.startsWith(`${platform}:`) || !key.endsWith(suffix)) continue;
     const modelId = key.slice(platform.length + 1, -suffix.length);
-    w.tokenTimestamps = w.tokenTimestamps.filter(t => t.ts > now - DAY);
-    const raw = w.tokenTimestamps.reduce((sum, t) => sum + t.tokens, 0);
+    // Read-only: the tpd window is shared with the per-model 24h token check, so
+    // narrowing it to the midnight boundary here must not prune the stored entries.
+    const raw = w.tokenTimestamps
+      .filter(t => t.ts > now - windowMs)
+      .reduce((sum, t) => sum + t.tokens, 0);
     total += providerBilledTokens(platform, modelId, raw);
   }
   return total;
@@ -586,6 +603,83 @@ export function isOnCooldown(platform: string, modelId: string, keyId: number): 
     return false;
   }
   return true;
+}
+
+export interface ActiveCooldown {
+  platform: string;
+  modelId: string;
+  keyId: number;
+  expiresAtMs: number;
+  remainingMs: number;
+}
+
+/**
+ * Active cooldowns for the given keys, grouped by key id. Batched into one query
+ * so the dashboard can render "why is this key idle?" without N round-trips.
+ * Without this, a key benched by an escalated cooldown (up to 24h) is invisible:
+ * it reads as healthy and enabled while the router silently skips it.
+ */
+export function getActiveCooldownsForKeys(
+  keyIds: number[],
+  now = Date.now(),
+): Map<number, ActiveCooldown[]> {
+  const grouped = new Map<number, ActiveCooldown[]>();
+  if (keyIds.length === 0) return grouped;
+
+  const unique = [...new Set(keyIds.filter(id => Number.isInteger(id)))];
+  if (unique.length === 0) return grouped;
+
+  const placeholders = unique.map(() => '?').join(', ');
+  const rows = withDb(db => db.prepare(`
+    SELECT platform, model_id, key_id, expires_at_ms
+      FROM rate_limit_cooldowns
+     WHERE expires_at_ms > ?
+       AND key_id IN (${placeholders})
+     ORDER BY expires_at_ms ASC
+  `).all(now, ...unique) as { platform: string; model_id: string; key_id: number; expires_at_ms: number }[]) ?? [];
+
+  for (const row of rows) {
+    const list = grouped.get(row.key_id) ?? [];
+    list.push({
+      platform: row.platform,
+      modelId: row.model_id,
+      keyId: row.key_id,
+      expiresAtMs: row.expires_at_ms,
+      remainingMs: Math.max(0, row.expires_at_ms - now),
+    });
+    grouped.set(row.key_id, list);
+  }
+  return grouped;
+}
+
+/**
+ * Drop every cooldown for one key, in memory and on disk, and return how many
+ * were cleared. Escalated cooldowns can bench a key for up to 24h off a single
+ * bad window; an operator who has fixed the cause (raised a quota, waited out a
+ * provider incident) otherwise has no way back except restarting and waiting.
+ */
+export function clearCooldownsForKey(keyId: number): number {
+  if (!Number.isInteger(keyId)) return 0;
+
+  const cleared = withDb(db => {
+    const result = db.prepare('DELETE FROM rate_limit_cooldowns WHERE key_id = ?').run(keyId);
+    return Number(result.changes ?? 0);
+  }) ?? 0;
+
+  // The in-memory map is authoritative when the DB read fails, so purge it too.
+  // Key format is "platform:modelId:keyId:cooldown" and modelId may contain ':',
+  // so match on the trailing segments rather than splitting.
+  const suffix = `:${keyId}:cooldown`;
+  let memoryCleared = 0;
+  for (const key of [...cooldowns.keys()]) {
+    if (key.endsWith(suffix)) {
+      cooldowns.delete(key);
+      cooldownHits.delete(key.slice(0, -':cooldown'.length));
+      memoryCleared++;
+    }
+  }
+
+  return Math.max(cleared, memoryCleared);
 }
 
 /**

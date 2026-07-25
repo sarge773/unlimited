@@ -421,12 +421,12 @@ async function callSpeechProvider(
       // Gemini TTS via generateContent (AUDIO modality) returns base64 PCM
       // (L16, mono, ~24kHz); wrap it in a WAV header so clients can play it.
       const r = await mediaFetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${row.model_id}:generateContent?key=${encodeURIComponent(key ?? '')}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${row.model_id}:generateContent`,
         'google',
         'audio',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key ?? '' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: p.input }] }],
             generationConfig: {

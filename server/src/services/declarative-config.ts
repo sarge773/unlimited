@@ -5,6 +5,7 @@ import { getDb } from '../db/index.js';
 import { encrypt } from '../lib/crypto.js';
 import { resolveProvider } from '../providers/index.js';
 import { setCustomWeights, setRoutingStrategy } from './router.js';
+import { ensureModelInProfiles } from './profile-models.js';
 import {
   clearCatalogModelTombstone,
   isCatalogManagedModel,
@@ -188,6 +189,11 @@ function ensureFallbackRow(db: Db, modelDbId: number, enabled = true, updateExis
   const max = db.prepare('SELECT COALESCE(MAX(priority), 0) AS m FROM fallback_config').get() as { m: number };
   db.prepare('INSERT INTO fallback_config (model_db_id, priority, enabled) VALUES (?, ?, ?)')
     .run(modelDbId, max.m + 1, enabled ? 1 : 0);
+  // A chain row alone is not enough to be routable: when a profile is active the
+  // router reads profile_models, so a declaratively-added model would be present
+  // in the dashboard yet never selected. routes/keys.ts does the same after its
+  // own fallback_config insert.
+  ensureModelInProfiles(db, modelDbId);
 }
 
 function registerCustomProvider(db: Db, input: z.infer<typeof customProviderSchema>): number {

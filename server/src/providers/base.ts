@@ -19,14 +19,23 @@ export interface ProviderHttpError extends Error {
   retryAfterMs?: number;
 }
 
+/** Upper bound on a provider-supplied back-off. A malformed or hostile
+ *  `Retry-After` (e.g. 99999999999) would otherwise bench a key effectively
+ *  forever, since the value feeds the cooldown expiry directly. A day is longer
+ *  than any real free-tier reset window, so clamping cannot mask a genuine hint. */
+const MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
+
 /** Parse an HTTP `Retry-After` header (delta-seconds or an HTTP-date) into a
- *  millisecond delay. Returns undefined when absent or unparseable. */
+ *  millisecond delay, clamped to MAX_RETRY_AFTER_MS. Returns undefined when
+ *  absent or unparseable. */
 export function parseRetryAfterMs(value: string | null | undefined): number | undefined {
   if (!value) return undefined;
   const trimmed = value.trim();
-  if (/^\d+$/.test(trimmed)) return Number(trimmed) * 1000;
+  if (/^\d+$/.test(trimmed)) return Math.min(Number(trimmed) * 1000, MAX_RETRY_AFTER_MS);
   const when = Date.parse(trimmed);
-  if (!Number.isNaN(when)) return Math.max(0, when - Date.now());
+  if (!Number.isNaN(when)) {
+    return Math.min(Math.max(0, when - Date.now()), MAX_RETRY_AFTER_MS);
+  }
   return undefined;
 }
 
