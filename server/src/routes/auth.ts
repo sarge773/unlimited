@@ -87,7 +87,14 @@ authRouter.post('/setup', (req: Request, res: Response) => {
   // claim the dashboard without any code. A remote caller must present the
   // one-time setup code logged at boot, so an exposed fresh install can't be
   // claimed by a stranger who finds it first.
-  if (!isLoopbackRemote(req) && !setupCodeMatches((req.body ?? {}).setupCode)) {
+  //
+  // Operators who can't access the server logs (e.g. a managed PaaS where the
+  // logs scroll past startup quickly) can set FREEAPI_DISABLE_SETUP_CODE=true
+  // to skip the code requirement. WARNING: only safe behind a firewall or
+  // when you can reach the dashboard before anyone else does — disabling the
+  // code means anyone who finds the URL first can claim the admin account.
+  const disableSetupCode = /^(1|true|yes)$/i.test(process.env.FREEAPI_DISABLE_SETUP_CODE ?? '');
+  if (!disableSetupCode && !isLoopbackRemote(req) && !setupCodeMatches((req.body ?? {}).setupCode)) {
     res.status(403).json({
       error: {
         message: 'A setup code is required to create the first account from a remote device. ' +

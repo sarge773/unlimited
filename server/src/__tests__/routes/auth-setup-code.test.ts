@@ -96,4 +96,21 @@ describe('First-run setup code gate (FIX 1)', () => {
     expect(status).toBe(409);
     expect(body.error.type).toBe('setup_complete');
   });
+
+  it('allows remote setup without a code when FREEAPI_DISABLE_SETUP_CODE=true', async () => {
+    process.env.FREEAPI_DISABLE_SETUP_CODE = 'true';
+    try {
+      const { status, body } = await postSetup(appWithRemote('203.0.113.7'), CREDS);
+      expect(status).toBe(201);
+      expect(typeof body.token).toBe('string');
+    } finally {
+      delete process.env.FREEAPI_DISABLE_SETUP_CODE;
+    }
+  });
+
+  it('still rejects remote setup without a code when FREEAPI_DISABLE_SETUP_CODE is unset', async () => {
+    delete process.env.FREEAPI_DISABLE_SETUP_CODE;
+    const { status } = await postSetup(appWithRemote('203.0.113.7'), CREDS);
+    expect(status).toBe(403);
+  });
 });
