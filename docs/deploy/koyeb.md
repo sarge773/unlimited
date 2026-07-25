@@ -41,17 +41,29 @@ and would OOM-kill a build on Koyeb's 512 MB free tier.
 This is where FreeLLMAPI ships its encrypted SQLite snapshot every few minutes
 and pulls it back on every cold start.
 
+> **Use a Dataset, not a Bucket.** Hugging Face recently added "buckets"
+> (`hf://buckets/...`) — a separate Xet-only storage type with a different API.
+> FreeLLMAPI's backup code targets the **Dataset** commit API
+> (`POST /api/datasets/{ns}/{repo}/commit/{rev}`), which is git-versioned and
+> accepts inline base64 file content. Buckets use a different Xet binary
+> protocol and will not work with the backup env vars. When the HF UI offers
+> you a choice, pick **New dataset**, never **New bucket**.
+
 1. Sign in at https://huggingface.co.
-2. Click your avatar (top right) → **New dataset**.
+2. Go to https://huggingface.co/new-dataset (or avatar → **New dataset**).
 3. Fill in:
-   - **Namespace:** your account (default)
+   - **Owner:** your account
    - **Dataset name:** `freellmapi-db` (any name works; remember it for the env vars)
    - **License:** MIT
    - **Visibility:** **Private** (recommended — only your token can read it)
 4. Click **Create dataset**.
 5. Generate a HF access token: avatar → **Settings** → **Access Tokens** → **New token**:
    - **Name:** `freellmapi-backup`
-   - **Type:** `Read and write` (or Fine-grained with write access to the dataset)
+   - **Type:** **Write** (the classic token type — grants read+write on all your repos)
+   - **Do NOT use a fine-grained token.** Fine-grained tokens default to
+     `permissions: []` (no read, no write) and every backup call will 401.
+     If you must use fine-grained, explicitly tick `repo.read` + `repo.write`
+     for your namespace. The classic **Write** token is the safe default.
    - Click **Generate token** and copy the `hf_...` value. You will not be able
      to see it again after leaving the page.
 
@@ -207,16 +219,47 @@ claude
 
 ## How persistence works across restarts
 
-- Every `FREEAPI_DB_BACKUP_INTERVAL_MS` (default 300000 = 5 minutes),
-  FreeLLMAPI uploads an encrypted snapshot of `freeapi.db` to the HF Dataset URL.
-- On any cold start (redeploy, restart, crash), if the local DB file is missing,
-  it downloads the encrypted snapshot from HF, decrypts it with
-  `FREEAPI_DB_BACKUP_KEY`, and runs migrations against it.
-- Worst-case data loss: up to 5 minutes of changes (request logs, key
-  additions) — provider keys and routing settings always survive.
-- The HF Dataset is private and the snapshot is encrypted with a 32-byte key,
-  so even if the URL leaks, the DB is unreadable without
-  `FREEAPI_DB_BACKUP_KEY`.
+FreeLLMAPI's backup pump (`server/src/lib/db-backup.ts`) does all of this
+automatically — the operator only provides four env vars. The flow:
+
+1. **On boot**, before `initDb()`: if the local SQLite file is missing (which
+   it is on every Koyeb cold start, because the disk is ephemeral), the server
+   fetches the encrypted backup blob from `FREEAPI_DB_BACKUP_URL`, decrypts it
+   with `FREEAPI_DB_BACKUP_KEY`, gunzips it, and writes it to the DB path.
+   Migrations then run against the restored DB. If no backup exists yet
+   (first-ever boot), it skips restore and seeds a fresh DB.
+2. **While running**: every `FREEAPI_DB_BACKUP_INTERVAL_MS` (default 5 min),
+   the server checkpoints the SQLite WAL, reads the DB file, gzip-compresss it,
+   AES-256-GCM encrypts it with `FREEAPI_DB_BACKUP_KEY`, and uploads it.
+3. **Upload path for Hugging Face datasets**: the server detects
+   `huggingface.co/datasets/.../resolve/<rev>/<path>` URLs and routes the
+   upload through HF's commit API at
+   `POST /api/datasets/{ns}/{repo}/commit/{rev}` with an `application/x-ndjson`
+   body (one header line + one base64 file line). A plain `fetch PUT` to the
+   `/resolve/` URL would silently fail (HF's `/resolve/` path is read-only —
+   it only serves downloads via 302 → CDN). The commit API is the only
+   supported way to write files to a dataset repo over HTTP.
+4. **Download path**: unchanged — `GET` on the `/resolve/` URL follows HF's
+   302 redirect to the CDN and returns the encrypted bytes.
+
+Worst-case data loss: up to 5 minutes of changes (request logs, key
+additions) — provider keys and routing settings always survive. The HF
+Dataset is private and the snapshot is encrypted with a 32-byte key, so even
+if the URL leaks, the DB is unreadable without `FREEAPI_DB_BACKUP_KEY`.
+
+### The "create your account" loop, and how to avoid it
+
+If the backup upload is silently failing (wrong token, wrong URL, dataset
+missing, bucket-instead-of-dataset), then on every Koyeb restart the SQLite
+file is missing, no backup exists to restore, and the dashboard shows the
+first-run "Create your account" screen again. Each restart mints a new
+unified API key and a new setup code, so the previous one stops working.
+
+If you see this loop, check the Koyeb Logs tab for `[db-backup]` lines:
+- `[db-backup] uploaded N bytes to ...` → working
+- `[db-backup] backup upload failed: HF commit HTTP 404 — {"error":"Repository not found"}` → dataset doesn't exist or URL is wrong
+- `[db-backup] backup upload failed: HTTP 401` → token lacks write permission (use a **Write** classic token, not a fine-grained one with empty permissions)
+- `[db-backup] backup upload failed: HTTP 404` (no HF error body) → the URL is not a HF `/resolve/` path, and the target server returned 404 for the plain PUT
 
 ## Keeping it free
 
@@ -260,3 +303,14 @@ claude
 - If the `ENCRYPTION_KEY` or `FREEAPI_DB_BACKUP_KEY` is leaked, regenerate
   it, update the Koyeb env vars, redeploy, and re-add your provider keys
   (the old encrypted DB is unreadable with the new key).
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Dashboard shows "Create your account" on every restart | Backup upload is failing silently → nothing to restore on cold boot → fresh install every time | Check Logs for `[db-backup]` error lines; see "The create your account loop" above |
+| `[db-backup] backup upload failed: HF commit HTTP 404 — {"error":"Repository not found"}` | Dataset doesn't exist, or URL has a typo in namespace/name | Create the dataset at https://huggingface.co/new-dataset; verify the URL in `FREEAPI_DB_BACKUP_URL` matches exactly |
+| `[db-backup] backup upload failed: HTTP 401` | Token is fine-grained with empty `permissions:[]`, or token is expired/revoked | Regenerate at https://huggingface.co/settings/tokens using type **Write** (classic), not fine-grained; update `FREEAPI_DB_BACKUP_TOKEN` in Koyeb and redeploy |
+| `[db-backup] backup upload failed: HTTP 404` (no HF error body) | URL is not a HF `/resolve/` path, so the code fell back to plain `fetch PUT` and the target returned 404 | Use a `/datasets/.../resolve/main/<file>` URL. Buckets (`hf://buckets/...`) are not supported — use a Dataset |
+| Logs show `[db-backup] uploaded N bytes` but restore still fails | `FREEAPI_DB_BACKUP_KEY` on the new boot doesn't match the key that encrypted the backup | Use the same `FREEAPI_DB_BACKUP_KEY` across redeployments. If you regenerated it, the old backups are unreadable — let a fresh backup overwrite them |
+| Koyeb service builds but OOMs on boot | Using the repo's main `Dockerfile` instead of `koyeb.dockerfile`, which triggers `better-sqlite3` native compilation (~600 MB peak) | Set **Dockerfile path** to `koyeb.dockerfile` in the Koyeb service settings — it pulls the pre-built upstream image and skips compilation |
