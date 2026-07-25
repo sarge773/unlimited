@@ -205,9 +205,11 @@ proxyRouter.get('/models', (req: Request, res: Response) => {
 
   // By default we return the WHOLE catalog (one row per model id), each tagged
   // with whether it is currently usable, so a client can see everything and know
-  // what's connected vs. disabled/keyless (#242). `?available=true` (alias
-  // `?connected=true`) narrows the list to only models that can serve a request
-  // right now — the previous default behavior. `available` is computed as
+  // what's connected vs. disabled/keyless (#242). `?available=true` (aliases
+  // `?connected=true`, `?ready=true`) narrows the list to only models that can
+  // serve a request right now — the previous default behavior. The `ready`
+  // alias is the machine-readable filter a meta-gateway uses (#433) to ask
+  // "which models can this instance actually serve now". `available` is computed as
   // "enabled AND an enabled key can serve it"; dedup prefers an available
   // instance of a model id over a disabled/keyless one.
   // Shared catalog listing (one source of truth for the OpenAI and Anthropic
@@ -218,7 +220,7 @@ proxyRouter.get('/models', (req: Request, res: Response) => {
   // conservative default and truncate long inputs before they reach us (#282).
   const { models: allListed, autoContextWindow } = buildModelListing();
 
-  const q = String(req.query.available ?? req.query.connected ?? '').toLowerCase();
+  const q = String(req.query.available ?? req.query.connected ?? req.query.ready ?? '').toLowerCase();
   const onlyAvailable = q === '1' || q === 'true' || q === 'yes';
   const listed = onlyAvailable ? allListed.filter(m => m.available === 1) : allListed;
 

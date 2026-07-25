@@ -21,6 +21,7 @@ import { cacheRouter } from './routes/cache.js';
 import { authRouter } from './routes/auth.js';
 import { docsRouter } from './routes/docs.js';
 import { mcpRouter } from './routes/mcp.js';
+import { statusRouter, providersRouter } from './routes/status.js';
 import { requireAuth } from './middleware/requireAuth.js';
 import { createProxyRateLimiter } from './middleware/rateLimit.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -102,6 +103,12 @@ export function createApp(config?: Config) {
   // owns those two paths; everything else falls through to the routers below.
   app.use('/v1', docsRouter);
 
+  // Read-only per-upstream status for meta-gateways (GET /v1/providers, #433).
+  // Unified-key auth is enforced inside the handler; mounted before the rate
+  // limiter (like docsRouter) so status polling doesn't draw down a caller's
+  // request budget.
+  app.use('/v1', providersRouter);
+
   // OpenAI-compatible proxy. Per-IP rate limiting (#35 item #6) runs first so
   // it throttles unauthenticated brute-force / flood attempts before any
   // routing work. Tune via PROXY_RATE_LIMIT_RPM; 0 disables it.
@@ -128,6 +135,12 @@ export function createApp(config?: Config) {
   app.get('/api/ping', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
+
+  // Liveness / readiness probes for orchestrators (GET /livez, /readyz, #433).
+  // Unauthenticated so a load balancer can probe them; registered before the
+  // static / SPA-fallback block below so these root paths resolve to JSON
+  // instead of index.html.
+  app.use(statusRouter);
 
   // Error handler (for API routes)
   app.use(errorHandler);
