@@ -4,7 +4,7 @@ import { z } from 'zod';
 import multer from 'multer';
 import path from 'path';
 import { getDb } from '../db/index.js';
-import { resolveProvider } from '../providers/index.js';
+import { resolveProvider, getAllProviders } from '../providers/index.js';
 import { encrypt, decrypt, maskKey } from '../lib/crypto.js';
 import { parseKeysFromFile, stripJsoncComments, stripTrailingCommas } from '../lib/key-parser.js';
 import { assessProviderUrl } from '../lib/url-guard.js';
@@ -144,6 +144,50 @@ function noModelsNotice(platform: string): string | undefined {
     `OpenAI-compatible provider with its base URL.`
   );
 }
+
+// Provider checklist (#543): every registered provider with whether the user
+// has added at least one key yet, so the dashboard can show what's still
+// missing without enumerating the whole list by hand. `custom` is excluded —
+// it's a per-key user-defined placeholder, not a fixed free-tier provider to
+// "check off".
+keysRouter.get('/providers', (_req: Request, res: Response) => {
+  const db = getDb();
+  const countRows = db.prepare(`
+    SELECT
+      platform,
+      COUNT(*) AS total_keys,
+      SUM(CASE WHEN enabled = 1 THEN 1 ELSE 0 END) AS enabled_keys
+    FROM api_keys
+    GROUP BY platform
+  `).all() as Array<{ platform: string; total_keys: number; enabled_keys: number }>;
+  const countsByPlatform = new Map(countRows.map(r => [r.platform, r]));
+
+  const providers = getAllProviders()
+    .filter(p => p.platform !== 'custom')
+    .map(p => {
+      const counts = countsByPlatform.get(p.platform);
+      const keyCount = counts?.total_keys ?? 0;
+      return {
+        platform: p.platform,
+        name: p.name,
+        keyless: p.keyless,
+        configured: keyCount > 0,
+        keyCount,
+        enabledKeyCount: counts?.enabled_keys ?? 0,
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const configured = providers.filter(p => p.configured).length;
+  res.json({
+    providers,
+    summary: {
+      total: providers.length,
+      configured,
+      unconfigured: providers.length - configured,
+    },
+  });
+});
 
 // List all keys (masked)
 keysRouter.get('/', (_req: Request, res: Response) => {
