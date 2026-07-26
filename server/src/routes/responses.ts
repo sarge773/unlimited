@@ -23,7 +23,7 @@ import {
   traceRouteEvent,
   logRequest,
 } from './proxy.js';
-import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, setFallbackHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
+import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, setFallbackHeaders, exhaustionErrorPayload, setExhaustionHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
 import { applyTokenBudget, tokenBudgetMessage } from '../lib/guardrails.js';
 import { samplingParamSchemaFields, pickSamplingParams, type ResponseFormat } from '../lib/sampling-params.js';
 import { enforceJsonContent } from '../lib/structured-output.js';
@@ -809,26 +809,27 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
       res.status(502).json({ error: { message: `Provider error (${route.displayName}): ${sanitizeProviderErrorMessage(err.message)}`, type: 'provider_error' } });
     },
     onRoutingExhausted: (lastError, routeErr, exhaustion, info) => {
-      const status = exhaustion?.status ?? routeErr.status ?? 503;
-      const message = exhaustion?.message ?? routeErr.message;
-      const type = exhaustion?.type ?? 'routing_error';
       if (streamStarted) {
-        sse('response.failed', { response: { id: responseId, object: 'response', status: 'failed', error: { message, type } } });
+        // Headers are already on the wire — the honest status/Retry-After can
+        // only travel in the failed-event payload.
+        sse('response.failed', { response: { id: responseId, object: 'response', status: 'failed', error: exhaustionErrorPayload(exhaustion) } });
         res.end();
       } else {
         setFallbackHeaders(res, info.attempts.length, info.attempts);
-        res.status(status).json({ error: { message, type } });
+        setExhaustionHeaders(res, exhaustion);
+        res.status(exhaustion.status).json({ error: exhaustionErrorPayload(exhaustion) });
       }
     },
     onExhausted: (exhaustion, info) => {
       // The streaming skeleton may already be on the wire — close the SSE stream
       // with a failed event instead of writing JSON onto a committed response.
       if (streamStarted) {
-        sse('response.failed', { response: { id: responseId, object: 'response', status: 'failed', error: { message: exhaustion.message, type: exhaustion.type } } });
+        sse('response.failed', { response: { id: responseId, object: 'response', status: 'failed', error: exhaustionErrorPayload(exhaustion) } });
         res.end();
       } else {
         setFallbackHeaders(res, info.attempts.length, info.attempts);
-        res.status(exhaustion.status).json({ error: { message: exhaustion.message, type: exhaustion.type } });
+        setExhaustionHeaders(res, exhaustion);
+        res.status(exhaustion.status).json({ error: exhaustionErrorPayload(exhaustion) });
       }
     },
   });
