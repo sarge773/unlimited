@@ -19,15 +19,10 @@ import {
 import { apiFetch } from '@/lib/api'
 import { toast } from '@/lib/toast'
 import { apiBaseUrl } from '@/components/api-usage'
+import { COMMAND_PALETTE_EVENT } from '@/components/command-palette-state'
 import { useI18n } from '@/i18n'
 import type { FallbackEntry } from '@/lib/routing'
-
-// Open the palette from anywhere (navbar button); same custom-event idiom as
-// UNAUTHORIZED_EVENT in lib/api.ts.
-export const COMMAND_PALETTE_EVENT = 'freellmapi:command-palette'
-export function openCommandPalette() {
-  window.dispatchEvent(new CustomEvent(COMMAND_PALETTE_EVENT))
-}
+import { useTheme } from '@/theme-context'
 
 interface Command {
   id: string
@@ -43,6 +38,7 @@ interface Command {
 // (arrows + Enter) with proper listbox semantics.
 export function CommandPalette() {
   const { t } = useI18n()
+  const { resolvedDark, setTheme } = useTheme()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -117,9 +113,7 @@ export function CommandPalette() {
         keywords: 'theme dark light mode toggle',
         icon: Moon,
         run: () => {
-          const next = !document.documentElement.classList.contains('dark')
-          document.documentElement.classList.toggle('dark', next)
-          try { localStorage.setItem('theme', next ? 'dark' : 'light') } catch { /* ignore */ }
+          setTheme(resolvedDark ? 'light' : 'dark')
         },
       },
       {
@@ -165,7 +159,7 @@ export function CommandPalette() {
       })
     }
     return [...pages, ...actions, ...models]
-  }, [entries, keyData, navigate, t])
+  }, [entries, keyData, navigate, resolvedDark, setTheme, t])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
