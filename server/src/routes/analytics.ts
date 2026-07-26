@@ -524,7 +524,7 @@ analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
   const db = getDb();
 
   const r = db.prepare(`
-    SELECT id, platform, model_id, requested_model, request_type, status,
+    SELECT id, platform, model_id, requested_model, served_model, request_type, status,
            input_tokens, output_tokens, latency_ms, ttfb_ms, error,
            client_ip, client_user_agent,
            strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso
@@ -548,6 +548,9 @@ analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
     platform: r.platform,
     modelId: r.model_id,
     requestedModel: r.requested_model,
+    // Upstream-reported model when it genuinely differed from the routed
+    // model_id (#534 served-model drift guard); null in the healthy case.
+    servedModel: r.served_model,
     requestType: r.request_type,
     status: r.status,
     inputTokens: r.input_tokens,

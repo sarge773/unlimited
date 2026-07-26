@@ -12,6 +12,7 @@ import * as cooldownProbeProvenance from '../migrations/20260726_000001_cooldown
 import * as requestAttempts from '../migrations/20260726_000002_request_attempts.js';
 import * as modelSourceProvenance from '../migrations/20260726_000003_model_source_provenance.js';
 import * as mediaModelMeta from '../migrations/20260726_000004_media_model_meta.js';
+import * as requestServedModel from '../migrations/20260726_000005_request_served_model.js';
 
 export interface MigrationModule {
   up(db: Db): void;
@@ -36,6 +37,7 @@ export const COOLDOWN_PROBE_PROVENANCE_FILENAME = '20260726_000001_cooldown_prob
 export const REQUEST_ATTEMPTS_FILENAME = '20260726_000002_request_attempts.ts';
 export const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000003_model_source_provenance.ts';
 export const MEDIA_MODEL_META_FILENAME = '20260726_000004_media_model_meta.ts';
+export const REQUEST_SERVED_MODEL_FILENAME = '20260726_000005_request_served_model.ts';
 
 export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: LEGACY_BASELINE_FILENAME, module: legacyBaseline },
@@ -51,4 +53,5 @@ export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: REQUEST_ATTEMPTS_FILENAME, module: requestAttempts },
   { filename: MODEL_SOURCE_PROVENANCE_FILENAME, module: modelSourceProvenance },
   { filename: MEDIA_MODEL_META_FILENAME, module: mediaModelMeta },
+  { filename: REQUEST_SERVED_MODEL_FILENAME, module: requestServedModel },
 ];
