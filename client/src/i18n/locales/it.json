@@ -392,7 +392,20 @@
     "recentCalls": "Chiamate recenti",
     "clientIp": "IP del client",
     "clientAgent": "App client",
-    "requestedModelHint": "Richiesto {model}, servito dal fallback"
+    "requestedModelHint": "Richiesto {model}, servito dal fallback",
+    "attempts": "Tentativi",
+    "filterAll": "Tutte",
+    "providerBreakdown": "Dettaglio per provider",
+    "tokensPerSec": "Tok/s",
+    "allProviders": "Tutti i provider",
+    "requestDetailTitle": "Richiesta #{id}",
+    "failoverLadder": "Scala di failover",
+    "failoverLadderHint": "Ogni passaggio di questa richiesta lungo la catena di fallback, in ordine.",
+    "noAttemptTrace": "Nessuna traccia dei tentativi registrata per questa richiesta.",
+    "keyOrdinal": "chiave #{n}",
+    "attemptTimingHint": "Offset dall'inizio della richiesta · durata del tentativo",
+    "requestedModel": "Modello richiesto",
+    "ttft": "TTFT"
   },
   "playground": {
     "title": "Playground",

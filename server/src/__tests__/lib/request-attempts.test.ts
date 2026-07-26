@@ -54,11 +54,12 @@ interface AttemptRow {
   outcome: string;
   start_offset_ms: number;
   duration_ms: number;
+  error_summary: string | null;
 }
 
 function allAttempts(): AttemptRow[] {
   return getDb().prepare(
-    'SELECT request_id, ordinal, platform, model_id, key_ordinal, outcome, start_offset_ms, duration_ms FROM request_attempts ORDER BY ordinal',
+    'SELECT request_id, ordinal, platform, model_id, key_ordinal, outcome, start_offset_ms, duration_ms, error_summary FROM request_attempts ORDER BY ordinal',
   ).all() as AttemptRow[];
 }
 
@@ -124,6 +125,39 @@ describe('per-attempt routing traces', () => {
       const c = getDb().prepare('SELECT COUNT(*) as c FROM request_attempts WHERE request_id = ?').get(id) as { c: number };
       expect(c.c).toBe(0);
     }
+  });
+
+  it('persists a redacted, capped error_summary per failed attempt and null for the successful one', async () => {
+    const longTail = ' then the provider rambled on'.repeat(20);
+    await runFallbackLoop(hooksSkeleton({
+      route: () => fakeRoute({ platform: 'groq', modelId: 'llama-x' }),
+      dispatch: async (route, attempt) => {
+        if (attempt === 0) {
+          throw Object.assign(
+            new Error(`429 rejected: Bearer sk-secret.token-12345 over quota${longTail}`),
+            { status: 429 },
+          );
+        }
+        logRequest(route.platform, route.modelId, route.keyId, 'success', 10, 5, 42, null);
+        return 'done';
+      },
+      logFailure: (route, err) =>
+        logRequest(route.platform, route.modelId, route.keyId, 'error', 10, 0, 5, err.message),
+    }));
+
+    const rows = allAttempts();
+    expect(rows).toHaveLength(2);
+    expect(rows.map(r => r.outcome)).toEqual(['rate_limited', 'ok']);
+
+    // Failed hop: short, redacted, capped summary — never the raw secret.
+    const summary = rows[0].error_summary;
+    expect(summary).toBeTruthy();
+    expect(summary!).toContain('429');
+    expect(summary!).not.toContain('sk-secret.token-12345');
+    expect(summary!.length).toBeLessThanOrEqual(200);
+
+    // Successful hop: no error, no summary.
+    expect(rows[1].error_summary).toBeNull();
   });
 
   it("persists exactly one 'ok' attempt for a single-attempt success", async () => {

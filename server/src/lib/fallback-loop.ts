@@ -41,7 +41,7 @@ import {
   isProviderDegradedError,
   isContextTooLargeError,
 } from './error-classify.js';
-import { sanitizeProviderErrorMessage } from './error-redaction.js';
+import { sanitizeProviderErrorMessage, summarizeAttemptError } from './error-redaction.js';
 import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js';
 import { getSetting } from '../db/index.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
@@ -818,9 +818,12 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
     // Per-attempt trace record: pushed exactly once per dispatched attempt, on
     // whichever exit the attempt takes. startOffsetMs/durationMs bracket the
     // dispatch (for a successful stream, durationMs runs until the response
-    // finished — that IS the attempt).
+    // finished — that IS the attempt). When the attempt ended on an error, a
+    // short REDACTED summary of it rides along — the outcome class alone loses
+    // the provider's actual words, which is exactly what the dashboard's
+    // drill-down needs to answer "why did this hop fail".
     const attemptStartedAt = Date.now();
-    const traceAttempt = (outcome: AttemptOutcome): void => {
+    const traceAttempt = (outcome: AttemptOutcome, err?: any): void => {
       trace.records.push({
         ordinal: trace.records.length,
         platform: route.platform,
@@ -829,6 +832,7 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
         outcome,
         startOffsetMs: attemptStartedAt - startedAt,
         durationMs: Date.now() - attemptStartedAt,
+        errorSummary: err != null ? summarizeAttemptError(err?.message) : null,
       });
     };
 
@@ -863,7 +867,7 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
         // it immediately instead of 502-ing while healthy routes sit idle.
         recordAuthFailure(route, hooks.state);
         attempts.push({ platform: route.platform, modelId: route.modelId, keyOrdinal: keyOrdinal(route), errorClass: 'auth' });
-        traceAttempt('auth');
+        traceAttempt('auth', err);
         lastError = err;
         if (stopIfBreakerTripped()) return;
         continue;
@@ -872,7 +876,7 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
         recordRetryableFailure(route, err, hooks.state);
         const errorClass = classifyAttemptError(err);
         attempts.push({ platform: route.platform, modelId: route.modelId, keyOrdinal: keyOrdinal(route), errorClass });
-        traceAttempt(errorClass);
+        traceAttempt(errorClass, err);
         lastError = err;
         // skipBench failures (format ignored, hidden-reasoning truncation) are
         // model behavior, not provider health — recordRetryableFailure already
@@ -882,7 +886,7 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
         if (err?.skipBench !== true && stopIfBreakerTripped()) return;
         continue;
       }
-      traceAttempt(classifyAttemptError(err));
+      traceAttempt(classifyAttemptError(err), err);
       hooks.onFatal(route, err, attempt);
       return;
     }
@@ -901,7 +905,7 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
       );
       console.error('[FallbackLoop]', violation.message);
       hooks.logFailure(route, violation, attempt);
-      traceAttempt('error');
+      traceAttempt('error', violation);
       hooks.onFatal(route, violation, attempt);
       return;
     }

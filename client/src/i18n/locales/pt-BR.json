@@ -392,7 +392,20 @@
     "recentCalls": "Chamadas recentes",
     "clientIp": "IP do cliente",
     "clientAgent": "Aplicativo cliente",
-    "requestedModelHint": "Solicitado {model}, servido por fallback"
+    "requestedModelHint": "Solicitado {model}, servido por fallback",
+    "attempts": "Tentativas",
+    "filterAll": "Todas",
+    "providerBreakdown": "Detalhamento por provedor",
+    "tokensPerSec": "Tok/s",
+    "allProviders": "Todos os provedores",
+    "requestDetailTitle": "Requisição #{id}",
+    "failoverLadder": "Escada de failover",
+    "failoverLadderHint": "Cada salto que esta requisição deu pela cadeia de fallback, em ordem.",
+    "noAttemptTrace": "Nenhum rastro de tentativas foi registrado para esta requisição.",
+    "keyOrdinal": "chave #{n}",
+    "attemptTimingHint": "Deslocamento desde o início da requisição · duração da tentativa",
+    "requestedModel": "Modelo solicitado",
+    "ttft": "TTFT"
   },
   "playground": {
     "title": "Playground",

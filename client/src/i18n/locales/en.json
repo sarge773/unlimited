@@ -409,7 +409,20 @@
     "recentCalls": "Recent calls",
     "clientIp": "Client IP",
     "clientAgent": "Client app",
-    "requestedModelHint": "Requested {model}, served by fallback"
+    "requestedModelHint": "Requested {model}, served by fallback",
+    "attempts": "Attempts",
+    "filterAll": "All",
+    "providerBreakdown": "Per-provider breakdown",
+    "tokensPerSec": "Tok/s",
+    "allProviders": "All providers",
+    "requestDetailTitle": "Request #{id}",
+    "failoverLadder": "Failover ladder",
+    "failoverLadderHint": "Each hop this request took through the fallback chain, in order.",
+    "noAttemptTrace": "No attempt trace was recorded for this request.",
+    "keyOrdinal": "key #{n}",
+    "attemptTimingHint": "Start offset from request start · attempt duration",
+    "requestedModel": "Requested model",
+    "ttft": "TTFT"
   },
   "playground": {
     "title": "Playground",

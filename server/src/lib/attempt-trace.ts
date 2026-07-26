@@ -40,6 +40,10 @@ export interface AttemptTraceRecord {
   // Milliseconds this attempt ran (for 'ok' streams: until the response
   // finished, i.e. including streaming time).
   durationMs: number;
+  // Short, REDACTED summary of the error that ended this attempt (see
+  // lib/error-redaction.ts summarizeAttemptError — secrets scrubbed, capped at
+  // 200 chars). Null for successful hops ('ok'/'committed').
+  errorSummary: string | null;
 }
 
 export interface RequestTrace {

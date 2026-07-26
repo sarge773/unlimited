@@ -18,6 +18,7 @@ const REQUEST_ATTEMPTS_FILENAME = '20260726_000002_request_attempts.ts';
 const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000003_model_source_provenance.ts';
 const MEDIA_MODEL_META_FILENAME = '20260726_000004_media_model_meta.ts';
 const REQUEST_SERVED_MODEL_FILENAME = '20260726_000005_request_served_model.ts';
+const ATTEMPT_ERROR_SUMMARY_FILENAME = '20260726_000006_attempt_error_summary.ts';
 
 interface SchemaRow {
   type: string;
@@ -82,6 +83,7 @@ describe('migration round trip', () => {
         MODEL_SOURCE_PROVENANCE_FILENAME,
         MEDIA_MODEL_META_FILENAME,
         REQUEST_SERVED_MODEL_FILENAME,
+        ATTEMPT_ERROR_SUMMARY_FILENAME,
       ]);
     } finally {
       db.close();

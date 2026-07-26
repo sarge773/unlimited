@@ -392,7 +392,20 @@
     "recentCalls": "Appels récents",
     "clientIp": "IP du client",
     "clientAgent": "Application cliente",
-    "requestedModelHint": "{model} demandé, servi par repli"
+    "requestedModelHint": "{model} demandé, servi par repli",
+    "attempts": "Tentatives",
+    "filterAll": "Toutes",
+    "providerBreakdown": "Détail par fournisseur",
+    "tokensPerSec": "Tok/s",
+    "allProviders": "Tous les fournisseurs",
+    "requestDetailTitle": "Requête #{id}",
+    "failoverLadder": "Échelle de failover",
+    "failoverLadderHint": "Chaque étape parcourue par cette requête dans la chaîne de repli, dans l'ordre.",
+    "noAttemptTrace": "Aucune trace de tentative n'a été enregistrée pour cette requête.",
+    "keyOrdinal": "clé #{n}",
+    "attemptTimingHint": "Décalage depuis le début de la requête · durée de la tentative",
+    "requestedModel": "Modèle demandé",
+    "ttft": "TTFT"
   },
   "playground": {
     "title": "Bac à sable",

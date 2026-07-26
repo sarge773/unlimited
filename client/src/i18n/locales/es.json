@@ -392,7 +392,20 @@
     "recentCalls": "Llamadas recientes",
     "clientIp": "IP del cliente",
     "clientAgent": "Aplicación cliente",
-    "requestedModelHint": "Se solicitó {model}, servido por respaldo"
+    "requestedModelHint": "Se solicitó {model}, servido por respaldo",
+    "attempts": "Intentos",
+    "filterAll": "Todas",
+    "providerBreakdown": "Desglose por proveedor",
+    "tokensPerSec": "Tok/s",
+    "allProviders": "Todos los proveedores",
+    "requestDetailTitle": "Solicitud #{id}",
+    "failoverLadder": "Escalera de failover",
+    "failoverLadderHint": "Cada salto que esta solicitud dio por la cadena de respaldo, en orden.",
+    "noAttemptTrace": "No se registró ninguna traza de intentos para esta solicitud.",
+    "keyOrdinal": "clave #{n}",
+    "attemptTimingHint": "Desfase desde el inicio de la solicitud · duración del intento",
+    "requestedModel": "Modelo solicitado",
+    "ttft": "TTFT"
   },
   "playground": {
     "title": "Entorno de pruebas",
