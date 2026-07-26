@@ -30,6 +30,7 @@ import {
 } from '../services/ratelimit.js';
 import {
   isRetryableError,
+  isRateLimitSignal,
   isKeyAuthError,
   isClientAbortError,
   isDailyQuotaExhaustedError,
@@ -142,6 +143,10 @@ export function cooldownDecisionForError(route: RouteResult, err: any): Cooldown
     route.keyId,
     { rpd: route.rpdLimit, tpd: route.tpdLimit },
     err?.retryAfterMs,
+    // Only a real 429/rate-limit error may feed the null-limits exhaustion
+    // heuristic; a timeout or 5xx is retryable but says nothing about quota,
+    // so it stays on the short transient bench instead of the ladder (#592).
+    { quotaSignal: isRateLimitSignal(err) },
   );
 }
 
