@@ -167,6 +167,7 @@ export interface CacheKeyInput {
   logit_bias?: unknown;
   logprobs?: unknown;
   top_logprobs?: unknown;
+  reasoning_effort?: unknown;
 }
 
 function normModel(model: string | undefined): string {
@@ -198,6 +199,9 @@ export function computeCacheKey(input: CacheKeyInput): string {
     logit_bias: input.logit_bias,
     logprobs: input.logprobs,
     top_logprobs: input.top_logprobs,
+    // Absent for requests without the knob (stableStringify drops undefined),
+    // so pre-existing cache keys are unaffected.
+    reasoning_effort: input.reasoning_effort,
   });
   return crypto.createHash('sha256').update(canonical).digest('hex');
 }

@@ -237,6 +237,16 @@ function sanitizeForGeminiSchema(schema: unknown, insidePropertiesMap: boolean):
 // declaration, and can ride alongside real function tools in the same array. (#59)
 const GROUNDING_TOOL_NAMES = new Set(['google_search', 'googlesearch', 'google_search_retrieval']);
 
+// reasoning_effort → Gemini thinkingBudget (tokens). The low/medium/high
+// budgets follow the common gateway convention (OpenRouter's effort mapping);
+// 'none'/'minimal' disable thinking outright. Models that can't run at the
+// requested budget 400 and fail over like any provider-invalid request.
+const EFFORT_THINKING_BUDGET: Record<'low' | 'medium' | 'high', number> = {
+  low: 1024,
+  medium: 8192,
+  high: 24576,
+};
+
 /**
  * Extended generationConfig knobs translated from the OpenAI wire: topK,
  * seed, penalties, and structured output. JSON output conflicts with function
@@ -264,6 +274,17 @@ export function toGeminiExtendedConfig(options?: CompletionOptions): Record<stri
     out.responseMimeType = 'application/json';
     const schema = rf.type === 'json_schema' ? rf.json_schema?.schema : undefined;
     if (schema) out.responseSchema = sanitizeForGemini(schema);
+  }
+  // Request-side reasoning control: reasoning_effort → thinkingConfig. Only
+  // set when the client asked — a request without the knob keeps Gemini's
+  // model-default thinking behavior unchanged. includeThoughts surfaces
+  // thought summaries so reasoning_content flows back out (see
+  // extractReasoningContent).
+  const effort = options?.reasoning_effort;
+  if (effort) {
+    out.thinkingConfig = (effort === 'none' || effort === 'minimal')
+      ? { thinkingBudget: 0 }
+      : { thinkingBudget: EFFORT_THINKING_BUDGET[effort], includeThoughts: true };
   }
   return out;
 }

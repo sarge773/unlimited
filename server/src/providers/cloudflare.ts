@@ -6,6 +6,7 @@ import type {
 import { BaseProvider, providerHttpError, type CompletionOptions, type KeyValidationResult, type KeyValidationFailure } from './base.js';
 import { extendedBodyParams } from '../lib/sampling-params.js';
 import { contentToString } from '../lib/content.js';
+import { extractThinkFromMessage } from '../lib/think-tags.js';
 import { recordQuotaObservationsFromResponse, type QuotaObservationContext } from '../services/provider-quota.js';
 import { providerTimeoutMs } from '../lib/provider-timeout.js';
 
@@ -94,6 +95,12 @@ export class CloudflareProvider extends BaseProvider {
     }
 
     const data = await res.json() as ChatCompletionResponse;
+    // Workers AI hosts DeepSeek-style models that inline their reasoning trace
+    // as a leading `<think>…</think>` block in content; move it to
+    // reasoning_content (no-op for messages without the tag).
+    for (const choice of data.choices ?? []) {
+      if (choice?.message) extractThinkFromMessage(choice.message);
+    }
     data._routed_via = { platform: 'cloudflare', model: modelId };
     return data;
   }

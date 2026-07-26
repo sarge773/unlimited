@@ -8,6 +8,7 @@ import type {
 import { BaseProvider, providerHttpError, type CompletionOptions, type KeyValidationResult } from './base.js';
 import { extendedBodyParams } from '../lib/sampling-params.js';
 import { rescueInlineToolCalls } from '../lib/tool-call-rescue.js';
+import { extractThinkFromMessage } from '../lib/think-tags.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
 import { recordQuotaObservationsFromResponse, type QuotaObservationContext } from '../services/provider-quota.js';
 import { providerTimeoutMs } from '../lib/provider-timeout.js';
@@ -396,6 +397,12 @@ function normalizeChoices(data: ChatCompletionResponse): void {
         .map(seg => (typeof seg === 'string' ? seg : (seg.text ?? '')))
         .join('');
     }
+    // Inline `<think>…</think>` extraction (DeepSeek-style) BEFORE the fold
+    // below: a leading think block moves out of content into
+    // reasoning_content. Runs before the fold so a think-only message (no
+    // answer after the block) still folds back into content and is never
+    // returned as an empty assistant message.
+    extractThinkFromMessage(msg);
     // Fold reasoning into content if content is empty AND there are no
     // tool_calls. With tool_calls present, content=null is the correct OpenAI
     // shape; folding reasoning would confuse clients that branch on content.
