@@ -333,12 +333,12 @@ describe('reapplyCachedCatalog', () => {
 
     // Simulate a restart: re-run the baseline migrations so their
     // INSERT OR IGNORE re-adds the catalog-deleted model. The source-provenance
-    // migration (20260726_000002) must stay recorded as applied — in the real
+    // migration (20260726_000003) must stay recorded as applied — in the real
     // timeline its backfill runs exactly once (every install with an applied
     // catalog cache already has a migrations table), and re-running it here
     // would re-classify the baseline's re-inserted rows against the applied
     // catalog instead of leaving them catalog-owned.
-    getDb().prepare("DELETE FROM migrations WHERE filename NOT LIKE '20260726_000002%'").run();
+    getDb().prepare("DELETE FROM migrations WHERE filename NOT LIKE '20260726_000003%'").run();
     runMigrationsSync(getDb(), 'up');
     expect(
       getDb().prepare('SELECT id FROM models WHERE platform = ? AND model_id = ?').get(victim.platform, victim.modelId),
