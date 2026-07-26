@@ -211,8 +211,8 @@ function registerCustomProvider(db: Db, input: z.infer<typeof customProviderSche
       INSERT INTO models
         (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
          rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window,
-         enabled, supports_vision, supports_tools, key_id)
-      VALUES ('custom', ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, ?, ?, 1, ?, ?, ?)
+         enabled, supports_vision, supports_tools, key_id, source)
+      VALUES ('custom', ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, ?, ?, 1, ?, ?, ?, 'user')
       ON CONFLICT(platform, model_id)
       DO UPDATE SET
         display_name = excluded.display_name,
@@ -260,16 +260,20 @@ function upsertModel(db: Db, input: z.infer<typeof modelSchema>): void {
   const platform = input.platform.trim();
   const modelId = input.modelId.trim();
   clearCatalogModelTombstone(db, 'chat', platform, modelId);
-  const existing = db.prepare('SELECT id, platform, model_id, key_id FROM models WHERE platform = ? AND model_id = ?')
-    .get(platform, modelId) as { id: number; platform: string; model_id: string; key_id: number | null } | undefined;
+  const existing = db.prepare('SELECT id, platform, model_id, key_id, source FROM models WHERE platform = ? AND model_id = ?')
+    .get(platform, modelId) as { id: number; platform: string; model_id: string; key_id: number | null; source: string } | undefined;
 
   if (!existing) {
+    // A declaratively-created model is user-owned: catalog sync must never
+    // update or prune it (see applyCatalog). Patching an EXISTING catalog row
+    // below does NOT flip ownership — the row's existence is still catalog-
+    // managed and the edit is recorded as an override instead.
     db.prepare(`
       INSERT INTO models
         (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
          rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window,
-         enabled, supports_vision, supports_tools)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         enabled, supports_vision, supports_tools, source)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'user')
     `).run(
       platform,
       modelId,

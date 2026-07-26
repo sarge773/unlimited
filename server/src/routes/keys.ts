@@ -540,9 +540,9 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
         INSERT INTO models
           (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
            rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window, enabled, key_id,
-           supports_tools, supports_vision)
+           supports_tools, supports_vision, source)
         VALUES ('custom', @modelId, @displayName, 50, 50, 'Custom', NULL, NULL, NULL, NULL, '', NULL, 1, @keyId,
-           COALESCE(@tools, 1), COALESCE(@vision, 0))
+           COALESCE(@tools, 1), COALESCE(@vision, 0), 'user')
         ON CONFLICT(platform, model_id)
         DO UPDATE SET
           display_name = excluded.display_name,

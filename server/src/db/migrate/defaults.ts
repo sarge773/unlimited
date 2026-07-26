@@ -9,6 +9,7 @@ import * as customModelToolSupport from '../migrations/20260706_000002_custom_mo
 import * as profileChainBackfill from '../migrations/20260714_000001_profile_chain_backfill.js';
 import * as keyHealthError from '../migrations/20260720_000001_key_health_error.js';
 import * as cooldownProbeProvenance from '../migrations/20260726_000001_cooldown_probe_provenance.js';
+import * as modelSourceProvenance from '../migrations/20260726_000002_model_source_provenance.js';
 
 export interface MigrationModule {
   up(db: Db): void;
@@ -30,6 +31,7 @@ export const CUSTOM_MODEL_TOOL_SUPPORT_FILENAME = '20260706_000002_custom_model_
 export const PROFILE_CHAIN_BACKFILL_FILENAME = '20260714_000001_profile_chain_backfill.ts';
 export const KEY_HEALTH_ERROR_FILENAME = '20260720_000001_key_health_error.ts';
 export const COOLDOWN_PROBE_PROVENANCE_FILENAME = '20260726_000001_cooldown_probe_provenance.ts';
+export const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000002_model_source_provenance.ts';
 
 export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: LEGACY_BASELINE_FILENAME, module: legacyBaseline },
@@ -42,4 +44,5 @@ export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: PROFILE_CHAIN_BACKFILL_FILENAME, module: profileChainBackfill },
   { filename: KEY_HEALTH_ERROR_FILENAME, module: keyHealthError },
   { filename: COOLDOWN_PROBE_PROVENANCE_FILENAME, module: cooldownProbeProvenance },
+  { filename: MODEL_SOURCE_PROVENANCE_FILENAME, module: modelSourceProvenance },
 ];
