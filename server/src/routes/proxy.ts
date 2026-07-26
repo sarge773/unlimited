@@ -6,7 +6,8 @@ import type { ChatMessage, ChatToolCall, ModelListRow } from '@freellmapi/shared
 import { routeRequest, resolveRoutingChain, resolveModelGroupCandidates, recordRateLimitHit, recordSuccess, hasEnabledVisionModel, hasEnabledToolsModel, hasOtherUsableKey, routingReserveTokens, type RouteResult, type ResolvedChain, type ChainRow } from '../services/router.js';
 import { recordRequest, recordTokens, setCooldown, getCooldownDurationForLimit, PAYMENT_REQUIRED_COOLDOWN_MS, MODEL_FORBIDDEN_COOLDOWN_MS, learnLimitFromError } from '../services/ratelimit.js';
 import { runEmbeddings, EmbeddingsError } from '../services/embeddings.js';
-import { runImageGeneration, runSpeech, MediaError } from '../services/media.js';
+import { runImageGeneration, runSpeech, runTranscription, MediaError, MAX_TRANSCRIPTION_BYTES } from '../services/media.js';
+import multer from 'multer';
 import { getDb, getUnifiedApiKey } from '../db/index.js';
 import { contentToString, messageHasImage, normalizeOutboundContent, sanitizeResponse } from '../lib/content.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
@@ -501,7 +502,7 @@ const ImageBody = z.object({
 });
 
 function mediaErrorType(status: number): string {
-  if (status === 400) return 'invalid_request_error';
+  if (status === 400 || status === 413) return 'invalid_request_error';
   if (status === 401) return 'authentication_error';
   if (status === 429) return 'rate_limit_error';
   return 'server_error';
@@ -568,6 +569,129 @@ proxyRouter.post('/audio/speech', async (req: Request, res: Response) => {
     const status = err instanceof MediaError ? err.status : 502;
     const httpStatus = status >= 400 && status < 600 ? status : 502;
     res.status(httpStatus).json({ error: { message: `speech error: ${err?.message ?? 'unknown'}`, type: mediaErrorType(status) } });
+  }
+});
+
+// OpenAI-compatible speech-to-text (/v1/audio/transcriptions). Multipart form
+// upload, held in memory only (multer memoryStorage — audio bytes never touch
+// disk), routed through the STT provider chain in services/media.ts (Groq
+// Whisper → Cloudflare Workers AI whisper) with the same key/failover/cooldown
+// machinery as the other media endpoints.
+//
+// response_format: 'json' (default, {"text": ...}), 'text' (plain string),
+// 'verbose_json' (OpenAI verbose shape when the provider returns segments,
+// graceful fallback to the plain json shape otherwise), 'vtt' (only from
+// providers that produce it natively — Cloudflare whisper). 'srt' is not
+// produced natively by any configured provider and is refused with 400
+// unsupported_format rather than synthesized.
+const transcriptionUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_TRANSCRIPTION_BYTES, files: 1 },
+});
+
+const TRANSCRIPTION_FORMATS = new Set(['json', 'text', 'verbose_json', 'srt', 'vtt']);
+
+function transcriptionBadRequest(res: Response, message: string, code?: string): void {
+  res.status(400).json({ error: { message, type: 'invalid_request_error', ...(code ? { code } : {}) } });
+}
+
+proxyRouter.post('/audio/transcriptions', (req: Request, res: Response, next) => {
+  // Auth before the multipart body is parsed: an unauthenticated caller's
+  // upload is never buffered.
+  const token = extractApiToken(req);
+  const unifiedKey = getUnifiedApiKey();
+  if (!token || !timingSafeStringEqual(token, unifiedKey)) {
+    res.status(401).json({ error: { message: 'Invalid API key', type: 'authentication_error' } });
+    return;
+  }
+  transcriptionUpload.single('file')(req, res, (err: unknown) => {
+    if (err) {
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        res.status(413).json({
+          error: {
+            message: `Audio file too large: the maximum upload size is ${MAX_TRANSCRIPTION_BYTES / (1024 * 1024)} MB.`,
+            type: 'invalid_request_error',
+            code: 'file_too_large',
+          },
+        });
+        return;
+      }
+      transcriptionBadRequest(res, 'Malformed multipart/form-data upload.');
+      return;
+    }
+    next();
+  });
+}, async (req: Request, res: Response) => {
+  const file = req.file;
+  if (!file || !file.buffer?.length) {
+    transcriptionBadRequest(res, 'Invalid request: `file` is required (multipart/form-data audio upload).');
+    return;
+  }
+  const model = typeof req.body?.model === 'string' ? req.body.model.trim() : '';
+  if (!model) {
+    transcriptionBadRequest(res, "Invalid request: `model` is required (use 'whisper-1' or 'auto' to let the router decide).");
+    return;
+  }
+  const rawFormat = typeof req.body?.response_format === 'string' ? req.body.response_format.trim() : '';
+  const responseFormat = rawFormat || 'json';
+  if (!TRANSCRIPTION_FORMATS.has(responseFormat)) {
+    transcriptionBadRequest(res, `Invalid response_format '${responseFormat}'. Supported: json, text, verbose_json, vtt.`);
+    return;
+  }
+  if (responseFormat === 'srt') {
+    transcriptionBadRequest(
+      res,
+      "response_format 'srt' is not supported: no configured provider produces srt natively. Use json, text, verbose_json, or vtt.",
+      'unsupported_format',
+    );
+    return;
+  }
+  let temperature: number | undefined;
+  if (req.body?.temperature !== undefined && req.body.temperature !== '') {
+    temperature = Number(req.body.temperature);
+    if (!Number.isFinite(temperature) || temperature < 0 || temperature > 1) {
+      transcriptionBadRequest(res, 'Invalid temperature: must be a number between 0 and 1.');
+      return;
+    }
+  }
+  const language = typeof req.body?.language === 'string' && req.body.language.trim() ? req.body.language.trim() : undefined;
+  const prompt = typeof req.body?.prompt === 'string' && req.body.prompt ? req.body.prompt : undefined;
+
+  try {
+    const result = await runTranscription(model, {
+      file: file.buffer,
+      filename: file.originalname || 'audio',
+      mimeType: file.mimetype,
+      language,
+      prompt,
+      temperature,
+      responseFormat,
+    });
+    res.setHeader('X-Provider', result.platform);
+    res.setHeader('X-Model', result.modelId);
+    if (responseFormat === 'text') {
+      res.type('text/plain').send(result.text);
+      return;
+    }
+    if (responseFormat === 'vtt') {
+      res.type('text/vtt').send(result.vtt ?? '');
+      return;
+    }
+    if (responseFormat === 'verbose_json' && Array.isArray(result.segments) && result.segments.length > 0) {
+      res.json({
+        task: 'transcribe',
+        language: result.language ?? null,
+        duration: result.duration ?? null,
+        text: result.text,
+        segments: result.segments,
+      });
+      return;
+    }
+    res.json({ text: result.text });
+  } catch (err: any) {
+    const status = err instanceof MediaError ? err.status : 502;
+    const httpStatus = status >= 400 && status < 600 ? status : 502;
+    res.status(httpStatus).json({ error: { message: `transcription error: ${err?.message ?? 'unknown'}`, type: mediaErrorType(status) } });
   }
 });
 

@@ -198,6 +198,50 @@ export const openapiSpec = {
         },
       },
     },
+    '/audio/transcriptions': {
+      post: {
+        tags: ['Media'],
+        operationId: 'createTranscription',
+        summary: 'Transcribe audio (speech-to-text)',
+        description:
+          'OpenAI-compatible speech-to-text over free whisper deployments (Groq, Cloudflare Workers AI), ' +
+          'with failover across providers. Multipart upload, held in memory only; maximum file size 25 MB. ' +
+          "response_format 'vtt' is only available from providers that produce it natively; 'srt' is not " +
+          'supported and returns 400 unsupported_format.',
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: { $ref: '#/components/schemas/TranscriptionRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'The transcription in the requested format.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { text: { type: 'string' } },
+                },
+              },
+              'text/plain': { schema: { type: 'string' } },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '413': {
+            description: 'The uploaded audio exceeds the 25 MB limit.',
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/Error' } },
+            },
+          },
+          '429': { $ref: '#/components/responses/RateLimited' },
+          '502': { $ref: '#/components/responses/UpstreamError' },
+        },
+      },
+    },
     '/responses': {
       post: {
         tags: ['Responses'],
@@ -566,6 +610,29 @@ export const openapiSpec = {
               'OpenAI voice names are translated to the selected provider voice. Native Gemini and SiliconFlow names are also accepted; unknown names use the provider default.',
           },
           response_format: { type: 'string', example: 'mp3' },
+        },
+      },
+      TranscriptionRequest: {
+        type: 'object',
+        required: ['file', 'model'],
+        properties: {
+          file: { type: 'string', format: 'binary', description: 'The audio file to transcribe (max 25 MB).' },
+          model: {
+            type: 'string',
+            description: "'whisper-1' or 'auto' lets the router pick; a provider model id (e.g. 'whisper-large-v3-turbo', '@cf/openai/whisper') pins to that deployment.",
+          },
+          language: { type: 'string', description: 'ISO-639-1 hint forwarded to the provider.' },
+          prompt: { type: 'string', description: 'Optional context/spelling hint forwarded to the provider.' },
+          temperature: { type: 'number', minimum: 0, maximum: 1 },
+          response_format: {
+            type: 'string',
+            enum: ['json', 'text', 'verbose_json', 'vtt'],
+            default: 'json',
+            description:
+              "'verbose_json' includes segments when the provider returns them (falls back to the plain json shape otherwise). " +
+              "'vtt' is only served by providers that produce it natively (Cloudflare Workers AI whisper). " +
+              "'srt' is not supported and returns 400 unsupported_format.",
+          },
         },
       },
       ResponseRequest: {
