@@ -15,6 +15,7 @@ import { contentToString } from '../lib/content.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
 import { rescueInlineToolCalls, startsWithDialectMarker, couldBecomeDialectMarker, containsDialectMarker } from '../lib/tool-call-rescue.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
+import { isClientAbortError, newClientAbortError } from '../lib/error-classify.js';
 import { logRequest } from '../lib/request-log.js';
 import { extractApiToken, timingSafeStringEqual, getStickyModel, setStickyModel } from './proxy.js';
 import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, type ExhaustionBody, setFallbackHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
@@ -422,8 +423,21 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
   // inline tool-call dialect rescue that the OpenAI/Responses surfaces carry.
   const state = newFallbackState();
   const attemptLog: AttemptRecord[] = [];
+  // Client-disconnect fan-out: the flag stops the loop before the NEXT
+  // attempt; the AbortController (threaded to the provider as
+  // CompletionOptions.signal) additionally cancels the IN-FLIGHT upstream
+  // fetch and any body/stream read, so tokens stop burning and the in-flight
+  // lease frees immediately. 'close' also fires on normal completion —
+  // writableEnded distinguishes a real disconnect.
   let clientGone = false;
-  res.on('close', () => { if (!res.writableEnded) clientGone = true; });
+  const clientAbort = new AbortController();
+  res.on('close', () => {
+    if (!res.writableEnded) {
+      clientGone = true;
+      clientAbort.abort(newClientAbortError());
+    }
+  });
+  const dispatchOptions = { ...completionOptions, signal: clientAbort.signal };
 
   await runFallbackLoop({
     maxRetries: MAX_RETRIES,
@@ -434,7 +448,7 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
     dispatch: async (route, attempt) => {
       if (stream) {
         try {
-          await streamCompletion(res, route, messages, completionOptions, {
+          await streamCompletion(res, route, messages, dispatchOptions, {
             start, attempt, attemptLog, clientGone: () => clientGone, requestedModel, estimatedInputTokens, tools, pinnedModelId,
             sessionId, pinned: resolved.pinned,
           });
@@ -447,7 +461,7 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
         }
       }
 
-      const result = await route.provider.chatCompletion(route.apiKey, messages, route.modelId, completionOptions);
+      const result = await route.provider.chatCompletion(route.apiKey, messages, route.modelId, dispatchOptions);
       const respMsg = result.choices?.[0]?.message;
       const respText = contentToString(respMsg?.content ?? '');
       let respToolCalls = respMsg?.tool_calls ?? [];
@@ -771,6 +785,12 @@ async function streamCompletion(
     logRequest(route.platform, route.modelId, route.keyId, 'success', ctx.estimatedInputTokens, outputTokens, Date.now() - ctx.start, null, null, ctx.pinnedModelId);
   } catch (err: any) {
     if (err instanceof StreamAlreadyStarted) throw err;
+    // Client abort mid-stream: the pump's own `if (ctx.clientGone()) break`
+    // can lose the race against the fetch-signal rejection, so the abort may
+    // surface here instead. Rethrow — the shared loop's client-abort branch
+    // stops the ladder without benching or an error log row (the socket is
+    // gone; nothing to render).
+    if (isClientAbortError(err)) throw err;
     if (messageStarted) {
       // Real payload already reached the client — finish the SSE response
       // honestly instead of leaving Claude Code hanging, and stop the retry loop.

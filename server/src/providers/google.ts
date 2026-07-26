@@ -11,7 +11,7 @@ import { BaseProvider, providerHttpError, type CompletionOptions, type KeyValida
 import { contentToString } from '../lib/content.js';
 import { proxyFetch } from '../lib/proxy.js';
 import { recordQuotaObservationsFromResponse, type QuotaObservationContext } from '../services/provider-quota.js';
-import { providerTimeoutMs } from '../lib/provider-timeout.js';
+import { providerTimeoutMs, streamStallTimeoutMs } from '../lib/provider-timeout.js';
 
 const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
@@ -573,7 +573,9 @@ export class GoogleProvider extends BaseProvider {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       body: JSON.stringify(body),
-    }, options?.timeoutMs ?? this.timeoutMs);
+      // 'request' bounds: the deadline covers the body read too, so a 200
+      // whose body hangs aborts instead of stalling res.json() forever.
+    }, options?.timeoutMs ?? this.timeoutMs, { signal: options?.signal, timeoutBounds: 'request' });
 
     recordQuotaObservationsFromResponse(res, {
       platform: this.platform,
@@ -653,7 +655,9 @@ export class GoogleProvider extends BaseProvider {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       body: JSON.stringify(body),
-    }, options?.timeoutMs ?? this.timeoutMs);
+      // Default 'headers' bounds: the deadline dies at response headers, and
+      // the client signal + stall watchdog own the stream from there.
+    }, options?.timeoutMs ?? this.timeoutMs, { signal: options?.signal });
 
     recordQuotaObservationsFromResponse(res, {
       platform: this.platform,
@@ -680,9 +684,14 @@ export class GoogleProvider extends BaseProvider {
 
     const seenToolCallKeys = new Set<string>();
 
+    // Same mid-stream inactivity watchdog as readSseStream (#553): this adapter
+    // parses Gemini's own frame format, so it reads the body itself and used to
+    // have no bound at all on a stalled read.
+    const inactivityTimeoutMs = streamStallTimeoutMs();
+
     try {
       while (true) {
-        const { done, value } = await reader.read();
+        const { done, value } = await this.readWithStallTimeout(() => reader.read(), inactivityTimeoutMs);
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
@@ -800,6 +809,7 @@ export class GoogleProvider extends BaseProvider {
       `${API_BASE}/models`,
       { method: 'GET', headers: { 'x-goog-api-key': apiKey } },
       10000,
+      { timeoutBounds: 'request' },
     );
     recordQuotaObservationsFromResponse(res, {
       platform: this.platform,

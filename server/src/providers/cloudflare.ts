@@ -76,7 +76,9 @@ export class CloudflareProvider extends BaseProvider {
         parallel_tool_calls: options?.parallel_tool_calls,
         ...extendedBodyParams(this.platform, options),
       }),
-    }, this.timeoutFor(modelId, options?.timeoutMs));
+      // 'request' bounds: the deadline covers the body read too, so a 200
+      // whose body hangs aborts instead of stalling res.json() forever.
+    }, this.timeoutFor(modelId, options?.timeoutMs), { signal: options?.signal, timeoutBounds: 'request' });
     recordQuotaObservationsFromResponse(res, {
       platform: this.platform,
       keyId: quotaContext?.keyId,
@@ -125,7 +127,9 @@ export class CloudflareProvider extends BaseProvider {
         ...extendedBodyParams(this.platform, options),
         stream: true,
       }),
-    }, this.timeoutFor(modelId, options?.timeoutMs));
+      // Default 'headers' bounds: the deadline dies at response headers, and
+      // the client signal + stall watchdog own the stream from there.
+    }, this.timeoutFor(modelId, options?.timeoutMs), { signal: options?.signal });
     recordQuotaObservationsFromResponse(res, {
       platform: this.platform,
       keyId: quotaContext?.keyId,
@@ -177,6 +181,7 @@ export class CloudflareProvider extends BaseProvider {
       url,
       { method: 'GET', headers: { 'Authorization': `Bearer ${token}` } },
       10000,
+      { timeoutBounds: 'request' },
     );
     recordQuotaObservationsFromResponse(res, {
       platform: this.platform,

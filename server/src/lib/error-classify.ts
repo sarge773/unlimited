@@ -90,6 +90,43 @@ export function isRetryableError(err: any): boolean {
     || msg.includes('unparseable inline tool-call dialect');
 }
 
+// ── Client-caused aborts ─────────────────────────────────────────────────────
+// When the gateway's OWN client hangs up, the proxy surfaces abort the composed
+// fetch signal with this marked error, and undici rejects the in-flight fetch /
+// body read / stream read with the same object (fetch propagates the signal's
+// abort reason). It is deliberately NOT an AbortError and its message contains
+// neither "aborted" nor "timeout": enrichAbort (lib/proxy.ts) must pass it
+// through untouched, and it must never classify as a retryable provider
+// timeout — a vanished client says nothing about provider health, so the
+// fallback loop stops without a cooldown, health penalty, or failure stats.
+export function newClientAbortError(): Error {
+  const err = new Error('client disconnected — upstream request canceled');
+  (err as Error & { clientAbort?: boolean }).clientAbort = true;
+  return err;
+}
+
+/** True when an error is (or wraps) the client-disconnect abort above. The
+ * structured marker is the primary signal; `cause` is checked because some
+ * transports re-wrap the abort reason, and the message substring is the last
+ * resort for errors that were stringified across a boundary. */
+export function isClientAbortError(err: any): boolean {
+  if (err?.clientAbort === true) return true;
+  if (err?.cause && (err.cause as { clientAbort?: boolean }).clientAbort === true) return true;
+  const msg = (err?.message ?? '').toLowerCase();
+  return msg.includes('client disconnected');
+}
+
+/** True for any fetch-abort rejection surfacing out of a body read — the
+ * per-attempt timeout ('request'-bounds deadline in fetchWithTimeout), an
+ * AbortSignal.timeout, or the client disconnect above. Adapters that wrap
+ * res.json() in a diagnostic catch (openai-compat's non-JSON-body split) must
+ * rethrow these instead of classifying them as a malformed provider body. */
+export function isAbortLikeError(err: any): boolean {
+  if (isClientAbortError(err)) return true;
+  const name = (err as { name?: string })?.name;
+  return name === 'AbortError' || name === 'TimeoutError' || /\baborted\b/i.test(err?.message ?? '');
+}
+
 // A 401 / invalid-API-key error from a provider. KEY-fatal, not request-fatal:
 // the same request is fine on the provider's sibling key or on another provider,
 // so the fallback loop rotates past the bad key (and triggers an immediate
