@@ -482,6 +482,42 @@ curl http://localhost:3001/v1/chat/completions \
   }'
 ```
 
+**Routing strategies (`auto:*`)**
+
+Plain `auto` follows your active fallback chain. Add a suffix to steer a single request instead — no dashboard changes needed:
+
+- `auto:smart` — favor the highest-intelligence models
+- `auto:fast` — favor measured speed (throughput and time-to-first-byte)
+- `auto:cheap` — budget-leaning; currently the same blend as `balanced` (everything in the pool is already free)
+- `auto:reliable` — favor recent success rate
+- `auto:balanced` — the default blend (reliability first, speed and intelligence split the rest)
+
+These rank **every enabled model**, ignoring your chain order. Common synonyms resolve too (`auto:fastest`, `auto:speed`, `auto:smartest`, `auto:cheapest`, `auto:budget`, …), and the whole model string is case-insensitive.
+
+```bash
+curl http://localhost:3001/v1/chat/completions \
+  -H "Authorization: Bearer freellmapi-your-unified-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto:fast",
+    "messages": [{"role": "user", "content": "hi"}]
+  }'
+```
+
+`auto:<profile-name>` routes through a named profile's chain instead of the active one, so different tools can use different chains through the same key:
+
+```bash
+curl http://localhost:3001/v1/chat/completions \
+  -H "Authorization: Bearer freellmapi-your-unified-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto:coding",
+    "messages": [{"role": "user", "content": "Write a binary search in Rust."}]
+  }'
+```
+
+An unknown profile name returns a clear `400` rather than silently falling back. Profiles are the named fallback chains from **Model profiles** (see [Features](#features)) — create and switch them from the dashboard; whichever is active is what plain `auto` uses.
+
 **Streaming**
 
 ```python
@@ -867,6 +903,11 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full migration CLI and workflow
 <a href="https://github.com/noobix"><img src="https://images.weserv.nl/?url=github.com/noobix.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@noobix" /></a>
 <a href="https://github.com/nandukmelath"><img src="https://images.weserv.nl/?url=github.com/nandukmelath.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@nandukmelath" /></a>
 <a href="https://github.com/coffcoe"><img src="https://images.weserv.nl/?url=github.com/coffcoe.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@coffcoe" /></a>
+<a href="https://github.com/NirvanaCh7"><img src="https://images.weserv.nl/?url=github.com/NirvanaCh7.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@NirvanaCh7" /></a>
+<a href="https://github.com/Mohamed3nan"><img src="https://images.weserv.nl/?url=github.com/Mohamed3nan.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@Mohamed3nan" /></a>
+<a href="https://github.com/Arman-Espiar"><img src="https://images.weserv.nl/?url=github.com/Arman-Espiar.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@Arman-Espiar" /></a>
+<a href="https://github.com/MetaMysteries8"><img src="https://images.weserv.nl/?url=github.com/MetaMysteries8.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@MetaMysteries8" /></a>
+<a href="https://github.com/lujun880726"><img src="https://images.weserv.nl/?url=github.com/lujun880726.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@lujun880726" /></a>
 
 ## Terms of Service review
 
