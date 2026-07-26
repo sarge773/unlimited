@@ -11,7 +11,7 @@ import {
 } from './ratelimit.js';
 import { logRequest } from '../lib/request-log.js';
 import {
-  isRetryableError, isPaymentRequiredError,
+  isRetryableError, isRateLimitSignal, isPaymentRequiredError,
   isModelNotFoundError, isModelAccessForbiddenError,
 } from '../lib/error-classify.js';
 import { contentToString } from '../lib/content.js';
@@ -265,7 +265,7 @@ async function runModelCall(
           ? { durationMs: PAYMENT_REQUIRED_COOLDOWN_MS, source: 'credit' as const }
           : isModelAccessForbiddenError(err)
           ? { durationMs: MODEL_FORBIDDEN_COOLDOWN_MS, source: 'tier' as const }
-          : getCooldownDecisionForLimit(route.platform, route.modelId, route.keyId, { rpd: route.rpdLimit, tpd: route.tpdLimit }, err.retryAfterMs);
+          : getCooldownDecisionForLimit(route.platform, route.modelId, route.keyId, { rpd: route.rpdLimit, tpd: route.tpdLimit }, err.retryAfterMs, { quotaSignal: isRateLimitSignal(err) });
         setCooldown(route.platform, route.modelId, route.keyId, decision.durationMs, decision.source);
         recordRateLimitHit(route.modelDbId);
         continue;
@@ -355,7 +355,7 @@ async function runJudgeStreaming(
           ? { durationMs: PAYMENT_REQUIRED_COOLDOWN_MS, source: 'credit' as const }
           : isModelAccessForbiddenError(err)
           ? { durationMs: MODEL_FORBIDDEN_COOLDOWN_MS, source: 'tier' as const }
-          : getCooldownDecisionForLimit(route.platform, route.modelId, route.keyId, { rpd: route.rpdLimit, tpd: route.tpdLimit }, err.retryAfterMs);
+          : getCooldownDecisionForLimit(route.platform, route.modelId, route.keyId, { rpd: route.rpdLimit, tpd: route.tpdLimit }, err.retryAfterMs, { quotaSignal: isRateLimitSignal(err) });
         setCooldown(route.platform, route.modelId, route.keyId, decision.durationMs, decision.source);
         recordRateLimitHit(route.modelDbId);
         continue;

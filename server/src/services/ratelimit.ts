@@ -1,6 +1,7 @@
 // Sliding window rate limit tracker with SQLite persistence.
 
 import { getDb } from '../db/index.js';
+import { isLoopbackOrPrivateUrl } from '../lib/url-guard.js';
 
 interface Window {
   timestamps: number[];
@@ -578,6 +579,7 @@ export function recordRequest(platform: string, modelId: string, keyId: number) 
 
   recordUsage(platform, modelId, keyId, 'request', 0, now);
   clearNullLimitHits(platform, modelId, keyId);
+  clearCooldownHits(platform, modelId, keyId);
 }
 
 export function recordTokens(
@@ -621,6 +623,12 @@ export type CooldownSource = 'heuristic' | 'authoritative' | 'credit' | 'tier';
 // the 2-minute cooldown 20 times per request and consuming every fallback slot.
 // In-memory only — state resets on restart, which is fine (a clean restart
 // will re-escalate on the next 429 if the quota is genuinely exhausted).
+// A successful request clears the counter (recordRequest → clearCooldownHits),
+// same reversibility contract as nullLimitHits: a served request proves the
+// quota is NOT exhausted right now, so the next failure starts the ladder over
+// instead of inheriting up-to-24h steps from stale hits. While a daily quota is
+// genuinely spent no successes can occur (the counters/cooldowns gate routing),
+// so the intended escalation-across-the-day behavior is untouched.
 const cooldownHits = new Map<string, number[]>(); // key -> timestamps of recent cooldown set events
 const HOUR = 60 * MINUTE;
 const COOLDOWN_DURATIONS = [
@@ -638,6 +646,10 @@ export function getNextCooldownDuration(platform: string, modelId: string, keyId
   cooldownHits.set(key, hits);
   const idx = Math.min(hits.length - 1, COOLDOWN_DURATIONS.length - 1);
   return COOLDOWN_DURATIONS[idx]!;
+}
+
+function clearCooldownHits(platform: string, modelId: string, keyId: number): void {
+  cooldownHits.delete(`${platform}:${modelId}:${keyId}`);
 }
 
 // Short cooldown for a transient (per-minute) 429 — recovers within ~one window.
@@ -719,14 +731,63 @@ export interface CooldownDecision {
   source: CooldownSource;
 }
 
+// ── Local-endpoint exemption (#592) ──────────────────────────────────────────
+// A key whose base_url points at this machine or the LAN (custom-platform
+// Ollama / llama.cpp / LM Studio) has no provider quota to protect: every
+// cooldown longer than a few seconds just strands what is usually the user's
+// ONLY route to that model, turning a slow local generation (timeout) into an
+// "All models exhausted" 429. Such keys are capped at this short bench and
+// never enter the escalation ladder. Source stays 'heuristic' so the
+// cooldown-probe recovery job may clear even that early.
+export const LOCAL_ENDPOINT_COOLDOWN_MS = 5_000;
+
+// base_url is immutable per key id (routes/keys.ts matches custom rows ON
+// base_url — a new endpoint gets a new row, #212), so the verdict can be
+// cached for the life of the process. Built-in platforms have base_url NULL
+// → non-local. A DB that isn't ready yet is NOT cached, so a later call can
+// still decide properly.
+const keyLocality = new Map<number, boolean>(); // keyId -> is local endpoint
+
+export function isLocalEndpointKey(keyId: number): boolean {
+  const cached = keyLocality.get(keyId);
+  if (cached !== undefined) return cached;
+  const baseUrl = withDb(db => {
+    const row = db.prepare('SELECT base_url FROM api_keys WHERE id = ?')
+      .get(keyId) as { base_url: string | null } | undefined;
+    return row?.base_url ?? '';
+  });
+  if (baseUrl === undefined) return false; // DB not ready — don't cache
+  const local = isLoopbackOrPrivateUrl(baseUrl || null);
+  keyLocality.set(keyId, local);
+  return local;
+}
+
+/** Test hook: the locality verdict is cached per key id for the process
+ *  lifetime (see above); tests that rewrite api_keys rows need a reset. */
+export function resetKeyLocalityCache(): void {
+  keyLocality.clear();
+}
+
+export interface CooldownLimitOptions {
+  /** Whether the triggering failure is an actual provider quota signal (a real
+   *  429 / rate-limit-classified error — see isRateLimitSignal in
+   *  lib/error-classify.ts). Timeouts, 5xx and transport errors are retryable
+   *  but carry no quota information, so they must not feed the null-limits
+   *  exhaustion heuristic below (#592) — they get the short transient bench.
+   *  Defaults to true: legacy callers without error context (fusion's
+   *  empty-completion benches) keep their pre-#592 behavior. */
+  quotaSignal?: boolean;
+}
+
 export function getCooldownDurationForLimit(
   platform: string,
   modelId: string,
   keyId: number,
   limits: { rpd: number | null; tpd: number | null },
   retryAfterMs?: number | null,
+  opts?: CooldownLimitOptions,
 ): number {
-  return getCooldownDecisionForLimit(platform, modelId, keyId, limits, retryAfterMs).durationMs;
+  return getCooldownDecisionForLimit(platform, modelId, keyId, limits, retryAfterMs, opts).durationMs;
 }
 
 /**
@@ -743,7 +804,18 @@ export function getCooldownDecisionForLimit(
   keyId: number,
   limits: { rpd: number | null; tpd: number | null },
   retryAfterMs?: number | null,
+  opts?: CooldownLimitOptions,
 ): CooldownDecision {
+  // Local inference endpoint (loopback/RFC1918 base_url): no quota exists, so
+  // neither the transient 90s bench nor the escalation ladder applies — a
+  // failure there means "busy right now", and a few seconds is all the pool
+  // needs before retrying the user's (usually only) local route. Applies even
+  // to a literal 429 (local servers emit them under concurrent load) and
+  // ignores any Retry-After: both describe momentary busyness, not a quota.
+  if (isLocalEndpointKey(keyId)) {
+    return { durationMs: LOCAL_ENDPOINT_COOLDOWN_MS, source: 'heuristic' };
+  }
+  const quotaSignal = opts?.quotaSignal ?? true;
   const now = Date.now();
   const rpdExhausted =
     limits.rpd !== null && requestCount(platform, modelId, keyId, DAY, now) >= limits.rpd;
@@ -753,9 +825,12 @@ export function getCooldownDecisionForLimit(
   // last hour is treated as effectively daily-exhausted. This unsticks
   // providers that publish no daily cap (ollama, cloudflare, etc.) from the
   // 90s-cooldown-loop without requiring operator-side limit seeding.
+  // Gated on quotaSignal (#592): only a REAL 429/rate-limit error is evidence
+  // of quota exhaustion. Timeouts and 5xx used to feed this counter too, so
+  // two slow generations on a null-limits route escalated 2m→10m→…→24h.
   const unknownLimits = limits.rpd === null && limits.tpd === null;
   let heuristicallyExhausted = false;
-  if (unknownLimits) {
+  if (unknownLimits && quotaSignal) {
     // The current hit is recorded first so the threshold can be reached across
     // consecutive 429s, but only for providers where counters cannot decide.
     recordNullLimitHit(platform, modelId, keyId, now);

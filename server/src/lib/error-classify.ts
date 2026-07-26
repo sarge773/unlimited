@@ -96,6 +96,26 @@ export function isRetryableError(err: any): boolean {
     || msg.includes('unparseable inline tool-call dialect');
 }
 
+// A genuine provider QUOTA signal: a structured 429 or rate-limit/quota wording.
+// Distinct from the much broader isRetryableError: timeouts, 5xx, transport
+// failures and dead-turn classes are retryable but say nothing about quotas.
+// The null-limits exhaustion heuristic in getCooldownDecisionForLimit (services/
+// ratelimit.ts) keys off this: only an actual quota signal may feed its
+// "effectively daily-exhausted" escalation ladder. Before this split, a slow
+// local Ollama route timing out twice classified retryable → recorded as a
+// null-limit "429" → escalated 2m→10m→1h→24h and 429'd every request while the
+// server was merely busy generating (#592).
+// Mirrors the other classifiers: trust the structured status when the adapter
+// attached one (providerHttpError sets err.status everywhere); fall back to
+// message markers only when there is no status.
+export function isRateLimitSignal(err: any): boolean {
+  const status = typeof err?.status === 'number' ? err.status : 0;
+  if (status !== 0) return status === 429;
+  const msg = (err?.message ?? '').toLowerCase();
+  return msg.includes('429') || msg.includes('rate limit') || msg.includes('too many requests')
+    || msg.includes('quota') || msg.includes('resource_exhausted');
+}
+
 // ── Client-caused aborts ─────────────────────────────────────────────────────
 // When the gateway's OWN client hangs up, the proxy surfaces abort the composed
 // fetch signal with this marked error, and undici rejects the in-flight fetch /
