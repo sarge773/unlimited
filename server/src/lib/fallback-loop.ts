@@ -44,6 +44,8 @@ import { sanitizeProviderErrorMessage } from './error-redaction.js';
 import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js';
 import { getSetting } from '../db/index.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
+import { newRequestTrace, runWithRequestTrace, type AttemptOutcome, type RequestTrace } from './attempt-trace.js';
+import { persistRequestAttempts } from './request-log.js';
 
 // Every surface caps failover hops at the same number.
 export const FALLBACK_MAX_RETRIES = 20;
@@ -720,6 +722,24 @@ export interface FallbackHooks {
  * routing — lives in the hooks.
  */
 export async function runFallbackLoop(hooks: FallbackHooks): Promise<void> {
+  // Durable per-attempt trace (P2 #15): every dispatched attempt — including
+  // the successful final one — is recorded with timing and outcome, then
+  // persisted as one insert batch into `request_attempts`, keyed to the
+  // terminal `requests` row of this ladder. The trace rides AsyncLocalStorage
+  // so logRequest() (called deep inside the surfaces' dispatch closures) can
+  // report back the row ids it writes without any surface changing. The flush
+  // runs after the loop returns — i.e. after the response is finished — so it
+  // never sits on the client's latency path, and it is a no-op when no
+  // `requests` row was written (pure client aborts).
+  const trace = newRequestTrace();
+  try {
+    await runWithRequestTrace(trace, () => runFallbackLoopAttempts(hooks, trace));
+  } finally {
+    persistRequestAttempts(trace);
+  }
+}
+
+async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace): Promise<void> {
   const maxRetries = hooks.maxRetries ?? FALLBACK_MAX_RETRIES;
   const budgetMs = hooks.timeBudgetMs ?? getFallbackTimeBudgetMs();
   const startedAt = Date.now();
@@ -790,6 +810,23 @@ export async function runFallbackLoop(hooks: FallbackHooks): Promise<void> {
       return;
     }
 
+    // Per-attempt trace record: pushed exactly once per dispatched attempt, on
+    // whichever exit the attempt takes. startOffsetMs/durationMs bracket the
+    // dispatch (for a successful stream, durationMs runs until the response
+    // finished — that IS the attempt).
+    const attemptStartedAt = Date.now();
+    const traceAttempt = (outcome: AttemptOutcome): void => {
+      trace.records.push({
+        ordinal: trace.records.length,
+        platform: route.platform,
+        modelId: route.modelId,
+        keyOrdinal: keyOrdinal(route),
+        outcome,
+        startOffsetMs: attemptStartedAt - startedAt,
+        durationMs: Date.now() - attemptStartedAt,
+      });
+    };
+
     // Everything from here to the end of the iteration runs inside a finally that
     // frees the route's in-flight lease. Every exit — success, auth rotation,
     // retryable continue, fatal, breaker trip, contract violation — passes through
@@ -809,6 +846,10 @@ export async function runFallbackLoop(hooks: FallbackHooks): Promise<void> {
       // below still frees the in-flight lease.
       if (isClientAbortError(err)) {
         console.log(`[FallbackLoop] client disconnected mid-attempt on ${route.platform}/${route.modelId} — upstream canceled, stopping without benching`);
+        // Trace only: persisted iff an earlier failure already wrote a
+        // `requests` row (the requests table records nothing for a pure abort,
+        // and the trace stays consistent with that).
+        traceAttempt('client_abort');
         return;
       }
       hooks.logFailure(route, err, attempt);
@@ -817,13 +858,16 @@ export async function runFallbackLoop(hooks: FallbackHooks): Promise<void> {
         // it immediately instead of 502-ing while healthy routes sit idle.
         recordAuthFailure(route, hooks.state);
         attempts.push({ platform: route.platform, modelId: route.modelId, keyOrdinal: keyOrdinal(route), errorClass: 'auth' });
+        traceAttempt('auth');
         lastError = err;
         if (stopIfBreakerTripped()) return;
         continue;
       }
       if (isRetryableError(err)) {
         recordRetryableFailure(route, err, hooks.state);
-        attempts.push({ platform: route.platform, modelId: route.modelId, keyOrdinal: keyOrdinal(route), errorClass: classifyAttemptError(err) });
+        const errorClass = classifyAttemptError(err);
+        attempts.push({ platform: route.platform, modelId: route.modelId, keyOrdinal: keyOrdinal(route), errorClass });
+        traceAttempt(errorClass);
         lastError = err;
         // skipBench failures (format ignored, hidden-reasoning truncation) are
         // model behavior, not provider health — recordRetryableFailure already
@@ -833,6 +877,7 @@ export async function runFallbackLoop(hooks: FallbackHooks): Promise<void> {
         if (err?.skipBench !== true && stopIfBreakerTripped()) return;
         continue;
       }
+      traceAttempt(classifyAttemptError(err));
       hooks.onFatal(route, err, attempt);
       return;
     }
@@ -851,8 +896,14 @@ export async function runFallbackLoop(hooks: FallbackHooks): Promise<void> {
       );
       console.error('[FallbackLoop]', violation.message);
       hooks.logFailure(route, violation, attempt);
+      traceAttempt('error');
       hooks.onFatal(route, violation, attempt);
+      return;
     }
+    // Terminal attempt: 'done' produced the response; 'committed' means the
+    // stream had already flushed bytes when the attempt ended (mid-stream
+    // error or pre-commit disconnect) — the parent row carries the specifics.
+    traceAttempt(outcome === 'done' ? 'ok' : 'committed');
     return;
     } finally {
       route.release?.();
