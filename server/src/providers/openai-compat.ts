@@ -342,7 +342,10 @@ export class OpenAICompatProvider extends BaseProvider {
       throw providerHttpError(res, `${this.name} API error ${res.status}: ${this.upstreamErrorText(err, res)}`);
     }
 
-    yield* this.readSseStream(res);
+    // First-byte grace (#584): the same chat timeout that bounded the headers
+    // also budgets the first stream read — NIM-style providers send SSE
+    // headers instantly, then prefill long prompts for minutes.
+    yield* this.readSseStream(res, { firstByteTimeoutMs: options?.timeoutMs ?? this.timeoutMs });
   }
 
   async validateKey(apiKey: string, quotaContext?: QuotaObservationContext): Promise<KeyValidationResult> {

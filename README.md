@@ -908,6 +908,9 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full migration CLI and workflow
 <a href="https://github.com/Arman-Espiar"><img src="https://images.weserv.nl/?url=github.com/Arman-Espiar.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@Arman-Espiar" /></a>
 <a href="https://github.com/MetaMysteries8"><img src="https://images.weserv.nl/?url=github.com/MetaMysteries8.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@MetaMysteries8" /></a>
 <a href="https://github.com/lujun880726"><img src="https://images.weserv.nl/?url=github.com/lujun880726.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@lujun880726" /></a>
+<a href="https://github.com/qq97693453"><img src="https://images.weserv.nl/?url=github.com/qq97693453.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@qq97693453" /></a>
+<a href="https://github.com/emv33"><img src="https://images.weserv.nl/?url=github.com/emv33.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@emv33" /></a>
+<a href="https://github.com/ousamabenyounes"><img src="https://images.weserv.nl/?url=github.com/ousamabenyounes.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@ousamabenyounes" /></a>
 
 ## Terms of Service review
 

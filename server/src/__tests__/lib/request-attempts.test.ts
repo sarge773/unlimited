@@ -180,8 +180,12 @@ describe('per-attempt routing traces', () => {
       model_id: 'solo-model',
       key_ordinal: 1,
       outcome: 'ok',
-      start_offset_ms: 0,
     });
+    // Wall-clock delta between trace start and first dispatch: 0 on a fast
+    // machine, a few ms on a loaded CI runner — assert small, not exactly 0
+    // (flaked on the Node 22 CI job).
+    expect(rows[0].start_offset_ms).toBeGreaterThanOrEqual(0);
+    expect(rows[0].start_offset_ms).toBeLessThan(1000);
     expect(rows[0].duration_ms).toBeGreaterThanOrEqual(0);
   });
 

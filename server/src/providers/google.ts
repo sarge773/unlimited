@@ -114,12 +114,6 @@ function isGemmaModel(modelId: string): boolean {
   return /(?:^|[/.:])gemma[-_]/.test(normalized);
 }
 
-function optionsForModel(modelId: string, options?: CompletionOptions): CompletionOptions | undefined {
-  if (!isGemmaModel(modelId) || !options) return options;
-  const { tools: _tools, tool_choice: _toolChoice, parallel_tool_calls: _parallelToolCalls, ...rest } = options;
-  return rest;
-}
-
 function systemInstructionText(systemInstruction: { parts?: Array<{ text?: string }> } | undefined): string | null {
   const text = systemInstruction?.parts
     ?.map(part => part.text ?? '')
@@ -128,6 +122,13 @@ function systemInstructionText(systemInstruction: { parts?: Array<{ text?: strin
   return text ? text : null;
 }
 
+// Gemma models on the Gemini API historically 400 with "Developer instruction
+// is not enabled", so system prompts fold into the first user turn instead of
+// riding systemInstruction (#500). Older Gemma 3.x still rejects system
+// instructions and users can register those ids, so the fold stays. Tools and
+// functionCall/functionResponse history are deliberately NOT touched here
+// anymore: Gemma 4 supports native function calling, and stripping them made
+// the dashboard supports_tools toggle a no-op (#582).
 function contentsForModel(
   modelId: string,
   contents: GeminiContent[],
@@ -135,24 +136,13 @@ function contentsForModel(
 ): { contents: GeminiContent[]; systemInstruction?: { parts: Array<{ text: string }> } } {
   if (!isGemmaModel(modelId)) return { contents, systemInstruction };
 
-  const cleaned = contents
-    .map((entry): GeminiContent | null => {
-      const parts = entry.parts.filter(part => !part.functionCall && !part.functionResponse);
-      if (parts.length === 0) return null;
-      return { ...entry, parts };
-    })
-    .filter((entry): entry is GeminiContent => entry !== null);
-  const safeContents = cleaned.length > 0
-    ? cleaned
-    : [{ role: 'user' as const, parts: [{ text: '' }] }];
-
   const systemText = systemInstructionText(systemInstruction);
-  if (!systemText) return { contents: safeContents };
+  if (!systemText) return { contents };
 
   return {
     contents: [
       { role: 'user', parts: [{ text: systemText }] },
-      ...safeContents,
+      ...contents,
     ],
   };
 }
@@ -570,22 +560,21 @@ export class GoogleProvider extends BaseProvider {
   ): Promise<ChatCompletionResponse> {
     const translated = await toGeminiContents(messages);
     const request = contentsForModel(modelId, translated.contents, translated.systemInstruction);
-    const modelOptions = optionsForModel(modelId, options);
 
-    const tools = toGeminiTools(modelOptions?.tools);
+    const tools = toGeminiTools(options?.tools);
     const body: Record<string, unknown> = {
       contents: request.contents,
       generationConfig: {
-        temperature: modelOptions?.temperature,
-        maxOutputTokens: modelOptions?.max_tokens,
-        topP: modelOptions?.top_p,
-        stopSequences: toGeminiStopSequences(modelOptions?.stop),
-        ...toGeminiExtendedConfig(modelOptions),
+        temperature: options?.temperature,
+        maxOutputTokens: options?.max_tokens,
+        topP: options?.top_p,
+        stopSequences: toGeminiStopSequences(options?.stop),
+        ...toGeminiExtendedConfig(options),
       },
       tools,
       // functionCallingConfig is only valid when real function tools are present;
       // a grounding-only request (just google_search) must omit it. (#59)
-      toolConfig: hasFunctionDeclarations(tools) ? toGeminiToolConfig(modelOptions?.tool_choice) : undefined,
+      toolConfig: hasFunctionDeclarations(tools) ? toGeminiToolConfig(options?.tool_choice) : undefined,
     };
     if (request.systemInstruction) body.systemInstruction = request.systemInstruction;
 
@@ -654,20 +643,19 @@ export class GoogleProvider extends BaseProvider {
   ): AsyncGenerator<ChatCompletionChunk> {
     const translated = await toGeminiContents(messages);
     const request = contentsForModel(modelId, translated.contents, translated.systemInstruction);
-    const modelOptions = optionsForModel(modelId, options);
 
-    const tools = toGeminiTools(modelOptions?.tools);
+    const tools = toGeminiTools(options?.tools);
     const body: Record<string, unknown> = {
       contents: request.contents,
       generationConfig: {
-        temperature: modelOptions?.temperature,
-        maxOutputTokens: modelOptions?.max_tokens,
-        topP: modelOptions?.top_p,
-        stopSequences: toGeminiStopSequences(modelOptions?.stop),
-        ...toGeminiExtendedConfig(modelOptions),
+        temperature: options?.temperature,
+        maxOutputTokens: options?.max_tokens,
+        topP: options?.top_p,
+        stopSequences: toGeminiStopSequences(options?.stop),
+        ...toGeminiExtendedConfig(options),
       },
       tools,
-      toolConfig: hasFunctionDeclarations(tools) ? toGeminiToolConfig(modelOptions?.tool_choice) : undefined,
+      toolConfig: hasFunctionDeclarations(tools) ? toGeminiToolConfig(options?.tool_choice) : undefined,
     };
     if (request.systemInstruction) body.systemInstruction = request.systemInstruction;
 
@@ -707,12 +695,19 @@ export class GoogleProvider extends BaseProvider {
 
     // Same mid-stream inactivity watchdog as readSseStream (#553): this adapter
     // parses Gemini's own frame format, so it reads the body itself and used to
-    // have no bound at all on a stalled read.
-    const inactivityTimeoutMs = streamStallTimeoutMs();
+    // have no bound at all on a stalled read. Same first-byte grace as
+    // readSseStream too (#584): the chat timeout that bounded the headers also
+    // budgets the first read, floored at the stall budget.
+    const inactivityTimeoutMs = streamStallTimeoutMs(this.platform);
+    const firstByteMs = this.firstByteBudgetMs(options?.timeoutMs ?? this.timeoutMs, inactivityTimeoutMs);
+    let awaitingFirstByte = true;
 
     try {
       while (true) {
-        const { done, value } = await this.readWithStallTimeout(() => reader.read(), inactivityTimeoutMs);
+        const { done, value } = awaitingFirstByte
+          ? await this.readWithStallTimeout(() => reader.read(), firstByteMs, this.firstByteTimeoutMessage(firstByteMs))
+          : await this.readWithStallTimeout(() => reader.read(), inactivityTimeoutMs);
+        awaitingFirstByte = false;
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });

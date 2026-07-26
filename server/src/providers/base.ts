@@ -94,6 +94,18 @@ export interface ProviderFetchOptions {
   timeoutBounds?: 'headers' | 'request';
 }
 
+/** Per-stream timeout wiring for readSseStream (#584). */
+export interface SseStreamOptions {
+  /** The chat timeout the adapter gave fetchWithTimeout for this request
+   * (options.timeoutMs override included). Becomes the first-byte grace
+   * budget, floored at the stall budget — see firstByteBudgetMs. Defaults to
+   * fetchWithTimeout's own default, providerTimeoutMs(platform, 15000). */
+  firstByteTimeoutMs?: number;
+  /** Mid-stream inactivity budget; defaults to streamStallTimeoutMs(platform)
+   * (per-platform env > global env > 90s). 0 disables the watchdog. */
+  stallTimeoutMs?: number;
+}
+
 export interface KeyValidationFailure {
   valid: false;
   /** Provider-supplied reason suitable for health logs and the local keys UI. */
@@ -219,14 +231,17 @@ export abstract class BaseProvider {
    * One reader.read() bounded by the mid-stream inactivity watchdog (#553).
    * Shared by readSseStream and adapters that parse their own wire format
    * (google.ts) so every stream gets the same stall semantics:
-   * PROVIDER_STREAM_STALL_TIMEOUT_MS, default 90s, 0 disables. Client-abort
-   * rejections pass through untouched — undici errors the body with the
-   * request signal's reason, so a disconnect surfaces here as the marked
-   * error from newClientAbortError, not as a stall.
+   * PROVIDER_STREAM_STALL_TIMEOUT_MS (per-platform override
+   * PROVIDER_STREAM_STALL_TIMEOUT_<PLATFORM>, #584), default 90s, 0 disables.
+   * Client-abort rejections pass through untouched — undici errors the body
+   * with the request signal's reason, so a disconnect surfaces here as the
+   * marked error from newClientAbortError, not as a stall. `timeoutMessage`
+   * lets the first-byte read report its distinct wording (#584).
    */
   protected async readWithStallTimeout<T>(
     read: () => Promise<T>,
     inactivityTimeoutMs: number,
+    timeoutMessage?: string,
   ): Promise<T> {
     if (inactivityTimeoutMs <= 0) return read();
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -234,11 +249,34 @@ export abstract class BaseProvider {
       read(),
       new Promise<never>((_, reject) => {
         timer = setTimeout(
-          () => reject(new Error(`${this.name} stream stalled: no data for ${inactivityTimeoutMs}ms (timeout)`)),
+          () => reject(new Error(timeoutMessage ?? `${this.name} stream stalled: no data for ${inactivityTimeoutMs}ms (timeout)`)),
           inactivityTimeoutMs,
         );
       }),
     ]).finally(() => clearTimeout(timer));
+  }
+
+  /**
+   * Budget for the FIRST read of a streaming body (issue #584): the platform's
+   * chat timeout is already "how slow may the first token be" — tuned per
+   * platform at registration and env-overridable via PROVIDER_TIMEOUT_<PLATFORM>
+   * — but on streams it is disarmed the moment response HEADERS arrive, and
+   * providers like NVIDIA NIM send SSE headers instantly then prefill for
+   * minutes. Floored at the stall budget so a platform with a short chat
+   * timeout never gets a STRICTER first read than the pre-#584 watchdog gave
+   * it. 0 on either side (env-disabled chat timeout, or disabled watchdog)
+   * means the first read is unbounded — the client signal still owns
+   * "nobody is listening".
+   */
+  protected firstByteBudgetMs(chatTimeoutMs: number, stallTimeoutMs: number): number {
+    if (chatTimeoutMs <= 0 || stallTimeoutMs <= 0) return 0;
+    return Math.max(chatTimeoutMs, stallTimeoutMs);
+  }
+
+  /** Distinct wording for a first-byte timeout (vs a mid-stream stall) so the
+   * attempt-trace error_summary tells slow prefill apart from a dead stream. */
+  protected firstByteTimeoutMessage(budgetMs: number): string {
+    return `${this.name} stream: no first byte within ${budgetMs}ms (first-byte timeout)`;
   }
 
   /**
@@ -247,7 +285,10 @@ export abstract class BaseProvider {
    * Hardened against the upstream failure modes observed live:
    *  - Inactivity timeout: fetchWithTimeout's abort timer dies the moment
    *    response HEADERS arrive, so a provider that stalls mid-body used to
-   *    hang the client forever. Each read now has its own deadline.
+   *    hang the client forever. Each read now has its own deadline. The FIRST
+   *    read gets a grace budget derived from the platform's chat timeout
+   *    (#584) — SSE headers can arrive instantly while the model prefills a
+   *    long prompt for minutes, which is slow, not stalled.
    *  - Abrupt EOF: a stream that ends without `[DONE]` AND without any
    *    `finish_reason` is a truncated generation, not a completion. It used
    *    to end the generator silently (truncation logged as success); it now
@@ -265,30 +306,43 @@ export abstract class BaseProvider {
    */
   protected async *readSseStream(
     res: Response,
-    inactivityTimeoutMs?: number,
+    opts?: SseStreamOptions,
   ): AsyncGenerator<ChatCompletionChunk> {
-    yield* extractThinkTagsFromStream(this.readSseFrames(res, inactivityTimeoutMs));
+    yield* extractThinkTagsFromStream(this.readSseFrames(res, opts));
   }
 
   private async *readSseFrames(
     res: Response,
-    // The 90s default was hardcoded and silently truncated slow streams — the
-    // gateway ended them with an error frame plus a clean [DONE] that OpenAI
-    // SDK clients swallow, so responses "just stopped" (issue #553). Operators
-    // proxying slow free tiers can now raise it (or 0 to disable) via
-    // PROVIDER_STREAM_STALL_TIMEOUT_MS.
-    inactivityTimeoutMs = streamStallTimeoutMs(),
+    opts?: SseStreamOptions,
   ): AsyncGenerator<ChatCompletionChunk> {
     const reader = res.body?.getReader();
     if (!reader) throw new Error('No response body');
 
+    // The 90s default was hardcoded and silently truncated slow streams — the
+    // gateway ended them with an error frame plus a clean [DONE] that OpenAI
+    // SDK clients swallow, so responses "just stopped" (issue #553). Operators
+    // proxying slow free tiers can raise it (or 0 to disable) via
+    // PROVIDER_STREAM_STALL_TIMEOUT_MS, or per platform via
+    // PROVIDER_STREAM_STALL_TIMEOUT_<PLATFORM> (#584).
+    const inactivityTimeoutMs = opts?.stallTimeoutMs ?? streamStallTimeoutMs(this.platform);
+    // First-byte grace (#584): adapters pass the same chat timeout they gave
+    // fetchWithTimeout; the fallback mirrors fetchWithTimeout's own default so
+    // adapters that never tuned either stay on max(15s-or-env, stall) — i.e.
+    // exactly the stall budget they had before.
+    const chatTimeoutMs = opts?.firstByteTimeoutMs ?? providerTimeoutMs(this.platform, 15000);
+    const firstByteMs = this.firstByteBudgetMs(chatTimeoutMs, inactivityTimeoutMs);
+
     const decoder = new TextDecoder();
     let buffer = '';
     let sawFinishReason = false;
+    let awaitingFirstByte = true;
 
     try {
       while (true) {
-        const { done, value } = await this.readWithStallTimeout(() => reader.read(), inactivityTimeoutMs);
+        const { done, value } = awaitingFirstByte
+          ? await this.readWithStallTimeout(() => reader.read(), firstByteMs, this.firstByteTimeoutMessage(firstByteMs))
+          : await this.readWithStallTimeout(() => reader.read(), inactivityTimeoutMs);
+        awaitingFirstByte = false;
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
