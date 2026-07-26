@@ -40,13 +40,16 @@ register(new OpenAICompatProvider({
 // ("This model only supports single tool-calls at once!"), so pin
 // parallel_tool_calls to false when tools are present. See issue #255.
 // Reasoning models (deepseek-v4-pro, llama-4-maverick, llama-3.1/3.3-70b) take
-// 30-60s on cold start; the default 15s false-flags them as broken. 90s.
+// 30-60s on cold start; the default 15s false-flags them as broken. 180s:
+// NIM sends SSE headers instantly, then prefills 100k-token prompts for
+// minutes before the first byte, and this value doubles as the streaming
+// first-byte grace budget (#584). Env-tunable via PROVIDER_TIMEOUT_NVIDIA.
 register(new OpenAICompatProvider({
   platform: 'nvidia',
   name: 'NVIDIA NIM',
   baseUrl: 'https://integrate.api.nvidia.com/v1',
   forceSingleToolCall: true,
-  timeoutMs: 90_000,
+  timeoutMs: 180_000,
 }));
 
 // Mistral - OpenAI-compatible
