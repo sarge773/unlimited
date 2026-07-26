@@ -477,7 +477,8 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
     SELECT id, platform, model_id, requested_model, request_type, status,
            input_tokens, output_tokens, latency_ms, error,
            client_ip, client_user_agent,
-           strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso
+           strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso,
+           (SELECT COUNT(*) FROM request_attempts a WHERE a.request_id = requests.id) as attempt_count
     FROM requests
     WHERE created_at >= ?
     ORDER BY created_at DESC, id DESC
@@ -500,6 +501,71 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
       clientIp: r.client_ip,
       clientUserAgent: r.client_user_agent,
       createdAt: r.created_at_iso,
+      // Failover-ladder length for this row. Attempts hang off the TERMINAL
+      // row of a proxied request; mid-ladder failure rows report 0.
+      attemptCount: r.attempt_count,
+    })),
+  });
+});
+
+// Per-request detail: the row plus its durable failover ladder — one entry per
+// dispatched attempt (including the successful final one), ordinal-ordered,
+// with the failure class and timing of each hop. keyOrdinal is the per-request
+// key ordinal (key1, key2…), same anonymization as X-Fallback-Trail — internal
+// key ids are never exposed. Attempts are keyed to the ladder's terminal row
+// (the success row, or the last failure row when it exhausted), so mid-ladder
+// error rows legitimately return an empty attempts array.
+analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
+  const id = Number.parseInt(req.params.id as string, 10);
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ error: 'invalid request id' });
+    return;
+  }
+  const db = getDb();
+
+  const r = db.prepare(`
+    SELECT id, platform, model_id, requested_model, request_type, status,
+           input_tokens, output_tokens, latency_ms, ttfb_ms, error,
+           client_ip, client_user_agent,
+           strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso
+    FROM requests
+    WHERE id = ?
+  `).get(id) as any;
+  if (!r) {
+    res.status(404).json({ error: 'request not found' });
+    return;
+  }
+
+  const attempts = db.prepare(`
+    SELECT ordinal, platform, model_id, key_ordinal, outcome, start_offset_ms, duration_ms
+    FROM request_attempts
+    WHERE request_id = ?
+    ORDER BY ordinal ASC
+  `).all(id) as any[];
+
+  res.json({
+    id: r.id,
+    platform: r.platform,
+    modelId: r.model_id,
+    requestedModel: r.requested_model,
+    requestType: r.request_type,
+    status: r.status,
+    inputTokens: r.input_tokens,
+    outputTokens: r.output_tokens,
+    latencyMs: r.latency_ms,
+    ttfbMs: r.ttfb_ms,
+    error: r.error,
+    clientIp: r.client_ip,
+    clientUserAgent: r.client_user_agent,
+    createdAt: r.created_at_iso,
+    attempts: attempts.map(a => ({
+      ordinal: a.ordinal,
+      platform: a.platform,
+      modelId: a.model_id,
+      keyOrdinal: a.key_ordinal,
+      outcome: a.outcome,
+      startOffsetMs: a.start_offset_ms,
+      durationMs: a.duration_ms,
     })),
   });
 });
