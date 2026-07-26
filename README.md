@@ -109,7 +109,7 @@ The full, always-current list lives at **[freellmapi.co/models](https://freellma
 - **Unified API key** — Clients authenticate to your proxy with a single `freellmapi-…` bearer token. You never expose upstream provider keys to your apps.
 - **Dashboard login** — The admin UI and all `/api/*` routes are gated behind an email + password account (scrypt-hashed, session-token auth), set on first run. The `/v1` proxy keeps its own unified-key auth for apps.
 - **Health checks** — Periodic probes mark keys as `healthy`, `rate_limited`, `invalid`, or `error` so the router skips dead ones automatically.
-- **Admin dashboard** — React + Vite UI to manage keys, reorder the fallback chain, inspect analytics, and run prompts in a playground. Dark mode included.
+- **Admin dashboard** — React + Vite UI to manage keys, reorder the fallback chain, inspect analytics, and run prompts in a playground. Dark/light/system theme and [60 languages](#languages) included.
 - **Analytics** — Per-request logging with latency (p50 / p95 and time-to-first-token for streams), token counts, success rate, estimated cost savings, and per-provider / per-model / per-key breakdowns over 24h to 90d windows.
 - **Interactive API docs** — `GET /v1/docs` serves a dependency-free OpenAPI viewer covering every proxy endpoint; the spec itself lives at `GET /v1/openapi.json`.
 - **MCP server** — `POST /mcp` speaks the Model Context Protocol (Streamable HTTP), so MCP-capable agents can ask the router which free models are usable right now (with per-model `supported_parameters`), check provider/key health and cooldowns, read usage and cache stats, and switch the routing strategy mid-session. See [Coding agents](#coding-agents).
@@ -359,23 +359,45 @@ install. For the server (non-desktop) deployment, the equivalent state is the
 
 ## Languages
 
-The dashboard and the desktop tray ship in 6 languages. The UI auto-detects your
-browser/system language on first load and you can switch any time from the **⋯**
-menu; the choice is remembered.
+The dashboard ships in **60 languages** (the desktop tray menu in 6). The UI
+auto-detects your browser/system language on first load and you can switch any
+time from **⋯ → Settings**; the choice is remembered. Right-to-left languages
+(العربية, עברית, فارسی, اردو) flip the whole layout automatically, and only the
+active language's dictionary is loaded — the rest never touch your bandwidth.
 
-| Language | Locale |
-| --- | --- |
-| English | `en` |
-| 中文 (简体) | `zh-CN` |
-| Français | `fr` |
-| Español | `es` |
-| Português (Brasil) | `pt-BR` |
-| Italiano | `it` |
+|   |   |   |
+| --- | --- | --- |
+| 🇬🇧 English (`en`) | 🇨🇳 中文 (简体) (`zh-CN`) | 🇪🇸 Español (`es`) |
+| 🇫🇷 Français (`fr`) | 🇧🇷 Português (Brasil) (`pt-BR`) | 🇮🇹 Italiano (`it`) |
+| 🇮🇳 हिन्दी (`hi`) | 🇸🇦 العربية (`ar`) | 🇧🇩 বাংলা (`bn`) |
+| 🇷🇺 Русский (`ru`) | 🇵🇰 اردو (`ur`) | 🇮🇩 Bahasa Indonesia (`id`) |
+| 🇩🇪 Deutsch (`de`) | 🇯🇵 日本語 (`ja`) | 🇰🇪 Kiswahili (`sw`) |
+| 🇮🇳 मराठी (`mr`) | 🇮🇳 తెలుగు (`te`) | 🇹🇷 Türkçe (`tr`) |
+| 🇮🇳 தமிழ் (`ta`) | 🇻🇳 Tiếng Việt (`vi`) | 🇰🇷 한국어 (`ko`) |
+| 🇮🇷 فارسی (`fa`) | 🇹🇭 ไทย (`th`) | 🇮🇳 ગુજરાતી (`gu`) |
+| 🇵🇱 Polski (`pl`) | 🇺🇦 Українська (`uk`) | 🇮🇳 ಕನ್ನಡ (`kn`) |
+| 🇮🇳 മലയാളം (`ml`) | 🇮🇳 ଓଡ଼ିଆ (`or`) | 🇲🇲 မြန်မာဘာသာ (`my`) |
+| 🇮🇳 ਪੰਜਾਬੀ (`pa`) | 🇷🇴 Română (`ro`) | 🇳🇱 Nederlands (`nl`) |
+| 🇲🇾 Bahasa Melayu (`ms`) | 🇵🇭 Filipino (`tl`) | 🇳🇬 Hausa (`ha`) |
+| 🇳🇬 Yorùbá (`yo`) | 🇳🇬 Igbo (`ig`) | 🇪🇹 አማርኛ (`am`) |
+| 🇺🇿 Oʻzbekcha (`uz`) | 🇦🇿 Azərbaycanca (`az`) | 🇱🇰 සිංහල (`si`) |
+| 🇳🇵 नेपाली (`ne`) | 🇰🇭 ខ្មែរ (`km`) | 🇬🇷 Ελληνικά (`el`) |
+| 🇨🇿 Čeština (`cs`) | 🇭🇺 Magyar (`hu`) | 🇸🇪 Svenska (`sv`) |
+| 🇮🇱 עברית (`he`) | 🇩🇰 Dansk (`da`) | 🇫🇮 Suomi (`fi`) |
+| 🇳🇴 Norsk (`no`) | 🇸🇰 Slovenčina (`sk`) | 🇧🇬 Български (`bg`) |
+| 🇭🇷 Hrvatski (`hr`) | 🇷🇸 Српски (`sr`) | 🇱🇹 Lietuvių (`lt`) |
+| 🇹🇼 中文 (繁體) (`zh-TW`) | 🇵🇹 Português (Portugal) (`pt-PT`) | 🇬🇪 ქართული (`ka`) |
+
+The original six locales are human-reviewed; the newer ones are machine-
+translated and improve as native speakers send corrections — a one-string PR is
+a great first contribution.
 
 Translations live in [`client/src/i18n/locales/`](./client/src/i18n/locales) as
-flat JSON files. To add a language, copy `en.json`, translate the values, and
-register the locale in `client/src/i18n/I18nProvider.tsx` (and
-`desktop/src/i18n.ts` for the tray strings) — PRs welcome.
+flat JSON files. To fix a string, edit the value in the locale's JSON file. To
+add a language, copy `en.json`, translate the values, and register the locale in
+`client/src/i18n/locale-config.ts` (and `desktop/src/i18n.ts` for the tray
+strings); `npm test` checks every locale for key/placeholder parity — PRs
+welcome.
 
 ## Works with OpenAI-compatible clients
 
