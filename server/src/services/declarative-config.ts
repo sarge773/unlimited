@@ -95,6 +95,8 @@ export interface DeclarativeConfigResult {
   models: number;
   fallback: number;
   routing: boolean;
+  /** Per-entry problems that were degraded to a skip instead of failing the apply (#600). */
+  warnings: string[];
 }
 
 interface NormalizedCustomModel {
@@ -123,6 +125,25 @@ function readConfigFromEnv(): { source: string; value: unknown } | null {
 function encryptedKey(raw: string) {
   const { encrypted, iv, authTag } = encrypt(raw);
   return { encrypted, iv, authTag };
+}
+
+// Boot-time skip guard for `keys` entries (#600). When a platform stops being
+// keyless (pollinations lost `keyless: true` in #573), a legacy declarative
+// config still carries an entry with no `key` — applyDeclarativeConfigFromEnv()
+// runs in main(), so throwing here used to brick the whole install at startup.
+// Such entries degrade to a warning + skip; the rest of the config still
+// applies. Platform-specific remediation hints live here.
+const MISSING_KEY_HINTS: Record<string, string> = {
+  pollinations: 'pollinations now requires an API key — get one at enter.pollinations.ai',
+};
+
+function missingKeyWarning(input: z.infer<typeof keySchema>): string | null {
+  const platform = input.platform.trim();
+  if (platform === 'custom' || input.key?.trim()) return null;
+  const provider = resolveProvider(platform as never);
+  if (!provider || provider.keyless) return null;
+  const hint = MISSING_KEY_HINTS[platform] ?? `${platform} requires an API key — add "key" to this entry or remove it`;
+  return `${hint}; entry skipped`;
 }
 
 function upsertApiKey(db: Db, input: z.infer<typeof keySchema>): number {
@@ -361,10 +382,17 @@ export function applyDeclarativeConfig(input: unknown, source = 'inline'): Decla
     models: 0,
     fallback: 0,
     routing: false,
+    warnings: [],
   };
 
   const apply = db.transaction(() => {
     for (const key of parsed.data.keys ?? []) {
+      const warning = missingKeyWarning(key);
+      if (warning) {
+        result.warnings.push(warning);
+        console.warn(`[config] ${warning}`);
+        continue;
+      }
       upsertApiKey(db, key);
       result.keys++;
     }
@@ -391,12 +419,13 @@ export function applyDeclarativeConfig(input: unknown, source = 'inline'): Decla
 export function applyDeclarativeConfigFromEnv(): DeclarativeConfigResult {
   const loaded = readConfigFromEnv();
   if (!loaded) {
-    return { applied: false, keys: 0, customModels: 0, models: 0, fallback: 0, routing: false };
+    return { applied: false, keys: 0, customModels: 0, models: 0, fallback: 0, routing: false, warnings: [] };
   }
   const result = applyDeclarativeConfig(loaded.value, loaded.source);
   console.log(
     `[config] applied ${loaded.source}: ${result.keys} keys, ${result.customModels} custom models, ` +
-      `${result.models} model edits, ${result.fallback} fallback rows${result.routing ? ', routing' : ''}`,
+      `${result.models} model edits, ${result.fallback} fallback rows${result.routing ? ', routing' : ''}` +
+      `${result.warnings.length > 0 ? `, ${result.warnings.length} entries skipped` : ''}`,
   );
   return result;
 }
