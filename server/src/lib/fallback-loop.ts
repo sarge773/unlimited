@@ -21,11 +21,12 @@ import {
   recordRequest,
   recordTokens,
   setCooldown,
-  getCooldownDurationForLimit,
+  getCooldownDecisionForLimit,
   getSoonestCooldownExpiry,
   PAYMENT_REQUIRED_COOLDOWN_MS,
   MODEL_FORBIDDEN_COOLDOWN_MS,
   learnLimitFromError,
+  type CooldownDecision,
 } from '../services/ratelimit.js';
 import {
   isRetryableError,
@@ -112,10 +113,26 @@ export function msUntilNextUtcMidnight(now = Date.now()): number {
  *     provider's Retry-After as a floor (getCooldownDurationForLimit).
  */
 export function cooldownForError(route: RouteResult, err: any): number {
-  if (isPaymentRequiredError(err)) return PAYMENT_REQUIRED_COOLDOWN_MS;
-  if (isModelAccessForbiddenError(err)) return MODEL_FORBIDDEN_COOLDOWN_MS;
-  if (isDailyQuotaExhaustedError(err)) return err?.retryAfterMs ?? msUntilNextUtcMidnight();
-  return getCooldownDurationForLimit(
+  return cooldownDecisionForError(route, err).durationMs;
+}
+
+/**
+ * cooldownForError plus the provenance tag the cooldown-probe recovery job
+ * keys off (see CooldownSource in services/ratelimit.ts): 402 → 'credit' and
+ * 403 → 'tier' (a key-validation probe passing proves nothing about credits or
+ * tier, so those are never probed); a daily-quota bench → 'authoritative' (the
+ * expiry is the provider's own reset time, whether from Retry-After or the
+ * UTC-midnight convention — a fact, not a guess); everything else defers to
+ * getCooldownDecisionForLimit, which tags 'authoritative' only when an explicit
+ * Retry-After actually determined the expiry.
+ */
+export function cooldownDecisionForError(route: RouteResult, err: any): CooldownDecision {
+  if (isPaymentRequiredError(err)) return { durationMs: PAYMENT_REQUIRED_COOLDOWN_MS, source: 'credit' };
+  if (isModelAccessForbiddenError(err)) return { durationMs: MODEL_FORBIDDEN_COOLDOWN_MS, source: 'tier' };
+  if (isDailyQuotaExhaustedError(err)) {
+    return { durationMs: err?.retryAfterMs ?? msUntilNextUtcMidnight(), source: 'authoritative' };
+  }
+  return getCooldownDecisionForLimit(
     route.platform,
     route.modelId,
     route.keyId,
@@ -157,7 +174,8 @@ export function recordRetryableFailure(route: RouteResult, err: any, state: Fall
   }
   state.skipKeys.add(`${route.platform}:${route.modelId}:${route.keyId}`);
   if (err?.skipBench === true) return;
-  setCooldown(route.platform, route.modelId, route.keyId, cooldownForError(route, err));
+  const decision = cooldownDecisionForError(route, err);
+  setCooldown(route.platform, route.modelId, route.keyId, decision.durationMs, decision.source);
   // Model-level penalty only when no sibling key can still serve (#454).
   if (!hasOtherUsableKey(route.modelDbId, route.keyId, state.skipKeys)) {
     recordRateLimitHit(route.modelDbId);

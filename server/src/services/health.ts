@@ -103,6 +103,43 @@ export async function checkKeyHealth(keyId: number): Promise<KeyStatus> {
   }
 }
 
+// ── Cooldown-probe validation (side-effect-free) ─────────────────────────────
+// The cooldown-probe recovery job (services/cooldown-probe.ts) needs the same
+// cheap validateKey call checkKeyHealth makes, WITHOUT any of its bookkeeping:
+// no status writes, no last_checked_at, and above all no failureCount — probes
+// run far more often than the 5-minute health pass, so letting them feed the
+// consecutive-failure counter would auto-disable a genuinely-bad key in a
+// fraction of the "3 consecutive checks" the threshold promises. A probe is a
+// question, never a verdict.
+
+export type KeyProbeOutcome = 'valid' | 'invalid' | 'error';
+
+export async function probeKeyValidity(keyId: number): Promise<KeyProbeOutcome> {
+  try {
+    const db = getDb();
+    const row = db.prepare('SELECT * FROM api_keys WHERE id = ? AND enabled = 1').get(keyId) as any;
+    if (!row) return 'error';
+
+    const provider = resolveProvider(row.platform as Platform, row.base_url);
+    if (!provider) return 'error';
+
+    const apiKey = decrypt(row.encrypted_key, row.iv, row.auth_tag);
+    const validation = await provider.validateKey(apiKey, {
+      platform: row.platform as Platform,
+      keyId,
+      quotaPoolKey: inferQuotaPoolKey(row.platform as Platform, null),
+      endpoint: 'models',
+      origin: 'probe',
+    });
+    const isValid = typeof validation === 'boolean' ? validation : validation.valid;
+    return isValid ? 'valid' : 'invalid';
+  } catch {
+    // Transport error (DNS/timeout/TLS): inconclusive, same as checkKeyHealth's
+    // reasoning — evidence about the network, not the key.
+    return 'error';
+  }
+}
+
 /**
  * Promote a key out of 'error' after it successfully served a live request.
  *

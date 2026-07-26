@@ -600,6 +600,21 @@ export function recordTokens(
 // Cooldown: when a provider returns 429, block that model+key for a period
 const cooldowns = new Map<string, number>(); // key -> expiry timestamp
 
+// ── Cooldown provenance ───────────────────────────────────────────────────────
+// Recorded at setCooldown time so the cooldown-probe recovery job (services/
+// cooldown-probe.ts) can tell OUR guesses apart from provider-stated facts:
+//   'heuristic'     — our own pessimistic bench (transient 90s, escalation
+//                     ladder, auth-failure bench, empty-completion). Often
+//                     outlives the actual outage, so probe-eligible.
+//   'authoritative' — backed by an explicit provider retry time (Retry-After
+//                     that determined the expiry, daily-quota reset). A fact,
+//                     not a guess: never probed.
+//   'credit'        — 402 out-of-credits. A key-validation probe succeeding is
+//                     no evidence the account was topped up, so never probed.
+//   'tier'          — 403 model-not-on-tier. Same reasoning: the key validates
+//                     fine while the model stays gated, so never probed.
+export type CooldownSource = 'heuristic' | 'authoritative' | 'credit' | 'tier';
+
 // Escalating cooldown: track hits per key over a rolling 24h window so a
 // daily-quota exhaustion (OpenRouter free: 50/day, Cohere free: 33/day, etc.)
 // quarantines the key for the rest of the day instead of looping through
@@ -699,6 +714,11 @@ export function recentHitCount(
 // prompts 429s on TPM while the daily quota is barely touched. Daily counters
 // are persisted (countPersistedRequests / sumPersistedTokens), so this verdict
 // is stable across restarts.
+export interface CooldownDecision {
+  durationMs: number;
+  source: CooldownSource;
+}
+
 export function getCooldownDurationForLimit(
   platform: string,
   modelId: string,
@@ -706,6 +726,24 @@ export function getCooldownDurationForLimit(
   limits: { rpd: number | null; tpd: number | null },
   retryAfterMs?: number | null,
 ): number {
+  return getCooldownDecisionForLimit(platform, modelId, keyId, limits, retryAfterMs).durationMs;
+}
+
+/**
+ * Same verdict as getCooldownDurationForLimit, plus the provenance the
+ * cooldown-probe recovery job needs: 'authoritative' when an explicit provider
+ * Retry-After actually determined the expiry (a fact — never probed early),
+ * 'heuristic' when the duration is our own transient/escalation guess (probe-
+ * eligible). A Retry-After SHORTER than our bench does not make the cooldown
+ * authoritative: everything past the provider's own retry time is our guess.
+ */
+export function getCooldownDecisionForLimit(
+  platform: string,
+  modelId: string,
+  keyId: number,
+  limits: { rpd: number | null; tpd: number | null },
+  retryAfterMs?: number | null,
+): CooldownDecision {
   const now = Date.now();
   const rpdExhausted =
     limits.rpd !== null && requestCount(platform, modelId, keyId, DAY, now) >= limits.rpd;
@@ -730,8 +768,10 @@ export function getCooldownDurationForLimit(
   // Honor an upstream Retry-After as a floor: never bench shorter than our own
   // heuristic, but extend (capped at a day) when the provider explicitly asks
   // to wait longer than we otherwise would.
-  if (retryAfterMs != null && retryAfterMs > base) return Math.min(retryAfterMs, DAY);
-  return base;
+  if (retryAfterMs != null && retryAfterMs > base) {
+    return { durationMs: Math.min(retryAfterMs, DAY), source: 'authoritative' };
+  }
+  return { durationMs: base, source: 'heuristic' };
 }
 
 function persistedCooldownExpiry(
@@ -751,14 +791,23 @@ function persistedCooldownExpiry(
   });
 }
 
-function persistCooldown(platform: string, modelId: string, keyId: number, expiresAtMs: number) {
+function persistCooldown(
+  platform: string,
+  modelId: string,
+  keyId: number,
+  expiresAtMs: number,
+  source: CooldownSource,
+  setAtMs: number,
+) {
   withDb(db => {
     db.prepare(`
-      INSERT INTO rate_limit_cooldowns (platform, model_id, key_id, expires_at_ms)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO rate_limit_cooldowns (platform, model_id, key_id, expires_at_ms, source, set_at_ms)
+      VALUES (?, ?, ?, ?, ?, ?)
       ON CONFLICT(platform, model_id, key_id)
-      DO UPDATE SET expires_at_ms = excluded.expires_at_ms
-    `).run(platform, modelId, keyId, expiresAtMs);
+      DO UPDATE SET expires_at_ms = excluded.expires_at_ms,
+                    source = excluded.source,
+                    set_at_ms = excluded.set_at_ms
+    `).run(platform, modelId, keyId, expiresAtMs, source, setAtMs);
   });
 }
 
@@ -773,11 +822,18 @@ function clearPersistedCooldown(platform: string, modelId: string, keyId: number
   });
 }
 
-export function setCooldown(platform: string, modelId: string, keyId: number, durationMs = 60_000) {
+export function setCooldown(
+  platform: string,
+  modelId: string,
+  keyId: number,
+  durationMs = 60_000,
+  source: CooldownSource = 'heuristic',
+) {
   const key = `${platform}:${modelId}:${keyId}:cooldown`;
-  const expiresAtMs = Date.now() + durationMs;
+  const now = Date.now();
+  const expiresAtMs = now + durationMs;
   cooldowns.set(key, expiresAtMs);
-  persistCooldown(platform, modelId, keyId, expiresAtMs);
+  persistCooldown(platform, modelId, keyId, expiresAtMs, source, now);
 }
 
 export function isOnCooldown(platform: string, modelId: string, keyId: number): boolean {
@@ -878,6 +934,55 @@ export function clearCooldownsForKey(keyId: number): number {
   }
 
   return Math.max(cleared, memoryCleared);
+}
+
+// ── Cooldown-probe surface (services/cooldown-probe.ts) ───────────────────────
+
+export interface ProbeableCooldown {
+  platform: string;
+  modelId: string;
+  keyId: number;
+  expiresAtMs: number;
+  // Null for rows persisted before the provenance migration; the prober treats
+  // an unknown start time as "old enough to probe".
+  setAtMs: number | null;
+}
+
+/**
+ * Active cooldowns whose expiry is OUR OWN guess ('heuristic'), i.e. the only
+ * ones probe-based early recovery may touch. Authoritative/credit/tier rows are
+ * excluded at the query so the prober cannot even see them. Deliberately
+ * DB-only, no in-memory fallback: the probe job is a best-effort optimisation,
+ * and when the DB is unavailable the right amount of probing is none.
+ */
+export function getProbeableCooldowns(now = Date.now()): ProbeableCooldown[] {
+  const rows = withDb(db => db.prepare(`
+    SELECT platform, model_id, key_id, expires_at_ms, set_at_ms
+      FROM rate_limit_cooldowns
+     WHERE expires_at_ms > ?
+       AND source = 'heuristic'
+     ORDER BY expires_at_ms ASC
+  `).all(now) as { platform: string; model_id: string; key_id: number; expires_at_ms: number; set_at_ms: number | null }[]) ?? [];
+
+  return rows.map(row => ({
+    platform: row.platform,
+    modelId: row.model_id,
+    keyId: row.key_id,
+    expiresAtMs: row.expires_at_ms,
+    setAtMs: row.set_at_ms,
+  }));
+}
+
+/**
+ * Clear ONE model+key cooldown before its timer expires, after a probe showed
+ * the key is serving again. Narrower than clearCooldownsForKey (the operator
+ * override): the escalation history in cooldownHits is deliberately kept, so a
+ * key that 429s again right after an early recovery re-enters the ladder where
+ * it left off instead of starting back at 2 minutes.
+ */
+export function clearCooldownEarly(platform: string, modelId: string, keyId: number): void {
+  cooldowns.delete(`${platform}:${modelId}:${keyId}:cooldown`);
+  clearPersistedCooldown(platform, modelId, keyId);
 }
 
 /**

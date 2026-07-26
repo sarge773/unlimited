@@ -13,6 +13,7 @@ const REQUEST_CLIENT_INFO_FILENAME = '20260706_000001_request_client_info.ts';
 const CUSTOM_MODEL_TOOL_SUPPORT_FILENAME = '20260706_000002_custom_model_tool_support.ts';
 const PROFILE_CHAIN_BACKFILL_FILENAME = '20260714_000001_profile_chain_backfill.ts';
 const KEY_HEALTH_ERROR_FILENAME = '20260720_000001_key_health_error.ts';
+const COOLDOWN_PROBE_PROVENANCE_FILENAME = '20260726_000001_cooldown_probe_provenance.ts';
 
 interface SchemaRow {
   type: string;
@@ -72,6 +73,7 @@ describe('migration round trip', () => {
         CUSTOM_MODEL_TOOL_SUPPORT_FILENAME,
         PROFILE_CHAIN_BACKFILL_FILENAME,
         KEY_HEALTH_ERROR_FILENAME,
+        COOLDOWN_PROBE_PROVENANCE_FILENAME,
       ]);
     } finally {
       db.close();
