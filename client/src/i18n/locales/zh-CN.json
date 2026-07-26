@@ -392,7 +392,20 @@
     "recentCalls": "最近调用",
     "clientIp": "客户端 IP",
     "clientAgent": "客户端应用",
-    "requestedModelHint": "请求了 {model}，由回退模型提供"
+    "requestedModelHint": "请求了 {model}，由回退模型提供",
+    "attempts": "尝试次数",
+    "filterAll": "全部",
+    "providerBreakdown": "按提供商明细",
+    "tokensPerSec": "Tok/s",
+    "allProviders": "全部提供商",
+    "requestDetailTitle": "请求 #{id}",
+    "failoverLadder": "故障转移阶梯",
+    "failoverLadderHint": "该请求沿回退链经过的每一跳，按顺序排列。",
+    "noAttemptTrace": "此请求未记录尝试轨迹。",
+    "keyOrdinal": "密钥 #{n}",
+    "attemptTimingHint": "自请求开始的偏移 · 尝试耗时",
+    "requestedModel": "请求的模型",
+    "ttft": "TTFT"
   },
   "playground": {
     "title": "试玩台",

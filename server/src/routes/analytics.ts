@@ -467,11 +467,34 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
   const since = getSinceTimestamp(range);
   const limit = Math.min(Math.max(parseInt(req.query.limit as string, 10) || 100, 1), 500);
   const offset = Math.max(parseInt(req.query.offset as string, 10) || 0, 0);
+
+  // Optional filters. Both are validated (whitelist / shape) and applied as
+  // bound parameters; absent filters keep the default behavior identical.
+  const status = req.query.status as string | undefined;
+  if (status !== undefined && status !== 'success' && status !== 'error') {
+    res.status(400).json({ error: "invalid status filter (expected 'success' or 'error')" });
+    return;
+  }
+  // Platform ids are short slugs ('groq', 'pt-custom_1'); anything else is a
+  // client bug, not a filter.
+  const platform = req.query.platform as string | undefined;
+  if (platform !== undefined && !/^[A-Za-z0-9_-]{1,64}$/.test(platform)) {
+    res.status(400).json({ error: 'invalid platform filter' });
+    return;
+  }
   const db = getDb();
 
+  const filterSql =
+    (status !== undefined ? ' AND status = ?' : '') +
+    (platform !== undefined ? ' AND platform = ?' : '');
+  const filterParams = [
+    ...(status !== undefined ? [status] : []),
+    ...(platform !== undefined ? [platform] : []),
+  ];
+
   const total = (db.prepare(
-    'SELECT COUNT(*) as c FROM requests WHERE created_at >= ?'
-  ).get(since) as { c: number }).c;
+    `SELECT COUNT(*) as c FROM requests WHERE created_at >= ?${filterSql}`
+  ).get(since, ...filterParams) as { c: number }).c;
 
   const rows = db.prepare(`
     SELECT id, platform, model_id, requested_model, request_type, status,
@@ -480,10 +503,10 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
            strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso,
            (SELECT COUNT(*) FROM request_attempts a WHERE a.request_id = requests.id) as attempt_count
     FROM requests
-    WHERE created_at >= ?
+    WHERE created_at >= ?${filterSql}
     ORDER BY created_at DESC, id DESC
     LIMIT ? OFFSET ?
-  `).all(since, limit, offset) as any[];
+  `).all(since, ...filterParams, limit, offset) as any[];
 
   res.json({
     total,
@@ -537,7 +560,7 @@ analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
   }
 
   const attempts = db.prepare(`
-    SELECT ordinal, platform, model_id, key_ordinal, outcome, start_offset_ms, duration_ms
+    SELECT ordinal, platform, model_id, key_ordinal, outcome, start_offset_ms, duration_ms, error_summary
     FROM request_attempts
     WHERE request_id = ?
     ORDER BY ordinal ASC
@@ -566,6 +589,9 @@ analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
       outcome: a.outcome,
       startOffsetMs: a.start_offset_ms,
       durationMs: a.duration_ms,
+      // Short, redacted per-hop error text (null for successful hops and for
+      // rows written before the error_summary migration).
+      errorSummary: a.error_summary ?? null,
     })),
   });
 });
