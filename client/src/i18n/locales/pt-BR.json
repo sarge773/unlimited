@@ -141,8 +141,15 @@
     "rateRpm": "{count} RPM",
     "rateRpd": "{count} RPD",
     "rateTitle": "Limitado por taxa: sem orçamento fixo de tokens mensal",
-    "unifyToggle": "Unificar modelos duplicados",
-    "unifyToggleHint": "Mostra um modelo servido por vários provedores como um único item, e faz failover entre seus provedores quando selecionado."
+    "splitOut": "Não mesclar esta cópia",
+    "splitOutHint": "Dá à cópia deste provedor uma entrada separada em vez de mesclá-la no modelo unificado. Você pode mesclá-la de volta na página da própria cópia.",
+    "splitUndo": "Mesclar de volta",
+    "splitUndoHint": "Esta cópia é mantida separada do seu modelo unificado. Mescle-a de volta para voltar a fazer failover entre todos os seus provedores.",
+    "splitBadge": "mantida separada",
+    "noData": "sem dados",
+    "noDataTitle": "Nenhuma solicitação registrada ainda — a confiabilidade e a velocidade deste provedor não foram medidas.",
+    "bestOfN": "melhor de {count}",
+    "perProviderScores": "Pontuações por provedor: {list}"
   },
   "strategies": {
     "title": "Estratégia de roteamento",

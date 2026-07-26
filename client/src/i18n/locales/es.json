@@ -141,8 +141,15 @@
     "rateRpm": "{count} RPM",
     "rateRpd": "{count} RPD",
     "rateTitle": "Con límite de tasa: sin presupuesto mensual fijo de tokens",
-    "unifyToggle": "Unificar modelos duplicados",
-    "unifyToggleHint": "Muestra un modelo servido por varios proveedores como un solo elemento, y conmuta entre sus proveedores cuando se selecciona."
+    "splitOut": "No combinar esta copia",
+    "splitOutHint": "Da a la copia de este proveedor su propia entrada separada en lugar de combinarla en el modelo unificado. Puedes volver a combinarla desde la página de la copia.",
+    "splitUndo": "Volver a combinar",
+    "splitUndoHint": "Esta copia se mantiene separada de su modelo unificado. Vuelve a combinarla para conmutar de nuevo entre todos sus proveedores.",
+    "splitBadge": "separada",
+    "noData": "sin datos",
+    "noDataTitle": "Aún no hay solicitudes registradas: la fiabilidad y la velocidad de este proveedor no se han medido.",
+    "bestOfN": "mejor de {count}",
+    "perProviderScores": "Puntuaciones por proveedor: {list}"
   },
   "strategies": {
     "title": "Estrategia de enrutamiento",

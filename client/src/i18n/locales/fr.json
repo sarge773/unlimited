@@ -141,8 +141,15 @@
     "rateRpm": "{count} RPM",
     "rateRpd": "{count} RPD",
     "rateTitle": "Limité en débit : pas de budget mensuel de tokens fixe",
-    "unifyToggle": "Unifier les modèles en double",
-    "unifyToggleHint": "Afficher un modèle fourni par plusieurs fournisseurs comme un seul élément, et basculer entre ses fournisseurs lorsqu'il est sélectionné."
+    "splitOut": "Ne pas fusionner cette copie",
+    "splitOutHint": "Donne à la copie de ce fournisseur sa propre entrée séparée au lieu de la fusionner dans le modèle unifié. Vous pourrez la re-fusionner depuis la page de la copie.",
+    "splitUndo": "Re-fusionner",
+    "splitUndoHint": "Cette copie est gardée séparée de son modèle unifié. Re-fusionnez-la pour basculer à nouveau entre tous ses fournisseurs.",
+    "splitBadge": "gardée séparée",
+    "noData": "aucune donnée",
+    "noDataTitle": "Aucune requête enregistrée pour l'instant — la fiabilité et la vitesse de ce fournisseur ne sont pas mesurées.",
+    "bestOfN": "meilleur de {count}",
+    "perProviderScores": "Scores par fournisseur : {list}"
   },
   "strategies": {
     "title": "Stratégie de routage",
