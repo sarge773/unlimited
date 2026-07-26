@@ -11,6 +11,7 @@ import * as keyHealthError from '../migrations/20260720_000001_key_health_error.
 import * as cooldownProbeProvenance from '../migrations/20260726_000001_cooldown_probe_provenance.js';
 import * as requestAttempts from '../migrations/20260726_000002_request_attempts.js';
 import * as modelSourceProvenance from '../migrations/20260726_000003_model_source_provenance.js';
+import * as mediaModelMeta from '../migrations/20260726_000004_media_model_meta.js';
 
 export interface MigrationModule {
   up(db: Db): void;
@@ -34,6 +35,7 @@ export const KEY_HEALTH_ERROR_FILENAME = '20260720_000001_key_health_error.ts';
 export const COOLDOWN_PROBE_PROVENANCE_FILENAME = '20260726_000001_cooldown_probe_provenance.ts';
 export const REQUEST_ATTEMPTS_FILENAME = '20260726_000002_request_attempts.ts';
 export const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000003_model_source_provenance.ts';
+export const MEDIA_MODEL_META_FILENAME = '20260726_000004_media_model_meta.ts';
 
 export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: LEGACY_BASELINE_FILENAME, module: legacyBaseline },
@@ -48,4 +50,5 @@ export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: COOLDOWN_PROBE_PROVENANCE_FILENAME, module: cooldownProbeProvenance },
   { filename: REQUEST_ATTEMPTS_FILENAME, module: requestAttempts },
   { filename: MODEL_SOURCE_PROVENANCE_FILENAME, module: modelSourceProvenance },
+  { filename: MEDIA_MODEL_META_FILENAME, module: mediaModelMeta },
 ];

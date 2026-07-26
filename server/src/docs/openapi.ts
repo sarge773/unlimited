@@ -207,7 +207,8 @@ export const openapiSpec = {
           'OpenAI-compatible speech-to-text over free whisper deployments (Groq, Cloudflare Workers AI), ' +
           'with failover across providers. Multipart upload, held in memory only; maximum file size 25 MB. ' +
           "response_format 'vtt' is only available from providers that produce it natively; 'srt' is not " +
-          'supported and returns 400 unsupported_format.',
+          'supported and returns 400 unsupported_format. The model registry is delivered by catalog sync; ' +
+          "an install that has not yet synced any transcription models returns 503 with code 'no_transcription_models'.",
         requestBody: {
           required: true,
           content: {
@@ -239,6 +240,13 @@ export const openapiSpec = {
           },
           '429': { $ref: '#/components/responses/RateLimited' },
           '502': { $ref: '#/components/responses/UpstreamError' },
+          '503': {
+            description:
+              "No transcription models synced yet (code 'no_transcription_models'): the registry arrives via catalog sync.",
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/Error' } },
+            },
+          },
         },
       },
     },

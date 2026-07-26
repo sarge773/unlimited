@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import type { Db } from '../db/types.js';
 import { getDb, getSetting, setSetting } from '../db/index.js';
 import { hasProvider } from '../providers/index.js';
-import { MEDIA_PLATFORMS } from './media.js';
+import { MEDIA_PLATFORMS, TRANSCRIPTION_PLATFORMS } from './media.js';
 import { EMBEDDING_PLATFORMS } from './embeddings.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import type { Scheduler } from '../lib/scheduler.js';
@@ -121,6 +121,24 @@ interface CatalogEmbedding {
   quotaLabel: string;
 }
 
+interface CatalogTranscriptionModel {
+  platform: string;
+  modelId: string;
+  displayName: string;
+  /** Failover order within the STT chain, lower first. */
+  priority: number;
+  enabled: boolean;
+  /** Subtitle formats the provider returns natively (e.g. ['vtt']). */
+  subtitleFormats?: string[];
+  /** Provider upload ceiling in bytes; absent = the route-wide 25 MB cap. */
+  maxBytes?: number | null;
+  /** Adapter request flavor where one platform hosts more than one deployment
+   *  style (cloudflare: 'json' = base64 JSON body, 'binary' = raw bytes). */
+  requestStyle?: string | null;
+  /** Short display note, mirrored into media_models.quota_label. */
+  quotaLabel?: string;
+}
+
 interface Catalog {
   version: string;
   generatedAt: string;
@@ -129,6 +147,12 @@ interface Catalog {
   /** Optional for backward compatibility with catalogs published before the
    * embedding registry joined the signed freshness feed. */
   embeddings?: CatalogEmbedding[];
+  /** Speech-to-text registry, landing in media_models with
+   * modality='transcription'. Deliberately a NEW top-level key rather than
+   * more `models` entries: deployed binaries that predate the transcription
+   * modality would ingest unknown-modality `models` entries as CHAT models,
+   * while an unknown optional key is simply ignored by their isCatalog. */
+  transcriptionModels?: CatalogTranscriptionModel[];
   quirks: CatalogQuirk[];
 }
 
@@ -161,6 +185,20 @@ function isCatalog(value: unknown): value is Catalog {
             typeof m?.dimensions === 'number' &&
             typeof m?.priority === 'number' &&
             typeof m?.enabled === 'boolean',
+        ))) &&
+    (c.transcriptionModels === undefined ||
+      (Array.isArray(c.transcriptionModels) &&
+        c.transcriptionModels.every(
+          (m) =>
+            typeof m?.platform === 'string' &&
+            typeof m?.modelId === 'string' &&
+            typeof m?.displayName === 'string' &&
+            typeof m?.priority === 'number' &&
+            typeof m?.enabled === 'boolean' &&
+            (m.subtitleFormats === undefined ||
+              (Array.isArray(m.subtitleFormats) && m.subtitleFormats.every((f) => typeof f === 'string'))) &&
+            (m.maxBytes === undefined || m.maxBytes === null || typeof m.maxBytes === 'number') &&
+            (m.requestStyle === undefined || m.requestStyle === null || typeof m.requestStyle === 'string'),
         ))) &&
     c.models.every(
       (m) =>
@@ -230,6 +268,18 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
     INSERT INTO media_models (platform, model_id, display_name, modality, priority, enabled, quota_label)
     VALUES (@platform, @modelId, @displayName, @modality, @priority, @enabled, @quotaLabel)
   `);
+  // Transcription rows share media_models but carry adapter metadata in
+  // meta_json (subtitle capability, upload ceiling, request flavor).
+  const updateTranscription = db.prepare(`
+    UPDATE media_models SET
+      display_name = @displayName, modality = 'transcription', priority = @priority,
+      quota_label = @quotaLabel, enabled = @enabled, meta_json = @metaJson
+    WHERE id = @id
+  `);
+  const insertTranscription = db.prepare(`
+    INSERT INTO media_models (platform, model_id, display_name, modality, priority, enabled, quota_label, meta_json)
+    VALUES (@platform, @modelId, @displayName, 'transcription', @priority, @enabled, @quotaLabel, @metaJson)
+  `);
   const selectEmbedding = db.prepare(
     'SELECT id, enabled FROM embedding_models WHERE platform = ? AND model_id = ?',
   );
@@ -253,6 +303,7 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
     const inCatalog = new Set<string>();
     const inMediaCatalog = new Set<string>();
     const inEmbeddingCatalog = new Set<string>();
+    const inTranscriptionCatalog = new Set<string>();
 
     for (const m of catalog.models) {
       // Media modalities are gated on MEDIA_PLATFORMS (decoupled from the chat
@@ -362,6 +413,40 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
       }
     }
 
+    // Transcription models are their own full snapshot, routed into
+    // media_models with modality='transcription' and gated on
+    // TRANSCRIPTION_PLATFORMS the way MEDIA_PLATFORMS gates the generative
+    // rows. Older catalogs omit this key; keep existing rows untouched then.
+    if (catalog.transcriptionModels) {
+      for (const m of catalog.transcriptionModels) {
+        if (!TRANSCRIPTION_PLATFORMS.has(m.platform)) {
+          counts.skippedUnknownPlatform++;
+          continue;
+        }
+        if (isCatalogModelTombstoned(db, 'media', m.platform, m.modelId)) continue;
+        inTranscriptionCatalog.add(`${m.platform}:${m.modelId}`);
+        const meta: Record<string, unknown> = {};
+        if (m.subtitleFormats?.length) meta.subtitleFormats = m.subtitleFormats;
+        if (typeof m.maxBytes === 'number') meta.maxBytes = m.maxBytes;
+        if (typeof m.requestStyle === 'string') meta.requestStyle = m.requestStyle;
+        const fields = {
+          displayName: m.displayName,
+          priority: m.priority,
+          quotaLabel: m.quotaLabel ?? '',
+          metaJson: Object.keys(meta).length > 0 ? JSON.stringify(meta) : null,
+        };
+        const row = selectMedia.get(m.platform, m.modelId) as { id: number; enabled: number } | undefined;
+        if (row) {
+          const enabled = m.enabled ? row.enabled : 0; // catalog and local disables both win
+          updateTranscription.run({ ...fields, id: row.id, enabled });
+          counts.updated++;
+        } else {
+          insertTranscription.run({ ...fields, platform: m.platform, modelId: m.modelId, enabled: m.enabled ? 1 : 0 });
+          counts.inserted++;
+        }
+      }
+    }
+
     counts.removed += deleteTombstonedCatalogModels(db);
     applyAllModelOverrides(db);
 
@@ -406,9 +491,12 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
       }
     }
 
-    // Remove media models the catalog no longer lists (own table, no fallback_config).
+    // Remove media models the catalog no longer lists (own table, no
+    // fallback_config). Scoped to the generative modalities: transcription
+    // rows are maintained by the `transcriptionModels` snapshot below, and
+    // must survive here even when its key is absent from an older catalog.
     const mediaCandidates = db
-      .prepare('SELECT id, platform, model_id FROM media_models')
+      .prepare("SELECT id, platform, model_id FROM media_models WHERE modality != 'transcription'")
       .all() as { id: number; platform: string; model_id: string }[];
     const deleteMedia = db.prepare('DELETE FROM media_models WHERE id = ?');
     for (const c of mediaCandidates) {
@@ -416,6 +504,22 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
       if (!inMediaCatalog.has(`${c.platform}:${c.model_id}`)) {
         deleteMedia.run(c.id);
         counts.removed++;
+      }
+    }
+
+    // Prune transcription rows only when the catalog actually carries the
+    // snapshot (mirrors the embeddings rule), scoped to the modality so
+    // image/audio rows are never touched by it.
+    if (catalog.transcriptionModels) {
+      const sttCandidates = db
+        .prepare("SELECT id, platform, model_id FROM media_models WHERE modality = 'transcription'")
+        .all() as { id: number; platform: string; model_id: string }[];
+      for (const c of sttCandidates) {
+        if (!TRANSCRIPTION_PLATFORMS.has(c.platform)) continue;
+        if (!inTranscriptionCatalog.has(`${c.platform}:${c.model_id}`)) {
+          deleteMedia.run(c.id);
+          counts.removed++;
+        }
       }
     }
 

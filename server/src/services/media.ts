@@ -20,11 +20,16 @@ export const MEDIA_PLATFORMS = new Set(['nvidia', 'pollinations', 'cloudflare', 
 /** Platforms whose free media path needs no API key (anonymous). */
 const KEYLESS_CAPABLE = new Set(['pollinations']);
 
-// 'transcription' is a routing/logging modality only: STT models are a small,
-// stable set kept in TRANSCRIPTION_MODELS below rather than in media_models
-// (catalog rows are never seeded locally — see the header comment — so a DB
-// row for STT would leave the endpoint dead until the external catalog ships
-// a matching modality).
+/** Platforms with a speech-to-text adapter below. catalog-sync gates the
+ *  catalog's `transcriptionModels` entries on this, the way MEDIA_PLATFORMS
+ *  gates the generative-media rows. */
+export const TRANSCRIPTION_PLATFORMS = new Set(['groq', 'cloudflare']);
+
+// 'transcription' rows live in media_models like the other modalities; they
+// arrive via the catalog's dedicated `transcriptionModels` array (see
+// catalog-sync), never via migrations. Their per-model adapter metadata
+// (native subtitle formats, upload ceiling, request flavor) rides in the
+// meta_json column — see TranscriptionMeta below.
 export type MediaModality = 'image' | 'audio' | 'transcription';
 
 export interface MediaModelRow {
@@ -37,13 +42,17 @@ export interface MediaModelRow {
   enabled: number;
   quota_label: string;
   key_id: number | null;
+  meta_json: string | null;
 }
 
 export class MediaError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  /** Optional machine-readable error code surfaced in the OpenAI-shaped body. */
+  code?: string;
+  constructor(message: string, status: number, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -520,68 +529,68 @@ export async function runImageGeneration(model: string | undefined, params: Imag
 // ---------------------------------------------------------------------------
 // Speech-to-text (/v1/audio/transcriptions)
 //
-// Unlike image/TTS models, STT models do NOT live in media_models: catalog
-// rows only ever arrive via catalog-sync from the published catalog (never
-// seeded by migrations), so a DB-backed registry would leave this endpoint
-// permanently empty until the external catalog gains a 'transcription'
-// modality. The set of free whisper deployments is tiny and stable, so a
-// hardcoded platform→models map here is the honest representation. Key
-// selection, failover, cooldowns, and request logging reuse the exact same
-// machinery as the other media modalities above.
+// STT models live in media_models with modality='transcription', maintained
+// by the published catalog's `transcriptionModels` array (see catalog-sync)
+// — never hardcoded here, never seeded by migrations. The per-platform
+// adapters below are pure transport; everything model-specific (native
+// subtitle support, upload ceiling, request flavor) rides on the catalog
+// entry and lands in the row's meta_json. On an install that has never
+// synced a catalog listing transcription models, the endpoint returns an
+// OpenAI-shaped 503 with code 'no_transcription_models' until the first
+// sync lands. Key selection, failover, cooldowns, and request logging reuse
+// the exact same machinery as the other media modalities above.
 
-export interface SttModel {
-  platform: 'groq' | 'cloudflare';
-  modelId: string;
-  displayName: string;
-  /** Subtitle formats the provider returns natively (srt/vtt). Anything not
-   *  listed here is refused with 400 unsupported_format at the route. */
-  nativeSubtitles: ReadonlySet<string>;
-  /** Provider upload ceiling in bytes. */
-  maxBytes: number;
-  /** Cloudflare input encoding: the original whisper takes raw bytes, the
-   *  large-v3-turbo deployment takes JSON with base64 audio. */
-  cfInput?: 'binary' | 'json';
+/** Per-model adapter metadata carried on the catalog entry (meta_json). */
+export interface TranscriptionMeta {
+  /** Subtitle formats the provider returns natively (e.g. ['vtt']). Formats
+   *  not produced natively by the chain are refused with 400 at the route. */
+  subtitleFormats?: string[];
+  /** Provider upload ceiling in bytes; absent = MAX_TRANSCRIPTION_BYTES. */
+  maxBytes?: number | null;
+  /** Adapter request flavor where one platform hosts more than one deployment
+   *  style. Cloudflare: 'json' = JSON body with base64 audio (large-v3-turbo),
+   *  'binary' = raw bytes (plain whisper, the default). */
+  requestStyle?: string | null;
 }
 
-/** Groq's free-tier upload cap for audio transcription is 25 MB. */
-export const GROQ_TRANSCRIPTION_MAX_BYTES = 25 * 1024 * 1024;
-/** Global upload ceiling enforced by the route (multer). Matches the largest
- *  per-provider cap so multer can reject early with a clean OpenAI-shaped 413
- *  instead of buffering an upload no provider can accept. */
-export const MAX_TRANSCRIPTION_BYTES = GROQ_TRANSCRIPTION_MAX_BYTES;
+/** Global upload ceiling enforced by the route (multer) so it can reject
+ *  early with a clean OpenAI-shaped 413 instead of buffering an upload no
+ *  provider can accept. Per-model catalog `maxBytes` may only lower this. */
+export const MAX_TRANSCRIPTION_BYTES = 25 * 1024 * 1024;
 
-export const TRANSCRIPTION_MODELS: SttModel[] = [
-  {
-    platform: 'groq',
-    modelId: 'whisper-large-v3-turbo',
-    displayName: 'Whisper Large v3 Turbo (Groq)',
-    nativeSubtitles: new Set(),
-    maxBytes: GROQ_TRANSCRIPTION_MAX_BYTES,
-  },
-  {
-    platform: 'groq',
-    modelId: 'whisper-large-v3',
-    displayName: 'Whisper Large v3 (Groq)',
-    nativeSubtitles: new Set(),
-    maxBytes: GROQ_TRANSCRIPTION_MAX_BYTES,
-  },
-  {
-    platform: 'cloudflare',
-    modelId: '@cf/openai/whisper-large-v3-turbo',
-    displayName: 'Whisper Large v3 Turbo (Cloudflare Workers AI)',
-    nativeSubtitles: new Set(['vtt']),
-    maxBytes: MAX_TRANSCRIPTION_BYTES,
-    cfInput: 'json',
-  },
-  {
-    platform: 'cloudflare',
-    modelId: '@cf/openai/whisper',
-    displayName: 'Whisper (Cloudflare Workers AI)',
-    nativeSubtitles: new Set(['vtt']),
-    maxBytes: MAX_TRANSCRIPTION_BYTES,
-    cfInput: 'binary',
-  },
-];
+/** A transcription candidate: a media_models row with its meta decoded. */
+interface SttCandidate {
+  platform: string;
+  modelId: string;
+  nativeSubtitles: Set<string>;
+  maxBytes: number;
+  requestStyle: string | null;
+}
+
+function parseTranscriptionMeta(raw: string | null): TranscriptionMeta {
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw) as TranscriptionMeta;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function toSttCandidate(row: MediaModelRow): SttCandidate {
+  const meta = parseTranscriptionMeta(row.meta_json);
+  const maxBytes =
+    typeof meta.maxBytes === 'number' && meta.maxBytes > 0
+      ? Math.min(meta.maxBytes, MAX_TRANSCRIPTION_BYTES)
+      : MAX_TRANSCRIPTION_BYTES;
+  return {
+    platform: row.platform,
+    modelId: row.model_id,
+    nativeSubtitles: new Set(Array.isArray(meta.subtitleFormats) ? meta.subtitleFormats : []),
+    maxBytes,
+    requestStyle: typeof meta.requestStyle === 'string' ? meta.requestStyle : null,
+  };
+}
 
 /** Model ids that mean "let the router decide". `whisper-1` is what stock
  *  OpenAI clients send by default, so it must route rather than 400. */
@@ -608,8 +617,19 @@ export interface TranscriptionResult {
   vtt?: string;
 }
 
-function resolveTranscriptionChain(model: string | undefined, responseFormat: string): SttModel[] {
-  let chain = TRANSCRIPTION_MODELS;
+function resolveTranscriptionChain(model: string | undefined, responseFormat: string): SttCandidate[] {
+  let chain = listMediaModels('transcription').map(toSttCandidate);
+  if (chain.length === 0) {
+    // Never-synced install (or the catalog retired every STT model): the
+    // registry only ever arrives via catalog-sync, so tell the caller to wait
+    // for / trigger a sync rather than pretending the model id is wrong.
+    throw new MediaError(
+      'No transcription models are configured yet. The registry arrives via catalog sync; ' +
+      'wait for the next sync (or trigger one from the dashboard) and retry.',
+      503,
+      'no_transcription_models',
+    );
+  }
   if (model && !TRANSCRIPTION_AUTO_IDS.has(model.toLowerCase())) {
     chain = chain.filter(m => m.modelId === model);
     if (chain.length === 0) {
@@ -623,8 +643,8 @@ function resolveTranscriptionChain(model: string | undefined, responseFormat: st
     chain = chain.filter(m => m.nativeSubtitles.has('vtt'));
     if (chain.length === 0) {
       throw new MediaError(
-        "response_format 'vtt' is only served by providers that produce it natively " +
-        '(Cloudflare Workers AI whisper); the requested model does not.',
+        "response_format 'vtt' is only served by providers that produce it natively; " +
+        'the requested model does not.',
         400,
       );
     }
@@ -633,7 +653,7 @@ function resolveTranscriptionChain(model: string | undefined, responseFormat: st
 }
 
 async function callTranscriptionProvider(
-  m: SttModel,
+  m: SttCandidate,
   credential: ProviderCredential,
   p: TranscriptionParams,
 ): Promise<Omit<TranscriptionResult, 'platform' | 'modelId'>> {
@@ -663,7 +683,7 @@ async function callTranscriptionProvider(
     case 'cloudflare': {
       const { accountId, token } = parseCfKey(key);
       const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${m.modelId}`;
-      const init: RequestInit = m.cfInput === 'json'
+      const init: RequestInit = m.requestStyle === 'json'
         ? {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -700,7 +720,7 @@ async function callTranscriptionProvider(
       };
     }
     default:
-      throw new MediaError(`no transcription adapter for platform '${(m as SttModel).platform}'`, 500);
+      throw new MediaError(`no transcription adapter for platform '${m.platform}'`, 500);
   }
 }
 

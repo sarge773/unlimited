@@ -21,6 +21,24 @@ function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 }
 
+/** Seed the catalog-delivered STT registry (media_models, modality
+ *  'transcription') exactly as the published `transcriptionModels` fragment
+ *  would land it via catalog-sync. */
+function seedTranscriptionModels(): void {
+  const insert = getDb().prepare(`
+    INSERT INTO media_models (platform, model_id, display_name, modality, priority, enabled, quota_label, meta_json)
+    VALUES (?, ?, ?, 'transcription', ?, 1, '', ?)
+  `);
+  insert.run('groq', 'whisper-large-v3-turbo', 'Whisper Large v3 Turbo (Groq)', 0,
+    JSON.stringify({ maxBytes: 25 * 1024 * 1024 }));
+  insert.run('groq', 'whisper-large-v3', 'Whisper Large v3 (Groq)', 1,
+    JSON.stringify({ maxBytes: 25 * 1024 * 1024 }));
+  insert.run('cloudflare', '@cf/openai/whisper-large-v3-turbo', 'Whisper Large v3 Turbo (Cloudflare Workers AI)', 2,
+    JSON.stringify({ subtitleFormats: ['vtt'], requestStyle: 'json' }));
+  insert.run('cloudflare', '@cf/openai/whisper', 'Whisper (Cloudflare Workers AI)', 3,
+    JSON.stringify({ subtitleFormats: ['vtt'], requestStyle: 'binary' }));
+}
+
 interface MultipartOpts {
   file?: { bytes: Buffer; name: string; type?: string } | null;
   fields?: Record<string, string>;
@@ -61,6 +79,7 @@ describe('POST /v1/audio/transcriptions', () => {
     process.env.ENCRYPTION_KEY = '0'.repeat(64);
     initDb(':memory:');
     for (let id = 1; id <= 10; id++) clearCooldownsForKey(id);
+    seedTranscriptionModels();
     app = createApp();
   });
 
@@ -222,6 +241,21 @@ describe('POST /v1/audio/transcriptions', () => {
     });
     expect(status).toBe(429);
     expect(body.error.type).toBe('rate_limit_error');
+  });
+
+  it("503 with code 'no_transcription_models' when the registry has never been synced", async () => {
+    getDb().prepare("DELETE FROM media_models WHERE modality = 'transcription'").run();
+    addKey('groq');
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as any;
+    const { status, body } = await postTranscription(app, {
+      file: { bytes: AUDIO, name: 'a.wav' },
+      fields: { model: 'whisper-1' },
+    });
+    expect(status).toBe(503);
+    expect(body.error.type).toBe('server_error');
+    expect(body.error.code).toBe('no_transcription_models');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("response_format 'vtt' streams native subtitles from cloudflare", async () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { initDb, getDb } from '../../db/index.js';
 import { encrypt } from '../../lib/crypto.js';
-import { runTranscription, MediaError, TRANSCRIPTION_MODELS, MAX_TRANSCRIPTION_BYTES } from '../../services/media.js';
+import { runTranscription, MediaError, listMediaModels, MAX_TRANSCRIPTION_BYTES } from '../../services/media.js';
 import { isOnCooldown, clearCooldownsForKey } from '../../services/ratelimit.js';
 
 const realFetch = globalThis.fetch;
@@ -17,6 +17,24 @@ function addKey(platform: string, raw = `${platform}-test-key`): number {
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+}
+
+/** Seed the catalog-delivered STT registry (media_models, modality
+ *  'transcription') exactly as the published `transcriptionModels` fragment
+ *  would land it via catalog-sync. */
+function seedTranscriptionModels(): void {
+  const insert = getDb().prepare(`
+    INSERT INTO media_models (platform, model_id, display_name, modality, priority, enabled, quota_label, meta_json)
+    VALUES (?, ?, ?, 'transcription', ?, 1, '', ?)
+  `);
+  insert.run('groq', 'whisper-large-v3-turbo', 'Whisper Large v3 Turbo (Groq)', 0,
+    JSON.stringify({ maxBytes: 25 * 1024 * 1024 }));
+  insert.run('groq', 'whisper-large-v3', 'Whisper Large v3 (Groq)', 1,
+    JSON.stringify({ maxBytes: 25 * 1024 * 1024 }));
+  insert.run('cloudflare', '@cf/openai/whisper-large-v3-turbo', 'Whisper Large v3 Turbo (Cloudflare Workers AI)', 2,
+    JSON.stringify({ subtitleFormats: ['vtt'], requestStyle: 'json' }));
+  insert.run('cloudflare', '@cf/openai/whisper', 'Whisper (Cloudflare Workers AI)', 3,
+    JSON.stringify({ subtitleFormats: ['vtt'], requestStyle: 'binary' }));
 }
 
 const AUDIO = Buffer.from('RIFFfakewavbytes');
@@ -38,6 +56,7 @@ describe('transcription service', () => {
     // Cooldowns live in a module-level map that outlives the per-test :memory:
     // DB; key ids restart at 1 in every test, so stale entries must be purged.
     for (let id = 1; id <= 10; id++) clearCooldownsForKey(id);
+    seedTranscriptionModels();
   });
 
   afterEach(() => {
@@ -45,12 +64,34 @@ describe('transcription service', () => {
     vi.restoreAllMocks();
   });
 
-  it('registry: groq whisper models rank ahead of cloudflare', () => {
-    const platforms = TRANSCRIPTION_MODELS.map(m => m.platform);
-    expect(platforms[0]).toBe('groq');
-    expect(platforms).toContain('cloudflare');
-    expect(TRANSCRIPTION_MODELS.map(m => m.modelId)).toContain('whisper-large-v3-turbo');
-    expect(TRANSCRIPTION_MODELS.map(m => m.modelId)).toContain('@cf/openai/whisper');
+  it('registry: enabled DB rows ordered by priority, groq ahead of cloudflare', () => {
+    const rows = listMediaModels('transcription');
+    expect(rows.map(m => m.platform)).toEqual(['groq', 'groq', 'cloudflare', 'cloudflare']);
+    expect(rows.map(m => m.model_id)).toContain('whisper-large-v3-turbo');
+    expect(rows.map(m => m.model_id)).toContain('@cf/openai/whisper');
+  });
+
+  it('empty registry (never-synced install) → 503 no_transcription_models, no fetch', async () => {
+    getDb().prepare("DELETE FROM media_models WHERE modality = 'transcription'").run();
+    addKey('groq');
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as any;
+    await expect(runTranscription('auto', params()))
+      .rejects.toMatchObject({ status: 503, code: 'no_transcription_models' });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('a locally disabled row leaves the chain (pinning it → 400 unknown model)', async () => {
+    getDb()
+      .prepare("UPDATE media_models SET enabled = 0 WHERE model_id = 'whisper-large-v3'")
+      .run();
+    addKey('groq');
+    globalThis.fetch = vi.fn(async () => jsonResponse({ text: 'ok' })) as any;
+    await expect(runTranscription('whisper-large-v3', params()))
+      .rejects.toMatchObject({ status: 400 });
+    // auto still routes via the remaining rows.
+    const r = await runTranscription('auto', params());
+    expect(r.modelId).toBe('whisper-large-v3-turbo');
   });
 
   it('groq: sends multipart form to the OpenAI-compatible audio endpoint', async () => {

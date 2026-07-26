@@ -16,6 +16,7 @@ const KEY_HEALTH_ERROR_FILENAME = '20260720_000001_key_health_error.ts';
 const COOLDOWN_PROBE_PROVENANCE_FILENAME = '20260726_000001_cooldown_probe_provenance.ts';
 const REQUEST_ATTEMPTS_FILENAME = '20260726_000002_request_attempts.ts';
 const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000003_model_source_provenance.ts';
+const MEDIA_MODEL_META_FILENAME = '20260726_000004_media_model_meta.ts';
 
 interface SchemaRow {
   type: string;
@@ -78,6 +79,7 @@ describe('migration round trip', () => {
         COOLDOWN_PROBE_PROVENANCE_FILENAME,
         REQUEST_ATTEMPTS_FILENAME,
         MODEL_SOURCE_PROVENANCE_FILENAME,
+        MEDIA_MODEL_META_FILENAME,
       ]);
     } finally {
       db.close();

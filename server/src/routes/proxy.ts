@@ -574,9 +574,12 @@ proxyRouter.post('/audio/speech', async (req: Request, res: Response) => {
 
 // OpenAI-compatible speech-to-text (/v1/audio/transcriptions). Multipart form
 // upload, held in memory only (multer memoryStorage — audio bytes never touch
-// disk), routed through the STT provider chain in services/media.ts (Groq
-// Whisper → Cloudflare Workers AI whisper) with the same key/failover/cooldown
-// machinery as the other media endpoints.
+// disk), routed through the STT provider chain in services/media.ts with the
+// same key/failover/cooldown machinery as the other media endpoints. The STT
+// registry (media_models, modality='transcription') is maintained by the
+// published catalog's `transcriptionModels` array via catalog-sync; on an
+// install that has never synced one, the endpoint answers 503 with code
+// 'no_transcription_models' until the first sync lands.
 //
 // response_format: 'json' (default, {"text": ...}), 'text' (plain string),
 // 'verbose_json' (OpenAI verbose shape when the provider returns segments,
@@ -691,7 +694,8 @@ proxyRouter.post('/audio/transcriptions', (req: Request, res: Response, next) =>
   } catch (err: any) {
     const status = err instanceof MediaError ? err.status : 502;
     const httpStatus = status >= 400 && status < 600 ? status : 502;
-    res.status(httpStatus).json({ error: { message: `transcription error: ${err?.message ?? 'unknown'}`, type: mediaErrorType(status) } });
+    const code = err instanceof MediaError && err.code ? { code: err.code } : {};
+    res.status(httpStatus).json({ error: { message: `transcription error: ${err?.message ?? 'unknown'}`, type: mediaErrorType(status), ...code } });
   }
 });
 
