@@ -11,6 +11,7 @@ import { getDb } from '../db/index.js';
 import { getClientContext } from '../lib/client-context.js';
 import { decrypt } from '../lib/crypto.js';
 import { proxyFetch } from '../lib/proxy.js';
+import { isOnCooldown, setCooldown } from './ratelimit.js';
 
 /** Platforms with a media adapter below. catalog-sync gates media rows on this
  *  (decoupled from the chat provider registry — e.g. SiliconFlow is media-only). */
@@ -19,7 +20,12 @@ export const MEDIA_PLATFORMS = new Set(['nvidia', 'pollinations', 'cloudflare', 
 /** Platforms whose free media path needs no API key (anonymous). */
 const KEYLESS_CAPABLE = new Set(['pollinations']);
 
-export type MediaModality = 'image' | 'audio';
+// 'transcription' is a routing/logging modality only: STT models are a small,
+// stable set kept in TRANSCRIPTION_MODELS below rather than in media_models
+// (catalog rows are never seeded locally — see the header comment — so a DB
+// row for STT would leave the endpoint dead until the external catalog ships
+// a matching modality).
+export type MediaModality = 'image' | 'audio' | 'transcription';
 
 export interface MediaModelRow {
   id: number;
@@ -167,7 +173,7 @@ interface ProviderCredential {
   baseUrl: string | null;
 }
 
-function getProviderCredential(row: MediaModelRow): ProviderCredential | null {
+function getProviderCredential(row: Pick<MediaModelRow, 'platform' | 'key_id'>): ProviderCredential | null {
   if (row.key_id != null) {
     const keyRow = getDb()
       .prepare("SELECT id, encrypted_key, iv, auth_tag, base_url FROM api_keys WHERE id = ? AND enabled = 1 AND status IN ('healthy', 'unknown') LIMIT 1")
@@ -203,7 +209,7 @@ function getProviderCredential(row: MediaModelRow): ProviderCredential | null {
 async function mediaFetch(
   url: string,
   platform: string,
-  modality: 'image' | 'audio',
+  modality: MediaModality,
   init: RequestInit,
 ): Promise<Response> {
   const r = await proxyFetch(
@@ -466,7 +472,7 @@ function resolveMediaChain(model: string | undefined, modality: MediaModality): 
   return matches;
 }
 
-function logMedia(row: MediaModelRow, keyId: number | null, status: 'success' | 'error', latencyMs: number, error: string | null): void {
+function logMedia(row: Pick<MediaModelRow, 'platform' | 'model_id' | 'modality'>, keyId: number | null, status: 'success' | 'error', latencyMs: number, error: string | null): void {
   try {
     const client = getClientContext();
     getDb()
@@ -509,6 +515,229 @@ export async function runImageGeneration(model: string | undefined, params: Imag
     }
   }
   throw chainError('image', lastError);
+}
+
+// ---------------------------------------------------------------------------
+// Speech-to-text (/v1/audio/transcriptions)
+//
+// Unlike image/TTS models, STT models do NOT live in media_models: catalog
+// rows only ever arrive via catalog-sync from the published catalog (never
+// seeded by migrations), so a DB-backed registry would leave this endpoint
+// permanently empty until the external catalog gains a 'transcription'
+// modality. The set of free whisper deployments is tiny and stable, so a
+// hardcoded platform→models map here is the honest representation. Key
+// selection, failover, cooldowns, and request logging reuse the exact same
+// machinery as the other media modalities above.
+
+export interface SttModel {
+  platform: 'groq' | 'cloudflare';
+  modelId: string;
+  displayName: string;
+  /** Subtitle formats the provider returns natively (srt/vtt). Anything not
+   *  listed here is refused with 400 unsupported_format at the route. */
+  nativeSubtitles: ReadonlySet<string>;
+  /** Provider upload ceiling in bytes. */
+  maxBytes: number;
+  /** Cloudflare input encoding: the original whisper takes raw bytes, the
+   *  large-v3-turbo deployment takes JSON with base64 audio. */
+  cfInput?: 'binary' | 'json';
+}
+
+/** Groq's free-tier upload cap for audio transcription is 25 MB. */
+export const GROQ_TRANSCRIPTION_MAX_BYTES = 25 * 1024 * 1024;
+/** Global upload ceiling enforced by the route (multer). Matches the largest
+ *  per-provider cap so multer can reject early with a clean OpenAI-shaped 413
+ *  instead of buffering an upload no provider can accept. */
+export const MAX_TRANSCRIPTION_BYTES = GROQ_TRANSCRIPTION_MAX_BYTES;
+
+export const TRANSCRIPTION_MODELS: SttModel[] = [
+  {
+    platform: 'groq',
+    modelId: 'whisper-large-v3-turbo',
+    displayName: 'Whisper Large v3 Turbo (Groq)',
+    nativeSubtitles: new Set(),
+    maxBytes: GROQ_TRANSCRIPTION_MAX_BYTES,
+  },
+  {
+    platform: 'groq',
+    modelId: 'whisper-large-v3',
+    displayName: 'Whisper Large v3 (Groq)',
+    nativeSubtitles: new Set(),
+    maxBytes: GROQ_TRANSCRIPTION_MAX_BYTES,
+  },
+  {
+    platform: 'cloudflare',
+    modelId: '@cf/openai/whisper-large-v3-turbo',
+    displayName: 'Whisper Large v3 Turbo (Cloudflare Workers AI)',
+    nativeSubtitles: new Set(['vtt']),
+    maxBytes: MAX_TRANSCRIPTION_BYTES,
+    cfInput: 'json',
+  },
+  {
+    platform: 'cloudflare',
+    modelId: '@cf/openai/whisper',
+    displayName: 'Whisper (Cloudflare Workers AI)',
+    nativeSubtitles: new Set(['vtt']),
+    maxBytes: MAX_TRANSCRIPTION_BYTES,
+    cfInput: 'binary',
+  },
+];
+
+/** Model ids that mean "let the router decide". `whisper-1` is what stock
+ *  OpenAI clients send by default, so it must route rather than 400. */
+const TRANSCRIPTION_AUTO_IDS = new Set(['auto', 'whisper-1']);
+
+export interface TranscriptionParams {
+  file: Buffer;
+  filename: string;
+  mimeType?: string;
+  language?: string;
+  prompt?: string;
+  temperature?: number;
+  /** 'json' | 'text' | 'verbose_json' | 'vtt' (srt is rejected at the route). */
+  responseFormat: string;
+}
+
+export interface TranscriptionResult {
+  platform: string;
+  modelId: string;
+  text: string;
+  language?: string;
+  duration?: number;
+  segments?: unknown[];
+  vtt?: string;
+}
+
+function resolveTranscriptionChain(model: string | undefined, responseFormat: string): SttModel[] {
+  let chain = TRANSCRIPTION_MODELS;
+  if (model && !TRANSCRIPTION_AUTO_IDS.has(model.toLowerCase())) {
+    chain = chain.filter(m => m.modelId === model);
+    if (chain.length === 0) {
+      throw new MediaError(
+        `Unknown transcription model '${model}'. Use 'auto', 'whisper-1', or a provider model id.`,
+        400,
+      );
+    }
+  }
+  if (responseFormat === 'vtt') {
+    chain = chain.filter(m => m.nativeSubtitles.has('vtt'));
+    if (chain.length === 0) {
+      throw new MediaError(
+        "response_format 'vtt' is only served by providers that produce it natively " +
+        '(Cloudflare Workers AI whisper); the requested model does not.',
+        400,
+      );
+    }
+  }
+  return chain;
+}
+
+async function callTranscriptionProvider(
+  m: SttModel,
+  credential: ProviderCredential,
+  p: TranscriptionParams,
+): Promise<Omit<TranscriptionResult, 'platform' | 'modelId'>> {
+  const key = credential.key;
+  switch (m.platform) {
+    case 'groq': {
+      // Groq's OpenAI-compatible audio endpoint takes multipart form data.
+      // Never set Content-Type by hand — FormData supplies the boundary.
+      const form = new FormData();
+      form.append('file', new Blob([p.file], { type: p.mimeType || 'application/octet-stream' }), p.filename);
+      form.append('model', m.modelId);
+      if (p.language) form.append('language', p.language);
+      if (p.prompt) form.append('prompt', p.prompt);
+      if (p.temperature !== undefined) form.append('temperature', String(p.temperature));
+      // Groq supports json/verbose_json/text natively; text is derived locally
+      // from the json shape so failover output stays uniform.
+      form.append('response_format', p.responseFormat === 'verbose_json' ? 'verbose_json' : 'json');
+      const r = await mediaFetch('https://api.groq.com/openai/v1/audio/transcriptions', 'groq', 'transcription', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${key}` },
+        body: form,
+      });
+      const j = (await r.json()) as { text?: string; language?: string; duration?: number; segments?: unknown[] };
+      if (typeof j.text !== 'string') throw new MediaError('groq returned no transcription text', 502);
+      return { text: j.text, language: j.language, duration: j.duration, segments: j.segments };
+    }
+    case 'cloudflare': {
+      const { accountId, token } = parseCfKey(key);
+      const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${m.modelId}`;
+      const init: RequestInit = m.cfInput === 'json'
+        ? {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+              audio: p.file.toString('base64'),
+              ...(p.language ? { language: p.language } : {}),
+              ...(p.prompt ? { initial_prompt: p.prompt } : {}),
+            }),
+          }
+        : {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/octet-stream', Authorization: `Bearer ${token}` },
+            body: p.file,
+          };
+      const r = await mediaFetch(url, 'cloudflare', 'transcription', init);
+      const j = (await r.json()) as {
+        result?: {
+          text?: string;
+          vtt?: string;
+          segments?: unknown[];
+          transcription_info?: { language?: string; duration?: number };
+        };
+      };
+      const result = j.result;
+      if (!result || typeof result.text !== 'string') {
+        throw new MediaError('cloudflare returned no transcription text', 502);
+      }
+      return {
+        text: result.text,
+        language: result.transcription_info?.language,
+        duration: result.transcription_info?.duration,
+        segments: result.segments,
+        vtt: typeof result.vtt === 'string' ? result.vtt : undefined,
+      };
+    }
+    default:
+      throw new MediaError(`no transcription adapter for platform '${(m as SttModel).platform}'`, 500);
+  }
+}
+
+/** Transcribe audio, failing over across STT providers. 429s bench the
+ *  (platform, model, key) triple through the standard cooldown machinery so a
+ *  rate-limited key is skipped on subsequent requests, exactly like chat. */
+export async function runTranscription(model: string | undefined, p: TranscriptionParams): Promise<TranscriptionResult> {
+  const chain = resolveTranscriptionChain(model, p.responseFormat);
+  const usable = chain.filter(m => p.file.length <= m.maxBytes);
+  if (usable.length === 0) {
+    const maxMb = Math.max(...chain.map(m => m.maxBytes)) / (1024 * 1024);
+    throw new MediaError(`Audio file exceeds the ${maxMb} MB provider upload limit.`, 413);
+  }
+  let lastError: MediaError | null = null;
+  for (const m of usable) {
+    const credential = getProviderCredential({ platform: m.platform, key_id: null });
+    if (!credential) continue; // no usable key for this provider — try the next
+    if (credential.id != null && isOnCooldown(m.platform, m.modelId, credential.id)) continue;
+    const logRow = { platform: m.platform, model_id: m.modelId, modality: 'transcription' as const };
+    const started = Date.now();
+    try {
+      const out = await callTranscriptionProvider(m, credential, p);
+      if (p.responseFormat === 'vtt' && !out.vtt) {
+        throw new MediaError('upstream returned no vtt subtitles', 502);
+      }
+      logMedia(logRow, credential.id, 'success', Date.now() - started, null);
+      return { platform: m.platform, modelId: m.modelId, ...out };
+    } catch (err: any) {
+      const e = err instanceof MediaError ? err : new MediaError(String(err?.message ?? err), 502);
+      logMedia(logRow, credential.id, 'error', Date.now() - started, e.message.slice(0, 300));
+      if (e.status === 429 && credential.id != null) {
+        setCooldown(m.platform, m.modelId, credential.id);
+      }
+      lastError = e;
+    }
+  }
+  throw chainError('transcription', lastError);
 }
 
 /** Synthesize speech, failing over across providers serving the modality. */
