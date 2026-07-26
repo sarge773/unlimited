@@ -21,6 +21,19 @@ describe('key parser', () => {
     ]);
   });
 
+  it('unquotes dotenv values that carry an inline comment', () => {
+    expect(parseDotEnv('GOOGLE_API_KEY="ai-test" # primary\nGROQ_API_KEY=\'gsk-test\'  # backup')).toEqual([
+      { key: 'GOOGLE_API_KEY', value: 'ai-test' },
+      { key: 'GROQ_API_KEY', value: 'gsk-test' },
+    ]);
+  });
+
+  it('keeps a # that is inside the quotes', () => {
+    expect(parseDotEnv('NVIDIA_API_KEY="nv # test"')).toEqual([
+      { key: 'NVIDIA_API_KEY', value: 'nv # test' },
+    ]);
+  });
+
   it('parses flat JSON string values', () => {
     expect(parseJson(JSON.stringify({ MISTRAL_API_KEY: 'mist-test', PORT: 3001 }))).toEqual([
       { key: 'MISTRAL_API_KEY', value: 'mist-test' },
