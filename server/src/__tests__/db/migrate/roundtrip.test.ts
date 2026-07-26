@@ -15,6 +15,7 @@ const PROFILE_CHAIN_BACKFILL_FILENAME = '20260714_000001_profile_chain_backfill.
 const KEY_HEALTH_ERROR_FILENAME = '20260720_000001_key_health_error.ts';
 const COOLDOWN_PROBE_PROVENANCE_FILENAME = '20260726_000001_cooldown_probe_provenance.ts';
 const REQUEST_ATTEMPTS_FILENAME = '20260726_000002_request_attempts.ts';
+const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000003_model_source_provenance.ts';
 
 interface SchemaRow {
   type: string;
@@ -76,6 +77,7 @@ describe('migration round trip', () => {
         KEY_HEALTH_ERROR_FILENAME,
         COOLDOWN_PROBE_PROVENANCE_FILENAME,
         REQUEST_ATTEMPTS_FILENAME,
+        MODEL_SOURCE_PROVENANCE_FILENAME,
       ]);
     } finally {
       db.close();
@@ -94,8 +96,8 @@ describe('migration round trip', () => {
       // post-migration state, tools = 1) so the round trip actually exercises
       // that migration's down (tools -> 0) and up (tools -> 1).
       db.prepare(`
-        INSERT INTO models (platform, model_id, display_name, intelligence_rank, speed_rank, supports_tools, supports_vision, enabled)
-        VALUES ('custom', 'roundtrip-custom', 'Roundtrip Custom', 50, 50, 1, 0, 1)
+        INSERT INTO models (platform, model_id, display_name, intelligence_rank, speed_rank, supports_tools, supports_vision, enabled, source)
+        VALUES ('custom', 'roundtrip-custom', 'Roundtrip Custom', 50, 50, 1, 0, 1, 'user')
       `).run();
 
       const fullState = snapshotAppState(db);

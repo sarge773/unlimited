@@ -188,8 +188,10 @@ function routableContextWindow(platform: string, modelId: string, contextWindow:
  *    unless the user has an explicit local override;
  *  - catalog enabled=false force-disables (the model is dead upstream), but
  *    enabled=true never re-enables a model the user turned off themselves;
- *  - models the user added via custom providers (platform='custom' or bound to
- *    a key) are never touched;
+ *  - rows the user created (models.source = 'user': custom providers,
+ *    declarative config, admin adds) are never updated, never deleted, and
+ *    never adopted — on a platform:model_id collision the user row wins and
+ *    the catalog entry is skipped outright;
  *  - catalog models the user deleted stay deleted via tombstones;
  *  - models that vanished from the catalog are deleted, exactly like the
  *    dead-model migrations do (fallback_config row first, FK order).
@@ -197,7 +199,7 @@ function routableContextWindow(platform: string, modelId: string, contextWindow:
 export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['counts']> {
   const counts = { updated: 0, inserted: 0, removed: 0, skippedUnknownPlatform: 0, quirks: 0 };
 
-  const selectModel = db.prepare('SELECT id, enabled FROM models WHERE platform = ? AND model_id = ?');
+  const selectModel = db.prepare('SELECT id, enabled, source FROM models WHERE platform = ? AND model_id = ?');
   const updateModel = db.prepare(`
     UPDATE models SET
       display_name = @displayName, intelligence_rank = @intelligenceRank, speed_rank = @speedRank,
@@ -210,10 +212,10 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
   const insertModel = db.prepare(`
     INSERT INTO models (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
                         rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window,
-                        enabled, supports_vision, supports_tools)
+                        enabled, supports_vision, supports_tools, source)
     VALUES (@platform, @modelId, @displayName, @intelligenceRank, @speedRank, @sizeLabel,
             @rpm, @rpd, @tpm, @tpd, @monthlyTokenBudget, @contextWindow,
-            @enabled, @supportsVision, @supportsTools)
+            @enabled, @supportsVision, @supportsTools, 'catalog')
   `);
 
   // Generative-media models go to their own table (never the chat router's pool).
@@ -290,7 +292,15 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
       if (isCatalogModelTombstoned(db, 'chat', m.platform, m.modelId)) continue;
       inCatalog.add(`${m.platform}:${m.modelId}`);
 
-      const row = selectModel.get(m.platform, m.modelId) as { id: number; enabled: number } | undefined;
+      const row = selectModel.get(m.platform, m.modelId) as
+        | { id: number; enabled: number; source: string }
+        | undefined;
+      // Collision rule: if the user hand-added a model and the catalog later
+      // ships the same platform:model_id, the user row wins — the catalog
+      // neither clobbers its metadata nor adopts it (same spirit as the
+      // never-touch rule for custom-provider models). The row also survives
+      // the prune below because the delete pass only considers source='catalog'.
+      if (row && row.source === 'user') continue;
       const fields = {
         displayName: m.displayName,
         intelligenceRank: m.intelligenceRank,
@@ -369,13 +379,20 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
     ensureAllModelsInProfiles(db);
 
     // Remove catalog-managed models that the catalog no longer lists.
+    // Ownership is decided by the `source` provenance column: only rows the
+    // catalog itself created are prune candidates. Rows with source='user'
+    // (declarative config, admin adds, custom endpoints) are never deleted
+    // here, no matter what their size_label or platform says — that replaces
+    // the old size_label NOT IN ('User','Custom') heuristic, which lost user
+    // rows whose label didn't follow the convention. The platform/key_id
+    // predicates stay as belt and braces.
     const candidates = db
       .prepare(`
         SELECT id, platform, model_id
           FROM models
          WHERE platform != 'custom'
            AND key_id IS NULL
-           AND size_label NOT IN ('User', 'Custom')
+           AND source = 'catalog'
       `)
       .all() as { id: number; platform: string; model_id: string }[];
     const deleteFb = db.prepare('DELETE FROM fallback_config WHERE model_db_id = ?');
