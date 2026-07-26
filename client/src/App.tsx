@@ -169,7 +169,10 @@ function Navbar() {
         style={isDesktopApp ? ({ WebkitAppRegion: 'drag' } as React.CSSProperties) : undefined}
       >
         <div
-          className={`mx-auto flex max-w-6xl items-center px-4 sm:px-6 ${isDesktopApp ? 'ps-20 sm:ps-20' : ''}`}
+          // Physical pl (not logical ps): the gutter reserves the macOS
+          // traffic lights, which stay top-left even when an RTL locale
+          // flips the document direction.
+          className={`mx-auto flex max-w-6xl items-center px-4 sm:px-6 ${isDesktopApp ? 'pl-20 sm:pl-20' : ''}`}
           style={isDesktopApp ? { minHeight: 52 } : undefined}
         >
           <Brand />

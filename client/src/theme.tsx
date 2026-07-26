@@ -33,6 +33,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     window.localStorage.setItem('theme', theme)
+    // The desktop preload mirrors this attribute to the Electron main process
+    // so nativeTheme.themeSource can follow a 'system' choice for real.
+    document.documentElement.dataset.themeChoice = theme
   }, [theme])
 
   useEffect(() => {

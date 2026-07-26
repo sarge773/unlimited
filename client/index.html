@@ -15,6 +15,8 @@
           document.documentElement.classList.add('dark')
         }
         document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        document.documentElement.dataset.themeChoice =
+          theme === 'dark' || theme === 'light' ? theme : 'system'
         // Same idea for text direction; keep in sync with RTL_LOCALES in
         // src/i18n/locale-config.ts.
         const locale = localStorage.getItem('freellmapi.locale')
