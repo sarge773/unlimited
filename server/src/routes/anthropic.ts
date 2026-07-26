@@ -21,6 +21,7 @@ import { extractApiToken, timingSafeStringEqual, getStickyModel, setStickyModel 
 import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, type ExhaustionBody, setFallbackHeaders, setExhaustionHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
 import { applyTokenBudget, tokenBudgetMessage } from '../lib/guardrails.js';
 import { resolveAnthropicModel } from '../services/anthropic-map.js';
+import type { ReasoningEffort } from '../lib/sampling-params.js';
 import { buildModelListing } from '../services/model-listing.js';
 
 // Anthropic-compatible Messages API (`POST /v1/messages`). This is a thin
@@ -87,16 +88,44 @@ const messagesSchema = z.object({
   stop_sequences: z.array(z.string()).optional(),
   tools: z.array(anthropicToolSchema).optional(),
   tool_choice: anthropicToolChoiceSchema.optional(),
+  // Anthropic's native extended-thinking knob. Mapped onto the internal
+  // reasoning_effort (see effortFromAnthropicThinking) so providers with
+  // request-side reasoning control receive it; platforms without support have
+  // it stripped by the policy in lib/sampling-params.ts.
+  thinking: z.object({
+    type: z.enum(['enabled', 'disabled']).optional(),
+    budget_tokens: z.number().int().optional(),
+  }).passthrough().nullable().optional(),
 }).passthrough();
 
 type AnthropicRequest = z.infer<typeof messagesSchema>;
+
+// Anthropic expresses reasoning control as a token budget; our internal knob
+// is OpenAI's coarse effort scale. Thresholds follow Anthropic's own guidance
+// bands (minimum budget 1024; multi-10k budgets for hard problems).
+export function effortFromAnthropicThinking(
+  thinking: { type?: string; budget_tokens?: number } | null | undefined,
+): ReasoningEffort | undefined {
+  if (!thinking) return undefined;
+  if (thinking.type === 'disabled') return 'none';
+  const budget = thinking.budget_tokens;
+  if (budget == null) return 'medium';
+  if (budget < 4096) return 'low';
+  if (budget < 16384) return 'medium';
+  return 'high';
+}
 
 // ── Response shape ──────────────────────────────────────────────────────────
 type AnthropicStopReason = 'end_turn' | 'max_tokens' | 'stop_sequence' | 'tool_use' | null;
 
 interface AnthropicTextBlock { type: 'text'; text: string }
 interface AnthropicToolUseBlock { type: 'tool_use'; id: string; name: string; input: unknown; thought_signature?: string }
-type AnthropicResponseBlock = AnthropicTextBlock | AnthropicToolUseBlock;
+// The model's reasoning trace, rendered on Anthropic's native wire shape. The
+// signature field is required by the shape but is only meaningful for real
+// Anthropic models (replay verification); empty here. Our request converter
+// drops thinking blocks on the way in, so replay is safe.
+interface AnthropicThinkingBlock { type: 'thinking'; thinking: string; signature: string }
+type AnthropicResponseBlock = AnthropicTextBlock | AnthropicToolUseBlock | AnthropicThinkingBlock;
 
 interface AnthropicMessageResponse {
   id: string;
@@ -337,6 +366,13 @@ function parseToolInput(raw: string): unknown {
 
 function toAnthropicContent(message: ChatMessage | undefined): AnthropicResponseBlock[] {
   const blocks: AnthropicResponseBlock[] = [];
+  // Reasoning output (native provider reasoning_content, or extracted from an
+  // inline <think> block by lib/think-tags.ts) → Anthropic thinking block,
+  // first per Anthropic convention.
+  const reasoning = message?.reasoning_content;
+  if (typeof reasoning === 'string' && reasoning.length > 0) {
+    blocks.push({ type: 'thinking', thinking: reasoning, signature: '' });
+  }
   const text = contentToString(message?.content ?? '');
   if (text.length > 0) blocks.push({ type: 'text', text });
   for (const call of message?.tool_calls ?? []) {
@@ -414,7 +450,12 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
   const max_tokens = clientMaxTokens
     ?? (budgetCheck.maxTokens != null ? Math.min(DEFAULT_MAX_TOKENS, budgetCheck.maxTokens) : DEFAULT_MAX_TOKENS);
 
-  const completionOptions = { temperature, max_tokens, top_p, top_k: body.top_k ?? undefined, tools, tool_choice };
+  const completionOptions = {
+    temperature, max_tokens, top_p, top_k: body.top_k ?? undefined, tools, tool_choice,
+    // Native `thinking: {type, budget_tokens}` → the same internal knob the
+    // OpenAI surface's reasoning_effort feeds; absent when the client sent none.
+    reasoning_effort: effortFromAnthropicThinking(body.thinking),
+  };
   // Capped output reserve so a large max_tokens can't falsely exclude the model
   // pool (#470); input + images count in full.
   const estimatedTotal = estimatedInputTokens + imageCount * IMAGE_TOKEN_ESTIMATE + routingReserveTokens(max_tokens);
@@ -638,10 +679,28 @@ async function streamCompletion(
     messageStarted = true;
   };
 
+  // Reasoning output (delta.reasoning_content from providers / the <think>
+  // extractor, delta.reasoning from Ollama-style upstreams) is buffered and
+  // emitted as one complete thinking block right before the first text/tool
+  // block. Buffering (not live thinking_delta streaming) keeps the commit
+  // point where it was: a stream that produces ONLY reasoning and dies still
+  // fails over invisibly, exactly like the OpenAI surface's preamble hold.
+  let reasoningBuf = '';
+  const flushThinking = () => {
+    if (reasoningBuf.length === 0) return;
+    const idx = nextIndex++;
+    writeSse(res, 'content_block_start', { type: 'content_block_start', index: idx, content_block: { type: 'thinking', thinking: '' } });
+    writeSse(res, 'content_block_delta', { type: 'content_block_delta', index: idx, delta: { type: 'thinking_delta', thinking: reasoningBuf } });
+    writeSse(res, 'content_block_stop', { type: 'content_block_stop', index: idx });
+    outputChars += reasoningBuf.length;
+    reasoningBuf = '';
+  };
+
   // Commit (if needed), open the text block (if needed), and stream `text`.
   const emitText = (text: string) => {
     ensureMessageStart();
     if (!textBlockOpen) {
+      flushThinking(); // thinking block precedes the text block
       textBlockIndex = nextIndex++;
       writeSse(res, 'content_block_start', { type: 'content_block_start', index: textBlockIndex, content_block: { type: 'text', text: '' } });
       textBlockOpen = true;
@@ -685,6 +744,11 @@ async function streamCompletion(
           acc.thought_signature = thoughtSignature;
         }
       }
+
+      // Reasoning deltas: providers emit reasoning_content (or Ollama-style
+      // `reasoning`); the shared <think> extractor emits reasoning_content.
+      const reasoningDelta = choice.delta?.reasoning_content ?? choice.delta?.reasoning;
+      if (typeof reasoningDelta === 'string' && reasoningDelta.length > 0) reasoningBuf += reasoningDelta;
 
       const text = typeof choice.delta?.content === 'string' ? choice.delta.content : '';
       if (text.length === 0) continue;
@@ -770,6 +834,9 @@ async function streamCompletion(
 
     ensureMessageStart();
     if (textBlockOpen) writeSse(res, 'content_block_stop', { type: 'content_block_stop', index: textBlockIndex });
+    // Residual reasoning: tool-only turns (no text block ever opened) and
+    // reasoning that arrived after the text block was already streaming.
+    flushThinking();
 
     for (const call of completedCalls) {
       const idx = nextIndex++;

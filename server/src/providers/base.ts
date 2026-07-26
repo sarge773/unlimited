@@ -10,6 +10,7 @@ import type { QuotaObservationContext } from '../services/provider-quota.js';
 import type { ExtendedSamplingOptions } from '../lib/sampling-params.js';
 import { proxyFetch } from '../lib/proxy.js';
 import { providerTimeoutMs, streamStallTimeoutMs } from '../lib/provider-timeout.js';
+import { extractThinkTagsFromStream } from '../lib/think-tags.js';
 
 /** A provider HTTP error carrying the upstream status and, when the response
  *  included a Retry-After header, the parsed delay so the router can bench the
@@ -255,8 +256,21 @@ export abstract class BaseProvider {
    *    (several compat shims) still complete normally.
    *
    * Malformed data lines are skipped, matching previous behavior.
+   *
+   * The frames additionally pass through the inline `<think>` extractor
+   * (lib/think-tags.ts): DeepSeek-style models that serialize their reasoning
+   * trace INTO delta.content as a leading `<think>…</think>` block get it
+   * moved to delta.reasoning_content, so downstream surfaces never render
+   * thinking as answer text. Streams without the tag are forwarded verbatim.
    */
   protected async *readSseStream(
+    res: Response,
+    inactivityTimeoutMs?: number,
+  ): AsyncGenerator<ChatCompletionChunk> {
+    yield* extractThinkTagsFromStream(this.readSseFrames(res, inactivityTimeoutMs));
+  }
+
+  private async *readSseFrames(
     res: Response,
     // The 90s default was hardcoded and silently truncated slow streams — the
     // gateway ended them with an error frame plus a clean [DONE] that OpenAI
