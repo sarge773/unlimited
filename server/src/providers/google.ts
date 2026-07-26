@@ -695,12 +695,19 @@ export class GoogleProvider extends BaseProvider {
 
     // Same mid-stream inactivity watchdog as readSseStream (#553): this adapter
     // parses Gemini's own frame format, so it reads the body itself and used to
-    // have no bound at all on a stalled read.
-    const inactivityTimeoutMs = streamStallTimeoutMs();
+    // have no bound at all on a stalled read. Same first-byte grace as
+    // readSseStream too (#584): the chat timeout that bounded the headers also
+    // budgets the first read, floored at the stall budget.
+    const inactivityTimeoutMs = streamStallTimeoutMs(this.platform);
+    const firstByteMs = this.firstByteBudgetMs(options?.timeoutMs ?? this.timeoutMs, inactivityTimeoutMs);
+    let awaitingFirstByte = true;
 
     try {
       while (true) {
-        const { done, value } = await this.readWithStallTimeout(() => reader.read(), inactivityTimeoutMs);
+        const { done, value } = awaitingFirstByte
+          ? await this.readWithStallTimeout(() => reader.read(), firstByteMs, this.firstByteTimeoutMessage(firstByteMs))
+          : await this.readWithStallTimeout(() => reader.read(), inactivityTimeoutMs);
+        awaitingFirstByte = false;
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });

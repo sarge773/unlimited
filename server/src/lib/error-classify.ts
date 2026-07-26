@@ -93,6 +93,9 @@ export function isRetryableError(err: any): boolean {
     || msg.includes('in-band provider error')
     || msg.includes('stream ended unexpectedly')
     || msg.includes('stream stalled')
+    // First-byte timeout (#584): the grace budget expired before ANY byte
+    // reached the client, so the next candidate can serve it invisibly.
+    || msg.includes('no first byte')
     || msg.includes('unparseable inline tool-call dialect');
 }
 
