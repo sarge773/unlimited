@@ -365,28 +365,10 @@ time from **⋯ → Settings**; the choice is remembered. Right-to-left language
 (العربية, עברית, فارسی, اردو) flip the whole layout automatically, and only the
 active language's dictionary is loaded — the rest never touch your bandwidth.
 
-|   |   |   |
-| --- | --- | --- |
-| 🇬🇧 English (`en`) | 🇨🇳 中文 (简体) (`zh-CN`) | 🇪🇸 Español (`es`) |
-| 🇫🇷 Français (`fr`) | 🇧🇷 Português (Brasil) (`pt-BR`) | 🇮🇹 Italiano (`it`) |
-| 🇮🇳 हिन्दी (`hi`) | 🇸🇦 العربية (`ar`) | 🇧🇩 বাংলা (`bn`) |
-| 🇷🇺 Русский (`ru`) | 🇵🇰 اردو (`ur`) | 🇮🇩 Bahasa Indonesia (`id`) |
-| 🇩🇪 Deutsch (`de`) | 🇯🇵 日本語 (`ja`) | 🇰🇪 Kiswahili (`sw`) |
-| 🇮🇳 मराठी (`mr`) | 🇮🇳 తెలుగు (`te`) | 🇹🇷 Türkçe (`tr`) |
-| 🇮🇳 தமிழ் (`ta`) | 🇻🇳 Tiếng Việt (`vi`) | 🇰🇷 한국어 (`ko`) |
-| 🇮🇷 فارسی (`fa`) | 🇹🇭 ไทย (`th`) | 🇮🇳 ગુજરાતી (`gu`) |
-| 🇵🇱 Polski (`pl`) | 🇺🇦 Українська (`uk`) | 🇮🇳 ಕನ್ನಡ (`kn`) |
-| 🇮🇳 മലയാളം (`ml`) | 🇮🇳 ଓଡ଼ିଆ (`or`) | 🇲🇲 မြန်မာဘာသာ (`my`) |
-| 🇮🇳 ਪੰਜਾਬੀ (`pa`) | 🇷🇴 Română (`ro`) | 🇳🇱 Nederlands (`nl`) |
-| 🇲🇾 Bahasa Melayu (`ms`) | 🇵🇭 Filipino (`tl`) | 🇳🇬 Hausa (`ha`) |
-| 🇳🇬 Yorùbá (`yo`) | 🇳🇬 Igbo (`ig`) | 🇪🇹 አማርኛ (`am`) |
-| 🇺🇿 Oʻzbekcha (`uz`) | 🇦🇿 Azərbaycanca (`az`) | 🇱🇰 සිංහල (`si`) |
-| 🇳🇵 नेपाली (`ne`) | 🇰🇭 ខ្មែរ (`km`) | 🇬🇷 Ελληνικά (`el`) |
-| 🇨🇿 Čeština (`cs`) | 🇭🇺 Magyar (`hu`) | 🇸🇪 Svenska (`sv`) |
-| 🇮🇱 עברית (`he`) | 🇩🇰 Dansk (`da`) | 🇫🇮 Suomi (`fi`) |
-| 🇳🇴 Norsk (`no`) | 🇸🇰 Slovenčina (`sk`) | 🇧🇬 Български (`bg`) |
-| 🇭🇷 Hrvatski (`hr`) | 🇷🇸 Српски (`sr`) | 🇱🇹 Lietuvių (`lt`) |
-| 🇹🇼 中文 (繁體) (`zh-TW`) | 🇵🇹 Português (Portugal) (`pt-PT`) | 🇬🇪 ქართული (`ka`) |
+🇬🇧 🇨🇳 🇪🇸 🇫🇷 🇧🇷 🇮🇹 🇮🇳 🇸🇦 🇧🇩 🇷🇺 🇵🇰 🇮🇩 🇩🇪 🇯🇵 🇰🇪 🇹🇷 🇻🇳 🇰🇷 🇮🇷 🇹🇭 🇵🇱 🇺🇦 🇲🇲 🇷🇴 🇳🇱 🇲🇾 🇵🇭 🇳🇬 🇪🇹 🇺🇿 🇦🇿 🇱🇰 🇳🇵 🇰🇭 🇬🇷 🇨🇿 🇭🇺 🇸🇪 🇮🇱 🇩🇰 🇫🇮 🇳🇴 🇸🇰 🇧🇬 🇭🇷 🇷🇸 🇱🇹 🇹🇼 🇵🇹 🇬🇪
+
+The full list of locales lives in
+[`client/src/i18n/locale-config.ts`](./client/src/i18n/locale-config.ts).
 
 The original six locales are human-reviewed; the newer ones are machine-
 translated and improve as native speakers send corrections — a one-string PR is
