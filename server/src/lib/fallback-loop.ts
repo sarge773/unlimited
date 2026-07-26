@@ -30,6 +30,7 @@ import {
 import {
   isRetryableError,
   isKeyAuthError,
+  isClientAbortError,
   isDailyQuotaExhaustedError,
   isPaymentRequiredError,
   isModelNotFoundError,
@@ -435,9 +436,11 @@ export interface FallbackHooks {
   attemptLog?: AttemptRecord[];
   // Returns true once the client has hung up. Checked before STARTING each
   // retry: a chain nobody is waiting for must not keep burning provider
-  // quota. The in-flight attempt still completes (same boundary as the
-  // wall-clock budget); stream pumps additionally stop reading upstream on
-  // disconnect, which cancels the upstream request via reader.cancel().
+  // quota. Surfaces additionally thread a client-disconnect AbortSignal into
+  // the provider options (CompletionOptions.signal), so the in-flight
+  // attempt's fetch/body/stream is canceled the moment the client goes; the
+  // resulting client-abort throw stops the loop without any failure
+  // bookkeeping (see the isClientAbortError branch below).
   clientGone?: () => boolean;
   // Skip state; recordRetryableFailure / recordAuthFailure (called by the loop)
   // mutate it, and the surface's route() reads it to exclude failed keys/models.
@@ -571,6 +574,16 @@ export async function runFallbackLoop(hooks: FallbackHooks): Promise<void> {
     try {
       outcome = await hooks.dispatch(route, attempt);
     } catch (err: any) {
+      // Client-caused abort: the composed fetch signal fired because OUR
+      // client hung up mid-attempt (see newClientAbortError). Not a
+      // provider-health signal — no cooldown, no penalty, no failure stats,
+      // no logFailure 'error' row — and no further attempts either: nobody is
+      // waiting, and there is no socket to render anything to. The finally
+      // below still frees the in-flight lease.
+      if (isClientAbortError(err)) {
+        console.log(`[FallbackLoop] client disconnected mid-attempt on ${route.platform}/${route.modelId} — upstream canceled, stopping without benching`);
+        return;
+      }
       hooks.logFailure(route, err, attempt);
       if (isKeyAuthError(err)) {
         // KEY-fatal, not request-fatal: rotate past the bad key and revalidate

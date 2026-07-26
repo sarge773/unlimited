@@ -66,6 +66,31 @@ export interface CompletionOptions extends ExtendedSamplingOptions {
    * stripped before the request body is built); used by the probe script so
    * NVIDIA's 15-60s serverless cold starts don't read as failures. */
   timeoutMs?: number;
+  /** Abort signal for the gateway's OWN client (request socket closed). The
+   * proxy surfaces thread it here so a disconnect cancels the upstream fetch
+   * AND any in-progress body/stream read — tokens stop burning and the
+   * in-flight lease frees immediately instead of when the read happens to
+   * finish. Composed with the per-attempt timeout in fetchWithTimeout; never
+   * serialized into the request body. */
+  signal?: AbortSignal;
+}
+
+/** Per-call abort/timeout wiring for fetchWithTimeout. */
+export interface ProviderFetchOptions {
+  /** Client-disconnect signal, composed with the per-attempt timeout via
+   * AbortSignal.any. Unlike the timeout it is never disarmed at headers, so it
+   * also aborts body reads and stream iteration through undici. */
+  signal?: AbortSignal;
+  /** What the per-attempt timeout bounds:
+   *  - 'headers' (default, historical): the abort timer dies the moment
+   *    response HEADERS arrive — right for streams, whose body legitimately
+   *    outlives any fixed deadline (readSseStream's stall watchdog owns
+   *    mid-stream hangs, the client signal owns "nobody is listening").
+   *  - 'request': the deadline stays armed across the body read too, so a 200
+   *    whose body never finishes aborts at timeoutMs instead of hanging
+   *    res.json() forever. Use for non-streaming calls, which read the whole
+   *    body as one unit. */
+  timeoutBounds?: 'headers' | 'request';
 }
 
 export interface KeyValidationFailure {
@@ -140,25 +165,79 @@ export abstract class BaseProvider {
     // Adapters that don't pass a timeout inherit the platform's env override
     // (PROVIDER_TIMEOUT_<PLATFORM>, issue #547) over the historical 15s.
     timeoutMs = providerTimeoutMs(this.platform, 15000),
+    fetchOpts?: ProviderFetchOptions,
   ): Promise<Response> {
+    const signals: AbortSignal[] = [];
+    if (fetchOpts?.signal) signals.push(fetchOpts.signal);
+
     // timeoutMs <= 0 means "no timeout" (PROVIDER_TIMEOUT_<PLATFORM>=0).
     // setTimeout(abort, 0) would abort every request on the next macrotask.
-    if (timeoutMs <= 0) {
-      return proxyFetch(url, init, this.platform, 'chat', timeoutMs);
+    let headerTimer: ReturnType<typeof setTimeout> | undefined;
+    if (timeoutMs > 0) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      signals.push(controller.signal);
+      if (fetchOpts?.timeoutBounds === 'request') {
+        // Whole-request deadline: stays armed across the body read, so a 200
+        // whose body never finishes aborts res.json() at timeoutMs instead of
+        // hanging forever. Never cleared — firing after the response is fully
+        // consumed is a no-op — and unref'd so a spent request's leftover
+        // deadline can't hold the process open.
+        timer.unref?.();
+      } else {
+        // Historical header-only deadline: disarmed the moment response
+        // HEADERS arrive (see finally). Streams need this — an SSE body
+        // legitimately outlives any fixed deadline, and mid-stream hangs are
+        // owned by the stall watchdog (readSseStream) + the client signal.
+        headerTimer = timer;
+      }
     }
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    // Compose the per-attempt timeout with the client-disconnect signal.
+    // Unlike the timeout, the client signal is never disarmed: undici ties it
+    // to the whole request, so a disconnect also aborts body reads and stream
+    // iteration, rejecting them with the marked reason from newClientAbortError.
+    const signal = signals.length === 0
+      ? init.signal ?? undefined
+      : signals.length === 1 ? signals[0] : AbortSignal.any(signals);
+
     try {
       // requestType='chat' + timeoutMs makes the AbortError message read
       // `<platform>, chat, 15s` for triage from the requests.error column.
-      return await proxyFetch(url, { ...init, signal: controller.signal }, this.platform, 'chat', timeoutMs);
+      return await proxyFetch(url, signal ? { ...init, signal } : init, this.platform, 'chat', timeoutMs);
     } finally {
-      clearTimeout(timeout);
+      if (headerTimer !== undefined) clearTimeout(headerTimer);
     }
   }
 
   protected makeId(): string {
     return `chatcmpl-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  /**
+   * One reader.read() bounded by the mid-stream inactivity watchdog (#553).
+   * Shared by readSseStream and adapters that parse their own wire format
+   * (google.ts) so every stream gets the same stall semantics:
+   * PROVIDER_STREAM_STALL_TIMEOUT_MS, default 90s, 0 disables. Client-abort
+   * rejections pass through untouched — undici errors the body with the
+   * request signal's reason, so a disconnect surfaces here as the marked
+   * error from newClientAbortError, not as a stall.
+   */
+  protected async readWithStallTimeout<T>(
+    read: () => Promise<T>,
+    inactivityTimeoutMs: number,
+  ): Promise<T> {
+    if (inactivityTimeoutMs <= 0) return read();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    return Promise.race([
+      read(),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`${this.name} stream stalled: no data for ${inactivityTimeoutMs}ms (timeout)`)),
+          inactivityTimeoutMs,
+        );
+      }),
+    ]).finally(() => clearTimeout(timer));
   }
 
   /**
@@ -195,20 +274,7 @@ export abstract class BaseProvider {
 
     try {
       while (true) {
-        let timer: ReturnType<typeof setTimeout> | undefined;
-        const result = inactivityTimeoutMs <= 0
-          ? await reader.read()
-          : await Promise.race([
-              reader.read(),
-              new Promise<never>((_, reject) => {
-                timer = setTimeout(
-                  () => reject(new Error(`${this.name} stream stalled: no data for ${inactivityTimeoutMs}ms (timeout)`)),
-                  inactivityTimeoutMs,
-                );
-              }),
-            ]).finally(() => clearTimeout(timer));
-
-        const { done, value } = result;
+        const { done, value } = await this.readWithStallTimeout(() => reader.read(), inactivityTimeoutMs);
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
