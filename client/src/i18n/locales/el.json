@@ -73,8 +73,8 @@
     "language": "Γλώσσα",
     "theme": "Θέμα",
     "themeSystem": "Σύστημα",
-    "themeLight": "Φως",
-    "themeDark": "Σκοτάδι",
+    "themeLight": "Ανοιχτό",
+    "themeDark": "Σκούρο",
     "searchLanguage": "Αναζήτηση γλωσσών...",
     "noLanguages": "Δεν βρέθηκαν γλώσσες"
   },

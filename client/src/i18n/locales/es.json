@@ -73,8 +73,8 @@
     "language": "Idioma",
     "theme": "Tema",
     "themeSystem": "Sistema",
-    "themeLight": "Luz",
-    "themeDark": "oscuro",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
     "searchLanguage": "Buscar idiomas…",
     "noLanguages": "No se encontraron idiomas"
   },

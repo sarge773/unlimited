@@ -71,9 +71,9 @@
   "settings": {
     "title": "Cài đặt",
     "language": "Ngôn ngữ",
-    "theme": "chủ đề",
+    "theme": "Chủ đề",
     "themeSystem": "Hệ thống",
-    "themeLight": "Ánh sáng",
+    "themeLight": "Sáng",
     "themeDark": "Tối",
     "searchLanguage": "Tìm kiếm ngôn ngữ…",
     "noLanguages": "Không tìm thấy ngôn ngữ nào"

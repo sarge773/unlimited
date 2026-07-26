@@ -6,7 +6,7 @@
     "analytics": "Analitika",
     "premium": "Premium",
     "upgrade": "Yeniləmə",
-    "settings": "Mühitlər",
+    "settings": "Parametrlər",
     "signOut": "Çıxış",
     "openMenu": "Naviqasiya menyusunu aç",
     "switchLight": "Yüngül mövzuya keçid",
@@ -69,12 +69,12 @@
     "status": "Status"
   },
   "settings": {
-    "title": "Mühitlər",
+    "title": "Parametrlər",
     "language": "Dil",
     "theme": "Mövzu",
     "themeSystem": "Sistem",
-    "themeLight": "İşıq",
-    "themeDark": "Qaranlıq",
+    "themeLight": "İşıqlı",
+    "themeDark": "Tünd",
     "searchLanguage": "Dilləri axtar...",
     "noLanguages": "Heç bir dil tapılmadı"
   },

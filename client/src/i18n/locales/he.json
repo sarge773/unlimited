@@ -71,10 +71,10 @@
   "settings": {
     "title": "הגדרות",
     "language": "שפה",
-    "theme": "נושא",
+    "theme": "ערכת נושא",
     "themeSystem": "מערכת",
-    "themeLight": "אור",
-    "themeDark": "חושך",
+    "themeLight": "בהיר",
+    "themeDark": "כהה",
     "searchLanguage": "חיפוש שפות...",
     "noLanguages": "לא נמצאו שפות"
   },

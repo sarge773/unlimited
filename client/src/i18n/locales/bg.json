@@ -6,7 +6,7 @@
     "analytics": "Аналитика",
     "premium": "Премиум",
     "upgrade": "Ъпгрейд",
-    "settings": "Обстановки",
+    "settings": "Настройки",
     "signOut": "Излез",
     "openMenu": "Отвори навигационното меню",
     "switchLight": "Превключване към светлинна тема",
@@ -69,13 +69,13 @@
     "status": "Статус"
   },
   "settings": {
-    "title": "Обстановки",
+    "title": "Настройки",
     "language": "Език",
     "theme": "Тема",
     "themeSystem": "Система",
-    "themeLight": "Светлина",
-    "themeDark": "Тъмно",
-    "searchLanguage": "Езици за търсене...",
+    "themeLight": "Светла",
+    "themeDark": "Тъмна",
+    "searchLanguage": "Търсене на езици…",
     "noLanguages": "Няма намерени езици"
   },
   "models": {

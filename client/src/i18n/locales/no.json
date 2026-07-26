@@ -6,7 +6,7 @@
     "analytics": "Analyse",
     "premium": "Premium",
     "upgrade": "Oppgradering",
-    "settings": "Miljøer",
+    "settings": "Innstillinger",
     "signOut": "Logg ut",
     "openMenu": "Åpne navigasjonsmeny",
     "switchLight": "Bytt til lys-tema",
@@ -69,13 +69,13 @@
     "status": "Status"
   },
   "settings": {
-    "title": "Miljøer",
+    "title": "Innstillinger",
     "language": "Språk",
     "theme": "Tema",
     "themeSystem": "System",
     "themeLight": "Lys",
     "themeDark": "Mørk",
-    "searchLanguage": "Søkespråk...",
+    "searchLanguage": "Søk etter språk…",
     "noLanguages": "Ingen språk funnet"
   },
   "models": {

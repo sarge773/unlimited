@@ -70,11 +70,11 @@
   },
   "settings": {
     "title": "ማሰናጃዎች",
-    "language": "የጣቢያ ካርታ",
-    "theme": "ጭብጥ",
+    "language": "ቋንቋ",
+    "theme": "ገጽታ",
     "themeSystem": "ስርዓት",
-    "themeLight": "ብርሃን",
-    "themeDark": "የጠቆረ",
+    "themeLight": "ብሩህ",
+    "themeDark": "ጨለማ",
     "searchLanguage": "ቋንቋዎችን ይፈልጉ...",
     "noLanguages": "ምንም ቋንቋዎች አልተገኙም"
   },

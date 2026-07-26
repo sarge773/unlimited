@@ -73,8 +73,8 @@
     "language": "语言",
     "theme": "主题",
     "themeSystem": "系统",
-    "themeLight": "光",
-    "themeDark": "黑暗",
+    "themeLight": "浅色",
+    "themeDark": "深色",
     "searchLanguage": "搜索语言...",
     "noLanguages": "未找到语言"
   },

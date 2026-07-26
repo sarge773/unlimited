@@ -6,7 +6,7 @@
     "analytics": "Analytika",
     "premium": "Prémiové",
     "upgrade": "Upgrade",
-    "settings": "Prostředí",
+    "settings": "Nastavení",
     "signOut": "Odhlásit se",
     "openMenu": "Otevřete navigační menu",
     "switchLight": "Přepnout na lehké téma",
@@ -69,13 +69,13 @@
     "status": "Stav"
   },
   "settings": {
-    "title": "Prostředí",
+    "title": "Nastavení",
     "language": "Jazyk",
-    "theme": "Téma",
+    "theme": "Motiv",
     "themeSystem": "Systém",
-    "themeLight": "Světlo",
-    "themeDark": "Dark",
-    "searchLanguage": "Hledejte jazyky...",
+    "themeLight": "Světlý",
+    "themeDark": "Tmavý",
+    "searchLanguage": "Hledat jazyky…",
     "noLanguages": "Nenalezeny žádné jazyky"
   },
   "models": {

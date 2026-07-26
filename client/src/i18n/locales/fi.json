@@ -6,7 +6,7 @@
     "analytics": "Analytiikka",
     "premium": "Premium",
     "upgrade": "Päivitys",
-    "settings": "Ympäristöt",
+    "settings": "Asetukset",
     "signOut": "Kirjautuu ulos",
     "openMenu": "Avaa navigointivalikko",
     "switchLight": "Vaihda valoteemaan",
@@ -69,13 +69,13 @@
     "status": "Tila"
   },
   "settings": {
-    "title": "Ympäristöt",
+    "title": "Asetukset",
     "language": "Kieli",
     "theme": "Teema",
     "themeSystem": "Järjestelmä",
-    "themeLight": "Valo",
-    "themeDark": "Pimeä",
-    "searchLanguage": "Etsi kieliä...",
+    "themeLight": "Vaalea",
+    "themeDark": "Tumma",
+    "searchLanguage": "Hae kieliä…",
     "noLanguages": "Kieliä ei löytynyt"
   },
   "models": {

@@ -73,8 +73,8 @@
     "language": "Језик",
     "theme": "Тема",
     "themeSystem": "Систем",
-    "themeLight": "Светлост",
-    "themeDark": "Дарк",
+    "themeLight": "Светла",
+    "themeDark": "Тамна",
     "searchLanguage": "Претражи језике…",
     "noLanguages": "Ниједан језик није пронађен"
   },

@@ -6,7 +6,7 @@
     "analytics": "Elemzés",
     "premium": "Prémium",
     "upgrade": "Fejlesztés",
-    "settings": "Helyszínek",
+    "settings": "Beállítások",
     "signOut": "Kijelentkezz",
     "openMenu": "Nyisd meg a navigációs menüt",
     "switchLight": "Váltás könnyed témára",
@@ -69,14 +69,14 @@
     "status": "Státusz"
   },
   "settings": {
-    "title": "Helyszínek",
+    "title": "Beállítások",
     "language": "Nyelv",
     "theme": "Téma",
     "themeSystem": "Rendszer",
-    "themeLight": "Fény",
+    "themeLight": "Világos",
     "themeDark": "Sötét",
-    "searchLanguage": "Keresési nyelvek...",
-    "noLanguages": "Nyelvek nem találtak"
+    "searchLanguage": "Nyelvek keresése…",
+    "noLanguages": "Nem található nyelv"
   },
   "models": {
     "title": "Modellek",

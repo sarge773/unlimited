@@ -72,9 +72,9 @@
     "title": "Налаштування",
     "language": "Мова",
     "theme": "Тема",
-    "themeSystem": "система",
-    "themeLight": "світло",
-    "themeDark": "Темний",
+    "themeSystem": "Система",
+    "themeLight": "Світла",
+    "themeDark": "Темна",
     "searchLanguage": "Пошук мов…",
     "noLanguages": "Мови не знайдено"
   },

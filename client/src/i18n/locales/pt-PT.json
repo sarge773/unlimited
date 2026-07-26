@@ -6,7 +6,7 @@
     "analytics": "Análise",
     "premium": "Premium",
     "upgrade": "Atualização",
-    "settings": "Configurações",
+    "settings": "Definições",
     "signOut": "Desligar",
     "openMenu": "Abrir menu de navegação",
     "switchLight": "Mudança para tema de luz",
@@ -69,13 +69,13 @@
     "status": "Estado"
   },
   "settings": {
-    "title": "Configurações",
+    "title": "Definições",
     "language": "Língua",
     "theme": "Tema",
     "themeSystem": "Sistema",
-    "themeLight": "Luz",
-    "themeDark": "Dark",
-    "searchLanguage": "Línguas de pesquisa...",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "searchLanguage": "Procurar idiomas…",
     "noLanguages": "Nenhuma língua encontrada"
   },
   "models": {

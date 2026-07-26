@@ -6,7 +6,7 @@
     "analytics": "Analizė",
     "premium": "Premium",
     "upgrade": "Atnaujinimas",
-    "settings": "Aplinka",
+    "settings": "Nustatymai",
     "signOut": "Atsijungti",
     "openMenu": "Atidarykite navigacijos meniu",
     "switchLight": "Pereiti prie šviesos temos",
@@ -69,13 +69,13 @@
     "status": "Statusas"
   },
   "settings": {
-    "title": "Aplinka",
+    "title": "Nustatymai",
     "language": "Kalba",
     "theme": "Tema",
     "themeSystem": "Sistema",
-    "themeLight": "Šviesa",
-    "themeDark": "Tamsu",
-    "searchLanguage": "Paieškos kalbos...",
+    "themeLight": "Šviesi",
+    "themeDark": "Tamsi",
+    "searchLanguage": "Ieškoti kalbų…",
     "noLanguages": "Kalbų nerasta"
   },
   "models": {

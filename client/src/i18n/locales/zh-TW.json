@@ -6,7 +6,7 @@
     "analytics": "分析",
     "premium": "高級版",
     "upgrade": "升級",
-    "settings": "場景設定",
+    "settings": "設定",
     "signOut": "登出",
     "openMenu": "開啟導航選單",
     "switchLight": "切換為輕光主題",
@@ -69,14 +69,14 @@
     "status": "現況"
   },
   "settings": {
-    "title": "場景設定",
+    "title": "設定",
     "language": "語言",
     "theme": "主題",
     "themeSystem": "系統",
-    "themeLight": "光",
-    "themeDark": "黑暗",
-    "searchLanguage": "搜尋語言......",
-    "noLanguages": "未發現任何語言"
+    "themeLight": "淺色",
+    "themeDark": "深色",
+    "searchLanguage": "搜尋語言…",
+    "noLanguages": "找不到語言"
   },
   "models": {
     "title": "型號",

@@ -41,6 +41,10 @@ function matchBrowserLocale(browserLocale: string): Locale | null {
       : 'zh-CN'
   }
   if (primary === 'pt') return regionOrScript === 'pt' ? 'pt-PT' : 'pt-BR'
+  // Browsers report Norwegian as nb/nn and Filipino as fil; snap those to
+  // our nearest dictionaries.
+  if (primary === 'nb' || primary === 'nn') return 'no'
+  if (primary === 'fil') return 'tl'
 
   return supportedByLowerCase.get(primary) ?? null
 }
@@ -145,15 +149,9 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     if (loaded) setDictionary(loaded)
   }, [])
 
-  const toggleLocale = useCallback(() => {
-    const index = SUPPORTED_LOCALES.indexOf(locale)
-    setLocale(SUPPORTED_LOCALES[(index + 1) % SUPPORTED_LOCALES.length])
-  }, [locale, setLocale])
-
   const value = useMemo<I18nContextValue>(() => ({
     locale,
     setLocale,
-    toggleLocale,
     t: (key, vars) => {
       const raw = lookup(dictionary, key)
       if (typeof raw === 'string') return interpolate(raw, vars)
@@ -161,7 +159,7 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
       if (typeof fallback === 'string') return interpolate(fallback, vars)
       return key
     },
-  }), [dictionary, locale, setLocale, toggleLocale])
+  }), [dictionary, locale, setLocale])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }

@@ -6,7 +6,7 @@
     "analytics": "Analys",
     "premium": "Premium",
     "upgrade": "Uppgradering",
-    "settings": "Miljöer",
+    "settings": "Inställningar",
     "signOut": "Logga ut",
     "openMenu": "Öppna navigationsmeny",
     "switchLight": "Byt till ljustema",
@@ -69,13 +69,13 @@
     "status": "Status"
   },
   "settings": {
-    "title": "Miljöer",
+    "title": "Inställningar",
     "language": "Språk",
     "theme": "Tema",
     "themeSystem": "System",
-    "themeLight": "Ljus",
+    "themeLight": "Ljust",
     "themeDark": "Mörkt",
-    "searchLanguage": "Sökspråk...",
+    "searchLanguage": "Sök språk…",
     "noLanguages": "Inga språk hittade"
   },
   "models": {

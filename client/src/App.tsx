@@ -6,8 +6,12 @@ import { buttonVariants } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { AuthGate } from '@/components/auth-gate'
@@ -150,6 +154,7 @@ function AccountMenuItems({
 
 function Navbar() {
   const { t } = useI18n()
+  const location = useLocation()
   const navigate = useNavigate()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { data: premium, licensed, isLoading: premiumLoading, isError: premiumError } = usePremium()
@@ -242,6 +247,35 @@ function Navbar() {
                 <Menu />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuGroup>
+                  {navItems.map((item) =>
+                    item.to === '/models' ? (
+                      <DropdownMenuSub key={item.to}>
+                        <DropdownMenuSubTrigger
+                          className={location.pathname.startsWith('/models') ? 'bg-accent text-accent-foreground font-medium' : undefined}
+                        >
+                          {t(item.labelKey)}
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          {modelItems.map((model) => (
+                            <DropdownMenuItem key={model.to} onClick={() => navigate(model.to)}>
+                              {t(model.labelKey)}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                    ) : (
+                      <DropdownMenuItem
+                        key={item.to}
+                        onClick={() => navigate(item.to)}
+                        className={location.pathname === item.to ? 'bg-accent text-accent-foreground font-medium' : undefined}
+                      >
+                        {t(item.labelKey)}
+                      </DropdownMenuItem>
+                    ),
+                  )}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
                 <AccountMenuItems
                   showUpgrade={showUpgrade}
                   upgradeLabel={t('nav.upgrade')}

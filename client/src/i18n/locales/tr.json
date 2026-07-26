@@ -73,8 +73,8 @@
     "language": "Dil",
     "theme": "Tema",
     "themeSystem": "Sistem",
-    "themeLight": "Işık",
-    "themeDark": "Karanlık",
+    "themeLight": "Açık",
+    "themeDark": "Koyu",
     "searchLanguage": "Dilleri ara…",
     "noLanguages": "Dil bulunamadı"
   },

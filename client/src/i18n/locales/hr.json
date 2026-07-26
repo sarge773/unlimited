@@ -6,7 +6,7 @@
     "analytics": "Analitika",
     "premium": "Premija",
     "upgrade": "Nadogradnja",
-    "settings": "Okruženja",
+    "settings": "Postavke",
     "signOut": "Odjavite se",
     "openMenu": "Otvorite izbornik za navigaciju",
     "switchLight": "Prebacite na laganu temu",
@@ -69,12 +69,12 @@
     "status": "Status"
   },
   "settings": {
-    "title": "Okruženja",
+    "title": "Postavke",
     "language": "Jezik",
     "theme": "Tema",
     "themeSystem": "Sustav",
-    "themeLight": "Svjetlo",
-    "themeDark": "Tamno",
+    "themeLight": "Svijetla",
+    "themeDark": "Tamna",
     "searchLanguage": "Pretraži jezike...",
     "noLanguages": "Nema pronađenih jezika"
   },

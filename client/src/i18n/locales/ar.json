@@ -71,11 +71,11 @@
   "settings": {
     "title": "الإعدادات",
     "language": "اللغة",
-    "theme": "الموضوع",
+    "theme": "المظهر",
     "themeSystem": "النظام",
-    "themeLight": "ضوء",
-    "themeDark": "الظلام",
-    "searchLanguage": "لغات البحث...",
+    "themeLight": "فاتح",
+    "themeDark": "داكن",
+    "searchLanguage": "البحث عن اللغات…",
     "noLanguages": "لم يتم العثور على لغات"
   },
   "models": {

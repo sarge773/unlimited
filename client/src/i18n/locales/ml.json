@@ -73,8 +73,8 @@
     "language": "ഭാഷ",
     "theme": "തീം",
     "themeSystem": "സിസ്റ്റം",
-    "themeLight": "വെളിച്ചം",
-    "themeDark": "ഇരുട്ട്",
+    "themeLight": "ലൈറ്റ്",
+    "themeDark": "ഡാർക്ക്",
     "searchLanguage": "ഭാഷകൾ തിരയുക...",
     "noLanguages": "ഭാഷകളൊന്നും കണ്ടെത്തിയില്ല"
   },

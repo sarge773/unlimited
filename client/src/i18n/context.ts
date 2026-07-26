@@ -5,7 +5,6 @@ export interface I18nContextValue {
   locale: Locale
   setLocale: (next: Locale) => void
   t: (key: string, vars?: Record<string, string | number>) => string
-  toggleLocale: () => void
 }
 
 export const I18nContext = createContext<I18nContextValue | null>(null)
@@ -16,7 +15,6 @@ export function useI18n(): I18nContextValue {
     return {
       locale: DEFAULT_LOCALE,
       setLocale: () => {},
-      toggleLocale: () => {},
       t: key => key,
     }
   }

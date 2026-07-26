@@ -6,7 +6,7 @@
     "analytics": "Analiză",
     "premium": "Premium",
     "upgrade": "Modernizare",
-    "settings": "Decoruri",
+    "settings": "Setări",
     "signOut": "Deconectează-te",
     "openMenu": "Deschide meniul de navigare",
     "switchLight": "Treci la tema luminoasă",
@@ -69,13 +69,13 @@
     "status": "Statut"
   },
   "settings": {
-    "title": "Decoruri",
+    "title": "Setări",
     "language": "Limbă",
     "theme": "Temă",
     "themeSystem": "Sistem",
-    "themeLight": "Lumină",
-    "themeDark": "Întuneric",
-    "searchLanguage": "Limbi de căutare...",
+    "themeLight": "Luminos",
+    "themeDark": "Întunecat",
+    "searchLanguage": "Căutați limbi…",
     "noLanguages": "Nicio limbă găsită"
   },
   "models": {

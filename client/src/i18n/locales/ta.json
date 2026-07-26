@@ -73,9 +73,9 @@
     "language": "மொழி",
     "theme": "தீம்",
     "themeSystem": "அமைப்பு",
-    "themeLight": "ஒளி",
-    "themeDark": "இருள்",
-    "searchLanguage": "மொழிகளில் தேடு…",
+    "themeLight": "வெளிர்",
+    "themeDark": "அடர்",
+    "searchLanguage": "மொழிகளைத் தேடு…",
     "noLanguages": "மொழிகள் எதுவும் இல்லை"
   },
   "models": {

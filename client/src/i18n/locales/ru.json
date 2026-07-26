@@ -73,8 +73,8 @@
     "language": "Язык",
     "theme": "Тема",
     "themeSystem": "Система",
-    "themeLight": "Свет",
-    "themeDark": "Темный",
+    "themeLight": "Светлая",
+    "themeDark": "Тёмная",
     "searchLanguage": "Поиск языков…",
     "noLanguages": "Языки не найдены"
   },

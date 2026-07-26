@@ -71,11 +71,11 @@
   "settings": {
     "title": "Ustawienia",
     "language": "Język",
-    "theme": "Temat",
-    "themeSystem": "Systemu",
-    "themeLight": "Światło",
+    "theme": "Motyw",
+    "themeSystem": "Systemowy",
+    "themeLight": "Jasny",
     "themeDark": "Ciemny",
-    "searchLanguage": "Wyszukaj języki…",
+    "searchLanguage": "Szukaj języków…",
     "noLanguages": "Nie znaleziono języków"
   },
   "models": {
