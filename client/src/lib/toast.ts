@@ -10,8 +10,8 @@ export interface ToastItem {
   id: number
   kind: ToastKind
   message: string
-  /** Auto-dismiss delay in ms. */
-  duration: number
+  /** Auto-dismiss delay in ms, or null to stay visible until dismissed. */
+  duration: number | null
 }
 
 type Listener = (toasts: ToastItem[]) => void
@@ -20,8 +20,7 @@ let items: ToastItem[] = []
 let nextId = 1
 const listeners = new Set<Listener>()
 const MAX_VISIBLE_TOASTS = 4
-const DEFAULT_TOAST_DURATION_MS = 10_000
-const DEFAULT_ERROR_TOAST_DURATION_MS = 12_000
+const DEFAULT_TOAST_DURATION = null
 
 function emit() {
   for (const listener of listeners) listener(items)
@@ -50,7 +49,7 @@ function push(kind: ToastKind, message: string, duration?: number): number {
   // failing poll would otherwise pile up the same error every interval).
   items = [
     ...items.filter(t => !(t.kind === kind && t.message === message)),
-    { id, kind, message, duration: duration ?? (kind === 'error' ? DEFAULT_ERROR_TOAST_DURATION_MS : DEFAULT_TOAST_DURATION_MS) },
+    { id, kind, message, duration: duration ?? DEFAULT_TOAST_DURATION },
   ].slice(-MAX_VISIBLE_TOASTS)
   emit()
   return id

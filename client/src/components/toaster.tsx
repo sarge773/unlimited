@@ -33,6 +33,7 @@ function Toast({ toast }: { toast: ToastItem }) {
   const { t } = useI18n()
 
   useEffect(() => {
+    if (toast.duration === null) return
     const timer = window.setTimeout(() => dismissToast(toast.id), toast.duration)
     return () => window.clearTimeout(timer)
   }, [toast.id, toast.duration])
