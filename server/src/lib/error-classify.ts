@@ -38,6 +38,12 @@ export function isRetryableError(err: any): boolean {
     // provider in the fallback chain may have a larger limit. Same reasoning as 503.
     || msg.includes('413') || msg.includes('payload too large') || msg.includes('request body too large')
     || msg.includes('request entity too large') || msg.includes('content too large')
+    // Context/prompt-too-large in all its provider wordings (Anthropic "prompt
+    // is too long", Google "input token count ... exceeds", OpenAI "maximum
+    // context length", …): another candidate may have a larger window, so fail
+    // over; if EVERY candidate rejects it the exhaustion ladder renders an
+    // honest 413 instead of a generic failure.
+    || isContextTooLargeError(err)
     // 404: model deprecated/removed upstream (e.g. OpenRouter's "no endpoints found"
     // for a model that's been pulled). Rotate to the next model in the chain —
     // setCooldown + the health checker will avoid this model on subsequent requests.
@@ -198,6 +204,47 @@ export function isProviderBadRequestError(err: any): boolean {
   if (status === 422) return msg.includes('api error 422') || msg.includes('unprocessable entity');
   if (status !== 0) return false;
   return msg.includes('api error 400') || msg.includes('api error 422') || msg.includes('unprocessable entity');
+}
+
+// A "this request/prompt is too large" rejection. Providers word it very
+// differently and even disagree on the HTTP status:
+//   - OpenAI-compat: 400 with code `context_length_exceeded` — "This model's
+//     maximum context length is 8192 tokens. However, your messages resulted
+//     in 10001 tokens. Please reduce the length of the messages."
+//   - Anthropic: 400 invalid_request_error — "prompt is too long: 210000
+//     tokens > 200000 maximum" (Bedrock words it "Input is too long for
+//     requested model.")
+//   - Google/Gemini: 400 INVALID_ARGUMENT — "The input token count (1200000)
+//     exceeds the maximum number of tokens allowed (1048576)."
+//   - Groq: a literal HTTP 413 — "Request too large for model `x` ... on
+//     tokens per minute (TPM): Limit 30000, Requested 33476". Requested >
+//     Limit can never fit that candidate's window, so it belongs here (too
+//     large for the candidate), not with transient per-minute 429s.
+//   - Reverse proxies / gateways: 413 "Payload Too Large" / "request entity
+//     too large" / "content too large".
+// Structured status first (providerHttpError attaches err.status on every
+// adapter), then the code field, then message markers — mirroring how the
+// other classifiers in this file work. Retryable (a sibling candidate may have
+// a larger window), but when EVERY attempt dies this way the exhaustion ladder
+// renders an honest 413 instead of a generic failure.
+export function isContextTooLargeError(err: any): boolean {
+  if (err?.status === 413) return true;
+  if (typeof err?.code === 'string' && err.code.toLowerCase() === 'context_length_exceeded') return true;
+  const msg = (err?.message ?? '').toLowerCase();
+  return msg.includes('context_length_exceeded')
+    || msg.includes('maximum context length')
+    || msg.includes('context length exceeded')
+    || /exceeds[^.]*context (length|window|size)/.test(msg)
+    || msg.includes('prompt is too long')
+    || msg.includes('input is too long')
+    || /input token count[^.]*exceeds/.test(msg)
+    || msg.includes('exceeds the maximum number of tokens')
+    || msg.includes('request too large')
+    || msg.includes('payload too large')
+    || msg.includes('request entity too large')
+    || msg.includes('request body too large')
+    || msg.includes('content too large')
+    || msg.includes('api error 413');
 }
 
 // A 402 Payment Required / out-of-credits error. Distinct from a transient 429:
