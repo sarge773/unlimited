@@ -62,9 +62,10 @@ describe('OpenAPI docs routes', () => {
         .filter(key => !key.startsWith('x-'))) {
         const operation = (item as Record<string, any>)[method];
         const optional = operation?.['x-optional-surface'] === true;
-        const { status } = await request(app, method.toUpperCase(), base + path);
+        const routePath = `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+        const { status } = await request(app, method.toUpperCase(), routePath);
         if (!optional) {
-          expect(status, `${method.toUpperCase()} ${base}${path} should exist`).not.toBe(404);
+          expect(status, `${method.toUpperCase()} ${routePath} should exist`).not.toBe(404);
         }
       }
     }
