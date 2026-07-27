@@ -28,6 +28,7 @@ Your router updates its own model catalog from a signed feed: new free models, q
 
 - [Why this exists](#why-this-exists)
 - [Supported providers](#supported-providers)
+- [How it compares](#how-it-compares)
 - [Features](#features)
 - [Not yet supported](#not-yet-supported)
 - [Quick start](#quick-start)
@@ -54,6 +55,8 @@ Every serious AI lab now offers a free tier — a few million tokens a month, a 
 The problem is that stacking them by hand is painful: twenty-eight different SDKs, twenty-eight different rate limits, twenty-eight places a request can fail. FreeLLMAPI collapses that into one OpenAI-compatible endpoint. Point any OpenAI client library at your local server, and it routes transparently across whichever providers you've added keys for.
 
 And the free-tier landscape shifts weekly: providers launch models, retire them, and change quotas without notice. FreeLLMAPI tracks all of that for you. The router pulls a signed model catalog from [freellmapi.co](https://freellmapi.co) on its own, so your install keeps up without a `git pull`. See [Premium (live catalog)](#premium-live-catalog) for how fast it keeps up.
+
+![The free tier, stacked — ~4B tokens of free inference per month across 28 providers](repo-assets/free-tier.png)
 
 ## Supported providers
 
@@ -86,7 +89,15 @@ Plus a **custom** provider — point chat, embedding, image, or audio models at 
 
 The full, always-current list lives at **[freellmapi.co/models](https://freellmapi.co/models.html)** with per-model rate limits, context windows, and free-token budgets.
 
+## How it compares
+
+![Feature comparison against OpenRouter, LiteLLM, and Portkey](repo-assets/comparison.png)
+
+Based on public documentation, July 2026 — corrections welcome.
+
 ## Features
+
+![Feature overview](repo-assets/features.png)
 
 - **OpenAI-compatible** — `POST /v1/chat/completions` and `GET /v1/models` work with the official OpenAI SDKs and any OpenAI-compatible client (LangChain, LlamaIndex, Continue, Hermes, etc.). Just change `base_url`.
 - **Responses API** — `POST /v1/responses` (the wire format current Codex CLI versions require) is implemented as a translating shim over the same router, with full streaming events and tool calls.
@@ -728,6 +739,8 @@ Request volume, success rate, tokens in and out, average latency, and per-provid
 ![Analytics page](repo-assets/analytics.png)
 
 ## How it works
+
+![One request in, the best free model out — the fallback chain with live scores, cooldowns, and quota tracking](repo-assets/router-flow.png)
 
 ```
 ┌──────────────────┐   Bearer freellmapi-…   ┌─────────────────────────┐
