@@ -20,8 +20,19 @@ function primaryModel(models: CatalogModel[]): CatalogModel {
     ?? { id: 'auto', name: 'Auto', context_window: 128_000 };
 }
 
+function catalogModels(models: CatalogModel[]): CatalogModel[] {
+  const available = models.filter(model => model.id !== 'auto' && model.available !== false);
+  if (available.length) return available;
+  const nonAuto = models.filter(model => model.id !== 'auto');
+  return nonAuto.length ? nonAuto : [primaryModel(models)];
+}
+
 function contextWindow(model: CatalogModel): number {
   return model.context_window ?? model.context_length ?? 128_000;
+}
+
+function outputLimit(model: CatalogModel): number {
+  return Math.min(8192, contextWindow(model));
 }
 
 function yamlString(value: string): string {
@@ -97,31 +108,35 @@ function codex(ctx: GenerateContext): Generation {
 
 function cline(ctx: GenerateContext): Generation {
   const model = primaryModel(ctx.models);
-  const dir = path.join(ctx.homeDir, '.cline', 'data');
-  const provider = {
-    apiProvider: 'openai',
-    openAiBaseUrl: rootUrl(ctx.url),
-    openAiModelId: model.id,
-  };
   return {
-    files: [
-      {
-        path: path.join(dir, 'globalState.json'),
-        format: 'json',
-        value: {
-          apiConfiguration: provider,
-          planModeApiConfiguration: provider,
-          actModeApiConfiguration: provider,
+    files: [{
+      path: path.join(ctx.homeDir, '.cline', 'data', 'settings', 'providers.json'),
+      format: 'json',
+      sensitive: true,
+      value: {
+        version: 1,
+        lastUsedProvider: 'openai-compatible',
+        providers: {
+          'openai-compatible': {
+            settings: {
+              provider: 'openai-compatible',
+              protocol: 'openai-chat',
+              client: 'openai-compatible',
+              model: model.id,
+              baseUrl: v1Url(ctx.url),
+              apiKey: ctx.apiKey,
+              contextWindow: contextWindow(model),
+              capabilities: ['streaming', 'tools'],
+            },
+            // The field is required by Cline's persisted schema. Keeping it
+            // deterministic makes repeated setup runs idempotent.
+            updatedAt: '2026-07-27T00:00:00.000Z',
+            tokenSource: 'manual',
+          },
         },
       },
-      {
-        path: path.join(dir, 'secrets.json'),
-        format: 'json',
-        sensitive: true,
-        value: { openAiApiKey: ctx.apiKey },
-      },
-    ],
-    notes: ['Cline appends /v1/chat/completions, so its base URL is the server root.'],
+    }],
+    notes: ['Cline will use the generated OpenAI Compatible provider immediately.'],
   };
 }
 
@@ -133,12 +148,19 @@ function continueDev(ctx: GenerateContext): Generation {
       format: 'yaml',
       content: [
         '# freellmapi:start',
+        'name: FreeLLMAPI',
+        'version: 1.0.0',
+        'schema: v1',
         'models:',
         '  - name: FreeLLMAPI',
         '    provider: openai',
         `    model: ${yamlString(model.id)}`,
         `    apiBase: ${yamlString(v1Url(ctx.url))}`,
         '    apiKey: ${{ secrets.FREELLMAPI_API_KEY }}',
+        '    capabilities:',
+        '      - tool_use',
+        '    defaultCompletionOptions:',
+        `      contextLength: ${contextWindow(model)}`,
         '# freellmapi:end',
         '',
       ].join('\n'),
@@ -156,7 +178,7 @@ function aider(ctx: GenerateContext): Generation {
       sensitive: true,
       content: [
         '# freellmapi:start',
-        `openai-api-base: ${yamlString(rootUrl(ctx.url))}`,
+        `openai-api-base: ${yamlString(v1Url(ctx.url))}`,
         `openai-api-key: ${yamlString(ctx.apiKey)}`,
         `model: ${yamlString(`openai/${model.id}`)}`,
         '# freellmapi:end',
@@ -164,7 +186,7 @@ function aider(ctx: GenerateContext): Generation {
       ].join('\n'),
     }],
     notes: [
-      `Environment-only alternative: OPENAI_API_BASE=${rootUrl(ctx.url)} OPENAI_API_KEY=… aider --model openai/${model.id}`,
+      `Environment-only alternative: OPENAI_API_BASE=${v1Url(ctx.url)} OPENAI_API_KEY=… aider --model openai/${model.id}`,
     ],
   };
 }
@@ -201,20 +223,47 @@ function opencode(ctx: GenerateContext): Generation {
 
 function goose(ctx: GenerateContext): Generation {
   const model = primaryModel(ctx.models);
+  const models = catalogModels(ctx.models).map(entry => ({
+    name: entry.id,
+    context_limit: contextWindow(entry),
+  }));
   return {
-    files: [{
-      path: path.join(ctx.homeDir, '.config', 'goose', 'config.yaml'),
-      format: 'yaml',
-      content: [
-        '# freellmapi:start',
-        'GOOSE_PROVIDER: openai',
-        `GOOSE_MODEL: ${yamlString(model.id)}`,
-        `OPENAI_HOST: ${yamlString(rootUrl(ctx.url))}`,
-        'OPENAI_API_KEY: ${FREELLMAPI_API_KEY}',
-        '# freellmapi:end',
-        '',
-      ].join('\n'),
-    }],
+    files: [
+      {
+        path: path.join(
+          ctx.homeDir,
+          '.config',
+          'goose',
+          'custom_providers',
+          'freellmapi.json',
+        ),
+        format: 'json',
+        value: {
+          name: 'freellmapi',
+          engine: 'openai',
+          display_name: 'FreeLLMAPI',
+          description: 'FreeLLMAPI OpenAI-compatible gateway',
+          api_key_env: 'FREELLMAPI_API_KEY',
+          base_url: v1Url(ctx.url),
+          models,
+          supports_streaming: true,
+          requires_auth: true,
+          dynamic_models: false,
+          preserves_thinking: true,
+        },
+      },
+      {
+        path: path.join(ctx.homeDir, '.config', 'goose', 'config.yaml'),
+        format: 'yaml',
+        content: [
+          '# freellmapi:start',
+          'GOOSE_PROVIDER: freellmapi',
+          `GOOSE_MODEL: ${yamlString(model.id)}`,
+          '# freellmapi:end',
+          '',
+        ].join('\n'),
+      },
+    ],
     notes: ['Export FREELLMAPI_API_KEY before starting Goose.'],
   };
 }
@@ -222,21 +271,29 @@ function goose(ctx: GenerateContext): Generation {
 function qwen(ctx: GenerateContext): Generation {
   const model = primaryModel(ctx.models);
   const dir = path.join(ctx.homeDir, '.qwen');
+  const models = catalogModels(ctx.models).map(entry => ({
+    id: entry.id,
+    name: entry.name ?? entry.id,
+    envKey: 'FREELLMAPI_API_KEY',
+    baseUrl: v1Url(ctx.url),
+    generationConfig: {
+      contextWindowSize: contextWindow(entry),
+    },
+  }));
   return {
     files: [
       {
         path: path.join(dir, 'settings.json'),
         format: 'json',
         value: {
-          model: model.id,
+          model: { name: model.id },
           modelProviders: {
-            freellmapi: {
-              name: 'FreeLLMAPI',
-              baseUrl: v1Url(ctx.url),
-              envKey: 'FREELLMAPI_API_KEY',
-              apiFormat: 'openai',
+            openai: {
+              protocol: 'openai',
+              models,
             },
           },
+          security: { auth: { selectedType: 'openai' } },
         },
       },
       {
@@ -261,10 +318,18 @@ function roo(ctx: GenerateContext): Generation {
       format: 'json',
       sensitive: true,
       value: {
-        apiProvider: 'openai',
-        openAiBaseUrl: v1Url(ctx.url),
-        openAiApiKey: ctx.apiKey,
-        openAiModelId: model.id,
+        providerProfiles: {
+          currentApiConfigName: 'freellmapi',
+          apiConfigs: {
+            freellmapi: {
+              apiProvider: 'openai',
+              openAiBaseUrl: v1Url(ctx.url),
+              openAiApiKey: ctx.apiKey,
+              openAiModelId: model.id,
+            },
+          },
+        },
+        globalSettings: {},
       },
     }],
     notes: [`Set Roo Code's autoImportSettingsPath to ${importPath}.`],
@@ -273,37 +338,67 @@ function roo(ctx: GenerateContext): Generation {
 
 function kilo(ctx: GenerateContext): Generation {
   const model = primaryModel(ctx.models);
+  const models = Object.fromEntries(catalogModels(ctx.models).map(entry => [
+    entry.id,
+    {
+      name: entry.name ?? entry.id,
+      tool_call: true,
+      limit: {
+        context: contextWindow(entry),
+        output: outputLimit(entry),
+      },
+    },
+  ]));
   return {
     files: [{
-      path: path.join(ctx.homeDir, '.kilocode', 'auth.json'),
+      path: path.join(ctx.homeDir, '.config', 'kilo', 'kilo.jsonc'),
       format: 'json',
-      sensitive: true,
       value: {
-        freellmapi: {
-          provider: 'openai-compatible',
-          baseUrl: v1Url(ctx.url),
-          apiKey: ctx.apiKey,
-          model: model.id,
+        $schema: 'https://app.kilo.ai/config.json',
+        model: `openai-compatible/${model.id}`,
+        provider: {
+          'openai-compatible': {
+            options: {
+              apiKey: '{env:FREELLMAPI_API_KEY}',
+              baseURL: v1Url(ctx.url),
+            },
+            models,
+          },
         },
       },
     }],
-    notes: ['Select the freellmapi provider in Kilo Code after importing this auth file.'],
+    notes: [
+      'Export FREELLMAPI_API_KEY before starting Kilo; global config is trusted for {env:…} expansion.',
+    ],
   };
 }
 
 function crush(ctx: GenerateContext): Generation {
-  const model = primaryModel(ctx.models);
+  const models = catalogModels(ctx.models).map(entry => ({
+    id: entry.id,
+    name: entry.name ?? entry.id,
+    cost_per_1m_in: 0,
+    cost_per_1m_out: 0,
+    cost_per_1m_in_cached: 0,
+    cost_per_1m_out_cached: 0,
+    context_window: contextWindow(entry),
+    default_max_tokens: outputLimit(entry),
+    can_reason: false,
+    supports_attachments: false,
+  }));
   return {
     files: [{
       path: path.join(ctx.homeDir, '.config', 'crush', 'crush.json'),
       format: 'json',
       value: {
+        $schema: 'https://charm.land/crush.json',
         providers: {
           freellmapi: {
-            type: 'openai-compatible',
+            name: 'FreeLLMAPI',
+            type: 'openai-compat',
             base_url: v1Url(ctx.url),
             api_key: '$FREELLMAPI_API_KEY',
-            models: [{ id: model.id, context_window: contextWindow(model) }],
+            models,
           },
         },
       },
@@ -318,6 +413,8 @@ function cursor(ctx: GenerateContext): Generation {
     notes: [
       'Cursor sends model traffic through its cloud service, so localhost is not reachable from Cursor.',
       `Expose the gateway through a trusted HTTPS tunnel, then open Cursor Settings → Models, enable Override OpenAI Base URL, and enter <public-url>/v1.`,
+      'Cursor only documents custom keys for standard chat models; custom base-URL overrides may not support Responses-based or built-in models.',
+      'The override affects Cursor globally while enabled, so disable it before switching back to built-in providers.',
       'Use a separately revocable URL token if the client cannot set an Authorization header.',
     ],
   };
@@ -339,11 +436,11 @@ function generic(ctx: GenerateContext): Generation {
 const metadata = [
   ['claude', 'Claude Code', 'code', 'file', 'Anthropic Messages', 'root', 'setup-claude', 'https://docs.anthropic.com/en/docs/claude-code', claude],
   ['codex', 'Codex CLI', 'code', 'file', 'OpenAI Responses', '/v1', 'setup-codex', 'https://developers.openai.com/codex', codex],
-  ['cline', 'Cline', 'code', 'file', 'OpenAI Chat', 'root', 'setup-cline', 'https://docs.cline.bot', cline],
+  ['cline', 'Cline', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-cline', 'https://docs.cline.bot', cline],
   ['continue', 'Continue', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-continue', 'https://docs.continue.dev', continueDev],
-  ['aider', 'Aider', 'code', 'file', 'OpenAI Chat', 'root', 'setup-aider', 'https://aider.chat/docs', aider],
+  ['aider', 'Aider', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-aider', 'https://aider.chat/docs', aider],
   ['opencode', 'OpenCode', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-opencode', 'https://opencode.ai/docs', opencode],
-  ['goose', 'Goose', 'agent', 'file', 'OpenAI Chat', 'root', 'setup-goose', 'https://block.github.io/goose', goose],
+  ['goose', 'Goose', 'agent', 'file', 'OpenAI Chat', '/v1', 'setup-goose', 'https://block.github.io/goose', goose],
   ['qwen', 'Qwen Code', 'code', 'file', 'OpenAI or Gemini', '/v1', 'setup-qwen', 'https://qwenlm.github.io/qwen-code-docs', qwen],
   ['roo', 'Roo Code', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-roo', 'https://docs.roocode.com', roo],
   ['kilo', 'Kilo Code', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-kilo', 'https://kilocode.ai/docs', kilo],

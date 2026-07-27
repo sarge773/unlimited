@@ -22,8 +22,18 @@ export function getOllamaEmulationMode(): OllamaEmulationMode {
 }
 
 export function isLoopback(req: Request): boolean {
-  const address = req.socket.remoteAddress?.replace(/^::ffff:/i, '');
-  return address === '127.0.0.1' || address === '::1';
+  const isLoopbackAddress = (value: string | undefined) => {
+    const address = value?.trim().replace(/^::ffff:/i, '');
+    return address === '127.0.0.1' || address === '::1';
+  };
+  if (!isLoopbackAddress(req.socket.remoteAddress)) return false;
+  const forwarded = req.headers['x-forwarded-for'];
+  const firstForwarded = (Array.isArray(forwarded) ? forwarded[0] : forwarded)
+    ?.split(',')[0];
+  // A local reverse proxy is itself a loopback socket, but its first forwarded
+  // hop may be remote. Refuse that request instead of silently widening
+  // open-loopback mode through the proxy.
+  return !firstForwarded || isLoopbackAddress(firstForwarded);
 }
 
 function authorize(req: Request, res: Response): boolean {
@@ -125,30 +135,48 @@ const chatSchema = z.object({
 }).passthrough();
 
 function ollamaMessages(raw: z.infer<typeof messageSchema>[]): ChatMessage[] {
-  return raw.map((message, messageIndex) => ({
-    role: message.role,
-    content: message.content ?? '',
-    ...(message.tool_name ? { name: message.tool_name } : {}),
-    ...(message.role === 'tool'
-      ? { tool_call_id: (message as any).tool_call_id ?? `call_${messageIndex}` }
-      : {}),
-    ...(message.tool_calls?.length
-      ? {
-        tool_calls: message.tool_calls
-          .filter((call: any) => call?.function?.name)
-          .map((call: any, callIndex) => ({
-            id: call.id || `call_${messageIndex}_${callIndex}`,
-            type: 'function' as const,
-            function: {
-              name: call.function.name,
-              arguments: typeof call.function.arguments === 'string'
-                ? call.function.arguments
-                : JSON.stringify(call.function.arguments ?? {}),
-            },
-          })),
+  const pendingCalls = new Map<string, string[]>();
+  const converted: ChatMessage[] = [];
+  raw.forEach((message, messageIndex) => {
+    const toolCalls = message.tool_calls
+      ?.filter((call: any) => call?.function?.name)
+      .map((call: any, callIndex) => {
+        const id = call.id || `call_${messageIndex}_${callIndex}`;
+        const name = call.function.name as string;
+        const queue = pendingCalls.get(name) ?? [];
+        queue.push(id);
+        pendingCalls.set(name, queue);
+        return {
+          id,
+          type: 'function' as const,
+          function: {
+            name,
+            arguments: typeof call.function.arguments === 'string'
+              ? call.function.arguments
+              : JSON.stringify(call.function.arguments ?? {}),
+          },
+        };
+      });
+    let toolCallId: string | undefined;
+    if (message.role === 'tool') {
+      toolCallId = (message as any).tool_call_id;
+      if (!toolCallId && message.tool_name) {
+        toolCallId = pendingCalls.get(message.tool_name)?.shift();
       }
-      : {}),
-  })) as ChatMessage[];
+      if (!toolCallId) {
+        const firstPending = [...pendingCalls.values()].find(queue => queue.length);
+        toolCallId = firstPending?.shift() ?? `call_${messageIndex}`;
+      }
+    }
+    converted.push({
+      role: message.role,
+      content: message.content ?? '',
+      ...(message.tool_name ? { name: message.tool_name } : {}),
+      ...(toolCallId ? { tool_call_id: toolCallId } : {}),
+      ...(toolCalls?.length ? { tool_calls: toolCalls } : {}),
+    } as ChatMessage);
+  });
+  return converted;
 }
 
 function ollamaTools(raw: unknown[] | undefined): ChatToolDefinition[] | undefined {

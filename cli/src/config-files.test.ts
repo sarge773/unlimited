@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { parse } from 'jsonc-parser';
 import { afterEach, describe, expect, it } from 'vitest';
 import { applyGeneratedFile, renderFile } from './config-files.js';
 
@@ -13,18 +14,215 @@ afterEach(() => {
 });
 
 describe('safe config writes', () => {
-  it('deep-merges JSONC and retains leading comments', () => {
-    const existing = '// user configuration\n{"theme":"dark","provider":{"other":true},}\n';
+  it('renders a fresh Continue config idempotently', () => {
+    const generated = [
+      '# freellmapi:start',
+      'name: FreeLLMAPI',
+      'version: 1.0.0',
+      'schema: v1',
+      'models:',
+      '  - name: FreeLLMAPI',
+      '    provider: openai',
+      '    model: coder',
+      '# freellmapi:end',
+      '',
+    ].join('\n');
+    const first = renderFile({
+      path: '/unused',
+      format: 'yaml',
+      content: generated,
+    });
+    const second = renderFile({
+      path: '/unused',
+      format: 'yaml',
+      content: generated,
+    }, first);
+    expect(second).toBe(first);
+    expect(first).not.toContain('freellmapi:start');
+    expect(first.match(/^models:$/gm)).toHaveLength(1);
+  });
+
+  it('deep-merges JSONC and retains inline and leading comments', () => {
+    const existing = [
+      '// user configuration',
+      '{',
+      '  // keep the chosen theme',
+      '  "theme": "dark",',
+      '  "provider": {',
+      '    /* keep the unrelated provider */',
+      '    "other": true,',
+      '  },',
+      '}',
+      '',
+    ].join('\n');
     const rendered = renderFile({
       path: '/unused',
       format: 'json',
       value: { provider: { freellmapi: true } },
     }, existing);
     expect(rendered).toContain('// user configuration');
-    expect(JSON.parse(rendered.replace('// user configuration\n', ''))).toEqual({
+    expect(rendered).toContain('// keep the chosen theme');
+    expect(rendered).toContain('/* keep the unrelated provider */');
+    expect(parse(rendered)).toEqual({
       theme: 'dark',
       provider: { other: true, freellmapi: true },
     });
+  });
+
+  it('merges Continue into an existing config without replacing other models', () => {
+    const existing = [
+      '# personal config',
+      'name: Personal',
+      'version: 2.0.0',
+      'schema: v1',
+      'models:',
+      '  - name: Existing',
+      '    provider: ollama',
+      '    model: qwen',
+      'rules:',
+      '  - Keep this rule',
+      '',
+    ].join('\n');
+    const generated = [
+      '# freellmapi:start',
+      'name: FreeLLMAPI',
+      'version: 1.0.0',
+      'schema: v1',
+      'models:',
+      '  - name: FreeLLMAPI',
+      '    provider: openai',
+      '    model: coder',
+      '# freellmapi:end',
+      '',
+    ].join('\n');
+    const first = renderFile({
+      path: '/unused',
+      format: 'yaml',
+      content: generated,
+    }, existing);
+    const second = renderFile({
+      path: '/unused',
+      format: 'yaml',
+      content: generated,
+    }, first);
+    expect(second).toBe(first);
+    expect(first).toContain('# personal config');
+    expect(first).toContain('name: Personal');
+    expect(first).toContain('  - name: Existing');
+    expect(first).toContain('  - name: FreeLLMAPI');
+    expect(first).toContain('rules:\n  - Keep this rule');
+    expect(first.match(/^models:$/gm)).toHaveLength(1);
+  });
+
+  it('upgrades a previously marked Continue block without leaving duplicate keys', () => {
+    const existing = [
+      'name: Personal',
+      'version: 2.0.0',
+      'schema: v1',
+      'models:',
+      '  - name: Existing',
+      '    provider: ollama',
+      '    model: qwen',
+      '# freellmapi:start',
+      'models:',
+      '  - name: FreeLLMAPI',
+      '    provider: openai',
+      '    model: old',
+      '# freellmapi:end',
+      '',
+    ].join('\n');
+    const generated = [
+      '# freellmapi:start',
+      'name: FreeLLMAPI',
+      'version: 1.0.0',
+      'schema: v1',
+      'models:',
+      '  - name: FreeLLMAPI',
+      '    provider: openai',
+      '    model: current',
+      '# freellmapi:end',
+      '',
+    ].join('\n');
+    const rendered = renderFile({
+      path: '/unused',
+      format: 'yaml',
+      content: generated,
+    }, existing);
+    expect(rendered.match(/^name:/gm)).toHaveLength(1);
+    expect(rendered.match(/^version:/gm)).toHaveLength(1);
+    expect(rendered.match(/^schema:/gm)).toHaveLength(1);
+    expect(rendered.match(/^models:/gm)).toHaveLength(1);
+    expect(rendered).toContain('  - name: Existing');
+    expect(rendered).toContain('    model: current');
+    expect(rendered).not.toContain('    model: old');
+  });
+
+  it('replaces generated YAML scalar keys without creating duplicates', () => {
+    const existing = '# user config\nGOOSE_PROVIDER: old\nGOOSE_MODEL: old\nkeep: true\n';
+    const generated = [
+      '# freellmapi:start',
+      'GOOSE_PROVIDER: freellmapi',
+      'GOOSE_MODEL: coder',
+      '# freellmapi:end',
+      '',
+    ].join('\n');
+    const first = renderFile({
+      path: '/unused',
+      format: 'yaml',
+      content: generated,
+    }, existing);
+    const second = renderFile({
+      path: '/unused',
+      format: 'yaml',
+      content: generated,
+    }, first);
+    expect(second).toBe(first);
+    expect(first).toContain('# user config');
+    expect(first).toContain('keep: true');
+    expect(first.match(/^GOOSE_PROVIDER:/gm)).toHaveLength(1);
+    expect(first.match(/^GOOSE_MODEL:/gm)).toHaveLength(1);
+  });
+
+  it('replaces conflicting Codex TOML settings and retains unrelated tables', () => {
+    const existing = [
+      '# personal config',
+      'model = "old"',
+      'model_provider = "old"',
+      '',
+      '[model_providers.freellmapi]',
+      'name = "Old"',
+      'base_url = "https://old.invalid/v1"',
+      '',
+      '[mcp_servers.personal]',
+      'command = "keep-me"',
+      '',
+    ].join('\n');
+    const generated = [
+      '# freellmapi:start',
+      'model = "coder"',
+      'model_provider = "freellmapi"',
+      '',
+      '[model_providers.freellmapi]',
+      'name = "FreeLLMAPI"',
+      'base_url = "http://localhost:3000/v1"',
+      '# freellmapi:end',
+      '',
+    ].join('\n');
+    const first = renderFile({
+      path: '/unused',
+      format: 'toml',
+      content: generated,
+    }, existing);
+    const second = renderFile({
+      path: '/unused',
+      format: 'toml',
+      content: generated,
+    }, first);
+    expect(second).toBe(first);
+    expect(first).toContain('# personal config');
+    expect(first).toContain('[mcp_servers.personal]\ncommand = "keep-me"');
+    expect(first.match(/^model =/gm)).toHaveLength(1);
+    expect(first.match(/^\[model_providers\.freellmapi\]$/gm)).toHaveLength(1);
   });
 
   it('creates a timestamped backup before replacing a real file', () => {

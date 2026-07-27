@@ -17,6 +17,8 @@ describe('client agent classification', () => {
     expect(classifyClientAgent(request('/v1/responses'))).toBe('codex');
     expect(classifyClientAgent(request('/v1beta/models/x:generateContent'))).toBe('gemini-cli');
     expect(classifyClientAgent(request('/api/chat'))).toBe('ollama-client');
+    expect(classifyClientAgent(request('/v1/t/revocable/responses'))).toBe('codex');
+    expect(classifyClientAgent(request('/v1/t/revocable/api/chat'))).toBe('ollama-client');
   });
 
   it('recognizes common coding-agent user agents', () => {

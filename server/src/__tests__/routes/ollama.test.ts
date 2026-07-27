@@ -67,14 +67,17 @@ describe('Ollama emulation', () => {
   });
 
   it('does not treat LAN peers as loopback clients', () => {
-    const peer = (remoteAddress: string) => ({
+    const peer = (remoteAddress: string, forwarded?: string) => ({
       socket: { remoteAddress },
+      headers: forwarded ? { 'x-forwarded-for': forwarded } : {},
     }) as any;
     expect(isLoopback(peer('127.0.0.1'))).toBe(true);
     expect(isLoopback(peer('::1'))).toBe(true);
     expect(isLoopback(peer('::ffff:127.0.0.1'))).toBe(true);
     expect(isLoopback(peer('192.168.1.20'))).toBe(false);
     expect(isLoopback(peer('10.0.0.5'))).toBe(false);
+    expect(isLoopback(peer('127.0.0.1', '203.0.113.5'))).toBe(false);
+    expect(isLoopback(peer('127.0.0.1', '127.0.0.1'))).toBe(true);
   });
 
   it('emits Ollama-compatible NDJSON chat frames', async () => {
@@ -102,6 +105,62 @@ describe('Ollama emulation', () => {
     expect(frames.slice(0, 2).map(frame => frame.message.content)).toEqual(['one', ' two']);
     expect(frames.at(-1).done).toBe(true);
     expect(frames.at(-1).done_reason).toBe('stop');
+  });
+
+  it('correlates Ollama tool results with the preceding OpenAI tool call', async () => {
+    setSetting('ollama_emulation', 'open-loopback');
+    let upstreamBody: any;
+    const originalFetch = global.fetch;
+    vi.spyOn(global, 'fetch').mockImplementation(async (url, init) => {
+      if (String(url).includes('api.groq.com/openai/v1/chat/completions')) {
+        upstreamBody = JSON.parse(String(init?.body));
+        return new Response(JSON.stringify({
+          id: 'chatcmpl-ollama-tool',
+          object: 'chat.completion',
+          created: 1,
+          model: 'openai/gpt-oss-120b',
+          choices: [{
+            index: 0,
+            message: { role: 'assistant', content: 'The file is ready.' },
+            finish_reason: 'stop',
+          }],
+          usage: { prompt_tokens: 8, completion_tokens: 5, total_tokens: 13 },
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      return originalFetch(url, init);
+    });
+
+    const response = await request(app, 'POST', '/api/chat', {
+      model: 'auto',
+      stream: false,
+      messages: [
+        { role: 'user', content: 'Read README.md' },
+        {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{
+            function: {
+              name: 'read_file',
+              arguments: { path: 'README.md' },
+            },
+          }],
+        },
+        {
+          role: 'tool',
+          tool_name: 'read_file',
+          content: '# FreeLLMAPI',
+        },
+      ],
+    });
+
+    expect(response.status).toBe(200);
+    const assistant = upstreamBody.messages[1];
+    const tool = upstreamBody.messages[2];
+    expect(assistant.tool_calls[0].id).toBeTruthy();
+    expect(tool.tool_call_id).toBe(assistant.tool_calls[0].id);
   });
 
   it('requires the unified bearer key in key-required mode', async () => {

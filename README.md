@@ -155,11 +155,11 @@ Every generator supports `--dry-run`, creates a timestamped backup before changi
 | --- | --- | --- |
 | Claude Code | `setup-claude` | root |
 | Codex CLI | `setup-codex` | `/v1` |
-| Cline | `setup-cline` | root |
+| Cline | `setup-cline` | `/v1` |
 | Continue | `setup-continue` | `/v1` |
-| Aider | `setup-aider` | root |
+| Aider | `setup-aider` | `/v1` |
 | OpenCode | `setup-opencode` | `/v1` |
-| Goose | `setup-goose` | root |
+| Goose | `setup-goose` | `/v1` |
 | Qwen Code | `setup-qwen` | `/v1` (or native `/v1beta`) |
 | Roo / Kilo / Crush | `setup-roo` / `setup-kilo` / `setup-crush` | `/v1` |
 | Cursor | `setup-cursor` guide | public `/v1` URL |

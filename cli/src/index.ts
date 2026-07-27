@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import process from 'node:process';
 import readline from 'node:readline/promises';
 import { spawn } from 'node:child_process';
+import { Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { applyGeneratedFile, printDryRunDiff } from './config-files.js';
 import { getTool, tools } from './tools.js';
@@ -21,7 +22,20 @@ function rootUrl(url: string): string {
   return url.trim().replace(/\/+$/, '').replace(/\/v1$/i, '');
 }
 
-function parseArgs(argv: string[]): { command?: string; options: CliOptions } {
+function validateProfile(profile: string): string {
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(profile)
+    || profile === '.'
+    || profile === '..'
+  ) {
+    throw new Error(
+      '--profile must use only letters, numbers, dots, underscores, or hyphens',
+    );
+  }
+  return profile;
+}
+
+export function parseArgs(argv: string[]): { command?: string; options: CliOptions } {
   const options: CliOptions = {
     url: process.env.FREELLMAPI_URL || 'http://localhost:3000',
     apiKey: process.env.FREELLMAPI_API_KEY,
@@ -43,10 +57,12 @@ function parseArgs(argv: string[]): { command?: string; options: CliOptions } {
     const value = inline ?? argv[index + 1];
     if (flag === '--url' || flag === '--api-key' || flag === '--profile' || flag === '--model') {
       if (inline === undefined) index += 1;
-      if (!value) throw new Error(`${flag} requires a value`);
+      if (!value || (inline === undefined && value.startsWith('-'))) {
+        throw new Error(`${flag} requires a value`);
+      }
       if (flag === '--url') options.url = value;
       else if (flag === '--api-key') options.apiKey = value;
-      else if (flag === '--profile') options.profile = value;
+      else if (flag === '--profile') options.profile = validateProfile(value);
       else options.model = value;
       continue;
     }
@@ -61,12 +77,28 @@ async function promptForKey(): Promise<string> {
       'No API key supplied. Pass --api-key or set FREELLMAPI_API_KEY.',
     );
   }
-  const rl = readline.createInterface({ input: process.stdin, output: process.stderr });
+  let muted = false;
+  const output = new Writable({
+    write(chunk, _encoding, callback) {
+      if (!muted) process.stderr.write(chunk);
+      callback();
+    },
+  });
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output,
+    terminal: true,
+  });
   try {
-    const value = (await rl.question('FreeLLMAPI unified API key: ')).trim();
+    const answer = rl.question('FreeLLMAPI unified API key: ');
+    muted = true;
+    const value = (await answer).trim();
+    muted = false;
+    process.stderr.write('\n');
     if (!value) throw new Error('An API key is required');
     return value;
   } finally {
+    muted = false;
     rl.close();
   }
 }
@@ -144,6 +176,10 @@ async function launchClaude(options: CliOptions): Promise<number> {
     ?? (options.profile !== 'default' ? options.profile : undefined)
     ?? models.find(model => model.id !== 'auto' && model.available !== false)?.id
     ?? 'auto';
+  const selectedModel = models.find(model => model.id === selected);
+  const contextWindow = selectedModel?.context_window
+    ?? selectedModel?.context_length
+    ?? 128_000;
   const env = {
     ...process.env,
     ANTHROPIC_BASE_URL: rootUrl(options.url),
@@ -152,6 +188,7 @@ async function launchClaude(options: CliOptions): Promise<number> {
     ANTHROPIC_DEFAULT_OPUS_MODEL: selected,
     ANTHROPIC_DEFAULT_SONNET_MODEL: selected,
     ANTHROPIC_DEFAULT_HAIKU_MODEL: selected,
+    CLAUDE_CODE_AUTO_COMPACT_WINDOW: String(contextWindow),
     CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY: '1',
   };
   const child = spawn('claude', [], { stdio: 'inherit', env });
@@ -161,6 +198,18 @@ async function launchClaude(options: CliOptions): Promise<number> {
   });
 }
 
+export function codexArgs(url: string, selected: string): string[] {
+  return [
+    '-c', 'model_provider="freellmapi"',
+    '-c', `model=${JSON.stringify(selected)}`,
+    '-c', 'model_providers.freellmapi.name="FreeLLMAPI"',
+    '-c', `model_providers.freellmapi.base_url=${JSON.stringify(`${rootUrl(url)}/v1`)}`,
+    '-c', 'model_providers.freellmapi.wire_api="responses"',
+    '-c', 'model_providers.freellmapi.env_key="FREELLMAPI_API_KEY"',
+    '-c', 'model_providers.freellmapi.requires_openai_auth=false',
+  ];
+}
+
 async function launchCodex(options: CliOptions): Promise<number> {
   const apiKey = options.apiKey ?? await promptForKey();
   const models = await catalog(options.url, apiKey);
@@ -168,14 +217,7 @@ async function launchCodex(options: CliOptions): Promise<number> {
     ?? models.find(model => model.id !== 'auto' && model.available !== false)?.id
     ?? 'auto';
   const env = { ...process.env, FREELLMAPI_API_KEY: apiKey };
-  const args = [
-    '-c', 'model_provider="freellmapi"',
-    '-c', `model=${JSON.stringify(selected)}`,
-    '-c', `model_providers.freellmapi.base_url=${JSON.stringify(`${rootUrl(options.url)}/v1`)}`,
-    '-c', 'model_providers.freellmapi.wire_api="responses"',
-    '-c', 'model_providers.freellmapi.env_key="FREELLMAPI_API_KEY"',
-    '-c', 'model_providers.freellmapi.requires_openai_auth=false',
-  ];
+  const args = codexArgs(options.url, selected);
   const child = spawn('codex', args, { stdio: 'inherit', env });
   return await new Promise<number>((resolve, reject) => {
     child.once('error', reject);

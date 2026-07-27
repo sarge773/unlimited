@@ -38,11 +38,11 @@ context windows.
 | --- | --- | --- | --- |
 | **Claude Code** | `setup-claude` or credential-free-on-disk `launch` | `http://localhost:3001` | Anthropic Messages |
 | **Codex CLI** | `setup-codex` or `launch-codex` | `http://localhost:3001/v1` | Responses (`wire_api = "responses"`) |
-| **Cline** | `setup-cline` | `http://localhost:3001` | OpenAI Chat |
+| **Cline** | `setup-cline` | `http://localhost:3001/v1` | OpenAI Chat |
 | **Continue** | `setup-continue` | `http://localhost:3001/v1` | OpenAI Chat / legacy Completions |
-| **Aider** | `setup-aider` | `http://localhost:3001` | OpenAI Chat |
+| **Aider** | `setup-aider` | `http://localhost:3001/v1` | OpenAI Chat |
 | **OpenCode** | `setup-opencode` | `http://localhost:3001/v1` | OpenAI Chat |
-| **Goose** | `setup-goose` | `http://localhost:3001` | OpenAI Chat |
+| **Goose** | `setup-goose` | `http://localhost:3001/v1` | OpenAI Chat |
 | **Qwen Code** | `setup-qwen` | `http://localhost:3001/v1` | OpenAI Chat (native Gemini also works) |
 | **Roo Code** | `setup-roo` | `http://localhost:3001/v1` | OpenAI Chat |
 | **Kilo Code** | `setup-kilo` | `http://localhost:3001/v1` | OpenAI Chat |
@@ -50,9 +50,10 @@ context windows.
 | **Cursor** | `setup-cursor` prints the guide | public `https://…/v1` | OpenAI Chat |
 | **Anything else** | `setup-generic` prints a ready block | `http://localhost:3001/v1` | OpenAI Chat |
 
-The root-vs-`/v1` distinction matters: Claude Code, Cline, Aider, and Goose
-append the OpenAI/Anthropic path themselves. Codex, Continue, OpenCode, Qwen,
-Kilo, and Crush expect the base URL to include `/v1`.
+The root-vs-`/v1` distinction matters: Claude Code expects the server root
+because it appends the Anthropic Messages path. OpenAI-compatible clients in
+this table—including Cline, Aider, Goose, Codex, Continue, OpenCode, Qwen,
+Roo, Kilo, and Crush—expect their configured base URL to include `/v1`.
 
 ## Native Gemini clients
 

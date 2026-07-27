@@ -36,10 +36,15 @@ function header(req: Request, name: string): string {
  */
 export function classifyClientAgent(req: Request): ClientAgent {
   const path = (req.originalUrl ?? req.url ?? '').split('?')[0].toLowerCase();
+  const tokenizedPath = path.replace(/^\/v1\/t\/[^/]+/, '');
   const ua = header(req, 'user-agent');
 
   if (header(req, 'x-claude-code-session-id') || /claude[- ]?code/.test(ua)) return 'claude-code';
-  if (path.startsWith('/v1/responses') || /\bcodex\b/.test(ua)) return 'codex';
+  if (
+    path.startsWith('/v1/responses')
+    || tokenizedPath.startsWith('/responses')
+    || /\bcodex\b/.test(ua)
+  ) return 'codex';
   if (path.startsWith('/v1beta/') || /gemini[- /]?cli/.test(ua)) return 'gemini-cli';
   if (/qwen[- ]?code|\bqwen-cli\b/.test(ua)) return 'qwen-code';
   if (/kilo[- ]?code|\bkilocode\b/.test(ua)) return 'kilo-code';
@@ -53,9 +58,9 @@ export function classifyClientAgent(req: Request): ClientAgent {
   if (/\bcursor\b/.test(ua)) return 'cursor';
   if (/\bzed\b/.test(ua)) return 'zed';
   if (/jetbrains|intellij|pycharm|webstorm/.test(ua)) return 'jetbrains';
-  if (path.startsWith('/api/chat')
-      || path.startsWith('/api/generate')
-      || path.startsWith('/api/tags')
+  if (tokenizedPath.startsWith('/api/chat')
+      || tokenizedPath.startsWith('/api/generate')
+      || tokenizedPath.startsWith('/api/tags')
       || /\bollama\b/.test(ua)) return 'ollama-client';
   if (/anthropic|claude-sdk/.test(ua)) return 'anthropic-sdk';
   if (/openai|langchain|litellm/.test(ua)) return 'openai-sdk';
