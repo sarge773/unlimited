@@ -45,36 +45,59 @@ interface ArrayCandidate {
 }
 
 function jsonArrayCandidates(text: string): ArrayCandidate[] {
+  const spans: Array<{ start: number; end: number }> = [];
+  const stack: Array<{ opener: '[' | '{'; start: number }> = [];
+  let inString = false;
+  let escaped = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"' && stack.length > 0) {
+      inString = true;
+      continue;
+    }
+    if (char === '[' || char === '{') {
+      stack.push({ opener: char, start: index });
+      continue;
+    }
+    if (char !== ']' && char !== '}') continue;
+
+    const expected = char === ']' ? '[' : '{';
+    const opened = stack.pop();
+    if (!opened || opened.opener !== expected) {
+      stack.length = 0;
+      continue;
+    }
+    if (opened.opener === '[') spans.push({ start: opened.start, end: index + 1 });
+  }
+
+  // Parse the largest candidates first so a useful outer table wins over its
+  // nested arrays. Bounds keep valid-but-pathological nesting from turning
+  // parsing into quadratic work after the linear structural scan.
+  spans.sort((a, b) => (b.end - b.start) - (a.end - a.start));
   const candidates: ArrayCandidate[] = [];
-  for (let start = 0; start < text.length; start += 1) {
-    if (text[start] !== '[') continue;
-    let depth = 0;
-    let inString = false;
-    let escaped = false;
-    for (let end = start; end < text.length; end += 1) {
-      const char = text[end];
-      if (inString) {
-        if (escaped) escaped = false;
-        else if (char === '\\') escaped = true;
-        else if (char === '"') inString = false;
-        continue;
-      }
-      if (char === '"') { inString = true; continue; }
-      if (char === '[' || char === '{') depth += 1;
-      else if (char === ']' || char === '}') depth -= 1;
-      if (depth === 0) {
-        const raw = text.slice(start, end + 1);
-        try {
-          candidates.push({ start, end: end + 1, value: JSON.parse(raw) });
-        } catch {
-          // Not a JSON array; a later `[` may still be one.
-        }
-        break;
-      }
-      if (depth < 0) break;
+  const parseCharBudget = Math.max(text.length * 4, 100_000);
+  let parsedChars = 0;
+  for (const span of spans) {
+    const size = span.end - span.start;
+    if (candidates.length >= 512 || parsedChars + size > parseCharBudget) break;
+    parsedChars += size;
+    try {
+      candidates.push({
+        ...span,
+        value: JSON.parse(text.slice(span.start, span.end)),
+      });
+    } catch {
+      // Structurally balanced text is not necessarily valid JSON.
     }
   }
-  return candidates.sort((a, b) => (b.end - b.start) - (a.end - a.start));
+  return candidates;
 }
 
 function compactText(text: string, minRows: number): { text: string; tables: number } {

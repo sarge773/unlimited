@@ -46,16 +46,27 @@ const MAX_PREFIXES = 5_000;
 function stablePrefixIndexes(messages: ChatMessage[], enabled: boolean): Set<number> {
   const frozen = new Set<number>();
   if (!enabled) return frozen;
+  const indexesByHash = new Map<string, number[]>();
+
   messages.forEach((message, index) => {
     if (message.role !== 'system') return;
     const content = textContent(message);
     if (!content) return;
     const hash = crypto.createHash('sha256').update(content).digest('hex');
+    const indexes = indexesByHash.get(hash) ?? [];
+    indexes.push(index);
+    indexesByHash.set(hash, indexes);
+  });
+
+  for (const [hash, indexes] of indexesByHash) {
     const count = (prefixOccurrences.get(hash) ?? 0) + 1;
     prefixOccurrences.delete(hash);
     prefixOccurrences.set(hash, count);
-    if (count >= 3) frozen.add(index);
-  });
+    if (count >= 3) {
+      for (const index of indexes) frozen.add(index);
+    }
+  }
+
   while (prefixOccurrences.size > MAX_PREFIXES) {
     const oldest = prefixOccurrences.keys().next().value as string | undefined;
     if (!oldest) break;
@@ -95,8 +106,6 @@ export function compressRequest(
     && config.autoTriggerEstTokens !== undefined
     && originalEstimate >= config.autoTriggerEstTokens;
   if (autoTriggered) mode = 'aggressive';
-  const stableFrozen = stablePrefixIndexes(messages, config.prefixFreeze);
-
   if (mode === 'off') {
     const stats = emptyStats(originalChars, started);
     if (options.recordStats !== false) recordCompressionStats(mode, stats);
@@ -108,6 +117,7 @@ export function compressRequest(
     };
   }
 
+  const stableFrozen = stablePrefixIndexes(messages, config.prefixFreeze);
   const cacheFrozen = new Set<number>();
   const cachePrefixLength = Math.max(0, Math.min(messages.length, options.cacheControlPrefixLength ?? 0));
   for (let index = 0; index < cachePrefixLength; index += 1) cacheFrozen.add(index);
@@ -192,6 +202,7 @@ export function compressRequest(
             numericLiteralsPreserved: fidelity.numericLiteralsPreserved,
             jsonKeySurvival: fidelity.jsonKeySurvival,
             diffHunksPreserved: fidelity.diffHunksPreserved,
+            criticalLinesPreserved: fidelity.criticalLinesPreserved,
           },
           details: result.details,
         });
@@ -210,6 +221,7 @@ export function compressRequest(
           numericLiteralsPreserved: fidelity.numericLiteralsPreserved,
           jsonKeySurvival: fidelity.jsonKeySurvival,
           diffHunksPreserved: fidelity.diffHunksPreserved,
+          criticalLinesPreserved: fidelity.criticalLinesPreserved,
         },
         details: result.details,
       });

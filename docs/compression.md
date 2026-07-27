@@ -49,12 +49,13 @@ When `autoTriggerEstTokens` is configured and an uncompressed request crosses th
 
 The pipeline is fail-open. Every engine runs independently, and its output is discarded if it grows the request, throws an exception, or fails a fidelity gate. The gate requires:
 
-- all numeric literals and diff hunks to survive;
+- all distinct numeric literals and diff hunks to survive;
+- every explicit constraint, security instruction, and error line to survive;
 - at least 90% of JSON keys to survive;
 - at least 95% of other protected spans to survive;
 - tool-call and tool-result envelopes to remain valid.
 
-Protected spans include code fences, URLs, file paths, stack traces, error lines, key/value pairs, and structured tool metadata.
+Protected spans include code fences, URLs, file paths, stack traces, explicit constraints, error lines, key/value pairs, and structured tool metadata.
 
 Repeated stable system prefixes are frozen after their third appearance. Anthropic `cache_control` prefixes are capped at lossless rewriting. Compression configuration is included in the response-cache fingerprint, so differently compressed requests cannot share a stale cache entry.
 
@@ -68,6 +69,10 @@ Additional JSON filter definitions can be loaded from:
 - `.freellmapi/filters.json` in the project, only when **Trust project filter files** is enabled.
 
 Project filters are disabled by default because repositories may be untrusted.
+
+## Design boundaries
+
+The built-in path is deterministic, synchronous, dependency-light, and provider-neutral. It does not call another model, use a learned token-pruning model, rewrite images, or emit opaque provider-specific compaction blocks. Those approaches can be useful when a compatible upstream provider or agent runtime owns the context state, but silently translating them across providers would weaken the fail-open and fidelity guarantees of this router.
 
 ## Settings, preview, and statistics APIs
 

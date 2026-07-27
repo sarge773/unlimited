@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import { z } from 'zod';
 import { registerEngine } from '../registry.js';
-import { hasProtectedContent } from '../preservation.js';
 import { textContent, withTextContent } from '../helpers.js';
 import type { CompressionEngine } from '../types.js';
 
@@ -44,7 +43,7 @@ const dedupEngine: CompressionEngine = {
       const next = parts.map((part, partIndex) => {
         if (partIndex % 2 === 1) return part;
         const lineCount = part.split('\n').length;
-        if (part.length < minChars || lineCount < minLines || hasProtectedContent(part)) return part;
+        if (part.length < minChars || lineCount < minLines) return part;
         const digest = hash(part);
         const bucket = seen.get(digest) ?? [];
         const exact = bucket.find(candidate => candidate === part);
@@ -52,6 +51,8 @@ const dedupEngine: CompressionEngine = {
           blocksReplaced += 1;
           return `[repeated from earlier in this conversation: ${preview(part)}…]`;
         }
+        // Protected content may seed exact-match deduplication because the
+        // original copy stays in context; first occurrences remain untouched.
         bucket.push(part);
         seen.set(digest, bucket);
         return part;

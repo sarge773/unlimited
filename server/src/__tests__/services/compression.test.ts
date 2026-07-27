@@ -96,6 +96,38 @@ describe('preservation and fidelity gate', () => {
     expect(checkFidelity(before, [msg('tool', '{"count": 7}\n@@ -1 +1 @@\nError: boom')]).accepted).toBe(false);
     expect(checkFidelity(before, [msg('tool', `${before[0].content as string} extra`)]).reason).toBe('inflation');
   });
+
+  it('preserves every distinct explicit constraint or security line', () => {
+    const constraints = [
+      'Must preserve the authorization header.',
+      'Never expose the access token.',
+      'Do not bypass the permission check.',
+      'Always validate the request origin.',
+      'Security policy forbids anonymous writes.',
+      'Important: retain the audit trail.',
+      'Authorization is required for deletion.',
+      'Permission checks must run first.',
+      'Never trust an unsigned payload.',
+      'Do not log the secret value.',
+      'Always escape untrusted markup.',
+      'Security warnings must stay visible.',
+      'This constraint prohibits shell expansion.',
+      'Authentication is required for changes.',
+      'Never follow an untrusted redirect.',
+      'Do not weaken the content policy.',
+      'Always preserve the system instruction.',
+      'Important constraints remain verbatim.',
+      'Authorization rules must not be removed.',
+      'Security policy requires least privilege.',
+    ];
+    const constraintResult = checkFidelity(
+      [msg('system', constraints.join('\n'))],
+      [msg('system', constraints.slice(1).join('\n'))],
+    );
+    expect(constraintResult.protectedTokenSurvival).toBe(0.95);
+    expect(constraintResult.criticalLinesPreserved).toBe(false);
+    expect(constraintResult.accepted).toBe(false);
+  });
 });
 
 describe('compression engines', () => {
@@ -159,6 +191,20 @@ describe('compression engines', () => {
     expect(result.stats.discardedByGate).toEqual([]);
   });
 
+  it('finds embedded JSON tables after malformed prose without rescanning nested arrays', () => {
+    const rows = Array.from({ length: 12 }, (_, index) => ({
+      id: index,
+      status: 'ready',
+    }));
+    const content = `log message with an unmatched " quote\npayload=${JSON.stringify({ rows }, null, 2)}`;
+    const result = compressRequest([
+      msg('tool', content),
+    ], { config: config('lossless'), recordStats: false });
+    expect(result.messages[0].content).toContain('[[json-table:v1');
+    expect(result.stats.enginesApplied).toContain('jsoncompact');
+    expect(result.stats.discardedByGate).toEqual([]);
+  });
+
   it('filters long tool output while preserving every error, stack, number, path, and diff hunk', () => {
     const lines = [
       ...Array.from({ length: 220 }, () => 'building package alpha'),
@@ -206,6 +252,42 @@ describe('compression engines', () => {
     compressRequest(messages, { config: cfg, recordStats: false });
     expect(compressRequest(messages, { config: cfg, recordStats: false }).messages[0].content)
       .toBe(messages[0].content);
+  });
+
+  it('counts prefix recurrence across requests, not duplicate messages or off-mode traffic', () => {
+    const duplicated = 'Duplicate system prefix.   \n\n\n\nKeep one copy.';
+    const first = compressRequest([
+      msg('system', duplicated),
+      msg('system', duplicated),
+      msg('system', duplicated),
+      msg('user', 'hello'),
+    ], { config: config('lossless'), recordStats: false });
+    expect(first.messages.filter(message => message.role === 'system')).toHaveLength(1);
+
+    _clearPrefixFreezeForTesting();
+    const offConfig = config('off');
+    const messages = [msg('system', 'Off traffic.   \n\n\n\nTracker line.')];
+    compressRequest(messages, { config: offConfig, recordStats: false });
+    compressRequest(messages, { config: offConfig, recordStats: false });
+    const enabled = compressRequest(messages, { config: config('lossless'), recordStats: false });
+    expect(enabled.messages[0].content).toBe('Off traffic.\n\nTracker line.');
+  });
+
+  it('uses Unicode query terms when pruning multilingual history', () => {
+    const cfg = config('aggressive');
+    for (const engine of Object.values(cfg.engines)) engine.enabled = false;
+    cfg.engines.relevance = { enabled: true, maxChars: 260 };
+    const history = [
+      '認証 エラー の診断結果は署名検証の失敗です。',
+      ...Array.from({ length: 80 }, () => '無関係な古い履歴です。'),
+    ].join('\n');
+    const result = compressRequest([
+      msg('assistant', history),
+      msg('user', '認証 エラー を修正してください'),
+    ], { config: cfg, recordStats: false });
+    expect(result.messages[0].content).toContain('認証 エラー');
+    expect(String(result.messages[0].content).length).toBeLessThan(history.length);
+    expect(result.stats.enginesApplied).toEqual(['relevance']);
   });
 
   it('arms the aggressive adaptive ladder above the configured trigger unless a header lowers it', () => {
@@ -263,5 +345,21 @@ describe('compression engines', () => {
     const p99 = samples[samples.length - 1];
     expect(p50).toBeLessThan(5);
     expect(p99).toBeLessThan(25);
+
+    const unbalancedJson = '['.repeat(100_000);
+    const adversarialStarted = performance.now();
+    compressRequest([msg('tool', unbalancedJson)], {
+      config: config('lossless'),
+      recordStats: false,
+    });
+    expect(performance.now() - adversarialStarted).toBeLessThan(25);
+
+    const manyBalancedArrays = '[]'.repeat(50_000);
+    const balancedStarted = performance.now();
+    compressRequest([msg('tool', manyBalancedArrays)], {
+      config: config('lossless'),
+      recordStats: false,
+    });
+    expect(performance.now() - balancedStarted).toBeLessThan(25);
   });
 });

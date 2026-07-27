@@ -5,7 +5,7 @@ import { textContent, withTextContent } from '../helpers.js';
 import type { CompressionEngine } from '../types.js';
 
 function words(text: string): Set<string> {
-  return new Set((text.toLowerCase().match(/[a-z0-9_]{3,}/g) ?? []));
+  return new Set((text.toLowerCase().match(/[\p{L}\p{N}_]{2,}/gu) ?? []));
 }
 
 function sentences(text: string): string[] {

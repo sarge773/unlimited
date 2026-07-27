@@ -9,6 +9,7 @@ export interface FidelityResult {
   numericLiteralsPreserved: boolean;
   jsonKeySurvival: number;
   diffHunksPreserved: boolean;
+  criticalLinesPreserved: boolean;
 }
 
 function unique(values: string[]): string[] {
@@ -39,6 +40,7 @@ export function checkFidelity(before: ChatMessage[], after: ChatMessage[]): Fide
       numericLiteralsPreserved: true,
       jsonKeySurvival: 1,
       diffHunksPreserved: true,
+      criticalLinesPreserved: true,
     };
   }
 
@@ -61,11 +63,16 @@ export function checkFidelity(before: ChatMessage[], after: ChatMessage[]): Fide
     output,
   );
   const diffHunksPreserved = survival(extractProtectedValues(input, 'diff-hunk'), output) === 1;
+  const criticalLinesPreserved = survival([
+    ...extractProtectedValues(input, 'error'),
+    ...extractProtectedValues(input, 'constraint'),
+  ], output) === 1;
   const envelopesPreserved = toolEnvelope(before).every(value => toolEnvelope(after).includes(value));
   const accepted = protectedTokenSurvival >= 0.95
     && numericLiteralsPreserved
     && jsonKeySurvival >= 0.9
     && diffHunksPreserved
+    && criticalLinesPreserved
     && envelopesPreserved;
 
   return {
@@ -75,5 +82,6 @@ export function checkFidelity(before: ChatMessage[], after: ChatMessage[]): Fide
     numericLiteralsPreserved,
     jsonKeySurvival,
     diffHunksPreserved,
+    criticalLinesPreserved,
   };
 }

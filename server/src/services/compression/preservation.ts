@@ -8,7 +8,8 @@ export type ProtectedKind =
   | 'stack-trace'
   | 'diff-hunk'
   | 'key-value'
-  | 'error';
+  | 'error'
+  | 'constraint';
 
 export interface ProtectedSpan {
   start: number;
@@ -28,6 +29,11 @@ const RULES: Array<{ kind: ProtectedKind; regex: RegExp }> = [
   { kind: 'diff-hunk', regex: /^@@[^\n]*@@[^\n]*$/gm },
   { kind: 'key-value', regex: /\b[A-Za-z_][A-Za-z0-9_.-]*=(?:"[^"]*"|'[^']*'|[^\s]+)/g },
   { kind: 'error', regex: /^.*\b(?:error|exception|fatal|failed|failure|traceback|panic)\b.*$/gim },
+  {
+    kind: 'constraint',
+    regex:
+      /^.*\b(?:must(?:\s+not)?|do\s+not|don't|never|always|require(?:d|ment|ments)?|constraint|important|warning|security|permission|authorization|forbidden|prohibited)\b.*$/gim,
+  },
 ];
 
 export function mergeProtectedSpans(spans: ProtectedSpan[]): ProtectedSpan[] {

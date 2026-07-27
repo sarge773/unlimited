@@ -66,6 +66,7 @@ export interface CompressionStageStats {
     numericLiteralsPreserved: boolean;
     jsonKeySurvival: number;
     diffHunksPreserved: boolean;
+    criticalLinesPreserved: boolean;
   };
   details?: Record<string, unknown>;
 }
