@@ -13,7 +13,8 @@
     "switchDark": "Skift til mørkt tema",
     "switchToChinese": "Skift til kinesisk",
     "switchToEnglish": "Skift til engelsk",
-    "modelsMenu": "Gennemse modeltyper"
+    "modelsMenu": "Gennemse modeltyper",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "Opret din konto",
@@ -360,7 +361,29 @@
     "quotaLimit": "Grænse",
     "quotaRemaining": "Resterende",
     "quotaReset": "Nulstil",
-    "quotaObserved": "Observeret"
+    "quotaObserved": "Observeret",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "sundt",
@@ -439,7 +462,8 @@
     "keyOrdinal": "Nøgle #{n}",
     "attemptTimingHint": "Startforskydning fra anmodningsstart · Forsøgsvarighed",
     "requestedModel": "Efterspurgt model",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "Legeplads",
@@ -659,5 +683,15 @@
     "url": "Indtast en gyldig URL, der starter med http:// eller https://",
     "email": "Indtast en gyldig e-mailadresse",
     "passwordMin": "I det mindste {min} karakterer"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

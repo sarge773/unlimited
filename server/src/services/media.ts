@@ -485,9 +485,9 @@ function logMedia(row: Pick<MediaModelRow, 'platform' | 'model_id' | 'modality'>
   try {
     const client = getClientContext();
     getDb()
-      .prepare(`INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, error, request_type, client_ip, client_user_agent)
-                VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?)`)
-      .run(row.platform, row.model_id, keyId, status, latencyMs, error, row.modality, client.ip, client.userAgent);
+      .prepare(`INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, error, request_type, client_ip, client_user_agent, client_agent)
+                VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?)`)
+      .run(row.platform, row.model_id, keyId, status, latencyMs, error, row.modality, client.ip, client.userAgent, client.agent);
   } catch (e) {
     console.error('Failed to log media request:', e);
   }

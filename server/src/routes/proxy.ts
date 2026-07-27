@@ -57,11 +57,8 @@ export function timingSafeStringEqual(provided: string, expected: string): boole
 }
 
 // Extract the unified API key from an incoming request. Accepts both the
-// OpenAI-style `Authorization: Bearer <key>` header and the Anthropic-style
-// `x-api-key` header. Clients that speak the Anthropic wire format — notably
-// Claude Code routed through CC Switch (#103) — send the key in `x-api-key`
-// rather than a bearer token, and were getting a spurious "Invalid API key"
-// 401 before this fallback existed.
+// OpenAI Bearer, Anthropic x-api-key, and Gemini x-goog-api-key headers.
+// Query credentials remain scoped to the Gemini router.
 export function extractApiToken(req: Request): string | undefined {
   const bearer = req.headers.authorization?.replace(/^Bearer\s+/i, '').trim();
   if (bearer) return bearer;
@@ -69,7 +66,10 @@ export function extractApiToken(req: Request): string | undefined {
   const apiKeyHeader = req.headers['x-api-key'];
   const xApiKey = Array.isArray(apiKeyHeader) ? apiKeyHeader[0] : apiKeyHeader;
   const trimmed = xApiKey?.trim();
-  return trimmed || undefined;
+  if (trimmed) return trimmed;
+  const googleHeader = req.headers['x-goog-api-key'];
+  const googleKey = Array.isArray(googleHeader) ? googleHeader[0] : googleHeader;
+  return googleKey?.trim() || undefined;
 }
 
 function quotaContextForRoute(route: RouteResult, endpoint: string): QuotaObservationContext {

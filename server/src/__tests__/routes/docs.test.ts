@@ -56,11 +56,16 @@ describe('OpenAPI docs routes', () => {
   // A missing route returns 404; a present-but-unauthenticated route returns
   // 401/400. We assert "not 404" so the check is auth-agnostic.
   it('documents only paths that exist in the app router', async () => {
-    const base = openapiSpec.servers[0].url; // "/v1"
+    const base = openapiSpec.servers[0].url; // "/"
     for (const [path, item] of Object.entries(openapiSpec.paths)) {
-      for (const method of Object.keys(item as Record<string, unknown>)) {
+      for (const method of Object.keys(item as Record<string, unknown>)
+        .filter(key => !key.startsWith('x-'))) {
+        const operation = (item as Record<string, any>)[method];
+        const optional = operation?.['x-optional-surface'] === true;
         const { status } = await request(app, method.toUpperCase(), base + path);
-        expect(status, `${method.toUpperCase()} ${base}${path} should exist`).not.toBe(404);
+        if (!optional) {
+          expect(status, `${method.toUpperCase()} ${base}${path} should exist`).not.toBe(404);
+        }
       }
     }
   });

@@ -21,6 +21,9 @@ import { cacheRouter } from './routes/cache.js';
 import { authRouter } from './routes/auth.js';
 import { docsRouter } from './routes/docs.js';
 import { mcpRouter } from './routes/mcp.js';
+import { geminiRouter } from './routes/gemini.js';
+import { ollamaRouter } from './routes/ollama.js';
+import { urlTokenRouter } from './routes/url-tokens.js';
 import { requireAuth } from './middleware/requireAuth.js';
 import { createProxyRateLimiter } from './middleware/rateLimit.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -78,6 +81,12 @@ export function createApp(config?: Config) {
   // AsyncLocalStorage so logRequest() can read it from any depth.
   app.use(clientContextMiddleware);
 
+  // Ollama emulation owns only its exact fixed /api/* paths. Mount it before
+  // the dashboard session gate because real Ollama clients do not use that
+  // auth scheme. Its legacy /api/embeddings handler explicitly falls through
+  // when it sees a valid dashboard session.
+  app.use(ollamaRouter);
+
   // Dashboard auth (#35): /api/auth/{status,setup,login} bootstrap without a
   // session; everything else under /api/* requires a logged-in dashboard user.
   // The /v1 proxy keeps its own unified-API-key auth and is NOT gated here.
@@ -102,6 +111,10 @@ export function createApp(config?: Config) {
   // owns those two paths; everything else falls through to the routers below.
   app.use('/v1', docsRouter);
 
+  // Separately revocable URL tokens for clients that cannot set headers.
+  app.use('/v1/t/:token', createProxyRateLimiter(cfg.proxyRateLimitRpm));
+  app.use('/v1/t/:token', urlTokenRouter);
+
   // OpenAI-compatible proxy. Per-IP rate limiting (#35 item #6) runs first so
   // it throttles unauthenticated brute-force / flood attempts before any
   // routing work. Tune via PROXY_RATE_LIMIT_RPM; 0 disables it.
@@ -115,6 +128,10 @@ export function createApp(config?: Config) {
   app.use('/v1', proxyRouter);
   // OpenAI Responses API shim (Codex CLI requires wire_api="responses"; see #96)
   app.use('/v1', responsesRouter);
+
+  // Native Gemini wire surface for Gemini CLI and Gemini-lineage agents.
+  app.use('/v1beta', createProxyRateLimiter(cfg.proxyRateLimitRpm));
+  app.use('/v1beta', geminiRouter);
 
   // MCP server (Model Context Protocol over stateless Streamable HTTP):
   // gateway introspection tools for MCP-speaking agents. Unified-key auth,
@@ -165,7 +182,7 @@ export function createApp(config?: Config) {
     }));
     // SPA fallback — serve index.html for non-API routes
     app.use((req, res, next) => {
-      if (req.path.startsWith('/api/') || req.path.startsWith('/v1/')) {
+      if (req.path.startsWith('/api/') || req.path.startsWith('/v1/') || req.path.startsWith('/v1beta/')) {
         next();
         return;
       }

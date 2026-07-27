@@ -13,7 +13,8 @@
     "switchDark": "အမှောင်အကြောင်းအရာသို့ ပြောင်းပါ",
     "switchToChinese": "တရုတ်ဘာသာသို့ ပြောင်းရန်",
     "switchToEnglish": "အင်္ဂလိပ်သို့ ပြောင်းပါ",
-    "modelsMenu": "မော်ဒယ်အမျိုးအစားများကို ကြည့်ရှုပါ"
+    "modelsMenu": "မော်ဒယ်အမျိုးအစားများကို ကြည့်ရှုပါ",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "သင့်အကောင့်ကို ဖန်တီးပါ",
@@ -360,7 +361,29 @@
     "quotaLimit": "ကန့်သတ်ချက်",
     "quotaRemaining": "ကျန်ရှိသော",
     "quotaReset": "Reset လုပ်ပါ",
-    "quotaObserved": "ကြည့်ရှုခဲ့သည်"
+    "quotaObserved": "ကြည့်ရှုခဲ့သည်",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "ကျန်းမာသော",
@@ -439,7 +462,8 @@
     "keyOrdinal": "သော့ #{n}",
     "attemptTimingHint": "တောင်းဆိုမှုစတင်ချိန်မှ စတင်အော့ဖ်ဆက် · ကြိုးစားမှုကြာချိန်",
     "requestedModel": "တောင်းဆိုထားသော မော်ဒယ်",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "ကစားကွင်း",
@@ -659,5 +683,15 @@
     "url": "URL http:// သို့မဟုတ် https://",
     "email": "မှန်ကန်သော အီးမေးလ်လိပ်စာ ထည့်ပါ",
     "passwordMin": "အနည်းဆုံး {min}"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

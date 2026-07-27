@@ -13,7 +13,8 @@
     "switchDark": "Wechseln Sie zum dunklen Thema",
     "switchToChinese": "Wechseln Sie zu Chinesisch",
     "switchToEnglish": "Wechseln Sie zu Englisch",
-    "modelsMenu": "Durchsuchen Sie Modelltypen"
+    "modelsMenu": "Durchsuchen Sie Modelltypen",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "Erstellen Sie Ihr Konto",
@@ -360,7 +361,29 @@
     "quotaLimit": "Begrenzen",
     "quotaRemaining": "Übrig",
     "quotaReset": "Zurücksetzen",
-    "quotaObserved": "Beobachtet"
+    "quotaObserved": "Beobachtet",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "gesund",
@@ -439,7 +462,8 @@
     "keyOrdinal": "Schlüssel #{n}",
     "attemptTimingHint": "Startoffset vom Anforderungsstart · Versuchsdauer",
     "requestedModel": "Angefragtes Modell",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "Spielplatz",
@@ -659,5 +683,15 @@
     "url": "Geben Sie ein gültiges URL ein, beginnend mit http:// oder https://",
     "email": "Geben Sie eine gültige E-Mail-Adresse ein",
     "passwordMin": "Mindestens {min} Zeichen"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

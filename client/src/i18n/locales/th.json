@@ -13,7 +13,8 @@
     "switchDark": "เปลี่ยนเป็นธีมสีเข้ม",
     "switchToChinese": "เปลี่ยนไปใช้ภาษาจีน",
     "switchToEnglish": "เปลี่ยนเป็นภาษาอังกฤษ",
-    "modelsMenu": "เรียกดูประเภทโมเดล"
+    "modelsMenu": "เรียกดูประเภทโมเดล",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "สร้างบัญชีของคุณ",
@@ -360,7 +361,29 @@
     "quotaLimit": "ขีดจำกัด",
     "quotaRemaining": "ที่เหลืออยู่",
     "quotaReset": "รีเซ็ต",
-    "quotaObserved": "สังเกต"
+    "quotaObserved": "สังเกต",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "มีสุขภาพดี",
@@ -439,7 +462,8 @@
     "keyOrdinal": "กุญแจ #{n}",
     "attemptTimingHint": "เริ่มต้นออฟเซ็ตจากคำขอเริ่มต้น · ระยะเวลาความพยายาม",
     "requestedModel": "รุ่นที่ขอ",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "สนามเด็กเล่น",
@@ -659,5 +683,15 @@
     "url": "ป้อน URL ที่ถูกต้องโดยขึ้นต้นด้วย http:// หรือ https://",
     "email": "ป้อนที่อยู่อีเมลที่ถูกต้อง",
     "passwordMin": "อย่างน้อยอักขระ {min}"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

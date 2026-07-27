@@ -13,7 +13,8 @@
     "switchDark": "切换到深色主题",
     "switchToChinese": "切换到中文",
     "switchToEnglish": "Switch to English",
-    "modelsMenu": "浏览模型类型"
+    "modelsMenu": "浏览模型类型",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "创建账号",
@@ -360,7 +361,29 @@
     "quotaLimit": "上限",
     "quotaRemaining": "剩余",
     "quotaReset": "重置",
-    "quotaObserved": "观测时间"
+    "quotaObserved": "观测时间",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "健康",
@@ -439,7 +462,8 @@
     "keyOrdinal": "密钥 #{n}",
     "attemptTimingHint": "自请求开始的偏移 · 尝试耗时",
     "requestedModel": "请求的模型",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "试玩台",
@@ -659,5 +683,15 @@
     "url": "请输入以 http:// 或 https:// 开头的有效 URL",
     "email": "请输入有效的邮箱地址",
     "passwordMin": "至少 {min} 个字符"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

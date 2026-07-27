@@ -13,7 +13,8 @@
     "switchDark": "切換到暗色主題",
     "switchToChinese": "轉用中文",
     "switchToEnglish": "轉用英語",
-    "modelsMenu": "瀏覽模型類型"
+    "modelsMenu": "瀏覽模型類型",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "建立您的帳號",
@@ -360,7 +361,29 @@
     "quotaLimit": "極限",
     "quotaRemaining": "現存",
     "quotaReset": "重置",
-    "quotaObserved": "觀察"
+    "quotaObserved": "觀察",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "健康",
@@ -439,7 +462,8 @@
     "keyOrdinal": "關鍵 #{n}",
     "attemptTimingHint": "請求起始的起始偏移量 ·嘗試時間",
     "requestedModel": "需求模型",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "遊樂場",
@@ -659,5 +683,15 @@
     "url": "輸入一個以 http:// 或 https:// 開頭的有效URL",
     "email": "輸入有效的電子郵件地址",
     "passwordMin": "至少{min}角色"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

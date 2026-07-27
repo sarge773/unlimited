@@ -293,6 +293,35 @@ analyticsRouter.get('/by-platform', (req: Request, res: Response) => {
   }));
 });
 
+analyticsRouter.get('/by-client', (req: Request, res: Response) => {
+  const range = (req.query.range as string) ?? '7d';
+  const since = getSinceTimestamp(range);
+  const rows = getDb().prepare(`
+    SELECT
+      COALESCE(client_agent, 'unknown') AS client_agent,
+      COUNT(*) AS requests,
+      SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS success_rate,
+      AVG(latency_ms) AS avg_latency_ms,
+      SUM(input_tokens) AS total_input_tokens,
+      SUM(output_tokens) AS total_output_tokens,
+      MAX(strftime('%Y-%m-%dT%H:%M:%SZ', created_at)) AS last_seen_at
+    FROM requests
+    WHERE created_at >= ?
+    GROUP BY COALESCE(client_agent, 'unknown')
+    ORDER BY requests DESC
+  `).all(since) as any[];
+
+  res.json(rows.map(row => ({
+    clientAgent: row.client_agent,
+    requests: row.requests,
+    successRate: Math.round((row.success_rate ?? 0) * 10) / 10,
+    avgLatencyMs: Math.round(row.avg_latency_ms ?? 0),
+    totalInputTokens: row.total_input_tokens ?? 0,
+    totalOutputTokens: row.total_output_tokens ?? 0,
+    lastSeenAt: row.last_seen_at,
+  })));
+});
+
 // Stats grouped by API key. Raw-row scoped (the hourly aggregate has no key
 // dimension), LEFT JOINed to api_keys so a request whose key was later deleted
 // still shows up with a null label — the keyId is always returned.
@@ -499,7 +528,7 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
   const rows = db.prepare(`
     SELECT id, platform, model_id, requested_model, request_type, status,
            input_tokens, output_tokens, latency_ms, error,
-           client_ip, client_user_agent,
+           client_ip, client_user_agent, client_agent,
            strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso,
            (SELECT COUNT(*) FROM request_attempts a WHERE a.request_id = requests.id) as attempt_count
     FROM requests
@@ -523,6 +552,7 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
       error: r.error,
       clientIp: r.client_ip,
       clientUserAgent: r.client_user_agent,
+      clientAgent: r.client_agent,
       createdAt: r.created_at_iso,
       // Failover-ladder length for this row. Attempts hang off the TERMINAL
       // row of a proxied request; mid-ladder failure rows report 0.
@@ -549,7 +579,7 @@ analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
   const r = db.prepare(`
     SELECT id, platform, model_id, requested_model, served_model, request_type, status,
            input_tokens, output_tokens, latency_ms, ttfb_ms, error,
-           client_ip, client_user_agent,
+           client_ip, client_user_agent, client_agent,
            strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso
     FROM requests
     WHERE id = ?
@@ -583,6 +613,7 @@ analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
     error: r.error,
     clientIp: r.client_ip,
     clientUserAgent: r.client_user_agent,
+    clientAgent: r.client_agent,
     createdAt: r.created_at_iso,
     attempts: attempts.map(a => ({
       ordinal: a.ordinal,

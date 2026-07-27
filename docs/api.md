@@ -9,6 +9,9 @@ Any OpenAI-compatible client works (Anthropic / Claude clients too — see [Anth
 - [Streaming](#streaming)
 - [Tool calling](#tool-calling)
 - [Gemini Google Search grounding](#gemini-google-search-grounding)
+- [Native Gemini API](#native-gemini-api)
+- [Ollama emulation](#ollama-emulation)
+- [Revocable URL tokens](#revocable-url-tokens)
 - [Vision / image input](#vision--image-input)
 - [Images & text-to-speech](#images--text-to-speech)
 - [Fusion (multi-model synthesis)](#fusion-multi-model-synthesis)
@@ -150,6 +153,51 @@ resp = client.chat.completions.create(
 )
 print(resp.choices[0].message.content)
 ```
+
+## Native Gemini API
+
+Gemini SDKs and Gemini CLI can use the native `/v1beta` surface:
+
+- `GET /v1beta/models`
+- `GET /v1beta/models/{model}`
+- `POST /v1beta/models/{model}:generateContent`
+- `POST /v1beta/models/{model}:streamGenerateContent` (`?alt=sse` for Gemini CLI)
+- `POST /v1beta/models/{model}:countTokens`
+
+```bash
+curl "http://localhost:3001/v1beta/models/gemini-2.5-flash:generateContent" \
+  -H "x-goog-api-key: freellmapi-your-unified-key" \
+  -H "Content-Type: application/json" \
+  -d '{"contents":[{"role":"user","parts":[{"text":"hello"}]}]}'
+```
+
+`contents` text, inline data, function calls/responses, system instructions,
+function declarations, structured JSON output, generation controls, and
+thinking budgets translate into the same internal chat/fallback pipeline.
+Bearer auth works too. Gemini's `?key=` query parameter is accepted only below
+`/v1beta`; prefer a header because URL credentials leak into history and logs.
+
+## Ollama emulation
+
+The opt-in Ollama surface implements tags, chat, generate, show, version, embed,
+and legacy embeddings under `/api/*`. Streaming is Ollama-compatible NDJSON.
+It defaults to `off`; choose `open-loopback` or `key-required` on
+**Keys → Agents**. Open-loopback checks the direct socket peer, so desktop LAN
+access cannot silently turn it into an unauthenticated LAN endpoint.
+
+The dashboard also owns `/api/embeddings`. A request with a valid dashboard
+session continues to the dashboard handler; all other requests at that exact
+path are treated as Ollama legacy embeddings and follow the emulation policy.
+
+## Revocable URL tokens
+
+Headerless clients can mirror models, chat completions, Responses, and
+Ollama-style chat/tags under `/v1/t/{token}/…`. These tokens are random,
+stored only as hashes, separately revocable, and are not the unified key.
+Create/revoke them on **Keys → Agents**.
+
+Treat them as sensitive anyway: URLs are routinely retained by shell history,
+reverse proxies, browser history, and telemetry. Revocation is immediate.
 
 ## Vision / image input
 

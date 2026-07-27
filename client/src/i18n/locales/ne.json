@@ -13,7 +13,8 @@
     "switchDark": "गाढा विषयवस्तुमा स्विच गर्नुहोस्",
     "switchToChinese": "चिनियाँमा स्विच गर्नुहोस्",
     "switchToEnglish": "अङ्ग्रेजीमा स्विच गर्नुहोस्",
-    "modelsMenu": "नमूना प्रकार ब्राउज गर्नुहोस्"
+    "modelsMenu": "नमूना प्रकार ब्राउज गर्नुहोस्",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "तपाईँको खाता सिर्जना गर्नुहोस्",
@@ -360,7 +361,29 @@
     "quotaLimit": "सीमा",
     "quotaRemaining": "बाँकी",
     "quotaReset": "रिसेट गर्नुहोस्",
-    "quotaObserved": "अवलोकन गरियो"
+    "quotaObserved": "अवलोकन गरियो",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "स्वस्थ छ",
@@ -439,7 +462,8 @@
     "keyOrdinal": "कुञ्जी #{n}",
     "attemptTimingHint": "अनुरोध सुरुबाट अफसेट सुरु गर्नुहोस् · प्रयास अवधि",
     "requestedModel": "अनुरोध गरिएको नमूना",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "खेल मैदान[सम्पादन गर्ने]",
@@ -659,5 +683,15 @@
     "url": "http:// वा https:// सँग सुरु भएको वैध URL प्रविष्ट गर्नुहोस्",
     "email": "वैध इमेल ठेगाना प्रविष्ट गर्नुहोस्",
     "passwordMin": "कम्तिमा {min} क्यारेक्टरहरू"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

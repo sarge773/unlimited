@@ -13,7 +13,8 @@
     "switchDark": "অন্ধকার থিমে স্যুইচ করুন",
     "switchToChinese": "চাইনিজ এ স্যুইচ করুন",
     "switchToEnglish": "ইংরেজিতে স্যুইচ করুন",
-    "modelsMenu": "মডেলের ধরন ব্রাউজ করুন"
+    "modelsMenu": "মডেলের ধরন ব্রাউজ করুন",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "আপনার অ্যাকাউন্ট তৈরি করুন",
@@ -360,7 +361,29 @@
     "quotaLimit": "সীমা",
     "quotaRemaining": "অবশিষ্ট",
     "quotaReset": "রিসেট করুন",
-    "quotaObserved": "পর্যবেক্ষণ করা হয়েছে"
+    "quotaObserved": "পর্যবেক্ষণ করা হয়েছে",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "সুস্থ",
@@ -439,7 +462,8 @@
     "keyOrdinal": "কী #{n}",
     "attemptTimingHint": "অনুরোধ শুরু থেকে অফসেট শুরু করুন · প্রচেষ্টার সময়কাল",
     "requestedModel": "অনুরোধ করা মডেল",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "খেলার মাঠ",
@@ -659,5 +683,15 @@
     "url": "http:// বা https:// দিয়ে শুরু করে একটি বৈধ URL লিখুন",
     "email": "একটি বৈধ ইমেল ঠিকানা লিখুন",
     "passwordMin": "অন্তত {min} অক্ষর"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

@@ -4,6 +4,9 @@
 
 - [OpenAI-compatible clients](#openai-compatible-clients)
 - [Coding agents](#coding-agents)
+- [Native Gemini clients](#native-gemini-clients)
+- [Ollama clients](#ollama-clients)
+- [Headerless clients](#headerless-clients)
 - [MCP server](#mcp-server)
 - [VS Code ghost-text autocomplete (Continue)](#vs-code-ghost-text-autocomplete-continue)
 - [Context Handoff](#context-handoff)
@@ -19,19 +22,86 @@ Any client that can target an OpenAI-compatible base URL can use FreeLLMAPI:
 
 ## Coding agents
 
-Every recipe below is the same three facts in a different config file: base URL
-`http://localhost:3001/v1`, the unified key from the dashboard's Keys page, and
-a model (`auto` lets the router pick).
+Use the generator instead of hand-editing a client configuration:
 
-| Agent | Setup |
-| --- | --- |
-| **Claude Code** | `ANTHROPIC_BASE_URL=http://localhost:3001` + `ANTHROPIC_AUTH_TOKEN=<unified key>` — full walkthrough in [Anthropic / Claude clients](api.md#anthropic--claude-clients) |
-| **Codex CLI** | add a provider in `~/.codex/config.toml` with `base_url = "http://localhost:3001/v1"` and its `env_key` pointing at the unified key — the `/v1/responses` surface it needs is implemented |
-| **Cline / Roo Code** | provider type "OpenAI Compatible", base URL `http://localhost:3001/v1`, unified key, model `auto` (or any id from `/v1/models`) |
-| **Continue** | `apiBase: http://localhost:3001/v1` in its config; inline autocomplete works too via the legacy `/v1/completions` surface |
-| **Aider** | `OPENAI_API_BASE=http://localhost:3001/v1` + `OPENAI_API_KEY=<unified key>`, then `aider --model openai/auto` |
-| **opencode** | OpenAI-compatible provider with the same base URL and key |
-| **Cursor** | paste the unified key under a custom OpenAI base URL — but note Cursor verifies and calls the API **from its servers**, so your router must be reachable from the internet (a tunnel or a host with a public address), not just `localhost` |
+```bash
+npx freellmapi setup-claude --url http://localhost:3001 --dry-run
+npx freellmapi setup-claude --url http://localhost:3001
+```
+
+`--dry-run` prints a diff. Real writes merge with the existing configuration
+and create a timestamped backup first. `--profile <name>` creates a named
+Claude/Codex profile. The live `/v1/models` catalog supplies the model ids and
+context windows.
+
+| Agent | Automated command | Manual base URL | Wire |
+| --- | --- | --- | --- |
+| **Claude Code** | `setup-claude` or credential-free-on-disk `launch` | `http://localhost:3001` | Anthropic Messages |
+| **Codex CLI** | `setup-codex` or `launch-codex` | `http://localhost:3001/v1` | Responses (`wire_api = "responses"`) |
+| **Cline** | `setup-cline` | `http://localhost:3001` | OpenAI Chat |
+| **Continue** | `setup-continue` | `http://localhost:3001/v1` | OpenAI Chat / legacy Completions |
+| **Aider** | `setup-aider` | `http://localhost:3001` | OpenAI Chat |
+| **OpenCode** | `setup-opencode` | `http://localhost:3001/v1` | OpenAI Chat |
+| **Goose** | `setup-goose` | `http://localhost:3001` | OpenAI Chat |
+| **Qwen Code** | `setup-qwen` | `http://localhost:3001/v1` | OpenAI Chat (native Gemini also works) |
+| **Roo Code** | `setup-roo` | `http://localhost:3001/v1` | OpenAI Chat |
+| **Kilo Code** | `setup-kilo` | `http://localhost:3001/v1` | OpenAI Chat |
+| **Crush** | `setup-crush` | `http://localhost:3001/v1` | OpenAI Chat |
+| **Cursor** | `setup-cursor` prints the guide | public `https://…/v1` | OpenAI Chat |
+| **Anything else** | `setup-generic` prints a ready block | `http://localhost:3001/v1` | OpenAI Chat |
+
+The root-vs-`/v1` distinction matters: Claude Code, Cline, Aider, and Goose
+append the OpenAI/Anthropic path themselves. Codex, Continue, OpenCode, Qwen,
+Kilo, and Crush expect the base URL to include `/v1`.
+
+## Native Gemini clients
+
+Gemini CLI and Gemini-lineage clients can speak Google's wire format directly:
+
+```bash
+export GOOGLE_GEMINI_BASE_URL=http://localhost:3001
+export GEMINI_API_KEY=freellmapi-your-unified-key
+gemini
+```
+
+The native surface implements `GET /v1beta/models`, model metadata,
+`generateContent`, `streamGenerateContent` (including `?alt=sse`), and
+`countTokens`. Authentication accepts `x-goog-api-key`, Bearer, or Gemini's
+`?key=` fallback. Prefer the header: query credentials leak into history and
+proxy logs.
+
+The **Keys → Agents** tab maps Gemini Pro, Flash, and Flash-Lite family names to
+Auto or a pinned catalog model.
+
+## Ollama clients
+
+Ollama emulation is off by default. Enable one of these modes on
+**Keys → Agents**:
+
+- `open-loopback`: no key on this machine only. The socket peer must be
+  `127.0.0.1`/`::1`; enabling desktop LAN access does not widen it.
+- `key-required`: clients must send `Authorization: Bearer <unified-key>`.
+
+The exact endpoints are `/api/tags`, `/api/chat`, `/api/generate`, `/api/show`,
+`/api/version`, `/api/embed`, and legacy `/api/embeddings`. Streaming uses
+newline-delimited JSON, not SSE. Point Zed, JetBrains AI Assistant, or another
+Ollama-capable client at `http://localhost:3001`.
+
+## Headerless clients
+
+If a client cannot set headers, create a separately revocable token on
+**Keys → Agents** and use:
+
+```text
+http://localhost:3001/v1/t/<token>/chat/completions
+http://localhost:3001/v1/t/<token>/responses
+http://localhost:3001/v1/t/<token>/models
+```
+
+The same prefix exposes `/api/chat` and `/api/tags`. Never put the unified API
+key in a URL. URL tokens have independent hashes and immediate revocation
+because URLs routinely leak into shell history, reverse-proxy logs, and
+telemetry.
 
 ## MCP server
 

@@ -1,0 +1,332 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`tool generators > setup-aider has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "content": "# freellmapi:start
+openai-api-base: "http://localhost:3000"
+openai-api-key: "freellmapi-test-key"
+model: "openai/fast-coder"
+# freellmapi:end
+",
+      "format": "yaml",
+      "path": "/home/tester/.aider.conf.yml",
+      "sensitive": true,
+    },
+  ],
+  "notes": [
+    "Environment-only alternative: OPENAI_API_BASE=http://localhost:3000 OPENAI_API_KEY=… aider --model openai/fast-coder",
+  ],
+}
+`;
+
+exports[`tool generators > setup-claude has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "format": "json",
+      "path": "/home/tester/.claude/settings.json",
+      "sensitive": true,
+      "value": {
+        "env": {
+          "ANTHROPIC_AUTH_TOKEN": "freellmapi-test-key",
+          "ANTHROPIC_BASE_URL": "http://localhost:3000",
+          "ANTHROPIC_DEFAULT_HAIKU_MODEL": "fast-coder",
+          "ANTHROPIC_DEFAULT_OPUS_MODEL": "fast-coder",
+          "ANTHROPIC_DEFAULT_SONNET_MODEL": "fast-coder",
+          "ANTHROPIC_MODEL": "fast-coder",
+          "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "131072",
+          "CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY": "1",
+        },
+      },
+    },
+  ],
+  "notes": [
+    "Claude Code will read this configuration automatically.",
+    "For zero-persistence credentials, prefer: freellmapi launch",
+  ],
+}
+`;
+
+exports[`tool generators > setup-cline has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "format": "json",
+      "path": "/home/tester/.cline/data/globalState.json",
+      "value": {
+        "actModeApiConfiguration": {
+          "apiProvider": "openai",
+          "openAiBaseUrl": "http://localhost:3000",
+          "openAiModelId": "fast-coder",
+        },
+        "apiConfiguration": {
+          "apiProvider": "openai",
+          "openAiBaseUrl": "http://localhost:3000",
+          "openAiModelId": "fast-coder",
+        },
+        "planModeApiConfiguration": {
+          "apiProvider": "openai",
+          "openAiBaseUrl": "http://localhost:3000",
+          "openAiModelId": "fast-coder",
+        },
+      },
+    },
+    {
+      "format": "json",
+      "path": "/home/tester/.cline/data/secrets.json",
+      "sensitive": true,
+      "value": {
+        "openAiApiKey": "freellmapi-test-key",
+      },
+    },
+  ],
+  "notes": [
+    "Cline appends /v1/chat/completions, so its base URL is the server root.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-codex has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "content": "# freellmapi:start
+model = "fast-coder"
+model_provider = "freellmapi"
+model_context_window = 131072
+model_auto_compact_token_limit = 117964
+tool_output_token_limit = 20000
+
+[model_providers.freellmapi]
+name = "FreeLLMAPI"
+base_url = "http://localhost:3000/v1"
+wire_api = "responses"
+env_key = "FREELLMAPI_API_KEY"
+requires_openai_auth = false
+# freellmapi:end
+",
+      "format": "toml",
+      "path": "/home/tester/.codex/config.toml",
+    },
+  ],
+  "notes": [
+    "Export FREELLMAPI_API_KEY before running codex; the key is not written to config.toml.",
+    "Selected fast-coder with a 131072 token context window.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-continue has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "content": "# freellmapi:start
+models:
+  - name: FreeLLMAPI
+    provider: openai
+    model: "fast-coder"
+    apiBase: "http://localhost:3000/v1"
+    apiKey: \${{ secrets.FREELLMAPI_API_KEY }}
+# freellmapi:end
+",
+      "format": "yaml",
+      "path": "/home/tester/.continue/config.yaml",
+    },
+  ],
+  "notes": [
+    "Add FREELLMAPI_API_KEY to Continue secrets; no raw key was written.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-crush has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "format": "json",
+      "path": "/home/tester/.config/crush/crush.json",
+      "value": {
+        "providers": {
+          "freellmapi": {
+            "api_key": "$FREELLMAPI_API_KEY",
+            "base_url": "http://localhost:3000/v1",
+            "models": [
+              {
+                "context_window": 131072,
+                "id": "fast-coder",
+              },
+            ],
+            "type": "openai-compatible",
+          },
+        },
+      },
+    },
+  ],
+  "notes": [
+    "Export FREELLMAPI_API_KEY before starting Crush.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-cursor has stable golden output 1`] = `
+{
+  "files": [],
+  "notes": [
+    "Cursor sends model traffic through its cloud service, so localhost is not reachable from Cursor.",
+    "Expose the gateway through a trusted HTTPS tunnel, then open Cursor Settings → Models, enable Override OpenAI Base URL, and enter <public-url>/v1.",
+    "Use a separately revocable URL token if the client cannot set an Authorization header.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-generic has stable golden output 1`] = `
+{
+  "files": [],
+  "notes": [
+    "OPENAI_BASE_URL=http://localhost:3000/v1",
+    "OPENAI_API_KEY=freellmapi-test-key",
+    "OPENAI_MODEL=fast-coder",
+    "curl http://localhost:3000/v1/chat/completions -H "Authorization: Bearer $OPENAI_API_KEY" -H "Content-Type: application/json" -d '{"model":"fast-coder","messages":[{"role":"user","content":"Hello"}]}'",
+  ],
+}
+`;
+
+exports[`tool generators > setup-goose has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "content": "# freellmapi:start
+GOOSE_PROVIDER: openai
+GOOSE_MODEL: "fast-coder"
+OPENAI_HOST: "http://localhost:3000"
+OPENAI_API_KEY: \${FREELLMAPI_API_KEY}
+# freellmapi:end
+",
+      "format": "yaml",
+      "path": "/home/tester/.config/goose/config.yaml",
+    },
+  ],
+  "notes": [
+    "Export FREELLMAPI_API_KEY before starting Goose.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-kilo has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "format": "json",
+      "path": "/home/tester/.kilocode/auth.json",
+      "sensitive": true,
+      "value": {
+        "freellmapi": {
+          "apiKey": "freellmapi-test-key",
+          "baseUrl": "http://localhost:3000/v1",
+          "model": "fast-coder",
+          "provider": "openai-compatible",
+        },
+      },
+    },
+  ],
+  "notes": [
+    "Select the freellmapi provider in Kilo Code after importing this auth file.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-opencode has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "format": "json",
+      "path": "/home/tester/.config/opencode/opencode.json",
+      "value": {
+        "$schema": "https://opencode.ai/config.json",
+        "provider": {
+          "freellmapi": {
+            "models": {
+              "fast-coder": {
+                "limit": {
+                  "context": 131072,
+                },
+                "name": "Fast Coder",
+              },
+              "reasoning-model": {
+                "limit": {
+                  "context": 262144,
+                },
+                "name": "Reasoning Model",
+              },
+            },
+            "name": "FreeLLMAPI",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "{env:FREELLMAPI_API_KEY}",
+              "baseURL": "http://localhost:3000/v1",
+            },
+          },
+        },
+      },
+    },
+  ],
+  "notes": [
+    "Export FREELLMAPI_API_KEY before starting OpenCode.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-qwen has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "format": "json",
+      "path": "/home/tester/.qwen/settings.json",
+      "value": {
+        "model": "fast-coder",
+        "modelProviders": {
+          "freellmapi": {
+            "apiFormat": "openai",
+            "baseUrl": "http://localhost:3000/v1",
+            "envKey": "FREELLMAPI_API_KEY",
+            "name": "FreeLLMAPI",
+          },
+        },
+      },
+    },
+    {
+      "content": "FREELLMAPI_API_KEY=freellmapi-test-key
+",
+      "format": "env",
+      "path": "/home/tester/.qwen/.env",
+      "sensitive": true,
+    },
+  ],
+  "notes": [
+    "Native Gemini mode is also available at http://localhost:3000/v1beta with GEMINI_API_KEY.",
+  ],
+}
+`;
+
+exports[`tool generators > setup-roo has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "format": "json",
+      "path": "/home/tester/.roo/freellmapi.json",
+      "sensitive": true,
+      "value": {
+        "apiProvider": "openai",
+        "openAiApiKey": "freellmapi-test-key",
+        "openAiBaseUrl": "http://localhost:3000/v1",
+        "openAiModelId": "fast-coder",
+      },
+    },
+  ],
+  "notes": [
+    "Set Roo Code's autoImportSettingsPath to /home/tester/.roo/freellmapi.json.",
+  ],
+}
+`;

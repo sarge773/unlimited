@@ -52,6 +52,16 @@ interface ByPlatformRow {
   totalOutputTokens: number
 }
 
+interface ByClientRow {
+  clientAgent: string
+  requests: number
+  successRate: number
+  avgLatencyMs: number
+  totalInputTokens: number
+  totalOutputTokens: number
+  lastSeenAt: string | null
+}
+
 interface TimelineBucket {
   timestamp: string
   requests: number
@@ -362,6 +372,11 @@ export default function AnalyticsPage() {
     queryFn: () => apiFetch<ByPlatformRow[]>(`/api/analytics/by-platform?range=${range}`),
   })
 
+  const { data: byClient = [] } = useQuery({
+    queryKey: ['analytics', 'by-client', range],
+    queryFn: () => apiFetch<ByClientRow[]>(`/api/analytics/by-client?range=${range}`),
+  })
+
   const { data: timeline = [] } = useQuery({
     queryKey: ['analytics', 'timeline', range],
     queryFn: () => apiFetch<TimelineBucket[]>(`/api/analytics/timeline?range=${range}`),
@@ -557,6 +572,22 @@ export default function AnalyticsPage() {
                   <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="requests" name={t('analytics.requests')} fill={primaryFill} radius={[3, 3, 0, 0]} maxBarSize={24} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </Panel>
+
+          <Panel title={t('analytics.requestsByAgent')}>
+            {byClient.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">{t('common.noData')}</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={byClient} margin={{ top: 6, right: 6, left: -12, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="2 4" stroke={gridStyle} />
+                  <XAxis dataKey="clientAgent" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
+                  <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="requests" name={t('analytics.requests')} fill={seriesB} radius={[3, 3, 0, 0]} maxBarSize={24} />
                 </BarChart>
               </ResponsiveContainer>
             )}

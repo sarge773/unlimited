@@ -13,7 +13,8 @@
     "switchDark": "Passer au thème sombre",
     "switchToChinese": "Passer au chinois",
     "switchToEnglish": "Passer à l'anglais",
-    "modelsMenu": "Parcourir les types de modèles"
+    "modelsMenu": "Parcourir les types de modèles",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "Créez votre compte",
@@ -360,7 +361,29 @@
     "quotaLimit": "Limite",
     "quotaRemaining": "Restant",
     "quotaReset": "Réinitialisation",
-    "quotaObserved": "Observé"
+    "quotaObserved": "Observé",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "sain",
@@ -439,7 +462,8 @@
     "keyOrdinal": "clé #{n}",
     "attemptTimingHint": "Décalage depuis le début de la requête · durée de la tentative",
     "requestedModel": "Modèle demandé",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "Bac à sable",
@@ -659,5 +683,15 @@
     "url": "Saisissez une URL valide commençant par http:// ou https://",
     "email": "Saisissez une adresse e-mail valide",
     "passwordMin": "Au moins {min} caractères"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

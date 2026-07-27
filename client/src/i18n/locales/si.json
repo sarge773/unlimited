@@ -13,7 +13,8 @@
     "switchDark": "අඳුරු තේමාව වෙත මාරු වන්න",
     "switchToChinese": "චීන භාෂාවට මාරු වන්න",
     "switchToEnglish": "ඉංග්‍රීසි වලට මාරු වෙන්න",
-    "modelsMenu": "ආකෘති වර්ග පිරික්සන්න"
+    "modelsMenu": "ආකෘති වර්ග පිරික්සන්න",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "ඔබගේ ගිණුම සාදන්න",
@@ -360,7 +361,29 @@
     "quotaLimit": "සීමාව",
     "quotaRemaining": "ඉතිරි",
     "quotaReset": "යළි පිහිටුවන්න",
-    "quotaObserved": "නිරීක්ෂණය කරන ලදී"
+    "quotaObserved": "නිරීක්ෂණය කරන ලදී",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "සෞඛ්ය සම්පන්න",
@@ -439,7 +462,8 @@
     "keyOrdinal": "යතුර #{n}",
     "attemptTimingHint": "ඉල්ලීම ආරම්භයේ සිට ඕෆ්සෙට් ආරම්භ කරන්න · උත්සාහ කාලය",
     "requestedModel": "ඉල්ලූ ආකෘතිය",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "ක්රීඩා පිටිය",
@@ -659,5 +683,15 @@
     "url": "http:// හෝ https:// සමඟින් ආරම්භ වන වලංගු URL ඇතුළත් කරන්න",
     "email": "වලංගු විද්‍යුත් තැපැල් ලිපිනයක් ඇතුළත් කරන්න",
     "passwordMin": "අවම වශයෙන් {min} අක්ෂර"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

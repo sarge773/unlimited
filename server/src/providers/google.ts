@@ -12,6 +12,9 @@ import { contentToString } from '../lib/content.js';
 import { proxyFetch } from '../lib/proxy.js';
 import { recordQuotaObservationsFromResponse, type QuotaObservationContext } from '../services/provider-quota.js';
 import { providerTimeoutMs, streamStallTimeoutMs } from '../lib/provider-timeout.js';
+import { sanitizeForGemini } from '../lib/gemini-wire.js';
+
+export { sanitizeForGemini } from '../lib/gemini-wire.js';
 
 const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
@@ -177,50 +180,6 @@ function toGeminiFinishReason(finishReason?: string): string {
 // Google Gemini accepts only a subset of JSON Schema (~OpenAPI 3.0).
 // Strip fields that opencode / other strict-JSON-Schema clients send but
 // Google rejects with 400 "Unknown name '<field>'".
-const GEMINI_UNSUPPORTED_SCHEMA_KEYS = new Set([
-  '$schema', '$id', '$ref', '$defs', '$comment',
-  'definitions',
-  'exclusiveMinimum', 'exclusiveMaximum',
-  'patternProperties', 'unevaluatedProperties', 'unevaluatedItems',
-  'if', 'then', 'else',
-  'contentEncoding', 'contentMediaType', 'contentSchema',
-  'dependentRequired', 'dependentSchemas', 'dependencies',
-  'additionalProperties',
-  'examples', 'const', 'readOnly', 'writeOnly',
-  'uniqueItems',
-  'not', 'allOf', 'oneOf',
-  'prefixItems',
-  'contains', 'minContains', 'maxContains',
-  'propertyNames',
-  'multipleOf',
-  'deprecated',
-]);
-
-const VENDOR_EXTENSION_SCHEMA_KEY = /^x-/i;
-
-export function sanitizeForGemini(schema: unknown): unknown {
-  return sanitizeForGeminiSchema(schema, false);
-}
-
-function sanitizeForGeminiSchema(schema: unknown, insidePropertiesMap: boolean): unknown {
-  if (Array.isArray(schema)) {
-    return schema.map(s => sanitizeForGeminiSchema(s, false));
-  }
-  if (schema && typeof schema === 'object') {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(schema as Record<string, unknown>)) {
-      if (insidePropertiesMap) {
-        out[k] = sanitizeForGeminiSchema(v, false);
-        continue;
-      }
-      if (GEMINI_UNSUPPORTED_SCHEMA_KEYS.has(k) || VENDOR_EXTENSION_SCHEMA_KEY.test(k)) continue;
-      out[k] = sanitizeForGeminiSchema(v, k === 'properties');
-    }
-    return out;
-  }
-  return schema;
-}
-
 // OpenAI clients can't express Gemini's native Google Search grounding, so we
 // treat a tool named `google_search` (a few spellings) as the signal to enable
 // it. It maps to Gemini's `{ google_search: {} }` tool rather than a function

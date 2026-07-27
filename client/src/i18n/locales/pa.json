@@ -13,7 +13,8 @@
     "switchDark": "ਡਾਰਕ ਥੀਮ 'ਤੇ ਸਵਿਚ ਕਰੋ",
     "switchToChinese": "ਚੀਨੀ ਵਿੱਚ ਬਦਲੋ",
     "switchToEnglish": "ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਬਦਲੋ",
-    "modelsMenu": "ਮਾਡਲ ਕਿਸਮਾਂ ਨੂੰ ਬ੍ਰਾਊਜ਼ ਕਰੋ"
+    "modelsMenu": "ਮਾਡਲ ਕਿਸਮਾਂ ਨੂੰ ਬ੍ਰਾਊਜ਼ ਕਰੋ",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "ਆਪਣਾ ਖਾਤਾ ਬਣਾਓ",
@@ -360,7 +361,29 @@
     "quotaLimit": "ਸੀਮਾ",
     "quotaRemaining": "ਬਾਕੀ",
     "quotaReset": "ਰੀਸੈਟ ਕਰੋ",
-    "quotaObserved": "ਦੇਖਿਆ ਗਿਆ"
+    "quotaObserved": "ਦੇਖਿਆ ਗਿਆ",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "ਸਿਹਤਮੰਦ",
@@ -439,7 +462,8 @@
     "keyOrdinal": "ਕੁੰਜੀ #{n}",
     "attemptTimingHint": "ਬੇਨਤੀ ਸ਼ੁਰੂ ਤੋਂ ਔਫਸੈੱਟ ਸ਼ੁਰੂ ਕਰੋ · ਕੋਸ਼ਿਸ਼ ਦੀ ਮਿਆਦ",
     "requestedModel": "ਮਾਡਲ ਦੀ ਮੰਗ ਕੀਤੀ",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "ਖੇਡ ਦਾ ਮੈਦਾਨ",
@@ -659,5 +683,15 @@
     "url": "http:// ਜਾਂ https:// ਨਾਲ ਸ਼ੁਰੂ ਹੋਣ ਵਾਲਾ ਇੱਕ ਵੈਧ URL ਦਾਖਲ ਕਰੋ",
     "email": "ਇੱਕ ਵੈਧ ਈਮੇਲ ਪਤਾ ਦਰਜ ਕਰੋ",
     "passwordMin": "ਘੱਟੋ-ਘੱਟ {min} ਅੱਖਰ"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

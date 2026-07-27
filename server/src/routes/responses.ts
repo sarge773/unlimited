@@ -383,7 +383,9 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
   }
   completionOpts.max_tokens = budgetCheck.maxTokens;
   // Optional client-managed session affinity (mirrors /chat/completions).
-  const rawSessionId = req.headers['x-session-id'];
+  const rawSessionId = req.headers['x-codex-session-id']
+    ?? req.headers['session-id']
+    ?? req.headers['x-session-id'];
   const sessionIdHeader = Array.isArray(rawSessionId) ? rawSessionId[0] : rawSessionId;
   const preferredModel = getStickyModel(messages, sessionIdHeader);
   const requestedModelLabel = reqData.model ?? 'auto';

@@ -13,7 +13,8 @@
     "switchDark": "ប្ដូរទៅប្រធានបទងងឹត",
     "switchToChinese": "ប្ដូរទៅភាសាចិន",
     "switchToEnglish": "ប្ដូរទៅភាសាអង់គ្លេស",
-    "modelsMenu": "រុករកប្រភេទម៉ូដែល"
+    "modelsMenu": "រុករកប្រភេទម៉ូដែល",
+    "agents": "Agents"
   },
   "auth": {
     "createYourAccount": "បង្កើតគណនីរបស់អ្នក",
@@ -360,7 +361,29 @@
     "quotaLimit": "ដែនកំណត់",
     "quotaRemaining": "នៅសល់",
     "quotaReset": "កំណត់ឡើងវិញ",
-    "quotaObserved": "បានសង្កេត"
+    "quotaObserved": "បានសង្កេត",
+    "tabAgents": "Agents",
+    "familyGeminiPro": "Gemini Pro",
+    "familyGeminiFlash": "Gemini Flash",
+    "familyGeminiFlashLite": "Gemini Flash-Lite",
+    "geminiTitle": "Gemini model mapping",
+    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
+    "compatibilityTitle": "Agent compatibility",
+    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
+    "ollamaMode": "Ollama emulation",
+    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
+    "ollamaOff": "Off",
+    "ollamaLoopback": "Open on loopback",
+    "ollamaKeyRequired": "API key required",
+    "claudeAliases": "Claude Code discovery aliases",
+    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
+    "urlTokensTitle": "Revocable URL tokens",
+    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
+    "urlTokenLabel": "Token label",
+    "createUrlToken": "Create token",
+    "urlTokenOnce": "Copy this token now. It will not be shown again.",
+    "revoked": "Revoked",
+    "revoke": "Revoke"
   },
   "status": {
     "healthy": "មានសុខភាពល្អ",
@@ -439,7 +462,8 @@
     "keyOrdinal": "#{n}",
     "attemptTimingHint": "ចាប់ផ្តើមពីចំណុចចាប់ផ្តើម · រយៈពេលព្យាយាម",
     "requestedModel": "ម៉ូដែលដែលបានស្នើសុំ",
-    "ttft": "TTFT"
+    "ttft": "TTFT",
+    "requestsByAgent": "Requests by agent"
   },
   "playground": {
     "title": "កន្លែងលេងក្មេង",
@@ -659,5 +683,15 @@
     "url": "បញ្ចូល URL ដែលមានសុពលភាពចាប់ផ្តើមដោយ http:// ឬ https://",
     "email": "បញ្ចូលអាសយដ្ឋានអ៊ីមែលត្រឹមត្រូវ",
     "passwordMin": "យ៉ាងហោចណាស់ {min} តួអក្សរ"
+  },
+  "agents": {
+    "title": "Coding agents",
+    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
+    "apiKey": "API key",
+    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
+    "currentKey": "Current unified key:",
+    "seenRecently": "Seen recently",
+    "endpoint": "Endpoint",
+    "documentation": "Documentation"
   }
 }

@@ -98,6 +98,7 @@ Based on public documentation, July 2026 — corrections welcome.
 
 - **Every OpenAI surface** — `/v1/chat/completions`, `/v1/responses` (what Codex CLI needs), `/v1/completions` (editor ghost-text autocomplete), `/v1/images/generations`, `/v1/audio/speech`, `/v1/embeddings`, and `/v1/models` — streaming and non-streaming, from the official SDKs or any OpenAI-compatible client. [API reference →](docs/api.md)
 - **Anthropic Messages API** — `/v1/messages` speaks Anthropic's wire format over the same router, so **Claude Code** and the official Anthropic SDKs run against your free pool. [Details →](docs/api.md#anthropic--claude-clients)
+- **Native Gemini + Ollama surfaces** — Gemini CLI can use `/v1beta` (`generateContent`, streaming, token counting, models), while opt-in Ollama emulation serves NDJSON chat/generate, tags, metadata, and embeddings for Zed, JetBrains, and other local-model clients.
 - **Fusion (multi-model synthesis)** — request the virtual `fusion` model and the router fans your prompt out to a panel of diverse free models in parallel, then a judge model synthesizes one answer from the drafts. [Details →](docs/api.md#fusion-multi-model-synthesis)
 - **Image generation & text-to-speech** — `/v1/images/generations` and `/v1/audio/speech` route across the providers that serve media models, including custom OpenAI-compatible media endpoints.
 - **Tool calling & structured outputs** — OpenAI-style `tools` round-trip across providers (plain-text tool calls are rescued into real `tool_calls`), plus `response_format`, `seed`, `logprobs`, penalties, and the rest of the sampling params passed through per provider.
@@ -141,6 +142,27 @@ A native menu-bar app lives in [`desktop/`](./desktop): the entire router + dash
 ## Works with OpenAI-compatible clients
 
 Anything that can target an OpenAI-compatible base URL works: set it to `http://localhost:3001/v1` with the unified key from the dashboard. **Claude Code**, **Codex CLI**, **Cline / Roo Code**, **Continue** (including inline autocomplete), **Aider**, **opencode**, and **Cursor** each have a short recipe in **[docs/clients.md](docs/clients.md)** — and the router doubles as an MCP server your agents can introspect mid-session.
+
+The fastest setup is generated from the models available on your live server:
+
+```bash
+npx freellmapi setup-claude --url http://localhost:3001
+```
+
+Every generator supports `--dry-run`, creates a timestamped backup before changing an existing file, and merges into the user's configuration. Launchers keep credentials out of config files entirely: `npx freellmapi launch` for Claude Code and `npx freellmapi launch-codex` for Codex.
+
+| Agent | Automated setup | Base URL |
+| --- | --- | --- |
+| Claude Code | `setup-claude` | root |
+| Codex CLI | `setup-codex` | `/v1` |
+| Cline | `setup-cline` | root |
+| Continue | `setup-continue` | `/v1` |
+| Aider | `setup-aider` | root |
+| OpenCode | `setup-opencode` | `/v1` |
+| Goose | `setup-goose` | root |
+| Qwen Code | `setup-qwen` | `/v1` (or native `/v1beta`) |
+| Roo / Kilo / Crush | `setup-roo` / `setup-kilo` / `setup-crush` | `/v1` |
+| Cursor | `setup-cursor` guide | public `/v1` URL |
 
 FreeLLMAPI is local-first and single-user by design. Your provider keys stay in your SQLite database, encrypted at rest, and requests go from your machine to the upstream providers you enabled.
 
