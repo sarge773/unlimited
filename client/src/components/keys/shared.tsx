@@ -36,6 +36,7 @@ export const PLATFORMS: { value: Platform; label: string; url: string; keyless?:
   { value: 'cohere', label: 'Cohere', url: 'https://dashboard.cohere.com/api-keys' },
   { value: 'cloudflare', label: 'Cloudflare Workers AI', url: 'https://dash.cloudflare.com' },
   { value: 'zhipu', label: 'Zhipu AI (Z.ai)', url: 'https://z.ai/manage-apikey/apikey-list' },
+  { value: 'zai', label: 'Z.ai (Coding Plan)', url: 'https://z.ai/manage-apikey/apikey-list' },
   { value: 'ollama', label: 'Ollama Cloud', url: 'https://ollama.com/settings/keys' },
   { value: 'kilo', label: 'Kilo Gateway (no key needed)', url: 'https://app.kilo.ai', keyless: true },
   { value: 'pollinations', label: 'Pollinations', url: 'https://enter.pollinations.ai' },

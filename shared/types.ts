@@ -51,6 +51,7 @@ export type Platform =
   | 'cohere'
   | 'cloudflare'
   | 'zhipu'
+  | 'zai'
   | 'ollama'
   | 'kilo'
   | 'pollinations'

@@ -96,6 +96,20 @@ register(new OpenAICompatProvider({
   timeoutMs: 60_000,
 }));
 
+// Z.ai (api.z.ai) — the GLM-5.x flagship line on the Coding Plan endpoint.
+// Separate from the zhipu/bigmodel.cn provider above: that host serves the
+// legacy GLM-4 free pool, while GLM-5 / 5.1 / 5.2 / 5-Turbo live on
+// api.z.ai/api/coding/paas/v4 behind a Coding-Plan Bearer key (the /coding/
+// path is mandatory — a general pay-as-you-go key on it fails auth, and a
+// coding key on the non-/coding/ path fails too). Same OpenAI-compat adapter,
+// same 60s timeout headroom for hidden-reasoning TTFB.
+register(new OpenAICompatProvider({
+  platform: 'zai',
+  name: 'Z.ai',
+  baseUrl: 'https://api.z.ai/api/coding/paas/v4',
+  timeoutMs: 60_000,
+}));
+
 // Hugging Face Inference Providers router — re-added in V13. The V4 removal
 // reason ("tool-call format issues") was the legacy serverless route that
 // emitted tool calls as text; the new router.huggingface.co meta-router

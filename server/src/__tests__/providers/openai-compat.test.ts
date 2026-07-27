@@ -504,6 +504,7 @@ describe('OpenAICompatProvider - platform instances', () => {
     { platform: 'github',     name: 'GitHub Models', baseUrl: 'https://models.github.ai/inference' },
     { platform: 'pollinations', name: 'Pollinations', baseUrl: 'https://gen.pollinations.ai/v1' },
     { platform: 'zhipu',      name: 'Zhipu AI',      baseUrl: 'https://open.bigmodel.cn/api/paas/v4' },
+    { platform: 'zai',        name: 'Z.ai',          baseUrl: 'https://api.z.ai/api/coding/paas/v4' },
     { platform: 'opencode',   name: 'OpenCode Zen',  baseUrl: 'https://opencode.ai/zen/v1' },
     { platform: 'aion',       name: 'Aion Labs',     baseUrl: 'https://api.aionlabs.ai/v1' },
     { platform: 'requesty',   name: 'Requesty',      baseUrl: 'https://router.requesty.ai/v1' },

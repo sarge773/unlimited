@@ -19,6 +19,7 @@ const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000003_model_source_provenanc
 const MEDIA_MODEL_META_FILENAME = '20260726_000004_media_model_meta.ts';
 const REQUEST_SERVED_MODEL_FILENAME = '20260726_000005_request_served_model.ts';
 const ATTEMPT_ERROR_SUMMARY_FILENAME = '20260726_000006_attempt_error_summary.ts';
+const ZAI_GLM5_MODELS_FILENAME = '20260726_000007_zai_glm5_models.ts';
 
 interface SchemaRow {
   type: string;
@@ -84,6 +85,7 @@ describe('migration round trip', () => {
         MEDIA_MODEL_META_FILENAME,
         REQUEST_SERVED_MODEL_FILENAME,
         ATTEMPT_ERROR_SUMMARY_FILENAME,
+        ZAI_GLM5_MODELS_FILENAME,
       ]);
     } finally {
       db.close();

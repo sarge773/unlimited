@@ -155,6 +155,7 @@ export const platformColors: Record<string, string> = {
   cohere:      '#d946ef',
   cloudflare:  '#f38020',
   zhipu:       '#06b6d4',
+  zai:         '#0ea5e9',
   ollama:      '#000000',
   kilo:        '#7c3aed',
   pollinations: '#a855f7',

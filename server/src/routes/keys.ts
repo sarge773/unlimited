@@ -19,7 +19,7 @@ export const keysRouter = Router();
 // SambaNova was dropped in V23 (free tier permanently retired).
 const PLATFORMS = [
   'google', 'groq', 'cerebras', 'nvidia', 'mistral',
-  'openrouter', 'github', 'cohere', 'cloudflare', 'zhipu', 'ollama',
+  'openrouter', 'github', 'cohere', 'cloudflare', 'zhipu', 'zai', 'ollama',
   'kilo', 'pollinations', 'llm7', 'huggingface', 'opencode', 'ovh', 'agnes', 'reka', 'siliconflow',
   'routeway', 'bazaarlink', 'ainative', 'aion', 'requesty', 'navy', 'nara', 'sealion', 'aihorde', 'custom',
 ] as const;
