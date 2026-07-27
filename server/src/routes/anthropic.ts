@@ -23,6 +23,7 @@ import { applyTokenBudget, tokenBudgetMessage } from '../lib/guardrails.js';
 import { resolveAnthropicModel } from '../services/anthropic-map.js';
 import type { ReasoningEffort } from '../lib/sampling-params.js';
 import { buildModelListing } from '../services/model-listing.js';
+import { compressRequest, formatCompressionHeader } from '../services/compression/pipeline.js';
 
 // Anthropic-compatible Messages API (`POST /v1/messages`). This is a thin
 // translation layer over the SAME router/fallback/analytics machinery the
@@ -433,7 +434,24 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
   const clientMaxTokens = body.max_tokens != null && body.max_tokens > 0 ? body.max_tokens : undefined;
   const { temperature, top_p, stream } = body;
 
-  const { messages, tools, tool_choice, hasImage, wantsTools } = convertRequest(body);
+  const converted = convertRequest(body);
+  let { messages } = converted;
+  const { tools, tool_choice, hasImage, wantsTools } = converted;
+  const systemHasCacheControl = Array.isArray(body.system)
+    && body.system.some(block => block && typeof block === 'object' && 'cache_control' in block);
+  const messageHasCacheControl = body.messages.some(message =>
+    Array.isArray(message.content)
+    && message.content.some(block => block && typeof block === 'object' && 'cache_control' in block));
+  const compressionResult = compressRequest(messages, {
+    header: req.headers['x-freellm-compress'],
+    tools,
+    // Claude Code normally marks the system prefix. If a later native message
+    // carries a breakpoint, conservatively cap the translated prefix at
+    // lossless rather than risk invalidating upstream prompt-cache semantics.
+    cacheControlPrefixLength: messageHasCacheControl ? messages.length : (systemHasCacheControl ? 1 : 0),
+  });
+  messages = compressionResult.messages;
+  res.setHeader('X-FreeLLM-Compress', formatCompressionHeader(compressionResult));
 
   const estimatedInputTokens = estimateTokens(messages);
   const imageCount = messages.reduce((n, m) =>
@@ -895,8 +913,14 @@ anthropicRouter.post('/messages/count_tokens', (req: Request, res: Response) => 
     sendError(res, 400, 'invalid_request_error', 'Invalid request');
     return;
   }
-  const { messages } = convertRequest(parsed.data);
-  res.json({ input_tokens: estimateTokens(messages) });
+  const { messages, tools } = convertRequest(parsed.data);
+  const compressionResult = compressRequest(messages, {
+    header: req.headers['x-freellm-compress'],
+    tools,
+    recordStats: false,
+  });
+  res.setHeader('X-FreeLLM-Compress', formatCompressionHeader(compressionResult));
+  res.json({ input_tokens: estimateTokens(compressionResult.messages) });
 });
 
 // Anthropic-compatible GET /v1/models. Content-negotiated: only answers when

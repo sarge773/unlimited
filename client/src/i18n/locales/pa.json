@@ -76,7 +76,22 @@
     "themeLight": "ਹਲਕਾ",
     "themeDark": "ਗੂੜ੍ਹਾ",
     "searchLanguage": "ਭਾਸ਼ਾਵਾਂ ਖੋਜੋ…",
-    "noLanguages": "ਕੋਈ ਭਾਸ਼ਾਵਾਂ ਨਹੀਂ ਲੱਭੀਆਂ"
+    "noLanguages": "ਕੋਈ ਭਾਸ਼ਾਵਾਂ ਨਹੀਂ ਲੱਭੀਆਂ",
+    "compressionTitle": "Prompt compression",
+    "compressionDescription": "Reduce request size before routing while preserving code, errors, paths, numbers, and tool definitions.",
+    "compressionOff": "Off",
+    "compressionLossless": "Lossless",
+    "compressionStandard": "Standard",
+    "compressionAggressive": "Aggressive",
+    "compressionEngines": "Engines",
+    "compressionAutoTrigger": "Auto-trigger above estimated tokens",
+    "compressionPrefixFreeze": "Freeze recurring prompt prefixes",
+    "compressionTrustProjectFilters": "Trust project filter files",
+    "compressionStats": "size saved",
+    "compressionEstimatedTokensSaved": "estimated tokens saved",
+    "compressionPreview": "Live preview",
+    "compressionPreviewPlaceholder": "Paste request JSON or plain text",
+    "compressionRunPreview": "Run preview"
   },
   "models": {
     "title": "ਮਾਡਲ",

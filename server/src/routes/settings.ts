@@ -11,9 +11,33 @@ import {
   REQUEST_MAX_TOKENS_BUDGET_SETTING,
   MAX_CONSECUTIVE_UPSTREAM_FAILS_SETTING,
 } from '../lib/guardrails.js';
+import {
+  compressionUpdateSchema,
+  getCompressionConfig,
+  setCompressionConfig,
+} from '../services/compression/config.js';
 import { z } from 'zod';
 
 export const settingsRouter = Router();
+
+settingsRouter.get('/compression', (_req: Request, res: Response) => {
+  res.json(getCompressionConfig());
+});
+
+settingsRouter.put('/compression', (req: Request, res: Response) => {
+  const parsed = compressionUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    const detail = parsed.error.errors
+      .map(e => (e.path.length ? `${e.path.join('.')}: ${e.message}` : e.message))
+      .slice(0, 5)
+      .join(', ');
+    res.status(400).json({
+      error: { message: `Invalid compression settings: ${detail}`, type: 'invalid_request_error' },
+    });
+    return;
+  }
+  res.json(setCompressionConfig(parsed.data));
+});
 
 // Get the model-unification setting: the global toggle (default ON) plus any
 // merge/split overrides. Governs the dashboard grouping, /v1/models grouping,

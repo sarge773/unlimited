@@ -76,7 +76,22 @@
     "themeLight": "Sáng",
     "themeDark": "Tối",
     "searchLanguage": "Tìm kiếm ngôn ngữ…",
-    "noLanguages": "Không tìm thấy ngôn ngữ nào"
+    "noLanguages": "Không tìm thấy ngôn ngữ nào",
+    "compressionTitle": "Prompt compression",
+    "compressionDescription": "Reduce request size before routing while preserving code, errors, paths, numbers, and tool definitions.",
+    "compressionOff": "Off",
+    "compressionLossless": "Lossless",
+    "compressionStandard": "Standard",
+    "compressionAggressive": "Aggressive",
+    "compressionEngines": "Engines",
+    "compressionAutoTrigger": "Auto-trigger above estimated tokens",
+    "compressionPrefixFreeze": "Freeze recurring prompt prefixes",
+    "compressionTrustProjectFilters": "Trust project filter files",
+    "compressionStats": "size saved",
+    "compressionEstimatedTokensSaved": "estimated tokens saved",
+    "compressionPreview": "Live preview",
+    "compressionPreviewPlaceholder": "Paste request JSON or plain text",
+    "compressionRunPreview": "Run preview"
   },
   "models": {
     "title": "Người mẫu",

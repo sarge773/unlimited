@@ -43,7 +43,7 @@ Your router updates its own model catalog from a signed feed: new free models, q
 - [Contributing](#contributing)
 - [Disclaimer](#disclaimer)
 
-**Guides:** [Install & deploy](docs/install.md) · [API reference](docs/api.md) · [Clients & coding agents](docs/clients.md) · [Architecture & internals](docs/architecture.md) · [Documentation index](docs/README.md) · [Contributor guide](CONTRIBUTING.md)
+**Guides:** [Install & deploy](docs/install.md) · [API reference](docs/api.md) · [Clients & coding agents](docs/clients.md) · [Prompt compression](docs/compression.md) · [Architecture & internals](docs/architecture.md) · [Documentation index](docs/README.md) · [Contributor guide](CONTRIBUTING.md)
 
 ## Why this exists
 
@@ -106,6 +106,7 @@ Based on public documentation, July 2026 — corrections welcome.
 - **Per-key rate tracking** — RPM/RPD/TPM/TPD counters per `(platform, model, key)` that learn providers' reported ceilings, so routing always stays under every cap.
 - **Self-updating model catalog** — the router syncs a signed catalog from freellmapi.co twice a day: new models, quota changes, and provider quirk fixes land automatically. [Premium →](#premium-live-catalog)
 - **Sticky sessions & context handoff** — conversations stay on one model for 30 minutes; an optional compact handoff note keeps the thread coherent when a mid-chat switch does happen. [Details →](docs/clients.md#context-handoff)
+- **Prompt compression (opt-in)** — a shared, fail-open request pipeline can deduplicate prompts, filter tool output, compact repeated JSON, and trim stale context before cache lookup and routing. [Details →](docs/compression.md)
 - **Encrypted keys, one token out** — provider keys are AES-256-GCM encrypted in SQLite and decrypted in-memory per request; your apps only ever see a single unified `freellmapi-…` bearer token.
 - **Admin dashboard & analytics** — React UI to manage keys, reorder the chain, run a playground, and read p50/p95/TTFT analytics over 24h–90d windows; login-gated, dark/light themes, [60 languages](#languages).
 - **MCP server & interactive docs** — agents can introspect usable models, provider health, and routing strategy over `/mcp`; a dependency-free OpenAPI viewer lives at `/v1/docs`. [Coding agents →](docs/clients.md)

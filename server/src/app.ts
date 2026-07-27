@@ -18,6 +18,7 @@ import { healthRouter } from './routes/health.js';
 import { settingsRouter } from './routes/settings.js';
 import { premiumRouter } from './routes/premium.js';
 import { cacheRouter } from './routes/cache.js';
+import { compressionRouter } from './routes/compression.js';
 import { authRouter } from './routes/auth.js';
 import { docsRouter } from './routes/docs.js';
 import { mcpRouter } from './routes/mcp.js';
@@ -95,6 +96,7 @@ export function createApp(config?: Config) {
   app.use('/api/settings', requireAuth, settingsRouter);
   app.use('/api/premium', requireAuth, premiumRouter);
   app.use('/api/cache', requireAuth, cacheRouter);
+  app.use('/api/compression', requireAuth, compressionRouter);
 
   // Static, unauthenticated API reference: GET /v1/docs (viewer) and
   // GET /v1/openapi.json (spec). Mounted before the rate limiter so the docs

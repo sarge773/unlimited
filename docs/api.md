@@ -185,6 +185,8 @@ Every response carries an `X-Routed-Via: <platform>/<model>` header so you can s
 
 The opt-in response cache can be toggled per request with `X-FreeLLM-Cache: on|off` — an exact-match in-memory LRU for identical non-streaming requests (canonical SHA-256 keys over the full request, TTL and temperature gates, saved-token stats on the dashboard). Off by default; cache hits consume zero provider quota.
 
+When [prompt compression](compression.md) is enabled, `X-FreeLLM-Compress: off|on|lossless|standard|aggressive` can disable or lower the configured mode for one request. It cannot raise the operator's configured mode. The response reports the effective mode and estimated savings, for example `X-FreeLLM-Compress: standard; saved~=1840`.
+
 ## Embeddings
 
 `/v1/embeddings` is OpenAI-compatible, with one deliberate difference from chat routing: **failover never crosses models.** Vectors from different models live in incompatible spaces — silently switching models would corrupt any vector store built on top of the proxy. So embeddings route by **family** (one model identity + dimension), and failover only walks the providers serving that same family.

@@ -76,7 +76,22 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "searchLanguage": "Search languages…",
-    "noLanguages": "No languages found"
+    "noLanguages": "No languages found",
+    "compressionTitle": "Prompt compression",
+    "compressionDescription": "Reduce request size before routing while preserving code, errors, paths, numbers, and tool definitions.",
+    "compressionOff": "Off",
+    "compressionLossless": "Lossless",
+    "compressionStandard": "Standard",
+    "compressionAggressive": "Aggressive",
+    "compressionEngines": "Engines",
+    "compressionAutoTrigger": "Auto-trigger above estimated tokens",
+    "compressionPrefixFreeze": "Freeze recurring prompt prefixes",
+    "compressionTrustProjectFilters": "Trust project filter files",
+    "compressionStats": "size saved",
+    "compressionEstimatedTokensSaved": "estimated tokens saved",
+    "compressionPreview": "Live preview",
+    "compressionPreviewPlaceholder": "Paste request JSON or plain text",
+    "compressionRunPreview": "Run preview"
   },
   "models": {
     "title": "Models",
