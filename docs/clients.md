@@ -81,6 +81,9 @@ Ollama emulation is off by default. Enable one of these modes on
 
 - `open-loopback`: no key on this machine only. The socket peer must be
   `127.0.0.1`/`::1`; enabling desktop LAN access does not widen it.
+  **Docker note:** inside a container the socket peer is the Docker bridge
+  IP, not loopback, so this mode refuses even host-local traffic through a
+  published port — use `key-required` for Docker deployments.
 - `key-required`: clients must send `Authorization: Bearer <unified-key>`.
 
 The exact endpoints are `/api/tags`, `/api/chat`, `/api/generate`, `/api/show`,

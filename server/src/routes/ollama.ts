@@ -132,7 +132,33 @@ ollamaRouter.post('/api/show', (req, res) => {
     return;
   }
   const id = normalizeOllamaModel(parsed.data.model || parsed.data.name);
-  const model = buildModelListing().models.find(entry => entry.id === id);
+  const { models, autoContextWindow } = buildModelListing();
+  if (id === 'auto') {
+    // /api/tags advertises `auto`, and clients probe /api/show for
+    // capabilities before using a model.
+    res.json({
+      license: '',
+      modified_at: CATALOG_MODIFIED_AT,
+      modelfile: 'FROM auto',
+      parameters: `num_ctx ${autoContextWindow ?? 128000}`,
+      template: '{{ .Prompt }}',
+      details: {
+        parent_model: '',
+        format: 'freellmapi',
+        family: 'freellmapi',
+        families: ['freellmapi'],
+        parameter_size: 'remote',
+        quantization_level: 'remote',
+      },
+      model_info: {
+        'general.architecture': 'freellmapi',
+        'general.context_length': autoContextWindow ?? 128000,
+      },
+      capabilities: ['completion', 'tools'],
+    });
+    return;
+  }
+  const model = models.find(entry => entry.id === id);
   if (!model) {
     res.status(404).json({ error: `model '${id}' not found` });
     return;

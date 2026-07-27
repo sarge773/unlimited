@@ -15,8 +15,12 @@ function v1Url(url: string): string {
 }
 
 function primaryModel(models: CatalogModel[]): CatalogModel {
-  return models.find(model => model.id !== 'auto' && model.available !== false)
-    ?? models.find(model => model.id !== 'auto')
+  // `auto` — the router picking the best model per request — is the whole
+  // point of the gateway and the right default for a generated config. Never
+  // fall back to `fusion` (multi-model fan-out) by accident.
+  return models.find(model => model.id === 'auto')
+    ?? models.find(model => model.id !== 'fusion' && model.available !== false)
+    ?? models.find(model => model.id !== 'fusion')
     ?? { id: 'auto', name: 'Auto', context_window: 128_000 };
 }
 

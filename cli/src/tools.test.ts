@@ -26,6 +26,23 @@ const context: GenerateContext = {
 };
 
 describe('tool generators', () => {
+  it('defaults to auto, never fusion, when the live catalog lists virtual models first', () => {
+    const liveContext: GenerateContext = {
+      ...context,
+      models: [
+        { id: 'auto', name: 'Auto', available: true, context_window: 200_000 },
+        { id: 'fusion', name: 'Fusion', available: true, context_window: 2_000_000 },
+        ...context.models,
+      ],
+    };
+    const claude = tools.find(tool => tool.id === 'claude')!.generate(liveContext);
+    const settings = claude.files[0].value as { env: Record<string, string> };
+    expect(settings.env.ANTHROPIC_MODEL).toBe('auto');
+    const codex = tools.find(tool => tool.id === 'codex')!.generate(liveContext);
+    expect(codex.files[0].content).toContain('model = "auto"');
+    expect(codex.files[0].content).not.toContain('"fusion"');
+  });
+
   for (const tool of tools) {
     it(`${tool.command} has stable golden output`, () => {
       expect(tool.generate(context)).toMatchSnapshot();
