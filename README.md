@@ -699,6 +699,12 @@ claude
 
 ## Screenshots
 
+### Models
+
+Pick a routing strategy and watch the monthly token budget fill across the whole provider fleet. Every model shows live reliability, speed, and intelligence scores — the order below is how requests route right now.
+
+![Models page](repo-assets/models.png)
+
 ### Keys
 
 Manage provider credentials and grab the unified API key your apps connect with. Each key shows a status dot and when it was last health-checked.
