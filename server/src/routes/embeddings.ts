@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { getDb, setSetting } from '../db/index.js';
+import { getDb } from '../db/index.js';
+import { setProfileSetting as setSetting } from '../services/profile-settings.js';
+import { getProfileContext } from '../lib/profile-context.js';
 import { encrypt, decrypt, maskKey } from '../lib/crypto.js';
 import { deleteUnusedCustomEndpointKey } from '../lib/custom-provider-cleanup.js';
 import {
@@ -248,9 +250,20 @@ embeddingsRouter.put('/', (req: Request, res: Response) => {
   }
 
   if (parsed.data.providers) {
-    const update = db.prepare('UPDATE embedding_models SET priority = ?, enabled = ? WHERE id = ?');
+    const profile = getProfileContext();
+    const update = profile
+      ? db.prepare(`
+          INSERT INTO profile_embedding_models (profile_id, embedding_model_id, priority, enabled)
+          VALUES (?, ?, ?, ?)
+          ON CONFLICT(profile_id, embedding_model_id)
+          DO UPDATE SET priority = excluded.priority, enabled = excluded.enabled
+        `)
+      : db.prepare('UPDATE embedding_models SET priority = ?, enabled = ? WHERE id = ?');
     const apply = db.transaction((rows: { id: number; priority: number; enabled: boolean }[]) => {
-      for (const r of rows) update.run(r.priority, r.enabled ? 1 : 0, r.id);
+      for (const r of rows) {
+        if (profile) update.run(profile.id, r.id, r.priority, r.enabled ? 1 : 0);
+        else update.run(r.priority, r.enabled ? 1 : 0, r.id);
+      }
     });
     apply(parsed.data.providers);
   }
@@ -288,6 +301,7 @@ embeddingsRouter.delete('/custom/:id', (req: Request, res: Response) => {
 // tokens this calendar month, from the tagged request log.
 embeddingsRouter.get('/usage', (_req: Request, res: Response) => {
   const db = getDb();
+  const profile = getProfileContext();
   const usage = db.prepare(`
     SELECT em.family,
            COALESCE(SUM(CASE WHEN r.created_at >= datetime('now', 'start of day') THEN 1 ELSE 0 END), 0) AS requests_today,
@@ -299,8 +313,9 @@ embeddingsRouter.get('/usage', (_req: Request, res: Response) => {
      AND r.platform = em.platform
      AND r.model_id = em.model_id
      AND r.created_at >= datetime('now', 'start of month')
+     ${profile ? 'AND r.profile_id = ?' : ''}
     GROUP BY em.family
-  `).all() as { family: string; requests_today: number; tokens_month: number }[];
+  `).all(...(profile ? [profile.id] : [])) as { family: string; requests_today: number; tokens_month: number }[];
 
   res.json({
     families: usage.map(u => ({

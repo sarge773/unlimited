@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, Check, Copy, X } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { toast } from '@/lib/toast'
-import { apiBaseUrl } from '@/components/api-usage'
+import { useApiBaseUrl } from '@/lib/api-url'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
 
@@ -27,6 +27,7 @@ export function GettingStarted() {
   const { t } = useI18n()
   const [dismissed, setDismissed] = useState(() => readFlag(DISMISS_KEY))
   const [connected, setConnected] = useState(() => readFlag(CONNECT_KEY))
+  const baseUrl = useApiBaseUrl()
 
   const { data: keys } = useQuery<unknown[]>({
     queryKey: ['keys'],
@@ -127,7 +128,7 @@ export function GettingStarted() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => copyValue(apiBaseUrl(), t('setup.copiedUrl'))}
+                onClick={() => copyValue(baseUrl, t('setup.copiedUrl'))}
               >
                 <Copy data-icon="inline-start" className="size-3.5" />
                 {t('setup.copyUrl')}

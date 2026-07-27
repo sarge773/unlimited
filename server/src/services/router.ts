@@ -1,4 +1,6 @@
-import { getDb, getSetting, setSetting } from '../db/index.js';
+import { getDb } from '../db/index.js';
+import { getProfileSetting as getSetting, setProfileSetting as setSetting } from './profile-settings.js';
+import { getProfileContext } from '../lib/profile-context.js';
 import { getProvider, hasProvider, resolveProvider } from '../providers/index.js';
 import { decrypt } from '../lib/crypto.js';
 import {
@@ -21,7 +23,7 @@ import {
 import { parseBudget } from '../lib/budget.js';
 import { platformDropsResponseFormat } from '../lib/sampling-params.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from './model-groups.js';
-import { getActiveProfileId } from './profile-models.js';
+import { ensureAllModelsInProfiles, getActiveProfileId } from './profile-models.js';
 import type { BaseProvider } from '../providers/base.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import type { Db } from '../db/types.js';
@@ -592,6 +594,7 @@ const GLOBAL_SORT_ALIASES: Record<string, string> = {
 };
 
 function getActiveChain(db: Db): ChainRow[] {
+  ensureAllModelsInProfiles(db);
   const profileId = getActiveProfileId(db);
   if (profileId != null) {
     const chain = db.prepare(`
@@ -639,7 +642,7 @@ function getChainByProfileName(db: Db, name: string): ChainRow[] | null {
 }
 
 function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
-  const allEnabled = db.prepare(`
+  let allEnabled = db.prepare(`
     SELECT m.id as model_db_id, 0 as priority, 1 as enabled,
            m.platform, m.model_id, m.display_name, m.intelligence_rank,
            m.size_label, m.monthly_token_budget,
@@ -648,6 +651,13 @@ function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
     FROM models m
     WHERE m.enabled = 1
   `).all() as ChainRow[];
+  const profile = getProfileContext();
+  if (profile) {
+    const allowed = new Set((db.prepare(
+      'SELECT model_db_id AS id FROM profile_models WHERE profile_id = ? AND enabled = 1',
+    ).all(profile.id) as { id: number }[]).map(row => row.id));
+    allEnabled = allEnabled.filter(row => allowed.has(row.model_db_id));
+  }
 
   const strategyMap: Record<string, RoutingStrategy> = {
     'smart': 'smartest',
@@ -676,6 +686,17 @@ export function resolveRoutingChain(modelString: string | undefined): ResolvedCh
   const suffix = lower.slice('auto:'.length).trim();
   if (!suffix) {
     return { chain: getActiveChain(db), strategyKey: 'auto' };
+  }
+  const profile = getProfileContext();
+  if (
+    profile &&
+    !GLOBAL_SORT_ALIASES[suffix] &&
+    suffix !== profile.slug.toLowerCase() &&
+    suffix !== profile.name.toLowerCase()
+  ) {
+    const err = new Error(`Profile '${suffix}' is not accessible through this API workspace`) as any;
+    err.status = 400;
+    throw err;
   }
 
   const globalAxis = GLOBAL_SORT_ALIASES[suffix];
@@ -931,6 +952,11 @@ function getModelChainRow(db: Db, modelDbId: number): ChainRow | undefined {
  */
 export function routePinnedModel(modelDbId: number, estimatedTokens = 1000, skipKeys?: Set<string>): RouteResult | null {
   const db = getDb();
+  ensureAllModelsInProfiles(db);
+  const profile = getProfileContext();
+  if (profile && !db.prepare(
+    'SELECT 1 FROM profile_models WHERE profile_id = ? AND model_db_id = ? AND enabled = 1',
+  ).get(profile.id, modelDbId)) return null;
   const entry = getModelChainRow(db, modelDbId);
   if (!entry) return null;
   if (entry.context_window != null && estimatedTokens > entry.context_window) return null;
@@ -953,10 +979,12 @@ export function routePinnedModel(modelDbId: number, estimatedTokens = 1000, skip
  */
 export function resolveModelGroupCandidates(memberDbIds: number[]): ChainRow[] {
   const db = getDb();
+  ensureAllModelsInProfiles(db);
   const strategy = getRoutingStrategy();
   if (strategy !== 'priority') refreshStatsCache(db);
 
   const activeProfileId = getActiveProfileId(db);
+  const contextualProfile = getProfileContext();
   const selectMember = activeProfileId == null
     ? db.prepare(`
       SELECT m.id as model_db_id, COALESCE(fc.priority, 0) as priority,
@@ -985,7 +1013,9 @@ export function resolveModelGroupCandidates(memberDbIds: number[]): ChainRow[] {
   const rows: ChainRow[] = [];
   for (const id of memberDbIds) {
     const row = (activeProfileId == null ? selectMember.get(id) : selectMember.get(activeProfileId, id)) as ChainRow | undefined;
-    if (row) rows.push(row);
+    if (row && (!contextualProfile || db.prepare(
+      'SELECT 1 FROM profile_models WHERE profile_id = ? AND model_db_id = ? AND enabled = 1',
+    ).get(contextualProfile.id, id))) rows.push(row);
   }
   return orderChain(rows, strategy);
 }
@@ -1132,7 +1162,7 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
         const [preferred] = sortedChain.splice(idx, 1);
         sortedChain.unshift(preferred);
       }
-    } else {
+    } else if (!getProfileContext()) {
       // The requested model is not in the current routing chain (e.g. it's a
       // custom model or not added to the active profile). We must fulfill the
       // explicit request by injecting it at the front.

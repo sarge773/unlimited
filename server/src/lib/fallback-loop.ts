@@ -43,7 +43,7 @@ import {
 } from './error-classify.js';
 import { sanitizeProviderErrorMessage, summarizeAttemptError } from './error-redaction.js';
 import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js';
-import { getSetting } from '../db/index.js';
+import { getProfileSetting as getSetting } from '../services/profile-settings.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
 import { newRequestTrace, runWithRequestTrace, type AttemptOutcome, type RequestTrace } from './attempt-trace.js';
 import { persistRequestAttempts } from './request-log.js';

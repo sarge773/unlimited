@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { getUnifiedApiKey, regenerateUnifiedKey, getSetting, setSetting } from '../db/index.js';
+import { getUnifiedApiKey, regenerateUnifiedKey } from '../db/index.js';
+import { getProfileSetting as getSetting, setProfileSetting as setSetting } from '../services/profile-settings.js';
 import { applyProxyUrl, applyProxyEnabled, applyProxyBypass, isProxyActive, getProxyUrl, isProxyEnabled, getProxyBypassPlatforms } from '../lib/proxy.js';
+import { getProfileContext } from '../lib/profile-context.js';
 import { getSavedFusionConfig, setSavedFusionConfig, savedFusionConfigSchema, getFusionMaxK } from '../services/fusion.js';
 import { isUnifyEnabled, setUnifyEnabled, getUnifyOverrides, setUnifyOverrides, unifyOverridesSchema } from '../services/model-groups.js';
 import { getClaudeModelMap, setClaudeModelMap } from '../services/anthropic-map.js';
@@ -165,20 +167,20 @@ settingsRouter.put('/proxy', (req: Request, res: Response) => {
     } else {
       setSetting('proxy_url', '');
     }
-    applyProxyUrl(trimmed);
+    if (!getProfileContext()) applyProxyUrl(trimmed);
   }
 
   // --- enabled ---
   if (typeof enabled === 'boolean') {
     setSetting('proxy_enabled', enabled ? '1' : '0');
-    applyProxyEnabled(enabled);
+    if (!getProfileContext()) applyProxyEnabled(enabled);
   }
 
   // --- bypassPlatforms ---
   if (Array.isArray(bypassPlatforms)) {
     const csv = bypassPlatforms.map(s => s.trim()).filter(Boolean).join(',');
     setSetting('proxy_bypass', csv);
-    applyProxyBypass(csv);
+    if (!getProfileContext()) applyProxyBypass(csv);
   }
 
   res.json({

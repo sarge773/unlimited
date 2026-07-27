@@ -3,28 +3,38 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
+import type { ApiProfile } from '@/profile-context'
 
-export function UnifiedKeySection() {
+export function UnifiedKeySection({ profile, embedded = false }: { profile?: ApiProfile; embedded?: boolean }) {
   const { t } = useI18n()
   const queryClient = useQueryClient()
   const [showKey, setShowKey] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const { data, isError } = useQuery<{ apiKey: string }>({
-    queryKey: ['unified-key'],
-    queryFn: () => apiFetch('/api/settings/api-key'),
+    queryKey: ['unified-key', profile?.id ?? 'active'],
+    queryFn: () => apiFetch('/api/settings/api-key', {
+      headers: profile ? { 'X-Profile-ID': String(profile.id) } : undefined,
+    }),
   })
 
   const regenerate = useMutation({
-    mutationFn: () => apiFetch('/api/settings/api-key/regenerate', { method: 'POST' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['unified-key'] }),
+    mutationFn: () => apiFetch('/api/settings/api-key/regenerate', {
+      method: 'POST',
+      headers: profile ? { 'X-Profile-ID': String(profile.id) } : undefined,
+    }),
+    onSuccess: () => queryClient.invalidateQueries({
+      queryKey: ['unified-key', profile?.id ?? 'active'],
+    }),
   })
 
   const apiKey = data?.apiKey ?? ''
   const masked = apiKey ? apiKey.slice(0, 13) + '•'.repeat(32) : '…'
-  const baseUrl = import.meta.env.DEV
-    ? `http://${window.location.hostname}:${__SERVER_PORT__}/v1`
-    : `${window.location.origin}/v1`
+  const origin = import.meta.env.DEV
+    ? `http://${window.location.hostname}:${__SERVER_PORT__}`
+    : window.location.origin
+  const apiPrefix = profile && profile.type !== 'default' ? `/${profile.slug}/v1` : '/v1'
+  const baseUrl = `${origin}${apiPrefix}`
 
   function copy() {
     navigator.clipboard.writeText(apiKey)
@@ -33,7 +43,7 @@ export function UnifiedKeySection() {
   }
 
   return (
-    <section className="rounded-3xl border bg-card p-5">
+    <section className={embedded ? 'p-5 sm:p-6' : 'rounded-3xl border bg-card p-5'}>
       <div className="flex items-start justify-between gap-4 mb-3">
         <div>
           <h2 className="text-sm font-medium">{t('keys.unifiedKey')}</h2>
@@ -73,13 +83,13 @@ export function UnifiedKeySection() {
         <span className="text-muted-foreground">{t('keys.baseUrl')}</span>
         <code className="font-mono">{baseUrl}</code>
         <span className="text-muted-foreground">{t('keys.endpointChat')}</span>
-        <code className="font-mono">/v1/chat/completions</code>
+        <code className="font-mono">{apiPrefix}/chat/completions</code>
         <span className="text-muted-foreground">{t('keys.endpointResponses')}</span>
-        <code className="font-mono">/v1/responses</code>
+        <code className="font-mono">{apiPrefix}/responses</code>
         <span className="text-muted-foreground">{t('keys.endpointMessages')}</span>
-        <code className="font-mono">/v1/messages <span className="text-muted-foreground">({t('keys.endpointMessagesHint')})</span></code>
+        <code className="font-mono">{apiPrefix}/messages <span className="text-muted-foreground">({t('keys.endpointMessagesHint')})</span></code>
         <span className="text-muted-foreground">{t('keys.endpointEmbeddings')}</span>
-        <code className="font-mono">/v1/embeddings <span className="text-muted-foreground">({t('keys.endpointEmbeddingsHint')})</span></code>
+        <code className="font-mono">{apiPrefix}/embeddings <span className="text-muted-foreground">({t('keys.endpointEmbeddingsHint')})</span></code>
       </div>
     </section>
   )

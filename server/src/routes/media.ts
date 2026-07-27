@@ -5,6 +5,7 @@ import { getDb } from '../db/index.js';
 import { encrypt, decrypt, maskKey } from '../lib/crypto.js';
 import { deleteUnusedCustomEndpointKey } from '../lib/custom-provider-cleanup.js';
 import { listAllMediaModels } from '../services/media.js';
+import { getProfileContext } from '../lib/profile-context.js';
 
 export const mediaRouter = Router();
 
@@ -175,7 +176,15 @@ mediaRouter.put('/:id', (req: Request, res: Response) => {
     res.status(400).json({ error: { message: 'Invalid request body' } });
     return;
   }
-  const info = getDb().prepare('UPDATE media_models SET enabled = ? WHERE id = ?').run(parsed.data.enabled ? 1 : 0, id);
+  const db = getDb();
+  const profile = getProfileContext();
+  const info = profile
+    ? db.prepare(`
+        INSERT INTO profile_media_models (profile_id, media_model_id, priority, enabled)
+        SELECT ?, id, priority, ? FROM media_models WHERE id = ?
+        ON CONFLICT(profile_id, media_model_id) DO UPDATE SET enabled = excluded.enabled
+      `).run(profile.id, parsed.data.enabled ? 1 : 0, id)
+    : db.prepare('UPDATE media_models SET enabled = ? WHERE id = ?').run(parsed.data.enabled ? 1 : 0, id);
   if (info.changes === 0) {
     res.status(404).json({ error: { message: `Unknown media model ${id}` } });
     return;

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { setSetting } from '../db/index.js';
+import { setProfileSetting as setSetting } from '../services/profile-settings.js';
 import {
   getCacheStats,
   clearCache,

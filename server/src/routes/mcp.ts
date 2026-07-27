@@ -7,6 +7,7 @@ import { supportedParametersForPlatforms } from '../lib/sampling-params.js';
 import { getRoutingScores, getRoutingStrategy, setRoutingStrategy } from '../services/router.js';
 import type { RoutingStrategy } from '../services/scoring.js';
 import { getCacheStats } from '../services/cache.js';
+import { getProfileContext } from '../lib/profile-context.js';
 
 // ─────────────────────────────────────────────────────────────────────────
 // MCP server for the gateway (POST /mcp) — Model Context Protocol over
@@ -133,19 +134,25 @@ function usageSummary(args: Record<string, unknown>): unknown {
   // routes/analytics.ts.
   const since = new Date(Date.now() - USAGE_RANGES[range] * 3600_000)
     .toISOString().slice(0, 19).replace('T', ' ');
+  const profile = getProfileContext();
+  const profileSql = profile
+    ? (profile.isDefault ? ' AND (profile_id = ? OR profile_id IS NULL)' : ' AND profile_id = ?')
+    : '';
+  const profileParams = profile ? [profile.id] : [];
+  const aggregateTable = profile ? 'profile_request_hourly' : 'request_hourly';
   const totals = db.prepare(`
     SELECT COALESCE(SUM(total_requests), 0) AS requests,
            COALESCE(SUM(success_count), 0) AS successes,
            COALESCE(SUM(input_tokens), 0) AS input_tokens,
            COALESCE(SUM(output_tokens), 0) AS output_tokens
-    FROM request_hourly WHERE hour >= ?
-  `).get(since.slice(0, 13) + ':00:00') as { requests: number; successes: number; input_tokens: number; output_tokens: number };
+    FROM ${aggregateTable} WHERE hour >= ?${profileSql}
+  `).get(since.slice(0, 13) + ':00:00', ...profileParams) as { requests: number; successes: number; input_tokens: number; output_tokens: number };
   const topModels = db.prepare(`
     SELECT platform, model_id, COUNT(*) AS requests,
            SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) AS successes
-    FROM requests WHERE created_at >= ?
+    FROM requests WHERE created_at >= ?${profileSql}
     GROUP BY platform, model_id ORDER BY requests DESC LIMIT 5
-  `).all(since) as Array<{ platform: string; model_id: string; requests: number; successes: number }>;
+  `).all(since, ...profileParams) as Array<{ platform: string; model_id: string; requests: number; successes: number }>;
   return {
     range,
     requests: totals.requests,

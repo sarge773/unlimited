@@ -7,15 +7,18 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Globe } from 'lucide-react'
 import { useI18n } from '@/i18n'
+import type { ApiProfile } from '@/profile-context'
 
-export function ProxySettingsSection() {
+export function ProxySettingsSection({ profile, embedded = false }: { profile?: ApiProfile; embedded?: boolean }) {
   const { t } = useI18n()
   const queryClient = useQueryClient()
   const [proxyUrl, setProxyUrl] = useState('')
 
   const { data, isError } = useQuery<{ proxyUrl: string; enabled: boolean; bypassPlatforms: string[]; active: boolean }>({
-    queryKey: ['proxy-url'],
-    queryFn: () => apiFetch('/api/settings/proxy'),
+    queryKey: ['proxy-url', profile?.id ?? 'active'],
+    queryFn: () => apiFetch('/api/settings/proxy', {
+      headers: profile ? { 'X-Profile-ID': String(profile.id) } : undefined,
+    }),
   })
 
   // Sync from server when the query refetches; keep the user's typed value
@@ -27,9 +30,13 @@ export function ProxySettingsSection() {
   const saveProxy = useMutation({
     meta: { silenceToast: true },
     mutationFn: (body: { proxyUrl?: string; enabled?: boolean; bypassPlatforms?: string[] }) =>
-      apiFetch<{ proxyUrl: string; enabled: boolean; bypassPlatforms: string[]; active: boolean }>('/api/settings/proxy', { method: 'PUT', body: JSON.stringify(body) }),
+      apiFetch<{ proxyUrl: string; enabled: boolean; bypassPlatforms: string[]; active: boolean }>('/api/settings/proxy', {
+        method: 'PUT',
+        headers: profile ? { 'X-Profile-ID': String(profile.id) } : undefined,
+        body: JSON.stringify(body),
+      }),
     onSuccess: (result: { proxyUrl: string; enabled: boolean; bypassPlatforms: string[]; active: boolean }) => {
-      queryClient.invalidateQueries({ queryKey: ['proxy-url'] })
+      queryClient.invalidateQueries({ queryKey: ['proxy-url', profile?.id ?? 'active'] })
       setProxyUrl(result.proxyUrl)
     },
   })
@@ -43,7 +50,7 @@ export function ProxySettingsSection() {
   const active = data?.active ?? false
 
   return (
-    <section className="rounded-3xl border bg-card p-5">
+    <section className={embedded ? 'p-5 sm:p-6' : 'rounded-3xl border bg-card p-5'}>
       <div className="flex items-start justify-between gap-4 mb-3">
         <div>
           <h2 className="text-sm font-medium flex items-center gap-2">

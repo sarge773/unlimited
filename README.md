@@ -98,13 +98,13 @@ The full, always-current list lives at **[freellmapi.co/models](https://freellma
 - **Automatic fallover** — If the chosen provider returns a 429, 5xx, or times out, the router skips it, puts the key on a short cooldown, and retries on the next model in your fallback chain (up to 20 attempts, bounded by a wall-clock retry budget). A dead key rotates to its siblings instead of failing the request, and exhaustion errors carry the full attempt trail so you can see exactly what was tried.
 - **Smart routing, six strategies** — the chain is ranked by a selectable strategy: `priority` (your manual order), `balanced`, `smartest`, `fastest`, `reliable`, or `custom` with your own weight mix. Scores come from live per-model measurements (speed, capability, rate-limit headroom, recent errors) with a Thompson-sampling bandit under the hood; one-click sort presets reorder the chain from the dashboard.
 - **Unified models** — the same logical model served by several providers (say, GLM-4.7 on Cloudflare and Z.ai) collapses into one entry: one name in `/v1/models`, strict in-group failover between its providers, and merge/split overrides when the grouping guesses wrong.
-- **Model profiles** — save named fallback-chain configurations (a coding chain, a long-context chain, a vision chain) and switch the active one from the dashboard.
+- **API workspaces (Profiles)** — give each app or workload its own URL, API key, outbound proxy, strict model allowlist, routing strategy, Fusion/Anthropic mappings, embedding/media setup, cache/guardrails, and analytics. Default remains available at `/v1`; named profiles use `/<slug>/v1`.
 - **Per-key rate tracking** — RPM, RPD, TPM, and TPD counters per `(platform, model, key)` so the router always picks a key that's under its caps. The ledger also learns: ceilings a provider reports in error bodies or quota headers (a Groq 413 naming its TPM limit) tighten the router's own limits automatically.
 - **Sticky sessions** — Multi-turn conversations keep talking to the same model for 30 minutes to avoid the hallucination spike that comes from mid-conversation model switches.
 - **Response cache (opt-in)** — an exact-match in-memory LRU for identical non-streaming requests: canonical SHA-256 keys over the full request, TTL and temperature gates, per-request `X-FreeLLM-Cache: on|off` override, and saved-token stats on the dashboard. Off by default; cache hits consume zero provider quota.
 - **Encrypted key storage** — API keys are encrypted with AES-256-GCM before hitting SQLite; decryption happens in-memory just before a request.
 - **Key import & export** — bulk-import keys by pasting a `.env` file (with preview and per-key selection), export back out as JSON, `.env`, or CSV.
-- **Unified API key** — Clients authenticate to your proxy with a single `freellmapi-…` bearer token. You never expose upstream provider keys to your apps.
+- **Per-profile unified API keys** — Each Profile has one `freellmapi-…` bearer token, isolated from every other Profile. You never expose upstream provider keys to your apps.
 - **Dashboard login** — The admin UI and all `/api/*` routes are gated behind an email + password account (scrypt-hashed, session-token auth), set on first run. The `/v1` proxy keeps its own unified-key auth for apps.
 - **Health checks** — Periodic probes mark keys as `healthy`, `rate_limited`, `invalid`, or `error` so the router skips dead ones automatically.
 - **Admin dashboard** — React + Vite UI to manage keys, reorder the fallback chain, inspect analytics, and run prompts in a playground. Dark/light/system theme and [60 languages](#languages) included.
@@ -167,7 +167,7 @@ $ENCRYPTION_KEY = -join ($Bytes | ForEach-Object { "{0:x2}" -f $_ })
 docker compose up -d
 ```
 
-Open http://localhost:3001, add your provider keys on the **Keys** page, reorder the **Fallback Chain** to taste, and grab your unified API key from the **Keys** page header. That unified key is what you point your OpenAI SDK at.
+Open http://localhost:3001, add your provider keys on the **Keys** page, configure the model chain, and copy the Default URL and API key from **Profiles**. Those are what you point your OpenAI SDK at.
 
 Your install keeps itself updated from the signed catalog feed. The current full catalog is listed at [freellmapi.co/models](https://freellmapi.co/models.html).
 
@@ -213,7 +213,7 @@ Request analytics are retained for 90 days or 100000 request rows by default,
 whichever limit prunes first. Set `REQUEST_ANALYTICS_RETENTION_DAYS=0` or
 `REQUEST_ANALYTICS_MAX_ROWS=0` in `.env` to disable either retention limit.
 
-Open http://localhost:5173 (the Vite dev UI), add your provider keys on the **Keys** page, reorder the **Fallback Chain** to taste, and grab your unified API key from the **Keys** page header. That unified key is what you point your OpenAI SDK at.
+Open http://localhost:5173 (the Vite dev UI), add your provider keys on the **Keys** page, configure the model chain, and copy the Default URL and API key from **Profiles**. Those are what you point your OpenAI SDK at.
 
 ### Declarative startup config
 
@@ -384,14 +384,14 @@ welcome.
 Any client that can target an OpenAI-compatible base URL can use FreeLLMAPI:
 
 - **LangChain, LlamaIndex, official OpenAI SDKs**: set `base_url` to
-  `http://localhost:3001/v1` and use the unified key from the dashboard.
+  `http://localhost:3001/v1` and use the Default profile key from the dashboard.
 - **Local GPU boxes**: add custom OpenAI-compatible endpoints for Ollama,
   llama.cpp, LM Studio, vLLM, or an internal gateway.
 
 ### Coding agents
 
 Every recipe below is the same three facts in a different config file: base URL
-`http://localhost:3001/v1`, the unified key from the dashboard's Keys page, and
+`http://localhost:3001/v1`, the Default key from the dashboard's Profiles page, and
 a model (`auto` lets the router pick).
 
 | Agent | Setup |
@@ -414,7 +414,7 @@ claude mcp add --transport http freellmapi http://localhost:3001/mcp \
 ```
 
 Any MCP client that speaks Streamable HTTP works the same way: point it at `/mcp` with the
-unified key as a Bearer token.
+Default key as a Bearer token. Named workspaces use `/<slug>/mcp` and their own key.
 
 FreeLLMAPI is local-first and single-user by design. Your provider keys stay in
 your SQLite database, encrypted at rest, and requests go from your machine to the
@@ -454,6 +454,27 @@ router stays fully self-hosted either way.
 
 Any OpenAI-compatible client works (Anthropic / Claude clients too — see [Anthropic / Claude clients](#anthropic--claude-clients)). Examples:
 
+### Profile workspaces
+
+The built-in **Default** profile is backward compatible:
+
+- `http://localhost:3001/v1` (canonical)
+- `http://localhost:3001/default/v1` (alias)
+- `http://localhost:3001/mcp`
+
+Create a profile such as `coding` on the dashboard's **Profiles** page and use:
+
+- `http://localhost:3001/coding/v1`
+- `http://localhost:3001/coding/mcp`
+
+Each profile has its own API key. A key only authenticates its matching URL;
+using the Default key at `/coding/v1`, or the coding key at `/v1`, returns
+`401`. Provider credentials and provider health are installation-wide, while
+the user-facing API configuration and usage analytics are profile-specific.
+The header selector changes which profile the Models, Fusion, media,
+Playground, and Analytics pages edit, and the last selection is restored on
+page load.
+
 **Python**
 
 ```python
@@ -486,7 +507,8 @@ curl http://localhost:3001/v1/chat/completions \
 
 **Routing strategies (`auto:*`)**
 
-Plain `auto` follows your active fallback chain. Add a suffix to steer a single request instead — no dashboard changes needed:
+Plain `auto` follows the fallback chain of the profile in the request URL. Add
+a suffix to steer a single request within that same profile:
 
 - `auto:smart` — favor the highest-intelligence models
 - `auto:fast` — favor measured speed (throughput and time-to-first-byte)
@@ -494,7 +516,10 @@ Plain `auto` follows your active fallback chain. Add a suffix to steer a single 
 - `auto:reliable` — favor recent success rate
 - `auto:balanced` — the default blend (reliability first, speed and intelligence split the rest)
 
-These rank **every enabled model**, ignoring your chain order. Common synonyms resolve too (`auto:fastest`, `auto:speed`, `auto:smartest`, `auto:cheapest`, `auto:budget`, …), and the whole model string is case-insensitive.
+These rank every model enabled in the current profile, ignoring its manual
+chain order. Common synonyms resolve too (`auto:fastest`, `auto:speed`,
+`auto:smartest`, `auto:cheapest`, `auto:budget`, …), and the whole model string
+is case-insensitive.
 
 ```bash
 curl http://localhost:3001/v1/chat/completions \
@@ -506,19 +531,9 @@ curl http://localhost:3001/v1/chat/completions \
   }'
 ```
 
-`auto:<profile-name>` routes through a named profile's chain instead of the active one, so different tools can use different chains through the same key:
-
-```bash
-curl http://localhost:3001/v1/chat/completions \
-  -H "Authorization: Bearer freellmapi-your-unified-key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "auto:coding",
-    "messages": [{"role": "user", "content": "Write a binary search in Rust."}]
-  }'
-```
-
-An unknown profile name returns a clear `400` rather than silently falling back. Profiles are the named fallback chains from **Model profiles** (see [Features](#features)) — create and switch them from the dashboard; whichever is active is what plain `auto` uses.
+Cross-profile routing through `auto:<profile-name>` is intentionally rejected:
+choose the profile with its base URL and matching key instead. This prevents one
+client from escaping its model allowlist or using another workspace's behavior.
 
 **Streaming**
 

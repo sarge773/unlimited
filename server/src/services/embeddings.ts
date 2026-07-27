@@ -7,8 +7,11 @@
 // `model: "auto"` (or empty) routes to the configured default family — so auto
 // always works: with one provider it just uses that one, with several it gets
 // cross-provider redundancy for free.
-import { getDb, getSetting } from '../db/index.js';
-import { getClientContext } from '../lib/client-context.js';
+import { getDb } from '../db/index.js';
+import { getProfileContext } from '../lib/profile-context.js';
+import { logRequest } from '../lib/request-log.js';
+import { getProfileSetting } from './profile-settings.js';
+import { ensureEmbeddingModelsInProfiles } from './profile-models.js';
 import { decrypt } from '../lib/crypto.js';
 import { proxyFetch } from '../lib/proxy.js';
 
@@ -44,13 +47,24 @@ export class EmbeddingsError extends Error {
 }
 
 export function listEmbeddingModels(): EmbeddingModelRow[] {
-  return getDb().prepare(
-    'SELECT * FROM embedding_models ORDER BY family, priority',
-  ).all() as EmbeddingModelRow[];
+  const profile = getProfileContext();
+  if (!profile) {
+    return getDb().prepare('SELECT * FROM embedding_models ORDER BY family, priority').all() as EmbeddingModelRow[];
+  }
+  ensureEmbeddingModelsInProfiles(getDb());
+  return getDb().prepare(`
+    SELECT em.id, em.family, em.platform, em.model_id, em.display_name,
+           em.dimensions, em.max_input_tokens, pem.priority, pem.enabled,
+           em.quota_label, em.key_id
+    FROM embedding_models em
+    JOIN profile_embedding_models pem ON pem.embedding_model_id = em.id
+    WHERE pem.profile_id = ?
+    ORDER BY em.family, pem.priority
+  `).all(profile.id) as EmbeddingModelRow[];
 }
 
 export function getDefaultFamily(): string {
-  return getSetting('embeddings_default_family') ?? 'gemini-embedding-001';
+  return getProfileSetting('embeddings_default_family') ?? 'gemini-embedding-001';
 }
 
 /** Map the request's `model` to a family: 'auto'/empty → default; a family
@@ -248,15 +262,10 @@ function logEmbeddingRequest(
   latencyMs: number,
   error: string | null,
 ): void {
-  try {
-    const client = getClientContext();
-    getDb().prepare(`
-      INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, error, request_type, client_ip, client_user_agent)
-      VALUES (?, ?, ?, ?, ?, 0, ?, ?, 'embedding', ?, ?)
-    `).run(row.platform, row.model_id, keyId, status, inputTokens, latencyMs, error, client.ip, client.userAgent);
-  } catch (e) {
-    console.error('Failed to log embedding request:', e);
-  }
+  logRequest(
+    row.platform, row.model_id, keyId, status, inputTokens, 0, latencyMs,
+    error, null, null, null, 'embedding',
+  );
 }
 
 /** Embed `inputs` via the family's provider chain, failing over within the

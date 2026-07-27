@@ -32,6 +32,16 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }
+  if (!headers.has('X-Skip-Profile')) {
+    // Callers rendering settings for a specific profile can pin the request to
+    // it. Otherwise use the profile currently selected in the dashboard.
+    if (!headers.has('X-Profile-ID')) {
+      const profileId = localStorage.getItem('freellmapi.activeProfileId');
+      if (profileId) headers.set('X-Profile-ID', profileId);
+    }
+  } else {
+    headers.delete('X-Skip-Profile');
+  }
   const res = await fetch(`${BASE}${path}`, {
     // `...options` first so an explicit method/body/signal applies, but headers
     // are merged last — otherwise an options.headers would clobber the

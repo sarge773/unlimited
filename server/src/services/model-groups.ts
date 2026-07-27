@@ -14,7 +14,8 @@
  * keep their pre-unification behavior.
  */
 import { z } from 'zod';
-import { getDb, getSetting, setSetting } from '../db/index.js';
+import { getDb } from '../db/index.js';
+import { getProfileSetting as getSetting, setProfileSetting as setSetting } from './profile-settings.js';
 
 // ── Settings keys ────────────────────────────────────────────────────────────
 export const UNIFY_ENABLED_KEY = 'unify_models_enabled';

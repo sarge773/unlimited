@@ -19,6 +19,8 @@ const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000003_model_source_provenanc
 const MEDIA_MODEL_META_FILENAME = '20260726_000004_media_model_meta.ts';
 const REQUEST_SERVED_MODEL_FILENAME = '20260726_000005_request_served_model.ts';
 const ATTEMPT_ERROR_SUMMARY_FILENAME = '20260726_000006_attempt_error_summary.ts';
+const API_WORKSPACES_FILENAME = '20260727_000001_api_workspaces.ts';
+const PROFILE_PROXY_SETTINGS_FILENAME = '20260727_000002_profile_proxy_settings.ts';
 
 interface SchemaRow {
   type: string;
@@ -84,6 +86,8 @@ describe('migration round trip', () => {
         MEDIA_MODEL_META_FILENAME,
         REQUEST_SERVED_MODEL_FILENAME,
         ATTEMPT_ERROR_SUMMARY_FILENAME,
+        API_WORKSPACES_FILENAME,
+        PROFILE_PROXY_SETTINGS_FILENAME,
       ]);
     } finally {
       db.close();

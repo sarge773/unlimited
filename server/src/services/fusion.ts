@@ -16,7 +16,7 @@ import {
 } from '../lib/error-classify.js';
 import { contentToString } from '../lib/content.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
-import { getSetting, setSetting } from '../db/index.js';
+import { getProfileSetting as getSetting, setProfileSetting as setSetting } from './profile-settings.js';
 import type { CompletionOptions } from '../providers/base.js';
 
 // The virtual model id that triggers multi-model synthesis. Mirrors how

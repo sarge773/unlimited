@@ -13,6 +13,7 @@ import { parseBudget } from '../lib/budget.js';
 import { getModelGroups } from '../services/model-groups.js';
 import { getPenaltyInspector } from '../services/penalty-inspector.js';
 import { getActiveProfileId } from '../services/profile-models.js';
+import { getProfileContext } from '../lib/profile-context.js';
 
 export const fallbackRouter = Router();
 
@@ -285,9 +286,7 @@ fallbackRouter.get('/token-usage', (_req: Request, res: Response) => {
   `).all() as { platform: string }[];
   const platformSet = new Set(platforms.map(p => p.platform));
 
-  // Check if there is an active profile
-  const settingRow = db.prepare(`SELECT value FROM settings WHERE key = 'active_profile_id'`).get() as { value: string } | undefined;
-  const activeProfileId = settingRow ? (parseInt(settingRow.value) || null) : null;
+  const activeProfileId = getActiveProfileId(db);
 
   // Verify active profile still exists
   const activeProfile = activeProfileId
@@ -321,13 +320,15 @@ fallbackRouter.get('/token-usage', (_req: Request, res: Response) => {
   }
 
   // Build per-model breakdown (only platforms with keys), preserving enabled state
+  const profile = getProfileContext();
   const usageRows = db.prepare(`
     SELECT platform, model_id, COALESCE(SUM(input_tokens + output_tokens), 0) AS used
     FROM requests
     WHERE created_at >= datetime('now', 'start of month')
       AND request_type = 'chat'
+      ${profile ? 'AND profile_id = ?' : ''}
     GROUP BY platform, model_id
-  `).all() as { platform: string; model_id: string; used: number }[];
+  `).all(...(profile ? [profile.id] : [])) as { platform: string; model_id: string; used: number }[];
   const usageByModel = new Map(usageRows.map(r => [`${r.platform}:${r.model_id}`, r.used]));
 
   const keyCountMap = new Map(

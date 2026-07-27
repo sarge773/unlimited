@@ -14,6 +14,7 @@ import { Tooltip } from '@/components/tooltip'
 import { PageHeader } from '@/components/page-header'
 import { ModelsTabs } from '@/components/models-tabs'
 import { ModelTableHead, RowContent } from '@/components/model-table'
+import { useApiBaseUrl } from '@/lib/api-url'
 import {
   groupQuotaBadge,
   providerLabel,
@@ -52,6 +53,7 @@ export default function ModelDetailPage() {
   const { id } = useParams<{ id: string }>()
   const canonicalId = id ? decodeURIComponent(id) : ''
   const queryClient = useQueryClient()
+  const baseUrl = useApiBaseUrl()
 
   const { data: entries = [], isLoading } = useQuery<FallbackEntry[]>({
     queryKey: ['fallback'],
@@ -163,9 +165,6 @@ export default function ModelDetailPage() {
 
   // A ready-to-run request referencing this model by its unified id, so it fails
   // over across every provider above. Same base-URL derivation as the Keys page.
-  const baseUrl = import.meta.env.DEV
-    ? `http://${window.location.hostname}:${__SERVER_PORT__}/v1`
-    : `${window.location.origin}/v1`
   const snippet = `curl ${baseUrl}/chat/completions \\
   -H "Authorization: Bearer ${keyData?.apiKey || 'YOUR_API_KEY'}" \\
   -H "Content-Type: application/json" \\

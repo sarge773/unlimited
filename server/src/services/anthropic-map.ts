@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { getDb, getSetting, setSetting } from '../db/index.js';
+import { getDb } from '../db/index.js';
+import { getProfileSetting as getSetting, setProfileSetting as setSetting } from './profile-settings.js';
 
 // Claude Code model mapping. Claude Code keeps its built-in model names
 // (e.g. `claude-sonnet-4-5` as the main model, `claude-3-5-haiku` as the

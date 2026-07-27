@@ -7,7 +7,8 @@ import { CopyButton } from '@/components/copy-button'
 import { PageHeader } from '@/components/page-header'
 import { ModelsTabs } from '@/components/models-tabs'
 import { Switch } from '@/components/ui/switch'
-import { apiBaseUrl, ApiUsageBlock } from '@/components/api-usage'
+import { ApiUsageBlock } from '@/components/api-usage'
+import { useApiBaseUrl } from '@/lib/api-url'
 import type { MediaModel } from '@/components/media-models'
 
 // One generative-media model's page: every provider that serves this logical
@@ -42,7 +43,7 @@ export default function MediaDetailPage({ modality }: { modality: 'image' | 'aud
   // A ready-to-run request. `model: "auto"` also works (tries every provider);
   // here we pin the first provider's id as a concrete example.
   const exampleModel = members[0]?.modelId ?? 'auto'
-  const base = apiBaseUrl()
+  const base = useApiBaseUrl()
   const key = keyData?.apiKey || 'YOUR_API_KEY'
   const snippet = modality === 'image'
     ? `curl ${base}/images/generations \\

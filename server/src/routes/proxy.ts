@@ -27,6 +27,7 @@ import type { Platform } from '@freellmapi/shared/types.js';
 import { inferQuotaPoolKey, type QuotaObservationContext } from '../services/provider-quota.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from '../services/model-groups.js';
 import { buildModelListing } from '../services/model-listing.js';
+import { getProfileContext } from '../lib/profile-context.js';
 
 export const proxyRouter = Router();
 
@@ -141,15 +142,18 @@ const stickySessionMap = new Map<string, { modelDbId: number; lastUsed: number }
 const STICKY_TTL_MS = 30 * 60 * 1000; // 30 min session TTL
 
 function getSessionKey(messages: ChatMessage[], sessionIdHeader?: string, strategyKey?: string): string {
+  const profileKey = getProfileContext()?.slug ?? 'legacy';
   if (sessionIdHeader) {
-    return strategyKey ? `hdr:${sessionIdHeader}::${strategyKey}` : `hdr:${sessionIdHeader}`;
+    return strategyKey
+      ? `${profileKey}::hdr:${sessionIdHeader}::${strategyKey}`
+      : `${profileKey}::hdr:${sessionIdHeader}`;
   }
 
   const firstUser = messages.find(m => m.role === 'user');
   if (!firstUser) return '';
   const text = contentToString(firstUser.content ?? '');
   if (!text) return '';
-  const payload = strategyKey ? `${text}::${strategyKey}` : text;
+  const payload = strategyKey ? `${profileKey}::${text}::${strategyKey}` : `${profileKey}::${text}`;
   return crypto.createHash('sha1').update(payload).digest('hex');
 }
 

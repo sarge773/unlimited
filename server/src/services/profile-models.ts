@@ -1,6 +1,9 @@
 import type { Db } from '../db/types.js';
+import { getProfileContext } from '../lib/profile-context.js';
 
 export function getActiveProfileId(db: Db): number | null {
+  const contextual = getProfileContext();
+  if (contextual) return contextual.id;
   const setting = db.prepare("SELECT value FROM settings WHERE key = 'active_profile_id'").get() as { value: string } | undefined;
   if (!setting) return null;
   const profileId = parseInt(setting.value, 10);
@@ -48,4 +51,22 @@ export function ensureAllModelsInProfiles(db: Db): void {
       insert.run(profile.id, row.id, max.max_priority + index + 1, row.enabled);
     });
   }
+}
+
+export function ensureEmbeddingModelsInProfiles(db: Db): void {
+  db.prepare(`
+    INSERT OR IGNORE INTO profile_embedding_models
+      (profile_id, embedding_model_id, priority, enabled)
+    SELECT p.id, em.id, em.priority, em.enabled
+    FROM profiles p CROSS JOIN embedding_models em
+  `).run();
+}
+
+export function ensureMediaModelsInProfiles(db: Db): void {
+  db.prepare(`
+    INSERT OR IGNORE INTO profile_media_models
+      (profile_id, media_model_id, priority, enabled)
+    SELECT p.id, mm.id, mm.priority, mm.enabled
+    FROM profiles p CROSS JOIN media_models mm
+  `).run();
 }

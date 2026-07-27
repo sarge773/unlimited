@@ -23,6 +23,7 @@ import { Toaster } from '@/components/toaster'
 import { usePremium } from '@/hooks/use-premium'
 import { I18nProvider, useI18n } from '@/i18n'
 import { logout } from '@/lib/api'
+import { profileGlyph } from '@/lib/profile-glyph'
 import { toast } from '@/lib/toast'
 import { ThemeProvider } from '@/theme'
 import KeysPage from '@/pages/KeysPage'
@@ -38,6 +39,9 @@ import EmbeddingDetailPage from '@/pages/EmbeddingDetailPage'
 import AnalyticsPage from '@/pages/AnalyticsPage'
 import PremiumPage from '@/pages/PremiumPage'
 import NotFoundPage from '@/pages/NotFoundPage'
+import ProfilesPage from '@/pages/ProfilesPage'
+import { useProfile } from '@/profile-context'
+import { ProfileProvider } from '@/profile-provider'
 
 // Every failed mutation surfaces as an error toast, so no action fails
 // silently. A page that already shows the failure inline can opt out with
@@ -53,6 +57,7 @@ const queryClient = new QueryClient({
 
 const navItems = [
   { to: '/models', labelKey: 'nav.models' },
+  { to: '/profiles', labelKey: 'Profiles' },
   { to: '/playground', labelKey: 'nav.playground' },
   { to: '/keys', labelKey: 'nav.keys' },
   { to: '/analytics', labelKey: 'nav.analytics' },
@@ -159,6 +164,7 @@ function Navbar() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { data: premium, licensed, isLoading: premiumLoading, isError: premiumError } = usePremium()
   const showUpgrade = Boolean(premium) && !licensed && !premiumLoading && !premiumError
+  const { profiles, active, select } = useProfile()
 
   return (
     <>
@@ -213,6 +219,33 @@ function Navbar() {
             className="ms-auto hidden items-center gap-1 md:flex"
             style={isDesktopApp ? ({ WebkitAppRegion: 'no-drag' } as React.CSSProperties) : undefined}
           >
+            {profiles.length > 1 && active && (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  aria-label={`Profile: ${active.name}`}
+                  className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                >
+                  <span className="flex h-full items-center justify-center gap-1">
+                    <span className="flex h-4 items-center text-[10px] font-normal leading-none text-muted-foreground">profile:</span>
+                    <span className="flex size-4 items-center justify-center text-[13px] font-normal leading-none" aria-hidden="true">
+                      {profileGlyph(active)}
+                    </span>
+                    <span className="flex h-4 items-center leading-none">{active.name}</span>
+                    <ChevronDown className="size-3.5 self-center" />
+                  </span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {profiles.map(profile => (
+                    <DropdownMenuItem key={profile.id} onClick={() => select(profile.id)}>
+                      <span>{profile.name}</span>
+                      <span className="flex size-4 items-center justify-center text-[13px] font-normal leading-none" aria-hidden="true">
+                        {profileGlyph(profile)}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <button
               type="button"
               onClick={openCommandPalette}
@@ -278,6 +311,32 @@ function Navbar() {
                     ),
                   )}
                 </DropdownMenuGroup>
+                {profiles.length > 1 && active && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <span className="flex items-center gap-1">
+                          <span className="flex h-4 items-center text-[10px] leading-none text-muted-foreground">profile:</span>
+                          <span className="flex size-4 items-center justify-center text-[13px] font-normal leading-none" aria-hidden="true">
+                            {profileGlyph(active)}
+                          </span>
+                          <span className="flex h-4 items-center leading-none">{active.name}</span>
+                        </span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent>
+                        {profiles.map(profile => (
+                          <DropdownMenuItem key={profile.id} onClick={() => select(profile.id)}>
+                            <span>{profile.name}</span>
+                            <span className="flex size-4 items-center justify-center text-[13px] font-normal leading-none" aria-hidden="true">
+                              {profileGlyph(profile)}
+                            </span>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <AccountMenuItems
                   showUpgrade={showUpgrade}
@@ -311,35 +370,38 @@ function App() {
           <BrowserRouter basename={import.meta.env.BASE_URL}>
             <AuthGate>
               <div className={`min-h-screen ${isDesktopApp ? 'desktop-backdrop' : 'bg-background'}`}>
-                <Navbar />
-                <main className="mx-auto max-w-6xl px-6 py-8">
-                  <PageBoundary>
-                    <Routes>
-                      <Route path="/" element={<Navigate to="/models/chat" replace />} />
-                      <Route path="/models" element={<Navigate to="/models/chat" replace />} />
-                      <Route path="/models/chat" element={<FallbackPage />} />
-                      <Route path="/models/chat/:id" element={<ModelDetailPage />} />
-                      <Route path="/models/fusion" element={<FusionPage />} />
-                      <Route path="/models/embeddings" element={<EmbeddingsPage />} />
-                      <Route path="/models/embeddings/:id" element={<EmbeddingDetailPage />} />
-                      <Route path="/models/image" element={<ImagePage />} />
-                      <Route path="/models/image/:id" element={<MediaDetailPage modality="image" />} />
-                      <Route path="/models/audio" element={<AudioPage />} />
-                      <Route path="/models/audio/:id" element={<MediaDetailPage modality="audio" />} />
-                      <Route path="/models/transcription/:id" element={<MediaDetailPage modality="transcription" />} />
-                      <Route path="/playground" element={<PlaygroundPage />} />
-                      <Route path="/keys" element={<KeysPage />} />
-                      <Route path="/fallback" element={<Navigate to="/models/chat" replace />} />
-                      <Route path="/analytics" element={<AnalyticsPage />} />
-                      <Route path="/premium" element={<PremiumPage />} />
-                      <Route path="/test" element={<Navigate to="/playground" replace />} />
-                      <Route path="/health" element={<Navigate to="/keys" replace />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                  </PageBoundary>
-                </main>
-                <Toaster />
-                <CommandPalette />
+                <ProfileProvider>
+                  <Navbar />
+                  <main className="mx-auto max-w-6xl px-6 py-8">
+                    <PageBoundary>
+                      <Routes>
+                        <Route path="/" element={<Navigate to="/models/chat" replace />} />
+                        <Route path="/models" element={<Navigate to="/models/chat" replace />} />
+                        <Route path="/models/chat" element={<FallbackPage />} />
+                        <Route path="/models/chat/:id" element={<ModelDetailPage />} />
+                        <Route path="/models/fusion" element={<FusionPage />} />
+                        <Route path="/models/embeddings" element={<EmbeddingsPage />} />
+                        <Route path="/models/embeddings/:id" element={<EmbeddingDetailPage />} />
+                        <Route path="/models/image" element={<ImagePage />} />
+                        <Route path="/models/image/:id" element={<MediaDetailPage modality="image" />} />
+                        <Route path="/models/audio" element={<AudioPage />} />
+                        <Route path="/models/audio/:id" element={<MediaDetailPage modality="audio" />} />
+                        <Route path="/models/transcription/:id" element={<MediaDetailPage modality="transcription" />} />
+                        <Route path="/playground" element={<PlaygroundPage />} />
+                        <Route path="/keys" element={<KeysPage />} />
+                        <Route path="/fallback" element={<Navigate to="/models/chat" replace />} />
+                        <Route path="/analytics" element={<AnalyticsPage />} />
+                        <Route path="/premium" element={<PremiumPage />} />
+                        <Route path="/profiles" element={<ProfilesPage />} />
+                        <Route path="/test" element={<Navigate to="/playground" replace />} />
+                        <Route path="/health" element={<Navigate to="/keys" replace />} />
+                        <Route path="*" element={<NotFoundPage />} />
+                      </Routes>
+                    </PageBoundary>
+                  </main>
+                  <Toaster />
+                  <CommandPalette />
+                </ProfileProvider>
               </div>
             </AuthGate>
           </BrowserRouter>

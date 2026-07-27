@@ -7,6 +7,7 @@ import { runMigrationsSync } from './migrate/runner.js';
 import { initEncryptionKey, isEncryptionKeyInitialized } from '../lib/crypto.js';
 import { nodeSqliteFactory } from './node-sqlite.js';
 import type { Db, DbFactory } from './types.js';
+import { getProfileContext } from '../lib/profile-context.js';
 
 export type { Db, DbFactory } from './types.js';
 
@@ -125,6 +126,8 @@ export function initDb(
 }
 
 export function getUnifiedApiKey(): string {
+  const profile = getProfileContext();
+  if (profile) return profile.apiKey;
   const db = getDb();
   const row = db.prepare("SELECT value FROM settings WHERE key = 'unified_api_key'").get() as { value: string };
   return row.value;
@@ -133,6 +136,12 @@ export function getUnifiedApiKey(): string {
 export function regenerateUnifiedKey(): string {
   const db = getDb();
   const key = `freellmapi-${crypto.randomBytes(24).toString('hex')}`;
+  const profile = getProfileContext();
+  if (profile) {
+    db.prepare('UPDATE profiles SET api_key = ? WHERE id = ?').run(key, profile.id);
+    profile.apiKey = key;
+    return key;
+  }
   db.prepare("UPDATE settings SET value = ? WHERE key = 'unified_api_key'").run(key);
   return key;
 }

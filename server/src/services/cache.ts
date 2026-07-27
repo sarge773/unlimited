@@ -29,7 +29,8 @@
 //     throwing in the proxy hot path (mirrors services/ratelimit.ts).
 
 import crypto from 'crypto';
-import { getSetting } from '../db/index.js';
+import { getProfileSetting as getSetting } from './profile-settings.js';
+import { getProfileContext } from '../lib/profile-context.js';
 import type { ChatMessage } from '@freellmapi/shared/types.js';
 
 // ── Config (read on each call so tests and the dashboard can toggle live) ──
@@ -144,6 +145,7 @@ function stableStringify(value: unknown): string {
 }
 
 export interface CacheKeyInput {
+  profile?: string;
   model: string | undefined; // the client's `model` field ('auto'/pinned/omitted)
   messages: ChatMessage[];
   temperature?: number;
@@ -179,6 +181,7 @@ function normModel(model: string | undefined): string {
 export function computeCacheKey(input: CacheKeyInput): string {
   const canonical = stableStringify({
     v: 2, // bump to invalidate every entry if the cached shape ever changes
+    profile: input.profile ?? getProfileContext()?.slug ?? 'default',
     model: normModel(input.model),
     messages: input.messages,
     temperature: input.temperature,
@@ -227,6 +230,7 @@ export interface StoreInput {
 }
 
 interface CacheEntry {
+  profileSlug: string;
   body: unknown;
   platform: string;
   modelId: string;
@@ -291,6 +295,7 @@ export function storeCachedResponse(cacheKey: string, input: StoreInput, now = D
   // Delete-then-set so an overwrite also refreshes recency order.
   store.delete(cacheKey);
   store.set(cacheKey, {
+    profileSlug: getProfileContext()?.slug ?? 'legacy',
     body: input.body,
     platform: input.platform,
     modelId: input.modelId,
@@ -330,16 +335,28 @@ export function getCacheStats(): CacheStats {
   let totalHits = 0;
   let savedPromptTokens = 0;
   let savedCompletionTokens = 0;
-  for (const entry of store.values()) {
+  const profileSlug = getProfileContext()?.slug;
+  const entries = [...store.values()].filter(entry => !profileSlug || entry.profileSlug === profileSlug);
+  for (const entry of entries) {
     totalHits += entry.hitCount;
     savedPromptTokens += entry.hitCount * entry.promptTokens;
     savedCompletionTokens += entry.hitCount * entry.completionTokens;
   }
-  return { entries: store.size, totalHits, savedPromptTokens, savedCompletionTokens };
+  return { entries: entries.length, totalHits, savedPromptTokens, savedCompletionTokens };
 }
 
-/** Drop every cached entry. Returns the number removed. */
+/** Drop cached entries in the current workspace (or all entries outside one). */
 export function clearCache(): number {
+  const profileSlug = getProfileContext()?.slug;
+  if (profileSlug) {
+    let removed = 0;
+    for (const [key, entry] of store) {
+      if (entry.profileSlug !== profileSlug) continue;
+      store.delete(key);
+      removed += 1;
+    }
+    return removed;
+  }
   const removed = store.size;
   store.clear();
   return removed;

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { getDb } from '../db/index.js';
 import { FALLBACK_INPUT_PER_M, FALLBACK_OUTPUT_PER_M } from '../db/model-pricing.js';
+import { getProfileContext } from '../lib/profile-context.js';
 
 export const analyticsRouter = Router();
 
@@ -30,8 +31,22 @@ function getSinceTimestamp(range: string): string {
 // `requests` table is pruned by REQUEST_ANALYTICS_MAX_ROWS, so any analytics
 // count that depends on a >=7d window must read from the hourly table to stay
 // accurate. Hourly resolution is fine for any UI range the dashboard exposes.
+function profileFilter(alias = ''): { sql: string; params: number[] } {
+  const profile = getProfileContext();
+  return profile
+    ? {
+        sql: profile.isDefault
+          ? ` AND (${alias}profile_id = ? OR ${alias}profile_id IS NULL)`
+          : ` AND ${alias}profile_id = ?`,
+        params: [profile.id],
+      }
+    : { sql: '', params: [] };
+}
+
 function readAggregateSince(since: string) {
   const db = getDb();
+  const filter = profileFilter();
+  const table = filter.params.length ? 'profile_request_hourly' : 'request_hourly';
   // Hour keys are created_at truncated to the hour, so they share SQLite's
   // canonical 'YYYY-MM-DD HH:00:00' text (space separator). The range cutoff is
   // already in that format — floor it to the hour and compare the strings
@@ -45,9 +60,9 @@ function readAggregateSince(since: string) {
       COALESCE(SUM(input_tokens), 0) as total_input_tokens,
       COALESCE(SUM(output_tokens), 0) as total_output_tokens,
       MIN(hour) as first_request_at
-    FROM request_hourly
-    WHERE hour >= ?
-  `).get(aggregateSince) as {
+    FROM ${table}
+    WHERE hour >= ?${filter.sql}
+  `).get(aggregateSince, ...filter.params) as {
     total_requests: number;
     success_count: number;
     total_input_tokens: number;
@@ -57,8 +72,14 @@ function readAggregateSince(since: string) {
   return rows;
 }
 
-function readLifetimeSettings() {
+function readFirstRequestAt() {
   const db = getDb();
+  const filter = profileFilter();
+  if (filter.params.length) {
+    const row = db.prepare(`SELECT MIN(hour) AS value FROM profile_request_hourly WHERE 1 = 1${filter.sql}`)
+      .get(...filter.params) as { value: string | null };
+    return row.value;
+  }
   const row = db.prepare(`
     SELECT value FROM settings WHERE key = 'first_request_at'
   `).get() as { value: string } | undefined;
@@ -70,6 +91,8 @@ analyticsRouter.get('/summary', (req: Request, res: Response) => {
   const range = (req.query.range as string) ?? '7d';
   const since = getSinceTimestamp(range);
   const db = getDb();
+  const filter = profileFilter();
+  const requestFilter = profileFilter('r.');
 
   // Totals (request count, token sums, success rate, lifetime first_request_at)
   // come from the durable `request_hourly` aggregate so they stay accurate even
@@ -85,8 +108,8 @@ analyticsRouter.get('/summary', (req: Request, res: Response) => {
   // Avg latency is only meaningful at the raw row level; the hourly bucket
   // doesn't preserve it. Fall back to a 0/null when no recent raw rows exist.
   const latencyRow = db.prepare(`
-    SELECT AVG(latency_ms) as avg_latency_ms FROM requests WHERE created_at >= ?
-  `).get(since) as { avg_latency_ms: number | null } | undefined;
+    SELECT AVG(latency_ms) as avg_latency_ms FROM requests WHERE created_at >= ?${filter.sql}
+  `).get(since, ...filter.params) as { avg_latency_ms: number | null } | undefined;
 
   // Estimated savings is a per-request priced value, so it lives on the raw
   // rows. For ranges where the raw table is empty we report 0 (no recent
@@ -100,8 +123,8 @@ analyticsRouter.get('/summary', (req: Request, res: Response) => {
     ), 0) as est_savings
     FROM requests r
     LEFT JOIN models m ON m.platform = r.platform AND m.model_id = r.model_id
-    WHERE r.created_at >= ?
-  `).get(FALLBACK_INPUT_PER_M, FALLBACK_OUTPUT_PER_M, since) as { est_savings: number };
+    WHERE r.created_at >= ?${requestFilter.sql}
+  `).get(FALLBACK_INPUT_PER_M, FALLBACK_OUTPUT_PER_M, since, ...requestFilter.params) as { est_savings: number };
 
   // Pin-honor stats are also raw-row scoped. We still report them when present
   // (typically 24h/7d) and gracefully drop them when the raw window is empty.
@@ -109,8 +132,8 @@ analyticsRouter.get('/summary', (req: Request, res: Response) => {
     SELECT
       SUM(CASE WHEN requested_model IS NOT NULL THEN 1 ELSE 0 END) as pinned_count,
       SUM(CASE WHEN requested_model = model_id THEN 1 ELSE 0 END) as pin_honored_count
-    FROM requests WHERE created_at >= ?
-  `).get(since) as { pinned_count: number | null; pin_honored_count: number | null };
+    FROM requests WHERE created_at >= ?${filter.sql}
+  `).get(since, ...filter.params) as { pinned_count: number | null; pin_honored_count: number | null };
 
   // Latency percentiles, time-to-first-token, and the chat/embedding split all
   // live on the raw rows (the hourly aggregate keeps neither latency nor a
@@ -123,17 +146,17 @@ analyticsRouter.get('/summary', (req: Request, res: Response) => {
   // ORDER BY latency_ms ASC, so if it were counted but not filtered the offset
   // math would shift and a NULL could be selected (rendered as 0).
   const rawCount = (db.prepare(
-    `SELECT COUNT(*) as c FROM requests WHERE created_at >= ? AND latency_ms IS NOT NULL`
-  ).get(since) as { c: number }).c;
+    `SELECT COUNT(*) as c FROM requests WHERE created_at >= ? AND latency_ms IS NOT NULL${filter.sql}`
+  ).get(since, ...filter.params) as { c: number }).c;
   const percentileAt = (fraction: number): number | null => {
     if (rawCount === 0) return null;
     const offset = Math.floor((rawCount - 1) * fraction);
     const row = db.prepare(`
       SELECT latency_ms FROM requests
-      WHERE created_at >= ? AND latency_ms IS NOT NULL
+      WHERE created_at >= ? AND latency_ms IS NOT NULL${filter.sql}
       ORDER BY latency_ms ASC
       LIMIT 1 OFFSET ?
-    `).get(since, offset) as { latency_ms: number } | undefined;
+    `).get(since, ...filter.params, offset) as { latency_ms: number } | undefined;
     return row ? Math.round(row.latency_ms) : null;
   };
   const p50LatencyMs = percentileAt(0.5);
@@ -141,22 +164,27 @@ analyticsRouter.get('/summary', (req: Request, res: Response) => {
 
   const ttfbRow = db.prepare(`
     SELECT AVG(ttfb_ms) as avg_ttfb_ms FROM requests
-    WHERE created_at >= ? AND ttfb_ms IS NOT NULL
-  `).get(since) as { avg_ttfb_ms: number | null } | undefined;
+    WHERE created_at >= ? AND ttfb_ms IS NOT NULL${filter.sql}
+  `).get(since, ...filter.params) as { avg_ttfb_ms: number | null } | undefined;
   const avgTtfbMs = ttfbRow?.avg_ttfb_ms != null ? Math.round(ttfbRow.avg_ttfb_ms) : null;
 
   const typeRows = db.prepare(`
     SELECT request_type, COUNT(*) as count FROM requests
-    WHERE created_at >= ?
+    WHERE created_at >= ?${filter.sql}
     GROUP BY request_type
-  `).all(since) as Array<{ request_type: string; count: number }>;
+  `).all(since, ...filter.params) as Array<{ request_type: string; count: number }>;
   const requestTypeCounts = { chat: 0, embedding: 0 };
   for (const row of typeRows) {
     if (row.request_type === 'embedding') requestTypeCounts.embedding = row.count;
     else if (row.request_type === 'chat') requestTypeCounts.chat = row.count;
   }
 
-  const lifetimeFirst = readLifetimeSettings();
+  const lifetimeFirst = readFirstRequestAt();
+  const lifetimeAggregate = db.prepare(`
+    SELECT COALESCE(SUM(total_requests), 0) AS total
+    FROM ${filter.params.length ? 'profile_request_hourly' : 'request_hourly'}
+    WHERE 1 = 1${filter.sql}
+  `).get(...filter.params) as { total: number };
 
   res.json({
     totalRequests,
@@ -185,7 +213,9 @@ analyticsRouter.get('/summary', (req: Request, res: Response) => {
     // Lifetime total since install — useful when the user wants to see "all
     // time" alongside the selected range window. Sourced from settings so it
     // survives the raw-row prune entirely.
-    lifetimeTotalRequests: Number((db.prepare(`SELECT value FROM settings WHERE key='total_requests'`).get() as { value?: string } | undefined)?.value ?? 0) || 0,
+    lifetimeTotalRequests: filter.params.length
+      ? lifetimeAggregate.total
+      : Number((db.prepare(`SELECT value FROM settings WHERE key='total_requests'`).get() as { value?: string } | undefined)?.value ?? 0) || 0,
   });
 });
 
@@ -194,6 +224,7 @@ analyticsRouter.get('/by-model', (req: Request, res: Response) => {
   const range = (req.query.range as string) ?? '7d';
   const since = getSinceTimestamp(range);
   const db = getDb();
+  const filter = profileFilter('r.');
 
   const rows = db.prepare(`
     SELECT
@@ -212,10 +243,10 @@ analyticsRouter.get('/by-model', (req: Request, res: Response) => {
       ELSE 0 END) as est_cost
     FROM requests r
     LEFT JOIN models m ON m.platform = r.platform AND m.model_id = r.model_id
-    WHERE r.created_at >= ?
+    WHERE r.created_at >= ?${filter.sql}
     GROUP BY r.platform, r.model_id
     ORDER BY requests DESC
-  `).all(FALLBACK_INPUT_PER_M, FALLBACK_OUTPUT_PER_M, since) as any[];
+  `).all(FALLBACK_INPUT_PER_M, FALLBACK_OUTPUT_PER_M, since, ...filter.params) as any[];
 
   res.json(rows.map(r => ({
     platform: r.platform,
@@ -237,6 +268,7 @@ analyticsRouter.get('/by-platform', (req: Request, res: Response) => {
   const range = (req.query.range as string) ?? '7d';
   const since = getSinceTimestamp(range);
   const db = getDb();
+  const filter = profileFilter();
 
   const rows = db.prepare(`
     SELECT
@@ -252,10 +284,10 @@ analyticsRouter.get('/by-platform', (req: Request, res: Response) => {
       SUM(input_tokens) as total_input_tokens,
       SUM(output_tokens) as total_output_tokens
     FROM requests
-    WHERE created_at >= ?
+    WHERE created_at >= ?${filter.sql}
     GROUP BY platform
     ORDER BY requests DESC
-  `).all(since) as any[];
+  `).all(since, ...filter.params) as any[];
 
   // P95 latency is a per-group percentile; SQLite has no native percentile
   // aggregate, so we take the nearest-rank value per platform with a small
@@ -263,7 +295,7 @@ analyticsRouter.get('/by-platform', (req: Request, res: Response) => {
   // so the extra round-trips are negligible and keep the SQL readable.
   const p95Stmt = db.prepare(`
     SELECT latency_ms FROM requests
-    WHERE created_at >= ? AND platform = ? AND latency_ms IS NOT NULL
+    WHERE created_at >= ? AND platform = ? AND latency_ms IS NOT NULL${filter.sql}
     ORDER BY latency_ms ASC
     LIMIT 1 OFFSET ?
   `);
@@ -274,7 +306,7 @@ analyticsRouter.get('/by-platform', (req: Request, res: Response) => {
     // denominator nor selected as the p95 value.
     const latencyCount = r.latency_count ?? 0;
     const p95Row = latencyCount > 0
-      ? (p95Stmt.get(since, r.platform, Math.floor((latencyCount - 1) * 0.95)) as { latency_ms: number } | undefined)
+      ? (p95Stmt.get(since, r.platform, ...filter.params, Math.floor((latencyCount - 1) * 0.95)) as { latency_ms: number } | undefined)
       : undefined;
     return {
       platform: r.platform,
@@ -300,6 +332,7 @@ analyticsRouter.get('/by-key', (req: Request, res: Response) => {
   const range = (req.query.range as string) ?? '7d';
   const since = getSinceTimestamp(range);
   const db = getDb();
+  const filter = profileFilter('r.');
 
   const rows = db.prepare(`
     SELECT
@@ -313,11 +346,11 @@ analyticsRouter.get('/by-key', (req: Request, res: Response) => {
       SUM(r.output_tokens) as total_output_tokens
     FROM requests r
     LEFT JOIN api_keys k ON k.id = r.key_id
-    WHERE r.key_id IS NOT NULL AND r.created_at >= ?
+    WHERE r.key_id IS NOT NULL AND r.created_at >= ?${filter.sql}
     GROUP BY r.key_id
     ORDER BY requests DESC
     LIMIT 50
-  `).all(since) as any[];
+  `).all(since, ...filter.params) as any[];
 
   res.json(rows.map(r => ({
     keyId: r.key_id,
@@ -339,6 +372,8 @@ analyticsRouter.get('/timeline', (req: Request, res: Response) => {
   const interval = (req.query.interval as string) ?? (range === '24h' ? 'hour' : 'day');
   const since = getSinceTimestamp(range);
   const db = getDb();
+  const filter = profileFilter();
+  const aggregateTable = filter.params.length ? 'profile_request_hourly' : 'request_hourly';
 
   // dateFormat is a hardcoded whitelist — never user-controlled.
   const dateFormat = interval === 'hour' ? '%Y-%m-%dT%H:00:00' : '%Y-%m-%d';
@@ -354,11 +389,11 @@ analyticsRouter.get('/timeline', (req: Request, res: Response) => {
       SUM(error_count) as failure_count,
       SUM(input_tokens) as input_tokens,
       SUM(output_tokens) as output_tokens
-    FROM request_hourly
-    WHERE hour >= ?
+    FROM ${aggregateTable}
+    WHERE hour >= ?${filter.sql}
     GROUP BY strftime('${dateFormat}', hour)
     ORDER BY timestamp ASC
-  `).all(since) as any[];
+  `).all(since, ...filter.params) as any[];
 
   res.json(rows.map(r => ({
     timestamp: r.timestamp,
@@ -375,6 +410,7 @@ analyticsRouter.get('/error-distribution', (req: Request, res: Response) => {
   const range = (req.query.range as string) ?? '7d';
   const since = getSinceTimestamp(range);
   const db = getDb();
+  const filter = profileFilter();
 
   // Group errors by category (extract the key part of the error message)
   const rows = db.prepare(`
@@ -393,10 +429,10 @@ analyticsRouter.get('/error-distribution', (req: Request, res: Response) => {
       END as error_category,
       COUNT(*) as count
     FROM requests
-    WHERE status = 'error' AND created_at >= ?
+    WHERE status = 'error' AND created_at >= ?${filter.sql}
     GROUP BY platform, error_category
     ORDER BY count DESC
-  `).all(since) as any[];
+  `).all(since, ...filter.params) as any[];
 
   // Also get totals by category
   const byCategory = db.prepare(`
@@ -413,19 +449,19 @@ analyticsRouter.get('/error-distribution', (req: Request, res: Response) => {
       END as category,
       COUNT(*) as count
     FROM requests
-    WHERE status = 'error' AND created_at >= ?
+    WHERE status = 'error' AND created_at >= ?${filter.sql}
     GROUP BY category
     ORDER BY count DESC
-  `).all(since) as any[];
+  `).all(since, ...filter.params) as any[];
 
   // Errors by platform
   const byPlatform = db.prepare(`
     SELECT platform, COUNT(*) as count
     FROM requests
-    WHERE status = 'error' AND created_at >= ?
+    WHERE status = 'error' AND created_at >= ?${filter.sql}
     GROUP BY platform
     ORDER BY count DESC
-  `).all(since) as any[];
+  `).all(since, ...filter.params) as any[];
 
   res.json({
     byCategory,
@@ -439,14 +475,15 @@ analyticsRouter.get('/errors', (req: Request, res: Response) => {
   const range = (req.query.range as string) ?? '7d';
   const since = getSinceTimestamp(range);
   const db = getDb();
+  const filter = profileFilter();
 
   const rows = db.prepare(`
     SELECT id, platform, model_id, error, latency_ms, created_at
     FROM requests
-    WHERE status = 'error' AND created_at >= ?
+    WHERE status = 'error' AND created_at >= ?${filter.sql}
     ORDER BY created_at DESC
     LIMIT 50
-  `).all(since) as any[];
+  `).all(since, ...filter.params) as any[];
 
   res.json(rows.map(r => ({
     id: r.id,
@@ -483,11 +520,14 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
     return;
   }
   const db = getDb();
+  const profile = profileFilter();
 
   const filterSql =
+    profile.sql +
     (status !== undefined ? ' AND status = ?' : '') +
     (platform !== undefined ? ' AND platform = ?' : '');
   const filterParams = [
+    ...profile.params,
     ...(status !== undefined ? [status] : []),
     ...(platform !== undefined ? [platform] : []),
   ];
@@ -545,6 +585,7 @@ analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
     return;
   }
   const db = getDb();
+  const filter = profileFilter();
 
   const r = db.prepare(`
     SELECT id, platform, model_id, requested_model, served_model, request_type, status,
@@ -552,8 +593,8 @@ analyticsRouter.get('/requests/:id', (req: Request, res: Response) => {
            client_ip, client_user_agent,
            strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso
     FROM requests
-    WHERE id = ?
-  `).get(id) as any;
+    WHERE id = ?${filter.sql}
+  `).get(id, ...filter.params) as any;
   if (!r) {
     res.status(404).json({ error: 'request not found' });
     return;

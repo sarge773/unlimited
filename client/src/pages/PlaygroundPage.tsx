@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/page-header'
 import { Markdown } from '@/components/markdown'
 import { CopyButton } from '@/components/copy-button'
 import { useI18n } from '@/i18n'
+import { useApiBaseUrl } from '@/lib/api-url'
 
 interface FallbackEntry {
   modelDbId: number
@@ -112,6 +113,7 @@ function FusionTrace({ panel, judge, streaming, answerStarted }: {
 
 export default function PlaygroundPage() {
   const { t } = useI18n()
+  const apiBase = useApiBaseUrl()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   // Optional system prompt for this Playground session. Client-side only:
   // when set, it's prepended as a `system` message to the request. Persisted
@@ -237,9 +239,8 @@ export default function PlaygroundPage() {
       // Playground can show the other models arriving before the final answer.
       if (isFusion) body.stream = true
 
-      const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       const start = Date.now()
-      const res = await fetch(`${base}/v1/chat/completions`, {
+      const res = await fetch(`${apiBase}/chat/completions`, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),

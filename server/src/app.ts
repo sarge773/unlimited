@@ -25,6 +25,11 @@ import { requireAuth } from './middleware/requireAuth.js';
 import { createProxyRateLimiter } from './middleware/rateLimit.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { clientContextMiddleware } from './lib/client-context.js';
+import {
+  dashboardProfileMiddleware,
+  defaultProfileMiddleware,
+  namedProfileMiddleware,
+} from './lib/profile-context.js';
 import type { Config } from './lib/config.js';
 import { loadConfig } from './lib/config.js';
 
@@ -82,6 +87,7 @@ export function createApp(config?: Config) {
   // session; everything else under /api/* requires a logged-in dashboard user.
   // The /v1 proxy keeps its own unified-API-key auth and is NOT gated here.
   app.use('/api/auth', authRouter);
+  app.use('/api', dashboardProfileMiddleware);
 
   // API routes — all admin endpoints sit behind requireAuth.
   app.use('/api/keys', requireAuth, keysRouter);
@@ -100,12 +106,12 @@ export function createApp(config?: Config) {
   // GET /v1/openapi.json (spec). Mounted before the rate limiter so the docs
   // are always reachable and don't draw down a caller's request budget. It only
   // owns those two paths; everything else falls through to the routers below.
-  app.use('/v1', docsRouter);
+  app.use('/v1', defaultProfileMiddleware, docsRouter);
 
   // OpenAI-compatible proxy. Per-IP rate limiting (#35 item #6) runs first so
   // it throttles unauthenticated brute-force / flood attempts before any
   // routing work. Tune via PROXY_RATE_LIMIT_RPM; 0 disables it.
-  app.use('/v1', createProxyRateLimiter(cfg.proxyRateLimitRpm));
+  app.use('/v1', defaultProfileMiddleware, createProxyRateLimiter(cfg.proxyRateLimitRpm));
   // Anthropic-compatible Messages API (`POST /v1/messages`, `/count_tokens`) for
   // Claude Code and anything else speaking the Anthropic SDK. Mounted BEFORE the
   // OpenAI router so it can content-negotiate `GET /v1/models` (Anthropic shape
@@ -116,13 +122,23 @@ export function createApp(config?: Config) {
   // OpenAI Responses API shim (Codex CLI requires wire_api="responses"; see #96)
   app.use('/v1', responsesRouter);
 
+  // Named API workspaces. The profile slug is part of the base URL while the
+  // routers continue to see the normal OpenAI-compatible paths.
+  app.use('/:profileSlug/v1', namedProfileMiddleware, docsRouter);
+  app.use('/:profileSlug/v1', namedProfileMiddleware, createProxyRateLimiter(cfg.proxyRateLimitRpm));
+  app.use('/:profileSlug/v1', namedProfileMiddleware, anthropicRouter);
+  app.use('/:profileSlug/v1', namedProfileMiddleware, proxyRouter);
+  app.use('/:profileSlug/v1', namedProfileMiddleware, responsesRouter);
+
   // MCP server (Model Context Protocol over stateless Streamable HTTP):
   // gateway introspection tools for MCP-speaking agents. Unified-key auth,
   // like /v1 — NOT behind the dashboard session gate. Same per-IP limiter as
   // /v1 (its own bucket): both surfaces guard the same unified key, so an
   // unauthenticated brute-force must not get a free throttle-less oracle here.
-  app.use('/mcp', createProxyRateLimiter(cfg.proxyRateLimitRpm));
+  app.use('/mcp', defaultProfileMiddleware, createProxyRateLimiter(cfg.proxyRateLimitRpm));
   app.use('/mcp', mcpRouter);
+  app.use('/:profileSlug/mcp', namedProfileMiddleware, createProxyRateLimiter(cfg.proxyRateLimitRpm));
+  app.use('/:profileSlug/mcp', namedProfileMiddleware, mcpRouter);
 
   // Health check
   app.get('/api/ping', (_req, res) => {
@@ -165,7 +181,11 @@ export function createApp(config?: Config) {
     }));
     // SPA fallback — serve index.html for non-API routes
     app.use((req, res, next) => {
-      if (req.path.startsWith('/api/') || req.path.startsWith('/v1/')) {
+      if (
+        req.path.startsWith('/api/') ||
+        req.path.startsWith('/v1/') ||
+        /^\/[^/]+\/(?:v1|mcp)(?:\/|$)/.test(req.path)
+      ) {
         next();
         return;
       }

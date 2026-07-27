@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useI18n } from '@/i18n'
+import { useApiBaseUrl } from '@/lib/api-url'
 
 // Claude (Anthropic) model families the mapping editor exposes. Anthropic
 // clients send these names; each maps to "auto" (router picks a free model) or
@@ -26,9 +27,7 @@ export function AnthropicSection() {
 
   // Anthropic clients append `/v1/messages` to the base URL, so they want the
   // bare origin (OpenAI clients use origin + /v1, shown in the key section).
-  const origin = import.meta.env.DEV
-    ? `http://${window.location.hostname}:${__SERVER_PORT__}`
-    : window.location.origin
+  const origin = useApiBaseUrl().replace(/\/v1$/, '')
 
   const { data: mapData } = useQuery<{ map: AnthropicMap }>({
     queryKey: ['anthropic-map'],

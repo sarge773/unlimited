@@ -6,7 +6,8 @@ import { apiFetch } from '@/lib/api'
 import { CopyButton } from '@/components/copy-button'
 import { PageHeader } from '@/components/page-header'
 import { ModelsTabs } from '@/components/models-tabs'
-import { apiBaseUrl, ApiUsageBlock } from '@/components/api-usage'
+import { ApiUsageBlock } from '@/components/api-usage'
+import { useApiBaseUrl } from '@/lib/api-url'
 
 interface ProviderEntry {
   id: number
@@ -45,7 +46,7 @@ export default function EmbeddingDetailPage() {
   })
 
   const fam = (data?.families ?? []).find(f => f.family === family)
-  const base = apiBaseUrl()
+  const base = useApiBaseUrl()
   const key = keyData?.apiKey || 'YOUR_API_KEY'
   const snippet = `curl ${base}/embeddings \\
   -H "Authorization: Bearer ${key}" \\

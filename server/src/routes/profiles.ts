@@ -7,37 +7,28 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
+import crypto from 'crypto';
 import { getDb } from '../db/index.js';
 
 export const profilesRouter = Router();
 
-const RESERVED_PROFILE_NAMES = [
-  'auto', 'smart', 'fast', 'cheap', 'budget',
-  'intelligence', 'speed', 'active', 'default',
-];
-
 const profileNameSchema = z
   .string()
+  .trim()
   .min(1, 'Profile name cannot be empty')
-  .max(20, 'Profile name must not exceed 20 characters')
-  .regex(
-    /^[a-zA-Z0-9-_]+$/,
-    'Only Latin letters, digits, hyphens (-) and underscores (_) are allowed'
-  )
-  .refine(
-    (name) => !RESERVED_PROFILE_NAMES.includes(name.toLowerCase()),
-    'This name is reserved by the system'
-  );
+  .max(40, 'Profile name must not exceed 40 characters');
 
 const createSchema = z.object({
   name: profileNameSchema,
+  slug: z.string().regex(/^[a-z0-9][a-z0-9-]{0,39}$/).optional(),
   emoji: z.string().max(4).default(''),
   color: z.string().default('#6366f1'),
-  sourceProfileId: z.number().optional(),
+  sourceProfileId: z.number().int().positive().optional(),
 });
 
 const updateSchema = z.object({
   name: profileNameSchema.optional(),
+  slug: z.string().regex(/^[a-z0-9][a-z0-9-]{0,39}$/).optional(),
   emoji: z.string().max(4).optional(),
   color: z.string().optional(),
   is_favorite: z.boolean().optional(),
@@ -45,6 +36,11 @@ const updateSchema = z.object({
   auto_sort: z.enum(['intelligence', 'speed', 'budget']).nullable().optional(),
   layout_config: z.string().nullable().optional(),
 });
+
+const RESERVED_PROFILE_SLUGS = new Set([
+  'api', 'v1', 'mcp', 'models', 'keys', 'analytics', 'playground',
+  'premium', 'assets', 'auth', 'health',
+]);
 
 function getId(req: Request): number {
   return parseInt(req.params.id as string);
@@ -58,43 +54,11 @@ function getId(req: Request): number {
 profilesRouter.get('/', (_req: Request, res: Response) => {
   const db = getDb();
   const profiles = db.prepare(`
-    SELECT id, name, emoji, color, type, is_favorite, sort_order, auto_sort, layout_config, created_at
+    SELECT id, name, slug, emoji, color, type, is_favorite, sort_order, auto_sort, layout_config, created_at
     FROM profiles
     ORDER BY (CASE WHEN type = 'default' THEN 1 ELSE 0 END) DESC, is_favorite DESC, sort_order ASC, id ASC
   `).all();
   res.json(profiles);
-});
-
-// GET /api/profiles/active — get the currently active profile id
-profilesRouter.get('/active', (_req: Request, res: Response) => {
-  const db = getDb();
-  const row = db.prepare(`SELECT value FROM settings WHERE key = 'active_profile_id'`).get() as { value: string } | undefined;
-  const activeProfileId = row ? (parseInt(row.value) || null) : null;
-  res.json({ activeProfileId });
-});
-
-// POST /api/profiles/active — set or clear the active profile
-profilesRouter.post('/active', (req: Request, res: Response) => {
-  const db = getDb();
-  const profileId = req.body?.profileId;
-
-  if (profileId === null || profileId === undefined) {
-    db.prepare(`DELETE FROM settings WHERE key = 'active_profile_id'`).run();
-    res.json({ activeProfileId: null });
-    return;
-  }
-
-  const profile = db.prepare('SELECT id FROM profiles WHERE id = ?').get(Number(profileId)) as any;
-  if (!profile) {
-    res.status(404).json({ error: { message: 'Profile not found' } });
-    return;
-  }
-
-  db.prepare(`
-    INSERT INTO settings (key, value) VALUES ('active_profile_id', ?)
-    ON CONFLICT(key) DO UPDATE SET value = excluded.value
-  `).run(String(profileId));
-  res.json({ activeProfileId: Number(profileId) });
 });
 
 // GET /api/profiles/:id/models — get profile model order
@@ -137,6 +101,11 @@ profilesRouter.post('/', (req: Request, res: Response) => {
 
   const db = getDb();
   const { name, emoji, color, sourceProfileId } = parsed.data;
+  const slug = parsed.data.slug ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!slug || RESERVED_PROFILE_SLUGS.has(slug)) {
+    res.status(400).json({ error: { message: 'Invalid or reserved profile slug' } });
+    return;
+  }
 
   // Check for case-insensitive duplicate profile names
   const duplicate = db.prepare('SELECT id FROM profiles WHERE LOWER(name) = LOWER(?)').get(name) as any;
@@ -144,43 +113,66 @@ profilesRouter.post('/', (req: Request, res: Response) => {
     res.status(409).json({ error: { message: `Profile with name '${name}' already exists` } });
     return;
   }
+  if (db.prepare('SELECT id FROM profiles WHERE slug = ? COLLATE NOCASE').get(slug)) {
+    res.status(409).json({ error: { message: `Profile URL '${slug}' already exists` } });
+    return;
+  }
 
   const maxOrder = (db.prepare('SELECT COALESCE(MAX(sort_order), 0) AS mx FROM profiles').get() as { mx: number }).mx;
 
-  let layoutConfig: string | null = null;
-  let autoSort: string | null = null;
-  if (sourceProfileId) {
-    const source = db.prepare('SELECT layout_config, auto_sort FROM profiles WHERE id = ?').get(sourceProfileId) as any;
-    if (source) {
-      layoutConfig = source.layout_config;
-      autoSort = source.auto_sort;
-    }
+  const requestedSource = sourceProfileId
+    ? db.prepare('SELECT id, layout_config, auto_sort FROM profiles WHERE id = ?').get(sourceProfileId) as any
+    : null;
+  const source = requestedSource ?? db.prepare(
+    "SELECT id, layout_config, auto_sort FROM profiles WHERE type = 'default' ORDER BY id LIMIT 1",
+  ).get() as any;
+  if (!source) {
+    res.status(500).json({ error: { message: 'Default profile is missing' } });
+    return;
   }
 
-  const result = db.prepare(
-    'INSERT INTO profiles (name, emoji, color, type, sort_order, layout_config, auto_sort) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(name, emoji, color, 'custom', maxOrder + 1, layoutConfig, autoSort);
-
-  const profileId = result.lastInsertRowid as number;
-
-  if (sourceProfileId) {
-    const source = db.prepare('SELECT id FROM profiles WHERE id = ?').get(sourceProfileId) as any;
-    if (!source) {
-      copyFromDefault(db, profileId);
-    } else {
+  const apiKey = `freellmapi-${crypto.randomBytes(24).toString('hex')}`;
+  let profileId = 0;
+  db.transaction(() => {
+    const result = db.prepare(
+      'INSERT INTO profiles (name, slug, api_key, emoji, color, type, sort_order, layout_config, auto_sort) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(name, slug, apiKey, emoji, color, 'custom', maxOrder + 1, source.layout_config, source.auto_sort);
+    profileId = Number(result.lastInsertRowid);
+    if (db.prepare('SELECT 1 FROM profile_models WHERE profile_id = ? LIMIT 1').get(source.id)) {
       db.prepare(`
         INSERT INTO profile_models (profile_id, model_db_id, priority, enabled)
         SELECT ?, model_db_id, priority, enabled
         FROM profile_models
         WHERE profile_id = ?
         ORDER BY priority ASC
-      `).run(profileId, sourceProfileId);
+      `).run(profileId, source.id);
+    } else {
+      copyFromDefault(db, profileId);
     }
-  } else {
-    copyFromDefault(db, profileId);
-  }
-
-  const created = db.prepare('SELECT id, name, emoji, color, type, is_favorite, sort_order, auto_sort, layout_config, created_at FROM profiles WHERE id = ?').get(profileId);
+    db.prepare(`
+      INSERT INTO profile_settings (profile_id, key, value)
+      SELECT ?, key, value FROM profile_settings WHERE profile_id = ?
+    `).run(profileId, source.id);
+    db.prepare(`
+      INSERT INTO profile_embedding_models (profile_id, embedding_model_id, priority, enabled)
+      SELECT ?, embedding_model_id, priority, enabled
+      FROM profile_embedding_models WHERE profile_id = ?
+    `).run(profileId, source.id);
+    db.prepare(`
+      INSERT INTO profile_media_models (profile_id, media_model_id, priority, enabled)
+      SELECT ?, media_model_id, priority, enabled
+      FROM profile_media_models WHERE profile_id = ?
+    `).run(profileId, source.id);
+    db.prepare(`
+      INSERT OR IGNORE INTO profile_embedding_models (profile_id, embedding_model_id, priority, enabled)
+      SELECT ?, id, priority, enabled FROM embedding_models
+    `).run(profileId);
+    db.prepare(`
+      INSERT OR IGNORE INTO profile_media_models (profile_id, media_model_id, priority, enabled)
+      SELECT ?, id, priority, enabled FROM media_models
+    `).run(profileId);
+  })();
+  const created = db.prepare('SELECT id, name, slug, emoji, color, type, is_favorite, sort_order, auto_sort, layout_config, created_at FROM profiles WHERE id = ?').get(profileId);
   res.status(201).json(created);
 });
 
@@ -217,6 +209,22 @@ profilesRouter.put('/:id', (req: Request, res: Response) => {
       return;
     }
   }
+  if (parsed.data.slug !== undefined) {
+    if (profile.type === 'default') {
+      res.status(400).json({ error: { message: 'Cannot change the Default profile URL' } });
+      return;
+    }
+    if (RESERVED_PROFILE_SLUGS.has(parsed.data.slug)) {
+      res.status(400).json({ error: { message: 'Invalid or reserved profile slug' } });
+      return;
+    }
+    const duplicate = db.prepare('SELECT id FROM profiles WHERE slug = ? COLLATE NOCASE AND id != ?')
+      .get(parsed.data.slug, profileId);
+    if (duplicate) {
+      res.status(409).json({ error: { message: `Profile URL '${parsed.data.slug}' already exists` } });
+      return;
+    }
+  }
 
   const isProtected = profile.type === 'default' || profile.type === 'builtin';
   const updates: string[] = [];
@@ -247,8 +255,28 @@ profilesRouter.put('/:id', (req: Request, res: Response) => {
     sortProfileModels(db, profileId, parsed.data.auto_sort);
   }
 
-  const updated = db.prepare('SELECT id, name, emoji, color, type, is_favorite, sort_order, auto_sort, layout_config, created_at FROM profiles WHERE id = ?').get(profileId);
+  const updated = db.prepare('SELECT id, name, slug, emoji, color, type, is_favorite, sort_order, auto_sort, layout_config, created_at FROM profiles WHERE id = ?').get(profileId);
   res.json(updated);
+});
+
+profilesRouter.get('/:id/api-key', (req: Request, res: Response) => {
+  const row = getDb().prepare('SELECT api_key AS apiKey, slug FROM profiles WHERE id = ?').get(getId(req));
+  if (!row) {
+    res.status(404).json({ error: { message: 'Profile not found' } });
+    return;
+  }
+  res.json(row);
+});
+
+profilesRouter.post('/:id/api-key/regenerate', (req: Request, res: Response) => {
+  const id = getId(req);
+  if (!getDb().prepare('SELECT 1 FROM profiles WHERE id = ?').get(id)) {
+    res.status(404).json({ error: { message: 'Profile not found' } });
+    return;
+  }
+  const apiKey = `freellmapi-${crypto.randomBytes(24).toString('hex')}`;
+  getDb().prepare('UPDATE profiles SET api_key = ? WHERE id = ?').run(apiKey, id);
+  res.json({ apiKey });
 });
 
 // PUT /api/profiles/:id/reorder — update model order + enabled for a profile

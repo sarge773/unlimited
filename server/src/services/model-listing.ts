@@ -1,6 +1,8 @@
 import type { ModelListRow } from '@freellmapi/shared/types.js';
 import { getDb } from '../db/index.js';
 import { isUnifyEnabled, getModelGroups } from './model-groups.js';
+import { getProfileContext } from '../lib/profile-context.js';
+import { ensureAllModelsInProfiles } from './profile-models.js';
 
 // Shared catalog-listing logic behind both the OpenAI `GET /v1/models` and the
 // Anthropic `GET /v1/models` endpoints, so the two wire formats list the exact
@@ -40,6 +42,15 @@ export function buildModelListing(): ModelListing {
           AND (m.key_id IS NULL OR k.id = m.key_id)
       ) THEN 1 ELSE 0 END)`;
   const db = getDb();
+  // Catalog sync normally maintains these rows, but doing this at the read
+  // boundary also covers models added by integrations between sync cycles.
+  ensureAllModelsInProfiles(db);
+  const profile = getProfileContext();
+  const allowedIds = profile
+    ? new Set((db.prepare(
+      'SELECT model_db_id AS id FROM profile_models WHERE profile_id = ? AND enabled = 1',
+    ).all(profile.id) as { id: number }[]).map(row => row.id))
+    : null;
 
   let allListed: NormalizedModel[];
 
@@ -54,7 +65,9 @@ export function buildModelListing(): ModelListing {
     `).all() as AvailRow[];
     const byId = new Map(rows.map(r => [r.id, r]));
     allListed = getModelGroups().map(g => {
-      const infos = g.members.map(m => byId.get(m.model_db_id)).filter(Boolean) as AvailRow[];
+      const infos = g.members
+        .filter(m => !allowedIds || allowedIds.has(m.model_db_id))
+        .map(m => byId.get(m.model_db_id)).filter(Boolean) as AvailRow[];
       const ctxs = infos.map(i => i.context_window).filter((c): c is number => c != null);
       return {
         id: g.canonicalId,
@@ -85,7 +98,7 @@ export function buildModelListing(): ModelListing {
       )
       WHERE rn = 1
     `).all() as (ModelListRow & { intelligence_rank: number; id: number; supports_tools: number })[];
-    allListed = models.map(m => ({
+    allListed = models.filter(m => !allowedIds || allowedIds.has(m.id)).map(m => ({
       id: m.model_id, name: m.display_name, ownedBy: m.platform,
       available: m.available, enabled: m.enabled, contextWindow: m.context_window,
       intel: m.intelligence_rank,
@@ -93,6 +106,7 @@ export function buildModelListing(): ModelListing {
       supportsTools: m.supports_tools === 1,
     }));
   }
+  allListed = allListed.filter(model => model.platforms.length > 0);
 
   // Stable order: usable first, then enabled, then smartest, then name.
   allListed.sort((a, b) =>

@@ -11,10 +11,13 @@ import { DOCS_HTML } from '../docs/docs-page.js';
 // docs stay available and never consume a caller's request budget.
 export const docsRouter = Router();
 
-docsRouter.get('/openapi.json', (_req: Request, res: Response) => {
+docsRouter.get('/openapi.json', (req: Request, res: Response) => {
   // Long-cacheable: the spec only changes when the server binary does.
   res.setHeader('Cache-Control', 'public, max-age=3600');
-  res.json(openapiSpec);
+  res.json({
+    ...openapiSpec,
+    servers: [{ url: req.baseUrl, description: 'This API workspace' }],
+  });
 });
 
 docsRouter.get('/docs', (_req: Request, res: Response) => {

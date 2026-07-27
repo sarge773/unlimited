@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { toast } from '@/lib/toast'
-import { apiBaseUrl } from '@/components/api-usage'
+import { useApiBaseUrl } from '@/lib/api-url'
 import { COMMAND_PALETTE_EVENT } from '@/components/command-palette-state'
 import { useI18n } from '@/i18n'
 import type { FallbackEntry } from '@/lib/routing'
@@ -41,6 +41,7 @@ export function CommandPalette() {
   const { resolvedDark, setTheme } = useTheme()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const baseUrl = useApiBaseUrl()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const openRef = useRef(false)
@@ -135,7 +136,7 @@ export function CommandPalette() {
         keywords: 'copy base url endpoint',
         icon: Copy,
         run: () => {
-          void navigator.clipboard?.writeText(apiBaseUrl())
+          void navigator.clipboard?.writeText(baseUrl)
           toast.success(t('setup.copiedUrl'))
         },
       },
@@ -159,7 +160,7 @@ export function CommandPalette() {
       })
     }
     return [...pages, ...actions, ...models]
-  }, [entries, keyData, navigate, resolvedDark, setTheme, t])
+  }, [baseUrl, entries, keyData, navigate, resolvedDark, setTheme, t])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()

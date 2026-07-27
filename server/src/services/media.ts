@@ -8,10 +8,12 @@
 // published catalog and arrive via catalog-sync (premium on the live tier within
 // ~12h, free once each model is 30 days old) — never seeded by migrations.
 import { getDb } from '../db/index.js';
-import { getClientContext } from '../lib/client-context.js';
+import { getProfileContext } from '../lib/profile-context.js';
+import { logRequest } from '../lib/request-log.js';
 import { decrypt } from '../lib/crypto.js';
 import { proxyFetch } from '../lib/proxy.js';
 import { isOnCooldown, setCooldown } from './ratelimit.js';
+import { ensureMediaModelsInProfiles } from './profile-models.js';
 
 /** Platforms with a media adapter below. catalog-sync gates media rows on this
  *  (decoupled from the chat provider registry — e.g. SiliconFlow is media-only). */
@@ -164,6 +166,18 @@ function geminiVoice(requested?: string): string {
 const FETCH_TIMEOUT_MS = 60_000;
 
 export function listMediaModels(modality: MediaModality): MediaModelRow[] {
+  const profile = getProfileContext();
+  if (profile) {
+    ensureMediaModelsInProfiles(getDb());
+    return getDb().prepare(`
+      SELECT mm.id, mm.platform, mm.model_id, mm.display_name, mm.modality,
+             pmm.priority, pmm.enabled, mm.quota_label, mm.key_id, mm.meta_json
+      FROM media_models mm
+      JOIN profile_media_models pmm ON pmm.media_model_id = mm.id
+      WHERE pmm.profile_id = ? AND mm.modality = ? AND pmm.enabled = 1
+      ORDER BY pmm.priority, mm.id
+    `).all(profile.id, modality) as MediaModelRow[];
+  }
   return getDb()
     .prepare('SELECT * FROM media_models WHERE modality = ? AND enabled = 1 ORDER BY priority, id')
     .all(modality) as MediaModelRow[];
@@ -171,6 +185,18 @@ export function listMediaModels(modality: MediaModality): MediaModelRow[] {
 
 /** All media models (both modalities, including disabled) for the dashboard. */
 export function listAllMediaModels(): MediaModelRow[] {
+  const profile = getProfileContext();
+  if (profile) {
+    ensureMediaModelsInProfiles(getDb());
+    return getDb().prepare(`
+      SELECT mm.id, mm.platform, mm.model_id, mm.display_name, mm.modality,
+             pmm.priority, pmm.enabled, mm.quota_label, mm.key_id, mm.meta_json
+      FROM media_models mm
+      JOIN profile_media_models pmm ON pmm.media_model_id = mm.id
+      WHERE pmm.profile_id = ?
+      ORDER BY mm.modality, pmm.priority, mm.id
+    `).all(profile.id) as MediaModelRow[];
+  }
   return getDb()
     .prepare('SELECT * FROM media_models ORDER BY modality, priority, id')
     .all() as MediaModelRow[];
@@ -482,15 +508,10 @@ function resolveMediaChain(model: string | undefined, modality: MediaModality): 
 }
 
 function logMedia(row: Pick<MediaModelRow, 'platform' | 'model_id' | 'modality'>, keyId: number | null, status: 'success' | 'error', latencyMs: number, error: string | null): void {
-  try {
-    const client = getClientContext();
-    getDb()
-      .prepare(`INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, error, request_type, client_ip, client_user_agent)
-                VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?)`)
-      .run(row.platform, row.model_id, keyId, status, latencyMs, error, row.modality, client.ip, client.userAgent);
-  } catch (e) {
-    console.error('Failed to log media request:', e);
-  }
+  logRequest(
+    row.platform, row.model_id, keyId, status, 0, 0, latencyMs,
+    error, null, null, null, row.modality,
+  );
 }
 
 function chainError(modality: MediaModality, lastError: MediaError | null): MediaError {

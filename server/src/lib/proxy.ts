@@ -1,6 +1,8 @@
 import http from 'http';
 import https from 'https';
 import { assertProviderUrlAllowed } from './url-guard.js';
+import { getProfileContext } from './profile-context.js';
+import { getProfileSetting } from '../services/profile-settings.js';
 
 // undici (ProxyAgent) and socks-proxy-agent are lazy-loaded on first proxy use
 // ONLY. Importing undici at module top-level eagerly runs its web/cache init,
@@ -56,7 +58,7 @@ export function applyProxyUrl(dbValue: string): void {
 }
 
 export function getProxyUrl(): string {
-  return _proxyUrl;
+  return runtimeProxyConfig().proxyUrl;
 }
 
 /** Toggle the proxy on/off without losing the URL. */
@@ -66,7 +68,7 @@ export function applyProxyEnabled(enabled: boolean): void {
 }
 
 export function isProxyEnabled(): boolean {
-  return _proxyEnabled;
+  return runtimeProxyConfig().enabled;
 }
 
 /** Set which platforms bypass the proxy. Comma-separated string from DB. */
@@ -83,16 +85,43 @@ export function applyProxyBypass(platformsCsv: string): void {
 }
 
 export function getProxyBypassPlatforms(): string[] {
-  return [..._bypassPlatforms];
+  return [...runtimeProxyConfig().bypassPlatforms];
+}
+
+function runtimeProxyConfig(): {
+  proxyUrl: string;
+  enabled: boolean;
+  bypassPlatforms: Set<string>;
+} {
+  if (!getProfileContext()) {
+    return {
+      proxyUrl: _proxyUrl,
+      enabled: _proxyEnabled,
+      bypassPlatforms: _bypassPlatforms,
+    };
+  }
+  const envUrl = process.env.PROXY_URL?.trim();
+  const proxyUrl = envUrl || (getProfileSetting('proxy_url') ?? '').trim();
+  const enabled = getProfileSetting('proxy_enabled') !== '0';
+  const bypassPlatforms = new Set(
+    (getProfileSetting('proxy_bypass') ?? '')
+      .split(',')
+      .map(value => value.trim().toLowerCase())
+      .filter(Boolean),
+  );
+  return { proxyUrl, enabled, bypassPlatforms };
 }
 
 /**
  * Returns true when a platform should NOT use the proxy.
  * True when: proxy is disabled globally, or the platform is in the bypass list.
  */
-function shouldBypassProxy(platform?: string): boolean {
-  if (!_proxyEnabled) return true;
-  if (platform && _bypassPlatforms.has(platform.toLowerCase())) return true;
+function shouldBypassProxy(
+  config: ReturnType<typeof runtimeProxyConfig>,
+  platform?: string,
+): boolean {
+  if (!config.enabled) return true;
+  if (platform && config.bypassPlatforms.has(platform.toLowerCase())) return true;
   return false;
 }
 
@@ -100,38 +129,38 @@ function shouldBypassProxy(platform?: string): boolean {
  * Resolve the proxy dispatcher. For SOCKS schemes this returns a
  * SocksProxyAgent; for HTTP/HTTPS it returns an undici ProxyAgent.
  */
-async function resolveDispatcher(): Promise<{ dispatcher: unknown; isSocks: boolean } | undefined> {
+async function resolveDispatcher(proxyUrl: string): Promise<{ dispatcher: unknown; isSocks: boolean } | undefined> {
   const now = Date.now();
 
-  if (cached && (now - cached.ts) < CACHE_TTL_MS) {
+  if (cached && cached.proxyUrl === proxyUrl && (now - cached.ts) < CACHE_TTL_MS) {
     return cached.dispatcher ? { dispatcher: cached.dispatcher, isSocks: cached.isSocks } : undefined;
   }
 
   if (!_initialized) applyProxyUrl('');
 
-  if (!_proxyUrl) {
+  if (!proxyUrl) {
     cached = { dispatcher: undefined, proxyUrl: '', isSocks: false, ts: now };
     return undefined;
   }
 
   try {
-    const isSocks = _proxyUrl.startsWith('socks5:') || _proxyUrl.startsWith('socks4:');
+    const isSocks = proxyUrl.startsWith('socks5:') || proxyUrl.startsWith('socks4:');
 
     if (isSocks) {
       const SocksAgent = await loadSocksAgent();
-      const dispatcher = new SocksAgent(_proxyUrl);
-      cached = { dispatcher, proxyUrl: _proxyUrl, isSocks: true, ts: now };
+      const dispatcher = new SocksAgent(proxyUrl);
+      cached = { dispatcher, proxyUrl, isSocks: true, ts: now };
       return { dispatcher, isSocks: true };
     }
 
     const ProxyAgentCtor = await loadHttpProxyAgent();
-    const dispatcher = new ProxyAgentCtor({ uri: _proxyUrl });
-    cached = { dispatcher, proxyUrl: _proxyUrl, isSocks: false, ts: now };
+    const dispatcher = new ProxyAgentCtor({ uri: proxyUrl });
+    cached = { dispatcher, proxyUrl, isSocks: false, ts: now };
     return { dispatcher, isSocks: false };
   } catch (err: any) {
-    const masked = _proxyUrl.replace(/\/\/[^@]*@/, '//***@');
+    const masked = proxyUrl.replace(/\/\/[^@]*@/, '//***@');
     console.error(`[proxy] Failed to create dispatcher for "${masked}": ${err.message}`);
-    cached = { dispatcher: undefined, proxyUrl: _proxyUrl, isSocks: false, ts: now };
+    cached = { dispatcher: undefined, proxyUrl, isSocks: false, ts: now };
     return undefined;
   }
 }
@@ -379,12 +408,13 @@ async function dispatchFetch(
   requestType: ProxyRequestType,
   timeoutMs: number | undefined,
 ): Promise<Response> {
+  const config = runtimeProxyConfig();
   // Bypass check: disabled globally, or this platform is exempt.
-  if (shouldBypassProxy(platform)) {
+  if (shouldBypassProxy(config, platform)) {
     return fetch(url, init);
   }
 
-  const resolved = await resolveDispatcher();
+  const resolved = await resolveDispatcher(config.proxyUrl);
 
   // No dispatcher (no proxy URL configured, or it failed to build) → direct
   if (!resolved) {
@@ -408,7 +438,8 @@ async function dispatchFetch(
  */
 export function isProxyActive(): boolean {
   if (!_initialized) applyProxyUrl('');
-  return _proxyEnabled && !!_proxyUrl;
+  const config = runtimeProxyConfig();
+  return config.enabled && !!config.proxyUrl;
 }
 
 /** Force-rebuild the outbound connection pools on the next request. Called on

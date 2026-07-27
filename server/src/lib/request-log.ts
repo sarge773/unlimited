@@ -2,6 +2,7 @@ import { getDb } from '../db/index.js';
 import { pruneRequestAnalytics } from '../services/request-retention.js';
 import { getClientContext } from './client-context.js';
 import { noteRequestRowId, type RequestTrace } from './attempt-trace.js';
+import { getProfileContext } from './profile-context.js';
 
 type LogTx = ReturnType<typeof getDb>;
 
@@ -44,7 +45,7 @@ function setSettingIfMissing(db: LogTx, key: string, value: string): void {
 export function logRequest(
   platform: string,
   modelId: string,
-  keyId: number,
+  keyId: number | null,
   status: string,
   inputTokens: number,
   outputTokens: number,
@@ -60,17 +61,19 @@ export function logRequest(
   // lib/served-model.ts). NULL when it matches or the provider reported
   // nothing usable, so the column stays empty in the healthy case.
   servedModel: string | null = null,
+  requestType: 'chat' | 'embedding' | 'image' | 'audio' | 'transcription' = 'chat',
 ) {
   try {
     const db = getDb();
     // Caller identity from the request-scoped context (set by the express
     // middleware); null when logging happens outside an HTTP request.
     const client = getClientContext();
+    const profile = getProfileContext();
     const tx = db.transaction(() => {
       const insert = db.prepare(`
-        INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, error, ttfb_ms, requested_model, served_model, client_ip, client_user_agent)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(platform, modelId, keyId, status, inputTokens, outputTokens, latencyMs, error, ttfbMs, requestedModel, servedModel, client.ip, client.userAgent);
+        INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, error, ttfb_ms, requested_model, served_model, request_type, client_ip, client_user_agent, profile_id, profile_slug)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(platform, modelId, keyId, status, inputTokens, outputTokens, latencyMs, error, ttfbMs, requestedModel, servedModel, requestType, client.ip, client.userAgent, profile?.id ?? null, profile?.slug ?? null);
 
       // Report the row id back to the fallback loop's attempt trace (if one is
       // active): the LAST id noted during a loop run is the terminal row the
@@ -82,16 +85,32 @@ export function logRequest(
       const isSuccess = status === 'success' ? 1 : 0;
       const isError = status === 'error' ? 1 : 0;
 
-      db.prepare(`
-        INSERT INTO request_hourly (hour, total_requests, success_count, error_count, input_tokens, output_tokens)
-        VALUES (?, 1, ?, ?, ?, ?)
-        ON CONFLICT(hour) DO UPDATE SET
-          total_requests = total_requests + 1,
-          success_count  = success_count + ?,
-          error_count    = error_count + ?,
-          input_tokens   = input_tokens + ?,
-          output_tokens  = output_tokens + ?
-      `).run(hour, isSuccess, isError, inputTokens, outputTokens, isSuccess, isError, inputTokens, outputTokens);
+      if (!profile || profile.isDefault) {
+        // The migration's trigger mirrors this legacy aggregate into Default's
+        // profile aggregate, preserving compatibility with older writers.
+        db.prepare(`
+          INSERT INTO request_hourly (hour, total_requests, success_count, error_count, input_tokens, output_tokens)
+          VALUES (?, 1, ?, ?, ?, ?)
+          ON CONFLICT(hour) DO UPDATE SET
+            total_requests = total_requests + 1,
+            success_count  = success_count + ?,
+            error_count    = error_count + ?,
+            input_tokens   = input_tokens + ?,
+            output_tokens  = output_tokens + ?
+        `).run(hour, isSuccess, isError, inputTokens, outputTokens, isSuccess, isError, inputTokens, outputTokens);
+      } else {
+        db.prepare(`
+          INSERT INTO profile_request_hourly
+            (hour, profile_id, total_requests, success_count, error_count, input_tokens, output_tokens)
+          VALUES (?, ?, 1, ?, ?, ?, ?)
+          ON CONFLICT(hour, profile_id) DO UPDATE SET
+            total_requests = total_requests + 1,
+            success_count  = success_count + ?,
+            error_count    = error_count + ?,
+            input_tokens   = input_tokens + ?,
+            output_tokens  = output_tokens + ?
+        `).run(hour, profile.id, isSuccess, isError, inputTokens, outputTokens, isSuccess, isError, inputTokens, outputTokens);
+      }
 
       incrementSetting(db, 'total_requests', 1);
       incrementSetting(db, 'total_input_tokens', inputTokens);
