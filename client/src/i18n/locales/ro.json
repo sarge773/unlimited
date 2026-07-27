@@ -77,7 +77,22 @@
     "themeLight": "Luminos",
     "themeDark": "Întunecat",
     "searchLanguage": "Căutați limbi…",
-    "noLanguages": "Nicio limbă găsită"
+    "noLanguages": "Nicio limbă găsită",
+    "compressionTitle": "Comprimarea prompturilor",
+    "compressionDescription": "Reduce dimensiunea cererilor înainte de rutare, păstrând codul, erorile, căile, numerele și definițiile instrumentelor.",
+    "compressionOff": "Dezactivată",
+    "compressionLossless": "Fără pierderi",
+    "compressionStandard": "Standard",
+    "compressionAggressive": "Agresivă",
+    "compressionEngines": "Motoare",
+    "compressionAutoTrigger": "Declanșare automată peste tokenurile estimate",
+    "compressionPrefixFreeze": "Îngheață prefixele de prompt recurente",
+    "compressionTrustProjectFilters": "Ai încredere în fișierele de filtru ale proiectului",
+    "compressionStats": "dimensiune economisită",
+    "compressionEstimatedTokensSaved": "tokenuri estimate economisite",
+    "compressionPreview": "Previzualizare live",
+    "compressionPreviewPlaceholder": "Lipește JSON-ul cererii sau text simplu",
+    "compressionRunPreview": "Rulează previzualizarea"
   },
   "models": {
     "title": "Modele",

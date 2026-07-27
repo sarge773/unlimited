@@ -77,7 +77,22 @@
     "themeLight": "Yorugʻ",
     "themeDark": "Qorong'i",
     "searchLanguage": "Tillarni qidirish…",
-    "noLanguages": "Hech qanday til topilmadi"
+    "noLanguages": "Hech qanday til topilmadi",
+    "compressionTitle": "Promptni siqish",
+    "compressionDescription": "Kod, xatolar, yo'llar, raqamlar va vosita ta'riflarini saqlagan holda marshrutlashdan oldin so'rov hajmini kamaytiring.",
+    "compressionOff": "O'chirilgan",
+    "compressionLossless": "Yo'qotishsiz",
+    "compressionStandard": "Standart",
+    "compressionAggressive": "Agressiv",
+    "compressionEngines": "Mexanizmlar",
+    "compressionAutoTrigger": "Taxminiy tokenlardan oshganda avtomatik ishga tushirish",
+    "compressionPrefixFreeze": "Takrorlanuvchi prompt prefikslarini muzlatish",
+    "compressionTrustProjectFilters": "Loyiha filtri fayllariga ishonish",
+    "compressionStats": "tejalgan hajm",
+    "compressionEstimatedTokensSaved": "taxminiy tejalgan tokenlar",
+    "compressionPreview": "Jonli oldindan ko'rish",
+    "compressionPreviewPlaceholder": "So'rov JSON yoki oddiy matnni joylashtiring",
+    "compressionRunPreview": "Oldindan ko'rishni ishga tushirish"
   },
   "models": {
     "title": "Modellar",

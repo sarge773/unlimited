@@ -77,7 +77,22 @@
     "themeLight": "בהיר",
     "themeDark": "כהה",
     "searchLanguage": "חיפוש שפות...",
-    "noLanguages": "לא נמצאו שפות"
+    "noLanguages": "לא נמצאו שפות",
+    "compressionTitle": "דחיסת פרומפטים",
+    "compressionDescription": "הקטנת גודל הבקשה לפני הניתוב תוך שמירה על קוד, שגיאות, נתיבים, מספרים והגדרות כלים.",
+    "compressionOff": "כבוי",
+    "compressionLossless": "ללא אובדן",
+    "compressionStandard": "רגיל",
+    "compressionAggressive": "אגרסיבי",
+    "compressionEngines": "מנועים",
+    "compressionAutoTrigger": "הפעלה אוטומטית מעל אומדן טוקנים",
+    "compressionPrefixFreeze": "הקפאת קידומות פרומפט חוזרות",
+    "compressionTrustProjectFilters": "בטח בקובצי הסינון של הפרויקט",
+    "compressionStats": "חיסכון בגודל",
+    "compressionEstimatedTokensSaved": "אומדן טוקנים שנחסכו",
+    "compressionPreview": "תצוגה מקדימה חיה",
+    "compressionPreviewPlaceholder": "הדבק JSON של בקשה או טקסט רגיל",
+    "compressionRunPreview": "הרץ תצוגה מקדימה"
   },
   "models": {
     "title": "דגמים",

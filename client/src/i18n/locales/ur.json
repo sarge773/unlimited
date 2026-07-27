@@ -77,7 +77,22 @@
     "themeLight": "روشن",
     "themeDark": "گہرا",
     "searchLanguage": "زبانیں تلاش کریں…",
-    "noLanguages": "کوئی زبانیں نہیں ملی"
+    "noLanguages": "کوئی زبانیں نہیں ملی",
+    "compressionTitle": "پرامپٹ کمپریشن",
+    "compressionDescription": "کوڈ، ایررز، پاتھز، نمبرز اور ٹول ڈیفینیشنز کو محفوظ رکھتے ہوئے روٹنگ سے پہلے درخواست کا سائز کم کریں۔",
+    "compressionOff": "بند",
+    "compressionLossless": "بغیر نقصان",
+    "compressionStandard": "معیاری",
+    "compressionAggressive": "جارحانہ",
+    "compressionEngines": "انجن",
+    "compressionAutoTrigger": "تخمینی ٹوکنز سے زیادہ پر خودکار ٹرگر",
+    "compressionPrefixFreeze": "بار بار آنے والے پرامپٹ پری فکسز کو منجمد کریں",
+    "compressionTrustProjectFilters": "پروجیکٹ فلٹر فائلوں پر اعتماد کریں",
+    "compressionStats": "سائز کی بچت",
+    "compressionEstimatedTokensSaved": "تخمینی ٹوکنز کی بچت",
+    "compressionPreview": "لائیو پیش منظر",
+    "compressionPreviewPlaceholder": "درخواست کا JSON یا سادہ متن پیسٹ کریں",
+    "compressionRunPreview": "پیش منظر چلائیں"
   },
   "models": {
     "title": "ماڈلز",

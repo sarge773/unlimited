@@ -77,7 +77,22 @@
     "themeLight": "Svijetla",
     "themeDark": "Tamna",
     "searchLanguage": "Pretraži jezike...",
-    "noLanguages": "Nema pronađenih jezika"
+    "noLanguages": "Nema pronađenih jezika",
+    "compressionTitle": "Kompresija promptova",
+    "compressionDescription": "Smanjite veličinu zahtjeva prije usmjeravanja uz očuvanje koda, grešaka, putanja, brojeva i definicija alata.",
+    "compressionOff": "Isključeno",
+    "compressionLossless": "Bez gubitaka",
+    "compressionStandard": "Standardno",
+    "compressionAggressive": "Agresivno",
+    "compressionEngines": "Mehanizmi",
+    "compressionAutoTrigger": "Automatski pokreni iznad procijenjenih tokena",
+    "compressionPrefixFreeze": "Zamrzni ponavljajuće prefikse promptova",
+    "compressionTrustProjectFilters": "Vjeruj datotekama filtara projekta",
+    "compressionStats": "ušteda veličine",
+    "compressionEstimatedTokensSaved": "procijenjena ušteda tokena",
+    "compressionPreview": "Pregled uživo",
+    "compressionPreviewPlaceholder": "Zalijepite JSON zahtjeva ili običan tekst",
+    "compressionRunPreview": "Pokreni pregled"
   },
   "models": {
     "title": "Modeli",

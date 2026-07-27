@@ -77,7 +77,22 @@
     "themeLight": "روشن",
     "themeDark": "تیره",
     "searchLanguage": "جستجوی زبان‌ها…",
-    "noLanguages": "هیچ زبانی یافت نشد"
+    "noLanguages": "هیچ زبانی یافت نشد",
+    "compressionTitle": "فشرده‌سازی پرامپت",
+    "compressionDescription": "حجم درخواست را قبل از مسیریابی کاهش دهید و در عین حال کد، خطاها، مسیرها، اعداد و تعاریف ابزار حفظ شوند.",
+    "compressionOff": "خاموش",
+    "compressionLossless": "بدون اتلاف",
+    "compressionStandard": "استاندارد",
+    "compressionAggressive": "تهاجمی",
+    "compressionEngines": "موتورها",
+    "compressionAutoTrigger": "فعال‌سازی خودکار بالاتر از توکن‌های تخمینی",
+    "compressionPrefixFreeze": "ثابت نگه داشتن پیشوندهای تکراری پرامپت",
+    "compressionTrustProjectFilters": "اعتماد به فایل‌های فیلتر پروژه",
+    "compressionStats": "حجم صرفه‌جویی‌شده",
+    "compressionEstimatedTokensSaved": "توکن‌های تخمینی صرفه‌جویی‌شده",
+    "compressionPreview": "پیش‌نمایش زنده",
+    "compressionPreviewPlaceholder": "JSON درخواست یا متن ساده را جای‌گذاری کنید",
+    "compressionRunPreview": "اجرای پیش‌نمایش"
   },
   "models": {
     "title": "مدل ها",

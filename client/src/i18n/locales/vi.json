@@ -77,7 +77,22 @@
     "themeLight": "Sáng",
     "themeDark": "Tối",
     "searchLanguage": "Tìm kiếm ngôn ngữ…",
-    "noLanguages": "Không tìm thấy ngôn ngữ nào"
+    "noLanguages": "Không tìm thấy ngôn ngữ nào",
+    "compressionTitle": "Nén lời nhắc",
+    "compressionDescription": "Giảm kích thước yêu cầu trước khi định tuyến trong khi vẫn giữ nguyên mã, lỗi, đường dẫn, số và định nghĩa công cụ.",
+    "compressionOff": "Tắt",
+    "compressionLossless": "Không mất dữ liệu",
+    "compressionStandard": "Tiêu chuẩn",
+    "compressionAggressive": "Mạnh",
+    "compressionEngines": "Bộ máy nén",
+    "compressionAutoTrigger": "Tự động kích hoạt khi vượt số mã thông báo ước tính",
+    "compressionPrefixFreeze": "Cố định tiền tố lời nhắc lặp lại",
+    "compressionTrustProjectFilters": "Tin cậy tệp bộ lọc của dự án",
+    "compressionStats": "kích thước tiết kiệm",
+    "compressionEstimatedTokensSaved": "mã thông báo ước tính đã tiết kiệm",
+    "compressionPreview": "Xem trước trực tiếp",
+    "compressionPreviewPlaceholder": "Dán JSON yêu cầu hoặc văn bản thuần",
+    "compressionRunPreview": "Chạy xem trước"
   },
   "models": {
     "title": "Người mẫu",

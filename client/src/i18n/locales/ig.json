@@ -77,7 +77,22 @@
     "themeLight": "Ìhè",
     "themeDark": "Ọchịchịrị",
     "searchLanguage": "Chọọ asụsụ…",
-    "noLanguages": "Ọnweghị asụsụ ahụrụ"
+    "noLanguages": "Ọnweghị asụsụ ahụrụ",
+    "compressionTitle": "Mpịkọta prompt",
+    "compressionDescription": "Belata nha arịrịọ tupu ntụzịaka ma na-echekwa koodu, njehie, ụzọ, ọnụọgụgụ, na nkọwa ngwaọrụ.",
+    "compressionOff": "Gbanyụọ",
+    "compressionLossless": "Enweghị mfu",
+    "compressionStandard": "Ọkọlọtọ",
+    "compressionAggressive": "Nke siri ike",
+    "compressionEngines": "Injin",
+    "compressionAutoTrigger": "Malite onwe ya mgbe token atụmatụ gafere",
+    "compressionPrefixFreeze": "Jigide mmalite prompt na-eme ugboro ugboro",
+    "compressionTrustProjectFilters": "Tụkwasị obi na faịlụ nzacha nke ọrụ ngo",
+    "compressionStats": "nha echekwara",
+    "compressionEstimatedTokensSaved": "token atụmatụ echekwara",
+    "compressionPreview": "Nlele ozugbo",
+    "compressionPreviewPlaceholder": "Tinye JSON arịrịọ ma ọ bụ ederede nkịtị",
+    "compressionRunPreview": "Mee nlele"
   },
   "models": {
     "title": "Ụdị",

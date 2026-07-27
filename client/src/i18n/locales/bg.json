@@ -77,7 +77,22 @@
     "themeLight": "Светла",
     "themeDark": "Тъмна",
     "searchLanguage": "Търсене на езици…",
-    "noLanguages": "Няма намерени езици"
+    "noLanguages": "Няма намерени езици",
+    "compressionTitle": "Компресия на промпта",
+    "compressionDescription": "Намалете размера на заявката преди маршрутизиране, като запазите код, грешки, пътища, числа и дефиниции на инструменти.",
+    "compressionOff": "Изкл.",
+    "compressionLossless": "Без загуби",
+    "compressionStandard": "Стандартно",
+    "compressionAggressive": "Агресивно",
+    "compressionEngines": "Механизми",
+    "compressionAutoTrigger": "Автоматично задействане над прогнозния брой жетони",
+    "compressionPrefixFreeze": "Замразяване на повтарящи се префикси на промпта",
+    "compressionTrustProjectFilters": "Доверяване на файловете с филтри на проекта",
+    "compressionStats": "спестен размер",
+    "compressionEstimatedTokensSaved": "прогнозно спестени жетони",
+    "compressionPreview": "Преглед на живо",
+    "compressionPreviewPlaceholder": "Поставете JSON на заявка или обикновен текст",
+    "compressionRunPreview": "Изпълни преглед"
   },
   "models": {
     "title": "Модели",

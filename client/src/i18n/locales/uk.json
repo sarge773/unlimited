@@ -77,7 +77,22 @@
     "themeLight": "Світла",
     "themeDark": "Темна",
     "searchLanguage": "Пошук мов…",
-    "noLanguages": "Мови не знайдено"
+    "noLanguages": "Мови не знайдено",
+    "compressionTitle": "Стиснення підказок",
+    "compressionDescription": "Зменшуйте розмір запиту перед маршрутизацією, зберігаючи код, помилки, шляхи, числа та визначення інструментів.",
+    "compressionOff": "Вимкнено",
+    "compressionLossless": "Без втрат",
+    "compressionStandard": "Стандартний",
+    "compressionAggressive": "Агресивний",
+    "compressionEngines": "Рушії",
+    "compressionAutoTrigger": "Автозапуск понад оцінену кількість токенів",
+    "compressionPrefixFreeze": "Заморожувати повторювані префікси підказок",
+    "compressionTrustProjectFilters": "Довіряти файлам фільтрів проєкту",
+    "compressionStats": "збережено розміру",
+    "compressionEstimatedTokensSaved": "орієнтовно збережено токенів",
+    "compressionPreview": "Попередній перегляд наживо",
+    "compressionPreviewPlaceholder": "Вставте JSON запиту або звичайний текст",
+    "compressionRunPreview": "Запустити перегляд"
   },
   "models": {
     "title": "Моделі",

@@ -77,7 +77,22 @@
     "themeLight": "Maliwanag",
     "themeDark": "Madilim",
     "searchLanguage": "Maghanap ng mga wika...",
-    "noLanguages": "Walang natagpuang wika"
+    "noLanguages": "Walang natagpuang wika",
+    "compressionTitle": "Compression ng prompt",
+    "compressionDescription": "Bawasan ang laki ng request bago ang routing habang pinapanatili ang code, mga error, path, numero, at tool definition.",
+    "compressionOff": "Naka-off",
+    "compressionLossless": "Lossless",
+    "compressionStandard": "Standard",
+    "compressionAggressive": "Agresibo",
+    "compressionEngines": "Mga engine",
+    "compressionAutoTrigger": "Awtomatikong i-trigger kapag lumagpas sa tinatayang token",
+    "compressionPrefixFreeze": "I-freeze ang paulit-ulit na prompt prefix",
+    "compressionTrustProjectFilters": "Pagkatiwalaan ang mga filter file ng proyekto",
+    "compressionStats": "laki na natipid",
+    "compressionEstimatedTokensSaved": "tinatayang token na natipid",
+    "compressionPreview": "Live preview",
+    "compressionPreviewPlaceholder": "I-paste ang request JSON o plain text",
+    "compressionRunPreview": "Patakbuhin ang preview"
   },
   "models": {
     "title": "Mga Modelo",

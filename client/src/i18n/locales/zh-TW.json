@@ -77,7 +77,22 @@
     "themeLight": "淺色",
     "themeDark": "深色",
     "searchLanguage": "搜尋語言…",
-    "noLanguages": "找不到語言"
+    "noLanguages": "找不到語言",
+    "compressionTitle": "提示壓縮",
+    "compressionDescription": "在路由前縮減請求大小，同時保留程式碼、錯誤、路徑、數字與工具定義。",
+    "compressionOff": "關閉",
+    "compressionLossless": "無損",
+    "compressionStandard": "標準",
+    "compressionAggressive": "積極",
+    "compressionEngines": "引擎",
+    "compressionAutoTrigger": "超過預估代幣數時自動觸發",
+    "compressionPrefixFreeze": "凍結重複出現的提示前綴",
+    "compressionTrustProjectFilters": "信任專案篩選檔案",
+    "compressionStats": "節省的大小",
+    "compressionEstimatedTokensSaved": "預估節省的代幣數",
+    "compressionPreview": "即時預覽",
+    "compressionPreviewPlaceholder": "貼上請求 JSON 或純文字",
+    "compressionRunPreview": "執行預覽"
   },
   "models": {
     "title": "型號",

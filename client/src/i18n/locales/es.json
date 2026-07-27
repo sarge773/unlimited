@@ -77,7 +77,22 @@
     "themeLight": "Claro",
     "themeDark": "Oscuro",
     "searchLanguage": "Buscar idiomas…",
-    "noLanguages": "No se encontraron idiomas"
+    "noLanguages": "No se encontraron idiomas",
+    "compressionTitle": "Compresión de prompts",
+    "compressionDescription": "Reduce el tamaño de la solicitud antes del enrutamiento, preservando código, errores, rutas, números y definiciones de herramientas.",
+    "compressionOff": "Desactivada",
+    "compressionLossless": "Sin pérdidas",
+    "compressionStandard": "Estándar",
+    "compressionAggressive": "Agresiva",
+    "compressionEngines": "Motores",
+    "compressionAutoTrigger": "Activar automáticamente por encima de los tokens estimados",
+    "compressionPrefixFreeze": "Congelar prefijos de prompt recurrentes",
+    "compressionTrustProjectFilters": "Confiar en los archivos de filtro del proyecto",
+    "compressionStats": "tamaño ahorrado",
+    "compressionEstimatedTokensSaved": "tokens estimados ahorrados",
+    "compressionPreview": "Vista previa en vivo",
+    "compressionPreviewPlaceholder": "Pega JSON de la solicitud o texto sin formato",
+    "compressionRunPreview": "Ejecutar vista previa"
   },
   "models": {
     "title": "Modelos",

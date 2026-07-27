@@ -77,7 +77,22 @@
     "themeLight": "فاتح",
     "themeDark": "داكن",
     "searchLanguage": "البحث عن اللغات…",
-    "noLanguages": "لم يتم العثور على لغات"
+    "noLanguages": "لم يتم العثور على لغات",
+    "compressionTitle": "ضغط الموجه",
+    "compressionDescription": "تقليل حجم الطلب قبل التوجيه مع الحفاظ على الكود والأخطاء والمسارات والأرقام وتعريفات الأدوات.",
+    "compressionOff": "إيقاف",
+    "compressionLossless": "بدون فقد",
+    "compressionStandard": "قياسي",
+    "compressionAggressive": "مكثف",
+    "compressionEngines": "المحركات",
+    "compressionAutoTrigger": "تشغيل تلقائي عند تجاوز الرموز المقدرة",
+    "compressionPrefixFreeze": "تثبيت بادئات الموجه المتكررة",
+    "compressionTrustProjectFilters": "الوثوق بملفات تصفية المشروع",
+    "compressionStats": "الحجم الموفر",
+    "compressionEstimatedTokensSaved": "رموز مقدرة تم توفيرها",
+    "compressionPreview": "معاينة مباشرة",
+    "compressionPreviewPlaceholder": "الصق JSON الطلب أو نصًا عاديًا",
+    "compressionRunPreview": "تشغيل المعاينة"
   },
   "models": {
     "title": "نماذج",

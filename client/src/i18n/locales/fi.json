@@ -77,7 +77,22 @@
     "themeLight": "Vaalea",
     "themeDark": "Tumma",
     "searchLanguage": "Hae kieliä…",
-    "noLanguages": "Kieliä ei löytynyt"
+    "noLanguages": "Kieliä ei löytynyt",
+    "compressionTitle": "Promptien pakkaus",
+    "compressionDescription": "Pienennä pyynnön kokoa ennen reititystä säilyttäen koodin, virheet, polut, numerot ja työkalumääritykset.",
+    "compressionOff": "Pois",
+    "compressionLossless": "Häviötön",
+    "compressionStandard": "Vakio",
+    "compressionAggressive": "Aggressiivinen",
+    "compressionEngines": "Moottorit",
+    "compressionAutoTrigger": "Käynnistä automaattisesti arvioitujen tokenien ylittyessä",
+    "compressionPrefixFreeze": "Jäädytä toistuvat prompt-etuliitteet",
+    "compressionTrustProjectFilters": "Luota projektin suodatintiedostoihin",
+    "compressionStats": "säästetty koko",
+    "compressionEstimatedTokensSaved": "arviolta säästetyt tokenit",
+    "compressionPreview": "Live-esikatselu",
+    "compressionPreviewPlaceholder": "Liitä pyynnön JSON tai pelkkä teksti",
+    "compressionRunPreview": "Suorita esikatselu"
   },
   "models": {
     "title": "Mallit",

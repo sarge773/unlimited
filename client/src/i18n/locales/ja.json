@@ -77,7 +77,22 @@
     "themeLight": "ライト",
     "themeDark": "ダーク",
     "searchLanguage": "言語を検索…",
-    "noLanguages": "言語が見つかりません"
+    "noLanguages": "言語が見つかりません",
+    "compressionTitle": "プロンプト圧縮",
+    "compressionDescription": "コード、エラー、パス、数値、ツール定義を保持したまま、ルーティング前にリクエストサイズを削減します。",
+    "compressionOff": "オフ",
+    "compressionLossless": "ロスレス",
+    "compressionStandard": "標準",
+    "compressionAggressive": "アグレッシブ",
+    "compressionEngines": "エンジン",
+    "compressionAutoTrigger": "推定トークン数を超えたら自動実行",
+    "compressionPrefixFreeze": "繰り返されるプロンプトの接頭辞を固定",
+    "compressionTrustProjectFilters": "プロジェクトのフィルターファイルを信頼",
+    "compressionStats": "サイズ削減",
+    "compressionEstimatedTokensSaved": "推定削減トークン数",
+    "compressionPreview": "ライブプレビュー",
+    "compressionPreviewPlaceholder": "リクエストのJSONまたはプレーンテキストを貼り付け",
+    "compressionRunPreview": "プレビューを実行"
   },
   "models": {
     "title": "モデル",

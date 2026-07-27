@@ -77,7 +77,22 @@
     "themeLight": "Lys",
     "themeDark": "Mørk",
     "searchLanguage": "Søg efter sprog…",
-    "noLanguages": "Ingen sprog fundet"
+    "noLanguages": "Ingen sprog fundet",
+    "compressionTitle": "Promptkomprimering",
+    "compressionDescription": "Reducer forespørgslens størrelse før routing, mens kode, fejl, stier, tal og værktøjsdefinitioner bevares.",
+    "compressionOff": "Fra",
+    "compressionLossless": "Tabsfri",
+    "compressionStandard": "Standard",
+    "compressionAggressive": "Aggressiv",
+    "compressionEngines": "Motorer",
+    "compressionAutoTrigger": "Aktivér automatisk over estimerede tokens",
+    "compressionPrefixFreeze": "Frys tilbagevendende promptpræfikser",
+    "compressionTrustProjectFilters": "Stol på projektets filterfiler",
+    "compressionStats": "størrelse sparet",
+    "compressionEstimatedTokensSaved": "estimerede tokens sparet",
+    "compressionPreview": "Live-forhåndsvisning",
+    "compressionPreviewPlaceholder": "Indsæt forespørgsels-JSON eller almindelig tekst",
+    "compressionRunPreview": "Kør forhåndsvisning"
   },
   "models": {
     "title": "Modeller",

@@ -77,7 +77,22 @@
     "themeLight": "Šviesi",
     "themeDark": "Tamsi",
     "searchLanguage": "Ieškoti kalbų…",
-    "noLanguages": "Kalbų nerasta"
+    "noLanguages": "Kalbų nerasta",
+    "compressionTitle": "Raginimų (prompt) suspaudimas",
+    "compressionDescription": "Sumažinkite užklausos dydį prieš maršrutizavimą, išsaugant kodą, klaidas, kelius, skaičius ir įrankių apibrėžimus.",
+    "compressionOff": "Išjungta",
+    "compressionLossless": "Be nuostolių",
+    "compressionStandard": "Standartinis",
+    "compressionAggressive": "Agresyvus",
+    "compressionEngines": "Varikliai",
+    "compressionAutoTrigger": "Automatiškai įjungti viršijus numatomus žetonus",
+    "compressionPrefixFreeze": "Užšaldyti pasikartojančius raginimų prefiksus",
+    "compressionTrustProjectFilters": "Pasitikėti projekto filtrų failais",
+    "compressionStats": "sutaupyta dydžio",
+    "compressionEstimatedTokensSaved": "numatoma sutaupytų žetonų",
+    "compressionPreview": "Tiesioginė peržiūra",
+    "compressionPreviewPlaceholder": "Įklijuokite užklausos JSON arba paprastą tekstą",
+    "compressionRunPreview": "Vykdyti peržiūrą"
   },
   "models": {
     "title": "Modeliai",

@@ -77,7 +77,22 @@
     "themeLight": "Светла",
     "themeDark": "Тамна",
     "searchLanguage": "Претражи језике…",
-    "noLanguages": "Ниједан језик није пронађен"
+    "noLanguages": "Ниједан језик није пронађен",
+    "compressionTitle": "Компресија промптова",
+    "compressionDescription": "Смањује величину захтева пре рутирања, уз очување кода, грешака, путања, бројева и дефиниција алата.",
+    "compressionOff": "Искључено",
+    "compressionLossless": "Без губитака",
+    "compressionStandard": "Стандардно",
+    "compressionAggressive": "Агресивно",
+    "compressionEngines": "Механизми",
+    "compressionAutoTrigger": "Аутоматско покретање изнад процењених токена",
+    "compressionPrefixFreeze": "Замрзни понављајуће префиксе промптова",
+    "compressionTrustProjectFilters": "Веруј датотекама филтера пројекта",
+    "compressionStats": "уштеђена величина",
+    "compressionEstimatedTokensSaved": "процењени уштеђени токени",
+    "compressionPreview": "Преглед уживо",
+    "compressionPreviewPlaceholder": "Налепи JSON захтева или обичан текст",
+    "compressionRunPreview": "Покрени преглед"
   },
   "models": {
     "title": "Модели",

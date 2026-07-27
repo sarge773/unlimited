@@ -77,7 +77,22 @@
     "themeLight": "ភ្លឺ",
     "themeDark": "ងងឹត",
     "searchLanguage": "ស្វែងរកភាសា...",
-    "noLanguages": "រកមិនឃើញភាសា"
+    "noLanguages": "រកមិនឃើញភាសា",
+    "compressionTitle": "ការបង្ហាប់ prompt",
+    "compressionDescription": "កាត់បន្ថយទំហំសំណើមុនពេលបញ្ជូន ដោយរក្សាកូដ កំហុស ផ្លូវ លេខ និងនិយមន័យឧបករណ៍។",
+    "compressionOff": "បិទ",
+    "compressionLossless": "គ្មានការបាត់បង់",
+    "compressionStandard": "ស្តង់ដារ",
+    "compressionAggressive": "ខ្លាំង",
+    "compressionEngines": "ម៉ាស៊ីន",
+    "compressionAutoTrigger": "ចាប់ផ្តើមស្វ័យប្រវត្តិលើសពីតូខិនប៉ាន់ស្មាន",
+    "compressionPrefixFreeze": "បង្កកបុព្វបទ prompt ដែលកើតឡើងដដែលៗ",
+    "compressionTrustProjectFilters": "ទុកចិត្តឯកសារតម្រងគម្រោង",
+    "compressionStats": "ទំហំបានសន្សំ",
+    "compressionEstimatedTokensSaved": "តូខិនប៉ាន់ស្មានបានសន្សំ",
+    "compressionPreview": "មើលជាមុនផ្ទាល់",
+    "compressionPreviewPlaceholder": "បិទភ្ជាប់ JSON សំណើ ឬអត្ថបទធម្មតា",
+    "compressionRunPreview": "ដំណើរការមើលជាមុន"
   },
   "models": {
     "title": "ម៉ូដែល",

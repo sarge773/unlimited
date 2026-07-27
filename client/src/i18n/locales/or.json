@@ -77,7 +77,22 @@
     "themeLight": "ହାଲୁକା",
     "themeDark": "ଗାଢ଼",
     "searchLanguage": "ଭାଷାଗୁଡିକ ସନ୍ଧାନ କରନ୍ତୁ...",
-    "noLanguages": "କୌଣସି ଭାଷା ମିଳିଲା ନାହିଁ"
+    "noLanguages": "କୌଣସି ଭାଷା ମିଳିଲା ନାହିଁ",
+    "compressionTitle": "ପ୍ରମ୍ପ୍ଟ ସଙ୍କୋଚନ",
+    "compressionDescription": "କୋଡ୍, ତ୍ରୁଟି, ପଥ, ସଂଖ୍ୟା, ଏବଂ ଟୁଲ୍ ପରିଭାଷାଗୁଡ଼ିକୁ ସୁରକ୍ଷିତ ରଖି ରାଉଟିଂ ପୂର୍ବରୁ ଅନୁରୋଧର ଆକାର କମାନ୍ତୁ।",
+    "compressionOff": "ବନ୍ଦ",
+    "compressionLossless": "କ୍ଷତିହୀନ",
+    "compressionStandard": "ମାନକ",
+    "compressionAggressive": "ଆକ୍ରମଣାତ୍ମକ",
+    "compressionEngines": "ଇଞ୍ଜିନ୍",
+    "compressionAutoTrigger": "ଆକଳିତ ଟୋକେନ୍ ଠାରୁ ଅଧିକ ହେଲେ ସ୍ୱୟଂଚାଳିତ ଭାବେ ସକ୍ରିୟ",
+    "compressionPrefixFreeze": "ପୁନରାବୃତ୍ତ ପ୍ରମ୍ପ୍ଟ ଉପସର୍ଗଗୁଡ଼ିକୁ ସ୍ଥିର ରଖନ୍ତୁ",
+    "compressionTrustProjectFilters": "ପ୍ରୋଜେକ୍ଟ ଫିଲ୍ଟର୍ ଫାଇଲଗୁଡ଼ିକୁ ବିଶ୍ୱାସ କରନ୍ତୁ",
+    "compressionStats": "ଆକାର ସଞ୍ଚୟ",
+    "compressionEstimatedTokensSaved": "ଆକଳିତ ଟୋକେନ୍ ସଞ୍ଚୟ",
+    "compressionPreview": "ଲାଇଭ୍ ପୂର୍ବାବଲୋକନ",
+    "compressionPreviewPlaceholder": "ଅନୁରୋଧ JSON କିମ୍ବା ସାଧା ଟେକ୍ସଟ୍ ପେଷ୍ଟ କରନ୍ତୁ",
+    "compressionRunPreview": "ପୂର୍ବାବଲୋକନ ଚଲାନ୍ତୁ"
   },
   "models": {
     "title": "ମଡେଲଗୁଡିକ",

@@ -168,6 +168,10 @@ export interface CacheKeyInput {
   logprobs?: unknown;
   top_logprobs?: unknown;
   reasoning_effort?: unknown;
+  // Request-side compression runs before cache lookup. Include its resolved
+  // mode/config fingerprint so a settings change cannot replay an answer
+  // produced from a different compressed prompt shape.
+  compression?: unknown;
 }
 
 function normModel(model: string | undefined): string {
@@ -178,7 +182,7 @@ function normModel(model: string | undefined): string {
 
 export function computeCacheKey(input: CacheKeyInput): string {
   const canonical = stableStringify({
-    v: 2, // bump to invalidate every entry if the cached shape ever changes
+    v: 3, // compression fingerprint joined the key
     model: normModel(input.model),
     messages: input.messages,
     temperature: input.temperature,
@@ -202,6 +206,7 @@ export function computeCacheKey(input: CacheKeyInput): string {
     // Absent for requests without the knob (stableStringify drops undefined),
     // so pre-existing cache keys are unaffected.
     reasoning_effort: input.reasoning_effort,
+    compression: input.compression,
   });
   return crypto.createHash('sha256').update(canonical).digest('hex');
 }

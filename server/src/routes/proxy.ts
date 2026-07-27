@@ -27,6 +27,7 @@ import type { Platform } from '@freellmapi/shared/types.js';
 import { inferQuotaPoolKey, type QuotaObservationContext } from '../services/provider-quota.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from '../services/model-groups.js';
 import { buildModelListing } from '../services/model-listing.js';
+import { compressRequest, formatCompressionHeader } from '../services/compression/pipeline.js';
 
 export const proxyRouter = Router();
 
@@ -1194,7 +1195,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
     return pendingToolCallIds.shift() ?? `call_auto_${++syntheticIdCounter}`;
   };
 
-  const messages: ChatMessage[] = parsed.data.messages.map((m): ChatMessage => {
+  let messages: ChatMessage[] = parsed.data.messages.map((m): ChatMessage => {
     if (m.role === 'assistant') {
       const hasToolCalls = (m.tool_calls?.length ?? 0) > 0;
       // With tool_calls, content: null is the correct OpenAI shape — keep it.
@@ -1265,6 +1266,24 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       ...(m.name ? { name: m.name } : {}),
     };
   });
+
+  let cacheControlPrefixLength = 0;
+  parsed.data.messages.forEach((message, index) => {
+    const content = message.content;
+    if (
+      Array.isArray(content)
+      && content.some(block => block && typeof block === 'object' && 'cache_control' in block)
+    ) {
+      cacheControlPrefixLength = index + 1;
+    }
+  });
+  const compressionResult = compressRequest(messages, {
+    header: req.headers['x-freellm-compress'],
+    tools,
+    cacheControlPrefixLength,
+  });
+  messages = compressionResult.messages;
+  res.setHeader('X-FreeLLM-Compress', formatCompressionHeader(compressionResult));
 
   // Token estimation is intentionally a heuristic (~4 chars per token). Used
   // for routing decisions (skip a model whose budget is too small) and for
@@ -1481,6 +1500,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
         // Normalized reasoning knob (flat field or object form) — a different
         // effort asks for a different answer, so it must never collide.
         reasoning_effort: samplingParams.reasoning_effort ?? undefined,
+        compression: compressionResult.cacheKey,
       })
     : null;
   if (cacheKey) {

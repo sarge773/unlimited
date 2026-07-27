@@ -77,7 +77,22 @@
     "themeLight": "ලා",
     "themeDark": "අඳුරු",
     "searchLanguage": "භාෂා සොයන්න...",
-    "noLanguages": "භාෂා හමු නොවීය"
+    "noLanguages": "භාෂා හමු නොවීය",
+    "compressionTitle": "ප්‍රොම්ප්ට් සම්පීඩනය",
+    "compressionDescription": "කේතය, දෝෂ, මාර්ග, අංක සහ මෙවලම් නිර්වචන ආරක්ෂා කරමින් රවුටින් වලට පෙර ඉල්ලීමේ ප්‍රමාණය අඩු කරන්න.",
+    "compressionOff": "අක්‍රියයි",
+    "compressionLossless": "හානි රහිත",
+    "compressionStandard": "සම්මත",
+    "compressionAggressive": "ප්‍රබල",
+    "compressionEngines": "එන්ජින්",
+    "compressionAutoTrigger": "ඇස්තමේන්තුගත ටෝකන ඉක්මවූ විට ස්වයංක්‍රීයව ක්‍රියාත්මක වේ",
+    "compressionPrefixFreeze": "නැවත නැවත එන ප්‍රොම්ප්ට් උපසර්ග ස්ථිර කරන්න",
+    "compressionTrustProjectFilters": "ව්‍යාපෘති පෙරහන් ගොනු විශ්වාස කරන්න",
+    "compressionStats": "ඉතිරි වූ ප්‍රමාණය",
+    "compressionEstimatedTokensSaved": "ඇස්තමේන්තුගත ඉතිරි වූ ටෝකන",
+    "compressionPreview": "සජීවී පෙරදසුන",
+    "compressionPreviewPlaceholder": "ඉල්ලීමේ JSON හෝ සරල පෙළ අලවන්න",
+    "compressionRunPreview": "පෙරදසුන ධාවනය කරන්න"
   },
   "models": {
     "title": "ආකෘති",

@@ -77,7 +77,22 @@
     "themeLight": "उज्यालो",
     "themeDark": "अँध्यारो",
     "searchLanguage": "भाषा खोजी गर्नुहोस्...",
-    "noLanguages": "कुनै भाषा फेला परेन"
+    "noLanguages": "कुनै भाषा फेला परेन",
+    "compressionTitle": "प्रम्प्ट कम्प्रेसन",
+    "compressionDescription": "कोड, त्रुटिहरू, पथहरू, नम्बरहरू, र उपकरण परिभाषाहरू सुरक्षित राख्दै राउटिङ अघि अनुरोधको आकार घटाउनुहोस्।",
+    "compressionOff": "बन्द",
+    "compressionLossless": "क्षतिरहित",
+    "compressionStandard": "मानक",
+    "compressionAggressive": "आक्रामक",
+    "compressionEngines": "इन्जिनहरू",
+    "compressionAutoTrigger": "अनुमानित टोकनभन्दा माथि स्वतः सक्रिय",
+    "compressionPrefixFreeze": "दोहोरिने प्रम्प्ट उपसर्गहरू स्थिर राख्नुहोस्",
+    "compressionTrustProjectFilters": "परियोजना फिल्टर फाइलहरूमा विश्वास गर्नुहोस्",
+    "compressionStats": "आकार बचत",
+    "compressionEstimatedTokensSaved": "अनुमानित टोकन बचत",
+    "compressionPreview": "प्रत्यक्ष पूर्वावलोकन",
+    "compressionPreviewPlaceholder": "अनुरोध JSON वा सादा पाठ टाँस्नुहोस्",
+    "compressionRunPreview": "पूर्वावलोकन चलाउनुहोस्"
   },
   "models": {
     "title": "नमूनाहरू",

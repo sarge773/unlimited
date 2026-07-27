@@ -77,7 +77,22 @@
     "themeLight": "Světlý",
     "themeDark": "Tmavý",
     "searchLanguage": "Hledat jazyky…",
-    "noLanguages": "Nenalezeny žádné jazyky"
+    "noLanguages": "Nenalezeny žádné jazyky",
+    "compressionTitle": "Komprese promptů",
+    "compressionDescription": "Zmenšete velikost požadavku před směrováním se zachováním kódu, chyb, cest, čísel a definic nástrojů.",
+    "compressionOff": "Vypnuto",
+    "compressionLossless": "Bezeztrátová",
+    "compressionStandard": "Standardní",
+    "compressionAggressive": "Agresivní",
+    "compressionEngines": "Moduly",
+    "compressionAutoTrigger": "Automaticky spustit nad odhadovaným počtem žetonů",
+    "compressionPrefixFreeze": "Zmrazit opakující se prefixy promptů",
+    "compressionTrustProjectFilters": "Důvěřovat filtrovacím souborům projektu",
+    "compressionStats": "ušetřená velikost",
+    "compressionEstimatedTokensSaved": "odhadem ušetřené žetony",
+    "compressionPreview": "Živý náhled",
+    "compressionPreviewPlaceholder": "Vložte JSON požadavku nebo prostý text",
+    "compressionRunPreview": "Spustit náhled"
   },
   "models": {
     "title": "Modely",

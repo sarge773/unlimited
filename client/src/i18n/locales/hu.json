@@ -77,7 +77,22 @@
     "themeLight": "Világos",
     "themeDark": "Sötét",
     "searchLanguage": "Nyelvek keresése…",
-    "noLanguages": "Nem található nyelv"
+    "noLanguages": "Nem található nyelv",
+    "compressionTitle": "Prompt-tömörítés",
+    "compressionDescription": "Csökkenti a kérés méretét az útválasztás előtt, megőrizve a kódot, a hibákat, az elérési utakat, a számokat és az eszközdefiníciókat.",
+    "compressionOff": "Ki",
+    "compressionLossless": "Veszteségmentes",
+    "compressionStandard": "Normál",
+    "compressionAggressive": "Agresszív",
+    "compressionEngines": "Motorok",
+    "compressionAutoTrigger": "Automatikus indítás a becsült tokenszám felett",
+    "compressionPrefixFreeze": "Ismétlődő prompt-előtagok rögzítése",
+    "compressionTrustProjectFilters": "Bízzon a projekt szűrőfájljaiban",
+    "compressionStats": "megtakarított méret",
+    "compressionEstimatedTokensSaved": "becsült megtakarított tokenek",
+    "compressionPreview": "Élő előnézet",
+    "compressionPreviewPlaceholder": "Illessze be a kérés JSON-jét vagy egyszerű szöveget",
+    "compressionRunPreview": "Előnézet futtatása"
   },
   "models": {
     "title": "Modellek",

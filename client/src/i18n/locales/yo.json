@@ -77,7 +77,22 @@
     "themeLight": "Imọlẹ",
     "themeDark": "Dudu",
     "searchLanguage": "Wa awọn ede…",
-    "noLanguages": "Ko si awọn ede ti a rii"
+    "noLanguages": "Ko si awọn ede ti a rii",
+    "compressionTitle": "Ifunpọ ilana",
+    "compressionDescription": "Din iwọn ibeere ku ṣaaju ipa ọna lakoko ti o n tọju koodu, awọn aṣiṣe, awọn ipa ọna, awọn nọmba, ati awọn itumọ irinṣẹ.",
+    "compressionOff": "Paa",
+    "compressionLossless": "Laisi pipadanu",
+    "compressionStandard": "Boṣewa",
+    "compressionAggressive": "Líle",
+    "compressionEngines": "Awọn ẹrọ",
+    "compressionAutoTrigger": "Bẹrẹ laifọwọyi loke awọn àmi ti a fojú díwọ̀n",
+    "compressionPrefixFreeze": "Di awọn ìbẹ̀rẹ̀ ilana ti o tun nwaye",
+    "compressionTrustProjectFilters": "Gbẹkẹle awọn faili àlẹmọ iṣẹ akanṣe",
+    "compressionStats": "iwọn ti a fipamọ",
+    "compressionEstimatedTokensSaved": "awọn àmi ti a fojú díwọ̀n ti a fipamọ",
+    "compressionPreview": "Awotẹlẹ laaye",
+    "compressionPreviewPlaceholder": "Lẹ JSON ibeere tabi ọrọ lasan",
+    "compressionRunPreview": "Ṣiṣe awotẹlẹ"
   },
   "models": {
     "title": "Awọn awoṣe",

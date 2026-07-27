@@ -77,7 +77,22 @@
     "themeLight": "Clair",
     "themeDark": "Sombre",
     "searchLanguage": "Rechercher des langues…",
-    "noLanguages": "Aucune langue trouvée"
+    "noLanguages": "Aucune langue trouvée",
+    "compressionTitle": "Compression des prompts",
+    "compressionDescription": "Réduisez la taille des requêtes avant le routage tout en préservant le code, les erreurs, les chemins, les nombres et les définitions d'outils.",
+    "compressionOff": "Désactivée",
+    "compressionLossless": "Sans perte",
+    "compressionStandard": "Standard",
+    "compressionAggressive": "Agressive",
+    "compressionEngines": "Moteurs",
+    "compressionAutoTrigger": "Déclenchement automatique au-delà des tokens estimés",
+    "compressionPrefixFreeze": "Figer les préfixes de prompt récurrents",
+    "compressionTrustProjectFilters": "Faire confiance aux fichiers de filtres du projet",
+    "compressionStats": "taille économisée",
+    "compressionEstimatedTokensSaved": "tokens estimés économisés",
+    "compressionPreview": "Aperçu en direct",
+    "compressionPreviewPlaceholder": "Collez le JSON de la requête ou du texte brut",
+    "compressionRunPreview": "Lancer l'aperçu"
   },
   "models": {
     "title": "Modèles",

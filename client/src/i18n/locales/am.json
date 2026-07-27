@@ -77,7 +77,22 @@
     "themeLight": "ብሩህ",
     "themeDark": "ጨለማ",
     "searchLanguage": "ቋንቋዎችን ይፈልጉ...",
-    "noLanguages": "ምንም ቋንቋዎች አልተገኙም"
+    "noLanguages": "ምንም ቋንቋዎች አልተገኙም",
+    "compressionTitle": "የፕሮምፕት ጭመቃ",
+    "compressionDescription": "ኮድን፣ ስህተቶችን፣ ዱካዎችን፣ ቁጥሮችን እና የመሣሪያ ትርጓሜዎችን በመጠበቅ ከመላክ በፊት የጥያቄውን መጠን ይቀንሱ።",
+    "compressionOff": "ጠፍቷል",
+    "compressionLossless": "ያለ ኪሳራ",
+    "compressionStandard": "መደበኛ",
+    "compressionAggressive": "ኃይለኛ",
+    "compressionEngines": "ሞተሮች",
+    "compressionAutoTrigger": "ከተገመቱ ማስመሰያዎች በላይ ሲሆን በራስ-ሰር አስጀምር",
+    "compressionPrefixFreeze": "ተደጋጋሚ የፕሮምፕት ቅድመ-ቅጥያዎችን አቀዝቅዝ",
+    "compressionTrustProjectFilters": "የፕሮጀክት ማጣሪያ ፋይሎችን እመን",
+    "compressionStats": "የተቆጠበ መጠን",
+    "compressionEstimatedTokensSaved": "የተቆጠቡ ግምታዊ ማስመሰያዎች",
+    "compressionPreview": "ቀጥታ ቅድመ-እይታ",
+    "compressionPreviewPlaceholder": "የጥያቄ JSON ወይም ተራ ጽሑፍ ይለጥፉ",
+    "compressionRunPreview": "ቅድመ-እይታ አሂድ"
   },
   "models": {
     "title": "ሞዴሎች",

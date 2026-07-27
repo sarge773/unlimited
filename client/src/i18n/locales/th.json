@@ -77,7 +77,22 @@
     "themeLight": "สว่าง",
     "themeDark": "มืด",
     "searchLanguage": "ค้นหาภาษา...",
-    "noLanguages": "ไม่พบภาษา"
+    "noLanguages": "ไม่พบภาษา",
+    "compressionTitle": "การบีบอัดพร้อมท์",
+    "compressionDescription": "ลดขนาดคำขอก่อนการกำหนดเส้นทาง โดยยังคงรักษาโค้ด ข้อผิดพลาด พาธ ตัวเลข และคำจำกัดความของเครื่องมือ",
+    "compressionOff": "ปิด",
+    "compressionLossless": "ไม่สูญเสียข้อมูล",
+    "compressionStandard": "มาตรฐาน",
+    "compressionAggressive": "เชิงรุก",
+    "compressionEngines": "เอนจิน",
+    "compressionAutoTrigger": "ทริกเกอร์อัตโนมัติเมื่อเกินโทเค็นโดยประมาณ",
+    "compressionPrefixFreeze": "ตรึงคำนำหน้าพร้อมท์ที่เกิดซ้ำ",
+    "compressionTrustProjectFilters": "เชื่อถือไฟล์ตัวกรองของโปรเจกต์",
+    "compressionStats": "ขนาดที่ประหยัดได้",
+    "compressionEstimatedTokensSaved": "โทเค็นที่ประหยัดได้โดยประมาณ",
+    "compressionPreview": "ตัวอย่างสด",
+    "compressionPreviewPlaceholder": "วาง JSON ของคำขอหรือข้อความธรรมดา",
+    "compressionRunPreview": "รันตัวอย่าง"
   },
   "models": {
     "title": "โมเดล",

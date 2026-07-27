@@ -77,7 +77,22 @@
     "themeLight": "Haske",
     "themeDark": "Duhu",
     "searchLanguage": "Bincika harsuna…",
-    "noLanguages": "Ba a sami yaruka ba"
+    "noLanguages": "Ba a sami yaruka ba",
+    "compressionTitle": "Matsawar prompt",
+    "compressionDescription": "Rage girman buƙata kafin turawa yayin da ake kiyaye kod, kurakurai, hanyoyi, lambobi da ma'anonin kayan aiki.",
+    "compressionOff": "Kashe",
+    "compressionLossless": "Ba tare da asara ba",
+    "compressionStandard": "Daidaitacce",
+    "compressionAggressive": "Mai ƙarfi",
+    "compressionEngines": "Injina",
+    "compressionAutoTrigger": "Kunna kai tsaye idan an wuce ƙiyasin alamomi",
+    "compressionPrefixFreeze": "Daskare prefix na prompt masu maimaituwa",
+    "compressionTrustProjectFilters": "Amince da fayilolin tacewa na aikin",
+    "compressionStats": "girman da aka rage",
+    "compressionEstimatedTokensSaved": "ƙiyasin alamomin da aka rage",
+    "compressionPreview": "Samfoti kai tsaye",
+    "compressionPreviewPlaceholder": "Manna JSON na buƙata ko rubutu kawai",
+    "compressionRunPreview": "Gudanar da samfoti"
   },
   "models": {
     "title": "Samfura",

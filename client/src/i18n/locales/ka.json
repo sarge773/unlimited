@@ -77,7 +77,22 @@
     "themeLight": "ღია",
     "themeDark": "მუქი",
     "searchLanguage": "ენების ძიება…",
-    "noLanguages": "ენები ვერ მოიძებნა"
+    "noLanguages": "ენები ვერ მოიძებნა",
+    "compressionTitle": "პრომპტის შეკუმშვა",
+    "compressionDescription": "შეამცირეთ მოთხოვნის ზომა მარშრუტიზაციამდე კოდის, შეცდომების, გზების, რიცხვებისა და ხელსაწყოთა განმარტებების შენარჩუნებით.",
+    "compressionOff": "გამორთული",
+    "compressionLossless": "დანაკარგის გარეშე",
+    "compressionStandard": "სტანდარტული",
+    "compressionAggressive": "აგრესიული",
+    "compressionEngines": "ძრავები",
+    "compressionAutoTrigger": "ავტომატური ჩართვა სავარაუდო ტოკენების ზემოთ",
+    "compressionPrefixFreeze": "განმეორებადი პრომპტის პრეფიქსების გაყინვა",
+    "compressionTrustProjectFilters": "ენდეთ პროექტის ფილტრის ფაილებს",
+    "compressionStats": "დაზოგილი ზომა",
+    "compressionEstimatedTokensSaved": "სავარაუდო დაზოგილი ტოკენები",
+    "compressionPreview": "ცოცხალი გადახედვა",
+    "compressionPreviewPlaceholder": "ჩასვით მოთხოვნის JSON ან უბრალო ტექსტი",
+    "compressionRunPreview": "გადახედვის გაშვება"
   },
   "models": {
     "title": "მოდელები",

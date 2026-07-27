@@ -77,7 +77,22 @@
     "themeLight": "Ljust",
     "themeDark": "Mörkt",
     "searchLanguage": "Sök språk…",
-    "noLanguages": "Inga språk hittade"
+    "noLanguages": "Inga språk hittade",
+    "compressionTitle": "Promptkomprimering",
+    "compressionDescription": "Minska förfrågningsstorleken före routing samtidigt som kod, fel, sökvägar, siffror och verktygsdefinitioner bevaras.",
+    "compressionOff": "Av",
+    "compressionLossless": "Förlustfri",
+    "compressionStandard": "Standard",
+    "compressionAggressive": "Aggressiv",
+    "compressionEngines": "Motorer",
+    "compressionAutoTrigger": "Aktivera automatiskt över uppskattade tokens",
+    "compressionPrefixFreeze": "Frys återkommande promptprefix",
+    "compressionTrustProjectFilters": "Lita på projektets filterfiler",
+    "compressionStats": "storlek sparad",
+    "compressionEstimatedTokensSaved": "uppskattade tokens sparade",
+    "compressionPreview": "Live-förhandsvisning",
+    "compressionPreviewPlaceholder": "Klistra in förfrågnings-JSON eller vanlig text",
+    "compressionRunPreview": "Kör förhandsvisning"
   },
   "models": {
     "title": "Modeller",

@@ -77,7 +77,22 @@
     "themeLight": "Angavu",
     "themeDark": "Giza",
     "searchLanguage": "Tafuta lugha...",
-    "noLanguages": "Hakuna lugha zilizopatikana"
+    "noLanguages": "Hakuna lugha zilizopatikana",
+    "compressionTitle": "Ubanaji wa agizo",
+    "compressionDescription": "Punguza ukubwa wa ombi kabla ya uelekezaji huku ukihifadhi msimbo, hitilafu, njia, nambari, na ufafanuzi wa zana.",
+    "compressionOff": "Imezimwa",
+    "compressionLossless": "Bila hasara",
+    "compressionStandard": "Kawaida",
+    "compressionAggressive": "Kali",
+    "compressionEngines": "Injini",
+    "compressionAutoTrigger": "Anzisha kiotomatiki juu ya tokeni zilizokadiriwa",
+    "compressionPrefixFreeze": "Gandisha viambishi vya maagizo vinavyojirudia",
+    "compressionTrustProjectFilters": "Amini faili za kichujio za mradi",
+    "compressionStats": "ukubwa uliookolewa",
+    "compressionEstimatedTokensSaved": "tokeni zilizokadiriwa kuokolewa",
+    "compressionPreview": "Hakikisho la moja kwa moja",
+    "compressionPreviewPlaceholder": "Bandika JSON ya ombi au maandishi wazi",
+    "compressionRunPreview": "Endesha hakikisho"
   },
   "models": {
     "title": "Mifano",

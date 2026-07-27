@@ -77,7 +77,22 @@
     "themeLight": "Светлая",
     "themeDark": "Тёмная",
     "searchLanguage": "Поиск языков…",
-    "noLanguages": "Языки не найдены"
+    "noLanguages": "Языки не найдены",
+    "compressionTitle": "Сжатие промптов",
+    "compressionDescription": "Уменьшает размер запросов перед маршрутизацией, сохраняя код, ошибки, пути, числа и определения инструментов.",
+    "compressionOff": "Выключено",
+    "compressionLossless": "Без потерь",
+    "compressionStandard": "Стандартное",
+    "compressionAggressive": "Агрессивное",
+    "compressionEngines": "Движки",
+    "compressionAutoTrigger": "Автозапуск при превышении оценочного числа токенов",
+    "compressionPrefixFreeze": "Замораживать повторяющиеся префиксы промптов",
+    "compressionTrustProjectFilters": "Доверять файлам фильтров проекта",
+    "compressionStats": "экономия размера",
+    "compressionEstimatedTokensSaved": "оценочная экономия токенов",
+    "compressionPreview": "Живой предпросмотр",
+    "compressionPreviewPlaceholder": "Вставьте JSON запроса или обычный текст",
+    "compressionRunPreview": "Запустить предпросмотр"
   },
   "models": {
     "title": "Модели",

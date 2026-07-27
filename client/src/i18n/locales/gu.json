@@ -77,7 +77,22 @@
     "themeLight": "આછું",
     "themeDark": "ઘાટું",
     "searchLanguage": "ભાષાઓ શોધો...",
-    "noLanguages": "કોઈ ભાષા મળી નથી"
+    "noLanguages": "કોઈ ભાષા મળી નથી",
+    "compressionTitle": "પ્રોમ્પ્ટ કમ્પ્રેશન",
+    "compressionDescription": "કોડ, ભૂલો, પાથ, સંખ્યાઓ અને ટૂલ વ્યાખ્યાઓ સાચવીને રાઉટિંગ પહેલાં વિનંતીનું કદ ઘટાડો.",
+    "compressionOff": "બંધ",
+    "compressionLossless": "લોસલેસ",
+    "compressionStandard": "સ્ટાન્ડર્ડ",
+    "compressionAggressive": "આક્રમક",
+    "compressionEngines": "એન્જિન",
+    "compressionAutoTrigger": "અંદાજિત ટોકન કરતાં વધુ થાય ત્યારે આપમેળે શરૂ કરો",
+    "compressionPrefixFreeze": "પુનરાવર્તિત પ્રોમ્પ્ટ પ્રીફિક્સ ફ્રીઝ કરો",
+    "compressionTrustProjectFilters": "પ્રોજેક્ટ ફિલ્ટર ફાઇલો પર વિશ્વાસ કરો",
+    "compressionStats": "કદ બચત",
+    "compressionEstimatedTokensSaved": "અંદાજિત ટોકન બચત",
+    "compressionPreview": "લાઇવ પ્રીવ્યૂ",
+    "compressionPreviewPlaceholder": "વિનંતીનું JSON અથવા સાદો ટેક્સ્ટ પેસ્ટ કરો",
+    "compressionRunPreview": "પ્રીવ્યૂ ચલાવો"
   },
   "models": {
     "title": "મોડલ્સ",

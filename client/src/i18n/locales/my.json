@@ -77,7 +77,22 @@
     "themeLight": "အလင်း",
     "themeDark": "အမှောင်",
     "searchLanguage": "ဘာသာစကားများကို ရှာဖွေရန်...",
-    "noLanguages": "ဘာသာစကား မတွေ့ရှိပါ"
+    "noLanguages": "ဘာသာစကား မတွေ့ရှိပါ",
+    "compressionTitle": "Prompt ချုံ့ခြင်း",
+    "compressionDescription": "ကုဒ်၊ အမှားများ၊ လမ်းကြောင်းများ၊ နံပါတ်များနှင့် tool သတ်မှတ်ချက်များကို ထိန်းသိမ်းလျက် မပို့ဆောင်မီ တောင်းဆိုမှု အရွယ်အစားကို လျှော့ချသည်။",
+    "compressionOff": "ပိတ်",
+    "compressionLossless": "ဆုံးရှုံးမှုမရှိ",
+    "compressionStandard": "ပုံမှန်",
+    "compressionAggressive": "ပြင်းထန်",
+    "compressionEngines": "အင်ဂျင်များ",
+    "compressionAutoTrigger": "ခန့်မှန်း token အရေအတွက် ကျော်လွန်ပါက အလိုအလျောက် စတင်ရန်",
+    "compressionPrefixFreeze": "ထပ်ခါထပ်ခါ ပါဝင်သော prompt ရှေ့ဆက်များကို ပုံသေထားရန်",
+    "compressionTrustProjectFilters": "ပရောဂျက် filter ဖိုင်များကို ယုံကြည်ရန်",
+    "compressionStats": "ချွေတာနိုင်သော အရွယ်အစား",
+    "compressionEstimatedTokensSaved": "ခန့်မှန်း ချွေတာနိုင်သော token များ",
+    "compressionPreview": "တိုက်ရိုက် အစမ်းကြည့်ရှုမှု",
+    "compressionPreviewPlaceholder": "တောင်းဆိုမှု JSON သို့မဟုတ် စာသားရိုးရိုးကို ကူးထည့်ပါ",
+    "compressionRunPreview": "အစမ်းကြည့်ရန်"
   },
   "models": {
     "title": "မော်ဒယ်များ",
