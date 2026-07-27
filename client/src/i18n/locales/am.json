@@ -14,7 +14,7 @@
     "switchToChinese": "ወደ ቻይንኛ ቀይር",
     "switchToEnglish": "ወደ እንግሊዝኛ ቀይር",
     "modelsMenu": "የሞዴል አይነቶችን ያስሱ",
-    "agents": "Agents"
+    "agents": "ወኪሎች"
   },
   "auth": {
     "createYourAccount": "መለያዎን ይፍጠሩ",
@@ -377,28 +377,28 @@
     "quotaRemaining": "የቀረው",
     "quotaReset": "ዳግም አስጀምር",
     "quotaObserved": "ተስተውሏል",
-    "tabAgents": "Agents",
+    "tabAgents": "ወኪሎች",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "የGemini ሞዴል ማዛመድ",
+    "geminiDesc": "የGemini Pro፣ Flash እና Flash-Lite ስሞችን ወደ Auto ወይም ወደ ተወሰነ የካታሎግ ሞዴል ያዛምዱ።",
+    "compatibilityTitle": "የወኪል ተኳሃኝነት",
+    "compatibilityDesc": "በምርጫ የሚነቁ የተኳሃኝነት ገጽታዎችን እና የClaude Code ሞዴል ፍለጋን ይቆጣጠሩ።",
+    "ollamaMode": "የOllama ማስመሰል",
+    "ollamaModeHint": "በloopback ላይ ክፍት የሆነው ሁነታ ያልተረጋገጠ የLAN ትራፊክን በጭራሽ አይቀበልም።",
+    "ollamaOff": "ጠፍቷል",
+    "ollamaLoopback": "በloopback ላይ ክፍት",
+    "ollamaKeyRequired": "የAPI ቁልፍ ያስፈልጋል",
+    "claudeAliases": "የClaude Code ፍለጋ ተለዋጭ ስሞች",
+    "claudeAliasesHint": "የጌትዌዩ ሞዴል መራጭ ካታሎጉን መዘርዘር እንዲችል የclaude/<model> ተለዋጭ ስሞችን ይክፈቱ።",
+    "urlTokensTitle": "ሊሻሩ የሚችሉ የURL ቶከኖች",
+    "urlTokensDesc": "ራስጌ ለሌላቸው ደንበኞች ብቻ። የURL ቶከኖች ወደ ታሪክ እና ምዝግብ ማስታወሻዎች ሊፈሱ ይችላሉ፣ ስለዚህ በማያስፈልጉበት ጊዜ ይሽሯቸው።",
+    "urlTokenLabel": "የቶከን መለያ",
+    "createUrlToken": "ቶከን ፍጠር",
+    "urlTokenOnce": "ይህን ቶከን አሁን ይቅዱ። ዳግም አይታይም።",
+    "revoked": "ተሽሯል",
+    "revoke": "ሻር"
   },
   "status": {
     "healthy": "ጤናማ",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "ከጥያቄ ጅምር ማካካሻ ጀምር · የሙከራ ጊዜ",
     "requestedModel": "የተጠየቀው ሞዴል",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "ጥያቄዎች በወኪል"
   },
   "playground": {
     "title": "የመጫወቻ ሜዳ",
@@ -700,13 +700,13 @@
     "passwordMin": "ቢያንስ {min} ቁምፊዎች"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "የኮድ አጻጻፍ ወኪሎች",
+    "description": "የኮድ አጻጻፍ መሣሪያዎችን በተፈጠረ እና ምትኬን በሚጠብቅ ውቅር ወደ አንድ የነፃ ሞዴል ጌትዌይ ያገናኙ።",
+    "apiKey": "የAPI ቁልፍ",
+    "quickstart": "ፈጣኑ መንገድ፦ Claude Codeን ከቀጥታ ካታሎግ ያዋቅሩ።",
+    "currentKey": "አሁናዊ የተዋሃደ ቁልፍ፦",
+    "seenRecently": "በቅርቡ ታይቷል",
+    "endpoint": "የመዳረሻ ነጥብ",
+    "documentation": "ሰነዶች"
   }
 }

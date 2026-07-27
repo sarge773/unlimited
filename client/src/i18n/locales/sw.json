@@ -14,7 +14,7 @@
     "switchToChinese": "Badili hadi Kichina",
     "switchToEnglish": "Badili hadi Kiingereza",
     "modelsMenu": "Vinjari aina za mifano",
-    "agents": "Agents"
+    "agents": "Mawakala"
   },
   "auth": {
     "createYourAccount": "Fungua akaunti yako",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Iliyosalia",
     "quotaReset": "Weka upya",
     "quotaObserved": "Imezingatiwa",
-    "tabAgents": "Agents",
+    "tabAgents": "Mawakala",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Ulinganishaji wa miundo ya Gemini",
+    "geminiDesc": "Linganisha majina ya Gemini Pro, Flash, na Flash-Lite na Auto au muundo maalum wa katalogi.",
+    "compatibilityTitle": "Ulinganifu wa mawakala",
+    "compatibilityDesc": "Dhibiti nyuso za ulinganifu za hiari na ugunduzi wa miundo wa Claude Code.",
+    "ollamaMode": "Uigaji wa Ollama",
+    "ollamaModeHint": "Loopback iliyo wazi haikubali kamwe trafiki ya LAN isiyothibitishwa.",
+    "ollamaOff": "Imezimwa",
+    "ollamaLoopback": "Wazi kwenye loopback",
+    "ollamaKeyRequired": "Ufunguo wa API unahitajika",
+    "claudeAliases": "Lakabu za ugunduzi za Claude Code",
+    "claudeAliasesHint": "Onyesha lakabu za claude/<model> ili kichaguzi cha miundo cha lango kiweze kuorodhesha katalogi.",
+    "urlTokensTitle": "Tokeni za URL zinazoweza kubatilishwa",
+    "urlTokensDesc": "Kwa wateja wasio na vichwa pekee. Tokeni za URL zinaweza kuvuja kwenye historia na kumbukumbu, kwa hivyo zibatilishe zisipohitajika tena.",
+    "urlTokenLabel": "Lebo ya tokeni",
+    "createUrlToken": "Unda tokeni",
+    "urlTokenOnce": "Nakili tokeni hii sasa. Haitaonyeshwa tena.",
+    "revoked": "Imebatilishwa",
+    "revoke": "Batilisha"
   },
   "status": {
     "healthy": "afya",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Anza kukabiliana na ombi kuanza · muda wa jaribio",
     "requestedModel": "Umeomba muundo",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Maombi kwa kila wakala"
   },
   "playground": {
     "title": "Uwanja wa michezo",
@@ -700,13 +700,13 @@
     "passwordMin": "Angalau vibambo {min}"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Mawakala wa usimbaji",
+    "description": "Unganisha zana za usimbaji na lango moja la miundo ya bure kwa usanidi ulioundwa na ulio salama kwa hifadhi rudufu.",
+    "apiKey": "Ufunguo wa API",
+    "quickstart": "Njia ya haraka zaidi: sanidi Claude Code kutoka kwenye katalogi ya moja kwa moja.",
+    "currentKey": "Ufunguo wa pamoja wa sasa:",
+    "seenRecently": "Imeonekana hivi karibuni",
+    "endpoint": "Kituo cha mwisho",
+    "documentation": "Nyaraka"
   }
 }

@@ -14,7 +14,7 @@
     "switchToChinese": "Xitoy tiliga o'tish",
     "switchToEnglish": "Ingliz tiliga o'tish",
     "modelsMenu": "Model turlarini ko'rib chiqing",
-    "agents": "Agents"
+    "agents": "Agentlar"
   },
   "auth": {
     "createYourAccount": "Hisob qaydnomangizni yarating",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Qolgan",
     "quotaReset": "Qayta tiklash",
     "quotaObserved": "Kuzatilgan",
-    "tabAgents": "Agents",
+    "tabAgents": "Agentlar",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini modellarini moslashtirish",
+    "geminiDesc": "Gemini Pro, Flash va Flash-Lite nomlarini Auto yoki muayyan katalog modeliga moslang.",
+    "compatibilityTitle": "Agent mosligi",
+    "compatibilityDesc": "Ixtiyoriy moslik yuzalarini va Claude Code model aniqlashini boshqaring.",
+    "ollamaMode": "Ollama emulyatsiyasi",
+    "ollamaModeHint": "Ochiq loopback hech qachon autentifikatsiyasiz LAN trafigini qabul qilmaydi.",
+    "ollamaOff": "O'chirilgan",
+    "ollamaLoopback": "Loopbackda ochiq",
+    "ollamaKeyRequired": "API kaliti talab qilinadi",
+    "claudeAliases": "Claude Code aniqlash taxalluslari",
+    "claudeAliasesHint": "Shlyuz model tanlagichi katalogni ro'yxatlashi uchun claude/<model> taxalluslarini oching.",
+    "urlTokensTitle": "Bekor qilinadigan URL tokenlari",
+    "urlTokensDesc": "Faqat sarlavhasiz mijozlar uchun. URL tokenlari tarix va jurnallarga sizib chiqishi mumkin, shuning uchun kerak bo'lmaganda ularni bekor qiling.",
+    "urlTokenLabel": "Token yorlig'i",
+    "createUrlToken": "Token yaratish",
+    "urlTokenOnce": "Bu tokenni hozir nusxalang. U boshqa ko'rsatilmaydi.",
+    "revoked": "Bekor qilingan",
+    "revoke": "Bekor qilish"
   },
   "status": {
     "healthy": "sog'lom",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "So'rov boshlanishidan boshlab ofsetni boshlash · urinish davomiyligi",
     "requestedModel": "So'ralgan model",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Agent bo'yicha so'rovlar"
   },
   "playground": {
     "title": "O'yin maydonchasi",
@@ -700,13 +700,13 @@
     "passwordMin": "Kamida {min} belgilar"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Kodlash agentlari",
+    "description": "Kodlash vositalarini yaratilgan, zaxira nusxa uchun xavfsiz konfiguratsiya bilan yagona bepul model shlyuziga ulang.",
+    "apiKey": "API kaliti",
+    "quickstart": "Eng tezkor yo'l: Claude Code'ni jonli katalogdan sozlang.",
+    "currentKey": "Joriy yagona kalit:",
+    "seenRecently": "Yaqinda ko'rilgan",
+    "endpoint": "So'nggi nuqta",
+    "documentation": "Hujjatlar"
   }
 }

@@ -14,7 +14,7 @@
     "switchToChinese": "Perėjimas prie kinų kalbos",
     "switchToEnglish": "Perėjimas prie anglų kalbos",
     "modelsMenu": "Naršyti modelių tipus",
-    "agents": "Agents"
+    "agents": "Agentai"
   },
   "auth": {
     "createYourAccount": "Sukurkite savo paskyrą",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Likę",
     "quotaReset": "Atstatymas",
     "quotaObserved": "Stebėta",
-    "tabAgents": "Agents",
+    "tabAgents": "Agentai",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini modelių susiejimas",
+    "geminiDesc": "Susiekite Gemini Pro, Flash ir Flash-Lite pavadinimus su Auto arba konkrečiu katalogo modeliu.",
+    "compatibilityTitle": "Agentų suderinamumas",
+    "compatibilityDesc": "Valdykite pasirenkamus suderinamumo paviršius ir Claude Code modelių aptikimą.",
+    "ollamaMode": "Ollama emuliacija",
+    "ollamaModeHint": "Atviras loopback niekada nepriima neautentifikuoto LAN srauto.",
+    "ollamaOff": "Išjungta",
+    "ollamaLoopback": "Atvira per loopback",
+    "ollamaKeyRequired": "Reikalingas API raktas",
+    "claudeAliases": "Claude Code aptikimo aliasai",
+    "claudeAliasesHint": "Atskleiskite claude/<model> aliasus, kad šliuzo modelių parinkiklis galėtų pateikti katalogą.",
+    "urlTokensTitle": "Atšaukiami URL žetonai",
+    "urlTokensDesc": "Tik klientams be antraščių. URL žetonai gali nutekėti į istoriją ir žurnalus, todėl atšaukite juos, kai nebereikia.",
+    "urlTokenLabel": "Žetono etiketė",
+    "createUrlToken": "Sukurti žetoną",
+    "urlTokenOnce": "Nukopijuokite šį žetoną dabar. Jis daugiau nebus rodomas.",
+    "revoked": "Atšaukta",
+    "revoke": "Atšaukti"
   },
   "status": {
     "healthy": "Sveika",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Pradėti poslinkį nuo užklausos pradžios · Bandymo trukmė",
     "requestedModel": "Prašytas modelis",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Užklausos pagal agentą"
   },
   "playground": {
     "title": "Žaidimų aikštelė",
@@ -700,13 +700,13 @@
     "passwordMin": "Bent jau {min} veikėjų"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Kodavimo agentai",
+    "description": "Prijunkite kodavimo įrankius prie vieno nemokamų modelių šliuzo su sugeneruota, atsarginėms kopijoms saugia konfigūracija.",
+    "apiKey": "API raktas",
+    "quickstart": "Greičiausias kelias: sukonfigūruokite Claude Code iš tiesioginio katalogo.",
+    "currentKey": "Dabartinis vieningas raktas:",
+    "seenRecently": "Neseniai matytas",
+    "endpoint": "Galinis taškas",
+    "documentation": "Dokumentacija"
   }
 }

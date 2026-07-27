@@ -14,7 +14,7 @@
     "switchToChinese": "Chuyển sang tiếng Trung",
     "switchToEnglish": "Chuyển sang tiếng Anh",
     "modelsMenu": "Duyệt các loại mô hình",
-    "agents": "Agents"
+    "agents": "Tác nhân"
   },
   "auth": {
     "createYourAccount": "Tạo tài khoản của bạn",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Còn lại",
     "quotaReset": "Đặt lại",
     "quotaObserved": "quan sát",
-    "tabAgents": "Agents",
+    "tabAgents": "Tác nhân",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Ánh xạ mô hình Gemini",
+    "geminiDesc": "Ánh xạ tên Gemini Pro, Flash và Flash-Lite sang Auto hoặc một mô hình danh mục cụ thể.",
+    "compatibilityTitle": "Khả năng tương thích tác nhân",
+    "compatibilityDesc": "Kiểm soát các bề mặt tương thích tùy chọn và khám phá mô hình Claude Code.",
+    "ollamaMode": "Giả lập Ollama",
+    "ollamaModeHint": "Loopback mở không bao giờ chấp nhận lưu lượng LAN chưa xác thực.",
+    "ollamaOff": "Tắt",
+    "ollamaLoopback": "Mở trên loopback",
+    "ollamaKeyRequired": "Yêu cầu khóa API",
+    "claudeAliases": "Bí danh khám phá Claude Code",
+    "claudeAliasesHint": "Hiển thị bí danh claude/<model> để bộ chọn mô hình của cổng có thể liệt kê danh mục.",
+    "urlTokensTitle": "Mã thông báo URL có thể thu hồi",
+    "urlTokensDesc": "Chỉ dành cho các ứng dụng khách không có tiêu đề. Mã thông báo URL có thể bị lộ vào lịch sử và nhật ký, vì vậy hãy thu hồi khi không còn cần thiết.",
+    "urlTokenLabel": "Nhãn mã thông báo",
+    "createUrlToken": "Tạo mã thông báo",
+    "urlTokenOnce": "Sao chép mã thông báo này ngay bây giờ. Nó sẽ không được hiển thị lại.",
+    "revoked": "Đã thu hồi",
+    "revoke": "Thu hồi"
   },
   "status": {
     "healthy": "khỏe mạnh",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Bắt đầu bù đắp từ khi bắt đầu yêu cầu · thời gian thử",
     "requestedModel": "Mô hình được yêu cầu",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Yêu cầu theo tác nhân"
   },
   "playground": {
     "title": "Sân chơi",
@@ -700,13 +700,13 @@
     "passwordMin": "Ít nhất ký tự {min}"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Tác nhân lập trình",
+    "description": "Kết nối các công cụ lập trình với một cổng mô hình miễn phí duy nhất bằng cấu hình được tạo sẵn, an toàn khi sao lưu.",
+    "apiKey": "Khóa API",
+    "quickstart": "Cách nhanh nhất: cấu hình Claude Code từ danh mục trực tiếp.",
+    "currentKey": "Khóa hợp nhất hiện tại:",
+    "seenRecently": "Xuất hiện gần đây",
+    "endpoint": "Điểm cuối",
+    "documentation": "Tài liệu"
   }
 }

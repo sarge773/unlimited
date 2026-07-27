@@ -32,6 +32,29 @@ describe('tool generators', () => {
     });
   }
 
+  it('setup-codex with a named profile has stable golden output', () => {
+    const generation = tools.find(tool => tool.id === 'codex')!
+      .generate({ ...context, profile: 'work' });
+    expect(generation).toMatchSnapshot();
+  });
+
+  it('writes named Codex profiles as [profiles.NAME] inside config.toml', () => {
+    const generation = tools.find(tool => tool.id === 'codex')!
+      .generate({ ...context, profile: 'work' });
+    expect(generation.files).toHaveLength(1);
+    const file = generation.files[0];
+    // Codex only reads ~/.codex/config.toml; per-profile files are ignored.
+    expect(file.path).toBe('/home/tester/.codex/config.toml');
+    expect(file.content).toContain('[profiles.work]');
+    expect(file.content).toContain('model = "fast-coder"');
+    expect(file.content).toContain('model_provider = "freellmapi"');
+    expect(file.content).toContain('[model_providers.freellmapi]');
+    // A named profile must not hijack the root/default model selection.
+    expect(file.content!.split('\n').findIndex(line => line.startsWith('model =')))
+      .toBeGreaterThan(file.content!.split('\n').indexOf('[profiles.work]'));
+    expect(generation.notes.join('\n')).toContain('codex --profile work');
+  });
+
   it('generates Cline current provider settings with repeatable selection', () => {
     const file = tools.find(tool => tool.id === 'cline')!.generate(context).files[0];
     const state = file.value as any;

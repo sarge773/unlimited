@@ -14,7 +14,7 @@
     "switchToChinese": "中国語に切り替える",
     "switchToEnglish": "英語に切り替える",
     "modelsMenu": "モデルタイプを参照する",
-    "agents": "Agents"
+    "agents": "エージェント"
   },
   "auth": {
     "createYourAccount": "アカウントを作成する",
@@ -377,28 +377,28 @@
     "quotaRemaining": "残り",
     "quotaReset": "リセット",
     "quotaObserved": "観察された",
-    "tabAgents": "Agents",
+    "tabAgents": "エージェント",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini モデルマッピング",
+    "geminiDesc": "Gemini Pro、Flash、Flash-Lite の名前を Auto または特定のカタログモデルにマッピングします。",
+    "compatibilityTitle": "エージェント互換性",
+    "compatibilityDesc": "オプトインの互換サーフェスと Claude Code のモデル検出を制御します。",
+    "ollamaMode": "Ollama エミュレーション",
+    "ollamaModeHint": "オープンループバックは、未認証の LAN トラフィックを決して受け付けません。",
+    "ollamaOff": "オフ",
+    "ollamaLoopback": "ループバックで開放",
+    "ollamaKeyRequired": "API キーが必要",
+    "claudeAliases": "Claude Code 検出エイリアス",
+    "claudeAliasesHint": "claude/<model> エイリアスを公開して、ゲートウェイのモデルピッカーがカタログを一覧表示できるようにします。",
+    "urlTokensTitle": "取り消し可能な URL トークン",
+    "urlTokensDesc": "ヘッダーを使えないクライアント専用です。URL トークンは履歴やログに漏れる可能性があるため、不要になったら取り消してください。",
+    "urlTokenLabel": "トークンラベル",
+    "createUrlToken": "トークンを作成",
+    "urlTokenOnce": "このトークンを今すぐコピーしてください。二度と表示されません。",
+    "revoked": "取り消し済み",
+    "revoke": "取り消す"
   },
   "status": {
     "healthy": "健康な",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "リクエスト開始からの開始オフセット · 試行期間",
     "requestedModel": "要求されたモデル",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "エージェント別リクエスト"
   },
   "playground": {
     "title": "遊び場",
@@ -700,13 +700,13 @@
     "passwordMin": "少なくとも {min} 文字"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "コーディングエージェント",
+    "description": "コーディングツールを 1 つの無料モデルゲートウェイに接続します。設定は自動生成され、バックアップも安全です。",
+    "apiKey": "API キー",
+    "quickstart": "最速の方法: ライブカタログから Claude Code を設定します。",
+    "currentKey": "現在の統合キー:",
+    "seenRecently": "最近確認済み",
+    "endpoint": "エンドポイント",
+    "documentation": "ドキュメント"
   }
 }

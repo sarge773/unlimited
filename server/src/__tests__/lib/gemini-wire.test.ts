@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   effortFromGeminiThinking,
+  estimateGeminiTokens,
   geminiContentsToMessages,
   geminiPartsFromResult,
   geminiResponseFormat,
@@ -111,5 +112,74 @@ describe('Gemini wire translation', () => {
       { text: 'Done' },
       { functionCall: { id: 'call_1', name: 'write_file', args: { path: 'a.txt' } } },
     ]);
+  });
+
+  it('omits tool_choice entirely when the request has no toolConfig', () => {
+    expect(geminiToolChoice(undefined)).toBeUndefined();
+    expect(geminiToolChoice({})).toBeUndefined();
+    expect(geminiToolChoice({ functionCallingConfig: { mode: 'AUTO' } })).toBe('auto');
+  });
+
+  it('treats thinkingBudget -1 as model-managed, not disabled', () => {
+    expect(effortFromGeminiThinking({ thinkingConfig: { thinkingBudget: -1 } })).toBeUndefined();
+    expect(effortFromGeminiThinking({ thinkingConfig: { thinkingBudget: 0 } })).toBe('none');
+    expect(effortFromGeminiThinking({ thinkingConfig: { thinkingBudget: 2048 } })).toBe('low');
+  });
+
+  it('accepts parametersJsonSchema and normalizes the Gemini schema dialect', () => {
+    const tools = geminiToolsToChatTools([{
+      functionDeclarations: [{
+        name: 'lookup',
+        parametersJsonSchema: {
+          type: 'OBJECT',
+          properties: { city: { type: 'STRING', nullable: true } },
+        },
+      }],
+    }]);
+    expect(tools?.[0].function.parameters).toEqual({
+      type: 'object',
+      properties: { city: { type: ['string', 'null'] } },
+    });
+  });
+
+  it('emits tool results before new user text and matches parallel same-name calls FIFO', () => {
+    const messages = geminiContentsToMessages({
+      contents: [
+        {
+          role: 'model',
+          parts: [
+            { functionCall: { name: 'read', args: { path: 'a' } } },
+            { functionCall: { name: 'read', args: { path: 'b' } } },
+          ],
+        },
+        {
+          role: 'user',
+          parts: [
+            { text: 'Now continue.' },
+            { functionResponse: { name: 'read', response: 'A' } },
+            { functionResponse: { name: 'read', response: 'B' } },
+          ],
+        },
+      ],
+    });
+    const assistant = messages[0];
+    const toolIds = messages.filter(m => m.role === 'tool').map(m => m.tool_call_id);
+    expect(assistant.tool_calls).toHaveLength(2);
+    expect(toolIds).toEqual(assistant.tool_calls!.map(call => call.id));
+    // Ordering: assistant, tool, tool, then the new user text.
+    expect(messages.map(m => m.role)).toEqual(['assistant', 'tool', 'tool', 'user']);
+  });
+
+  it('skips replayed thought parts and prices images per-image in estimates', () => {
+    const messages = geminiContentsToMessages({
+      contents: [{ role: 'model', parts: [{ text: 'internal reasoning', thought: true }, { text: 'visible' }] }],
+    });
+    expect(JSON.stringify(messages)).not.toContain('internal reasoning');
+
+    const big = 'A'.repeat(400_000);
+    const tokens = estimateGeminiTokens({
+      contents: [{ role: 'user', parts: [{ text: 'hi' }, { inlineData: { mimeType: 'image/png', data: big } }] }],
+    });
+    expect(tokens).toBeLessThan(1000);
   });
 });

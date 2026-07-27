@@ -14,7 +14,7 @@
     "switchToChinese": "တရုတ်ဘာသာသို့ ပြောင်းရန်",
     "switchToEnglish": "အင်္ဂလိပ်သို့ ပြောင်းပါ",
     "modelsMenu": "မော်ဒယ်အမျိုးအစားများကို ကြည့်ရှုပါ",
-    "agents": "Agents"
+    "agents": "အေးဂျင့်များ"
   },
   "auth": {
     "createYourAccount": "သင့်အကောင့်ကို ဖန်တီးပါ",
@@ -377,28 +377,28 @@
     "quotaRemaining": "ကျန်ရှိသော",
     "quotaReset": "Reset လုပ်ပါ",
     "quotaObserved": "ကြည့်ရှုခဲ့သည်",
-    "tabAgents": "Agents",
+    "tabAgents": "အေးဂျင့်များ",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini မော်ဒယ် ချိတ်ဆက်သတ်မှတ်ခြင်း",
+    "geminiDesc": "Gemini Pro၊ Flash နှင့် Flash-Lite အမည်များကို Auto သို့မဟုတ် သတ်မှတ်ထားသော catalog မော်ဒယ်တစ်ခုသို့ ချိတ်ဆက်သတ်မှတ်ပါ။",
+    "compatibilityTitle": "အေးဂျင့် လိုက်ဖက်မှု",
+    "compatibilityDesc": "ရွေးချယ်ဝင်ရောက်နိုင်သော လိုက်ဖက်မှုမျက်နှာပြင်များနှင့် Claude Code မော်ဒယ်ရှာဖွေမှုကို ထိန်းချုပ်ပါ။",
+    "ollamaMode": "Ollama တုပမှု",
+    "ollamaModeHint": "ဖွင့်ထားသော loopback သည် အထောက်အထားမစိစစ်ထားသော LAN အသွားအလာကို ဘယ်တော့မှ လက်မခံပါ။",
+    "ollamaOff": "ပိတ်",
+    "ollamaLoopback": "Loopback ပေါ်တွင် ဖွင့်ရန်",
+    "ollamaKeyRequired": "API ကီး လိုအပ်သည်",
+    "claudeAliases": "Claude Code ရှာဖွေမှု အမည်ပွားများ",
+    "claudeAliasesHint": "Gateway မော်ဒယ်ရွေးချယ်ကိရိယာက catalog ကို စာရင်းပြနိုင်ရန် claude/<model> အမည်ပွားများကို ဖော်ပြပေးပါ။",
+    "urlTokensTitle": "ရုပ်သိမ်းနိုင်သော URL တိုကင်များ",
+    "urlTokensDesc": "Header မပါသော client များအတွက်သာ ဖြစ်သည်။ URL တိုကင်များသည် မှတ်တမ်းနှင့် log များထဲသို့ ပေါက်ကြားနိုင်သဖြင့် မလိုအပ်တော့ပါက ရုပ်သိမ်းပါ။",
+    "urlTokenLabel": "တိုကင် တံဆိပ်",
+    "createUrlToken": "တိုကင် ဖန်တီးရန်",
+    "urlTokenOnce": "ဤတိုကင်ကို ယခုပင် ကူးယူပါ။ နောက်ထပ် ပြသမည် မဟုတ်ပါ။",
+    "revoked": "ရုပ်သိမ်းပြီး",
+    "revoke": "ရုပ်သိမ်းရန်"
   },
   "status": {
     "healthy": "ကျန်းမာသော",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "တောင်းဆိုမှုစတင်ချိန်မှ စတင်အော့ဖ်ဆက် · ကြိုးစားမှုကြာချိန်",
     "requestedModel": "တောင်းဆိုထားသော မော်ဒယ်",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "အေးဂျင့်အလိုက် တောင်းဆိုမှုများ"
   },
   "playground": {
     "title": "ကစားကွင်း",
@@ -700,13 +700,13 @@
     "passwordMin": "အနည်းဆုံး {min}"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
+    "title": "ကုဒ်ရေး အေးဂျင့်များ",
+    "description": "ကုဒ်ရေးကိရိယာများကို အလိုအလျောက်ထုတ်ပေးထားပြီး အရန်သိမ်းရန် စိတ်ချရသော configuration ဖြင့် အခမဲ့မော်ဒယ် gateway တစ်ခုတည်းသို့ ချိတ်ဆက်ပါ။",
+    "apiKey": "API ကီး",
+    "quickstart": "အမြန်ဆုံးနည်းလမ်း: တိုက်ရိုက် catalog မှ Claude Code ကို ပြင်ဆင်သတ်မှတ်ပါ။",
+    "currentKey": "လက်ရှိ ပေါင်းစည်းထားသောကီး:",
+    "seenRecently": "မကြာသေးမီက တွေ့ရှိထားသည်",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "စာရွက်စာတမ်းများ"
   }
 }

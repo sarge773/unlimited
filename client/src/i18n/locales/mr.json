@@ -14,7 +14,7 @@
     "switchToChinese": "चीनी वर स्विच करा",
     "switchToEnglish": "इंग्रजीवर स्विच करा",
     "modelsMenu": "मॉडेल प्रकार ब्राउझ करा",
-    "agents": "Agents"
+    "agents": "एजंट"
   },
   "auth": {
     "createYourAccount": "तुमचे खाते तयार करा",
@@ -377,28 +377,28 @@
     "quotaRemaining": "बाकी",
     "quotaReset": "रीसेट करा",
     "quotaObserved": "निरीक्षण केले",
-    "tabAgents": "Agents",
+    "tabAgents": "एजंट",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini मॉडेल मॅपिंग",
+    "geminiDesc": "Gemini Pro, Flash आणि Flash-Lite नावे ऑटो किंवा विशिष्ट कॅटलॉग मॉडेलवर मॅप करा.",
+    "compatibilityTitle": "एजंट सुसंगतता",
+    "compatibilityDesc": "ऑप्ट-इन सुसंगतता पृष्ठभाग आणि Claude Code मॉडेल शोध नियंत्रित करा.",
+    "ollamaMode": "Ollama अनुकरण",
+    "ollamaModeHint": "ओपन-लूपबॅक कधीही अप्रमाणित LAN रहदारी स्वीकारत नाही.",
+    "ollamaOff": "बंद",
+    "ollamaLoopback": "लूपबॅकवर खुले",
+    "ollamaKeyRequired": "API की आवश्यक",
+    "claudeAliases": "Claude Code शोध उपनावे",
+    "claudeAliasesHint": "गेटवे मॉडेल निवडकर्ता कॅटलॉग सूचीबद्ध करू शकेल यासाठी claude/<model> उपनावे उघड करा.",
+    "urlTokensTitle": "रद्द करण्यायोग्य URL टोकन",
+    "urlTokensDesc": "फक्त हेडर-रहित क्लायंटसाठी. URL टोकन इतिहास आणि लॉगमध्ये गळती होऊ शकतात, म्हणून गरज नसताना ती रद्द करा.",
+    "urlTokenLabel": "टोकन लेबल",
+    "createUrlToken": "टोकन तयार करा",
+    "urlTokenOnce": "हे टोकन आत्ताच कॉपी करा. ते पुन्हा दाखवले जाणार नाही.",
+    "revoked": "रद्द केले",
+    "revoke": "रद्द करा"
   },
   "status": {
     "healthy": "निरोगी",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "विनंती पासून ऑफसेट सुरू करा प्रारंभ · प्रयत्न कालावधी",
     "requestedModel": "मॉडेलची विनंती केली",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "एजंटनुसार विनंत्या"
   },
   "playground": {
     "title": "खेळाचे मैदान",
@@ -700,13 +700,13 @@
     "passwordMin": "किमान {min} वर्ण"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "कोडिंग एजंट",
+    "description": "जनरेट केलेल्या, बॅकअप-सुरक्षित कॉन्फिगरेशनसह कोडिंग साधने एका मोफत-मॉडेल गेटवेशी जोडा.",
+    "apiKey": "API की",
+    "quickstart": "सर्वात जलद मार्ग: लाइव्ह कॅटलॉगमधून Claude Code कॉन्फिगर करा.",
+    "currentKey": "सध्याची युनिफाइड की:",
+    "seenRecently": "अलीकडे पाहिले",
+    "endpoint": "एंडपॉइंट",
+    "documentation": "दस्तऐवजीकरण"
   }
 }

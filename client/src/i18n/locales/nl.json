@@ -14,7 +14,7 @@
     "switchToChinese": "Overstappen naar Chinees",
     "switchToEnglish": "Overstap naar Engels",
     "modelsMenu": "Blader door modeltypes",
-    "agents": "Agents"
+    "agents": "Agenten"
   },
   "auth": {
     "createYourAccount": "Maak je account aan",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Overige",
     "quotaReset": "Reset",
     "quotaObserved": "Geobserveerd",
-    "tabAgents": "Agents",
+    "tabAgents": "Agenten",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini-modeltoewijzing",
+    "geminiDesc": "Wijs de namen Gemini Pro, Flash en Flash-Lite toe aan Auto of een specifiek catalogusmodel.",
+    "compatibilityTitle": "Agentcompatibiliteit",
+    "compatibilityDesc": "Beheer optionele compatibiliteitsfuncties en Claude Code-modeldetectie.",
+    "ollamaMode": "Ollama-emulatie",
+    "ollamaModeHint": "Open loopback accepteert nooit niet-geauthenticeerd LAN-verkeer.",
+    "ollamaOff": "Uit",
+    "ollamaLoopback": "Open op loopback",
+    "ollamaKeyRequired": "API-sleutel vereist",
+    "claudeAliases": "Claude Code-detectiealiassen",
+    "claudeAliasesHint": "Stel claude/<model>-aliassen beschikbaar zodat de modelkiezer van de gateway de catalogus kan tonen.",
+    "urlTokensTitle": "Intrekbare URL-tokens",
+    "urlTokensDesc": "Alleen voor clients zonder headers. URL-tokens kunnen in geschiedenis en logs terechtkomen, dus trek ze in zodra ze niet meer nodig zijn.",
+    "urlTokenLabel": "Tokenlabel",
+    "createUrlToken": "Token aanmaken",
+    "urlTokenOnce": "Kopieer dit token nu. Het wordt niet opnieuw getoond.",
+    "revoked": "Ingetrokken",
+    "revoke": "Intrekken"
   },
   "status": {
     "healthy": "Gezond",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Start offset van verzoek start · Duur van de poging",
     "requestedModel": "Aangevraagd model",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Verzoeken per agent"
   },
   "playground": {
     "title": "Speeltuin",
@@ -700,13 +700,13 @@
     "passwordMin": "Tenminste {min} personages"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
+    "title": "Codeeragenten",
+    "description": "Verbind codeertools met één gateway voor gratis modellen, met gegenereerde, back-upveilige configuratie.",
+    "apiKey": "API-sleutel",
+    "quickstart": "Snelste route: configureer Claude Code vanuit de live catalogus.",
+    "currentKey": "Huidige uniforme sleutel:",
+    "seenRecently": "Onlangs gezien",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "Documentatie"
   }
 }

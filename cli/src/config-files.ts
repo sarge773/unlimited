@@ -159,43 +159,77 @@ function mergeYaml(existing: string, generated: string): string {
   return mergeMarked(withoutConflicts, generated);
 }
 
-function generatedTomlKeys(generated: string): Set<string> {
-  const keys = new Set<string>();
-  for (const line of generated.split(/\r?\n/)) {
-    const match = line.match(/^([A-Za-z0-9_.-]+)\s*=/);
-    if (match) keys.add(match[1]);
-  }
-  return keys;
+function tomlTableHeader(line: string): string | undefined {
+  return line.match(/^\[([^\]]+)\]$/)?.[1];
 }
 
-function generatedTomlTables(generated: string): Set<string> {
-  const tables = new Set<string>();
-  for (const line of generated.split(/\r?\n/)) {
-    const match = line.match(/^\[([^\]]+)\]$/);
-    if (match) tables.add(match[1]);
-  }
-  return tables;
+function tomlRootKey(line: string): string | undefined {
+  return line.match(/^([A-Za-z0-9_.-]+)\s*=/)?.[1];
 }
 
+function isTomlMarkerLine(line: string): boolean {
+  return /^[ \t]*# freellmapi:(?:start|end)$/.test(line);
+}
+
+function trimBlankEdges(lines: string[]): string[] {
+  let start = 0;
+  let end = lines.length;
+  while (start < end && !lines[start].trim()) start += 1;
+  while (end > start && !lines[end - 1].trim()) end -= 1;
+  return lines.slice(start, end);
+}
+
+interface TomlSections {
+  root: string[];
+  tables: string[];
+}
+
+function splitTomlSections(generated: string): TomlSections {
+  const lines = generated.split(/\r?\n/).filter(line => !isTomlMarkerLine(line));
+  const firstTable = lines.findIndex(line => tomlTableHeader(line) !== undefined);
+  if (firstTable < 0) return { root: trimBlankEdges(lines), tables: [] };
+  return {
+    root: trimBlankEdges(lines.slice(0, firstTable)),
+    tables: trimBlankEdges(lines.slice(firstTable)),
+  };
+}
+
+// TOML keys written after a `[table]` header belong to that table, so
+// generated root-level keys must be inserted BEFORE the first table header of
+// the existing file, never appended after it. Generated tables are appended at
+// the end, and only root keys that the generated ROOT REGION sets are removed
+// from the existing root region.
 function mergeToml(existing: string, generated: string): string {
   if (!existing.trim()) return generated;
-  if (/^# freellmapi:start$/m.test(existing)) return mergeMarked(existing, generated);
-  const keys = generatedTomlKeys(generated);
-  const tables = generatedTomlTables(generated);
-  const lines = existing.split(/\r?\n/);
-  const output: string[] = [];
+  const { root: generatedRoot, tables: generatedTables } = splitTomlSections(generated);
+  const rootKeys = new Set(generatedRoot
+    .map(tomlRootKey)
+    .filter((key): key is string => Boolean(key)));
+  const tableNames = new Set(generatedTables
+    .map(tomlTableHeader)
+    .filter((name): name is string => Boolean(name)));
+
+  const kept: string[] = [];
   let currentTable: string | undefined;
-  for (const line of lines) {
-    const table = line.match(/^\[([^\]]+)\]$/)?.[1];
+  for (const line of existing.split(/\r?\n/)) {
+    if (isTomlMarkerLine(line)) continue;
+    const table = tomlTableHeader(line);
     if (table) currentTable = table;
-    if (currentTable && tables.has(currentTable)) continue;
-    if (!currentTable) {
-      const key = line.match(/^([A-Za-z0-9_.-]+)\s*=/)?.[1];
-      if (key && keys.has(key)) continue;
-    }
-    output.push(line);
+    if (currentTable && tableNames.has(currentTable)) continue;
+    if (!currentTable && rootKeys.has(tomlRootKey(line) ?? '')) continue;
+    kept.push(line);
   }
-  return mergeMarked(output.join('\n').trimEnd(), generated);
+
+  const wrap = (lines: string[]): string[] => (lines.length
+    ? ['# freellmapi:start', ...lines, '# freellmapi:end']
+    : []);
+  const firstTable = kept.findIndex(line => tomlTableHeader(line) !== undefined);
+  const head = firstTable < 0 ? kept : kept.slice(0, firstTable);
+  const tail = firstTable < 0 ? [] : kept.slice(firstTable);
+  const sections = [head, wrap(generatedRoot), tail, wrap(generatedTables)]
+    .map(lines => trimBlankEdges(lines).join('\n').replace(/\n{3,}/g, '\n\n'))
+    .filter(Boolean);
+  return `${sections.join('\n\n')}\n`;
 }
 
 function mergeEnv(existing: string, generated: string): string {
@@ -240,17 +274,28 @@ export interface ApplyResult {
   previous: string;
 }
 
-export function applyGeneratedFile(file: GeneratedFile, dryRun: boolean): ApplyResult {
+interface PlannedWrite extends ApplyResult {
+  file: GeneratedFile;
+  exists: boolean;
+}
+
+function planGeneratedFile(file: GeneratedFile): PlannedWrite {
   const exists = fs.existsSync(file.path);
   const previous = exists ? fs.readFileSync(file.path, 'utf8') : '';
   const rendered = renderFile(file, previous);
-  if (rendered === previous) {
-    return { path: file.path, changed: false, rendered, previous };
-  }
-  if (dryRun) {
-    return { path: file.path, changed: true, rendered, previous };
-  }
+  return {
+    file,
+    exists,
+    path: file.path,
+    changed: rendered !== previous,
+    rendered,
+    previous,
+  };
+}
 
+function commitPlannedWrite(plan: PlannedWrite): ApplyResult {
+  const { file, exists, ...result } = plan;
+  if (!plan.changed) return result;
   fs.mkdirSync(path.dirname(file.path), { recursive: true, mode: 0o700 });
   let backupPath: string | undefined;
   if (exists) {
@@ -258,10 +303,26 @@ export function applyGeneratedFile(file: GeneratedFile, dryRun: boolean): ApplyR
     fs.copyFileSync(file.path, backupPath);
   }
   const temporary = `${file.path}.freellmapi-${process.pid}.tmp`;
-  fs.writeFileSync(temporary, rendered, { mode: file.sensitive ? 0o600 : 0o644 });
+  fs.writeFileSync(temporary, plan.rendered, { mode: file.sensitive ? 0o600 : 0o644 });
   fs.renameSync(temporary, file.path);
   if (file.sensitive) fs.chmodSync(file.path, 0o600);
-  return { path: file.path, changed: true, backupPath, rendered, previous };
+  return { ...result, backupPath };
+}
+
+// Two-phase apply: every target file is read and merged BEFORE the first
+// write, so a merge failure on any file aborts the whole batch without
+// leaving earlier files modified.
+export function applyGeneratedFiles(
+  files: GeneratedFile[],
+  dryRun: boolean,
+): ApplyResult[] {
+  const plans = files.map(planGeneratedFile);
+  if (dryRun) return plans.map(({ file: _file, exists: _exists, ...result }) => result);
+  return plans.map(commitPlannedWrite);
+}
+
+export function applyGeneratedFile(file: GeneratedFile, dryRun: boolean): ApplyResult {
+  return applyGeneratedFiles([file], dryRun)[0];
 }
 
 export function printDryRunDiff(result: ApplyResult): string {

@@ -14,7 +14,7 @@
     "switchToChinese": "Passa al cinese",
     "switchToEnglish": "Passa all'inglese",
     "modelsMenu": "Sfoglia i tipi di modello",
-    "agents": "Agents"
+    "agents": "Agenti"
   },
   "auth": {
     "createYourAccount": "Crea il tuo account",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Rimanente",
     "quotaReset": "Reset",
     "quotaObserved": "Osservato",
-    "tabAgents": "Agents",
+    "tabAgents": "Agenti",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Mappatura modelli Gemini",
+    "geminiDesc": "Mappa i nomi Gemini Pro, Flash e Flash-Lite su Auto o su un modello specifico del catalogo.",
+    "compatibilityTitle": "Compatibilità agenti",
+    "compatibilityDesc": "Controlla le superfici di compatibilità opzionali e la scoperta dei modelli di Claude Code.",
+    "ollamaMode": "Emulazione Ollama",
+    "ollamaModeHint": "Il loopback aperto non accetta mai traffico LAN non autenticato.",
+    "ollamaOff": "Disattivata",
+    "ollamaLoopback": "Aperta su loopback",
+    "ollamaKeyRequired": "Chiave API richiesta",
+    "claudeAliases": "Alias di scoperta per Claude Code",
+    "claudeAliasesHint": "Esponi gli alias claude/<model> così il selettore di modelli del gateway può elencare il catalogo.",
+    "urlTokensTitle": "Token URL revocabili",
+    "urlTokensDesc": "Solo per client senza header. I token URL possono finire nella cronologia e nei log, quindi revocali quando non servono più.",
+    "urlTokenLabel": "Etichetta del token",
+    "createUrlToken": "Crea token",
+    "urlTokenOnce": "Copia questo token ora. Non verrà mostrato di nuovo.",
+    "revoked": "Revocato",
+    "revoke": "Revoca"
   },
   "status": {
     "healthy": "funzionante",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Offset dall'inizio della richiesta · durata del tentativo",
     "requestedModel": "Modello richiesto",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Richieste per agente"
   },
   "playground": {
     "title": "Playground",
@@ -700,13 +700,13 @@
     "passwordMin": "Almeno {min} caratteri"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
+    "title": "Agenti di coding",
+    "description": "Collega gli strumenti di coding a un unico gateway di modelli gratuiti con configurazione generata e sicura per il backup.",
+    "apiKey": "Chiave API",
+    "quickstart": "La via più rapida: configura Claude Code dal catalogo live.",
+    "currentKey": "Chiave unificata attuale:",
+    "seenRecently": "Visto di recente",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "Documentazione"
   }
 }

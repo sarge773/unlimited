@@ -171,6 +171,8 @@ curl "http://localhost:3001/v1beta/models/gemini-2.5-flash:generateContent" \
   -d '{"contents":[{"role":"user","parts":[{"text":"hello"}]}]}'
 ```
 
+Gemini model names like `gemini-2.5-flash` resolve through the Gemini family map (Keys → Gemini model mapping) rather than the catalog directly, so they route to Auto or whichever catalog model each family is pinned to. Catalog ids work verbatim too.
+
 `contents` text, inline data, function calls/responses, system instructions,
 function declarations, structured JSON output, generation controls, and
 thinking budgets translate into the same internal chat/fallback pipeline.

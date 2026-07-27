@@ -14,7 +14,7 @@
     "switchToChinese": "චීන භාෂාවට මාරු වන්න",
     "switchToEnglish": "ඉංග්‍රීසි වලට මාරු වෙන්න",
     "modelsMenu": "ආකෘති වර්ග පිරික්සන්න",
-    "agents": "Agents"
+    "agents": "නියෝජිතයන්"
   },
   "auth": {
     "createYourAccount": "ඔබගේ ගිණුම සාදන්න",
@@ -377,28 +377,28 @@
     "quotaRemaining": "ඉතිරි",
     "quotaReset": "යළි පිහිටුවන්න",
     "quotaObserved": "නිරීක්ෂණය කරන ලදී",
-    "tabAgents": "Agents",
+    "tabAgents": "නියෝජිතයන්",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini ආකෘති සිතියම්ගත කිරීම",
+    "geminiDesc": "Gemini Pro, Flash සහ Flash-Lite නම් Auto වෙත හෝ නිශ්චිත නාමාවලි ආකෘතියකට සිතියම්ගත කරන්න.",
+    "compatibilityTitle": "නියෝජිත ගැළපුම",
+    "compatibilityDesc": "විකල්ප ගැළපුම් පෘෂ්ඨ සහ Claude Code ආකෘති සොයාගැනීම පාලනය කරන්න.",
+    "ollamaMode": "Ollama අනුකරණය",
+    "ollamaModeHint": "විවෘත loopback කිසිවිටෙක සත්‍යාපනය නොකළ LAN ගමනාගමනය භාර නොගනී.",
+    "ollamaOff": "අක්‍රියයි",
+    "ollamaLoopback": "Loopback මත විවෘතයි",
+    "ollamaKeyRequired": "API යතුර අවශ්‍යයි",
+    "claudeAliases": "Claude Code සොයාගැනීමේ අන්වර්ථ නාම",
+    "claudeAliasesHint": "ද්වාරයේ ආකෘති තෝරකයට නාමාවලිය ලැයිස්තුගත කළ හැකි වන පරිදි claude/<model> අන්වර්ථ නාම නිරාවරණය කරන්න.",
+    "urlTokensTitle": "අවලංගු කළ හැකි URL ටෝකන",
+    "urlTokensDesc": "ශීර්ෂක රහිත සේවාලාභීන් සඳහා පමණි. URL ටෝකන ඉතිහාසයට සහ ලොග වෙත කාන්දු විය හැකි බැවින්, තවදුරටත් අවශ්‍ය නොවන විට ඒවා අවලංගු කරන්න.",
+    "urlTokenLabel": "ටෝකන ලේබලය",
+    "createUrlToken": "ටෝකනය සාදන්න",
+    "urlTokenOnce": "මෙම ටෝකනය දැන්ම පිටපත් කරන්න. එය නැවත නොපෙන්වයි.",
+    "revoked": "අවලංගු කරන ලදී",
+    "revoke": "අවලංගු කරන්න"
   },
   "status": {
     "healthy": "සෞඛ්ය සම්පන්න",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "ඉල්ලීම ආරම්භයේ සිට ඕෆ්සෙට් ආරම්භ කරන්න · උත්සාහ කාලය",
     "requestedModel": "ඉල්ලූ ආකෘතිය",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "නියෝජිතයා අනුව ඉල්ලීම්"
   },
   "playground": {
     "title": "ක්රීඩා පිටිය",
@@ -700,13 +700,13 @@
     "passwordMin": "අවම වශයෙන් {min} අක්ෂර"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "කේතන නියෝජිතයන්",
+    "description": "ජනනය කළ, උපස්ථ-ආරක්ෂිත වින්‍යාසයක් සමඟ කේතන මෙවලම් එක් නොමිලේ-ආකෘති ද්වාරයකට සම්බන්ධ කරන්න.",
+    "apiKey": "API යතුර",
+    "quickstart": "වේගවත්ම මාර්ගය: සජීවී නාමාවලියෙන් Claude Code වින්‍යාස කරන්න.",
+    "currentKey": "වත්මන් ඒකාබද්ධ යතුර:",
+    "seenRecently": "මෑතකදී දක්නට ලැබුණි",
+    "endpoint": "අන්ත ලක්ෂ්‍යය",
+    "documentation": "ලේඛන"
   }
 }

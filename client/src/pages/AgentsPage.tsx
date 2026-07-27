@@ -58,7 +58,12 @@ export default function AgentsPage() {
     queryKey: ['analytics', 'by-client', '30d'],
     queryFn: () => apiFetch('/api/analytics/by-client?range=30d'),
   })
-  const seen = new Map(byClient.map(row => [row.clientAgent, row]))
+  // "Seen recently" means traffic within the last 7 days, not merely any row
+  // in the fetched 30-day window.
+  const seenCutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
+  const seen = new Map(byClient
+    .filter(row => row.lastSeenAt && Date.parse(row.lastSeenAt) >= seenCutoff)
+    .map(row => [row.clientAgent, row]))
   const origin = import.meta.env.DEV
     ? `http://${window.location.hostname}:${__SERVER_PORT__}`
     : window.location.origin
@@ -101,8 +106,10 @@ export default function AgentsPage() {
           const traffic = seen.get(analyticsIds[tool.id] ?? tool.id)
           const command = `npx freellmapi ${tool.command} --url ${origin}`
           const endpoint = tool.baseUrlSupport === 'root' ? origin : `${origin}/v1`
-          const realConnection = `${t('keys.baseUrl')}=${endpoint}\n${t('agents.apiKey')}=${keyData?.apiKey ?? '<unified-key>'}`
-          const shownConnection = `${t('keys.baseUrl')}=${endpoint}\n${t('agents.apiKey')}=${shownKey}`
+          // The copied snippet is pasted into config files — keep it
+          // locale-independent.
+          const realConnection = `BASE_URL=${endpoint}\nAPI_KEY=${keyData?.apiKey ?? '<unified-key>'}`
+          const shownConnection = `BASE_URL=${endpoint}\nAPI_KEY=${shownKey}`
           return (
             <Card key={tool.id} size="sm">
               <CardHeader>

@@ -14,7 +14,7 @@
     "switchToChinese": "التبديل إلى الصينية",
     "switchToEnglish": "التبديل إلى اللغة الإنجليزية",
     "modelsMenu": "تصفح أنواع النماذج",
-    "agents": "Agents"
+    "agents": "الوكلاء"
   },
   "auth": {
     "createYourAccount": "أنشئ حسابك",
@@ -377,28 +377,28 @@
     "quotaRemaining": "المتبقي",
     "quotaReset": "إعادة تعيين",
     "quotaObserved": "لوحظ",
-    "tabAgents": "Agents",
+    "tabAgents": "الوكلاء",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "تعيين نماذج Gemini",
+    "geminiDesc": "عيّن أسماء Gemini Pro وFlash وFlash-Lite إلى Auto أو إلى نموذج محدد من الكتالوج.",
+    "compatibilityTitle": "توافق الوكلاء",
+    "compatibilityDesc": "تحكم في واجهات التوافق الاختيارية واكتشاف نماذج Claude Code.",
+    "ollamaMode": "محاكاة Ollama",
+    "ollamaModeHint": "الوضع المفتوح على loopback لا يقبل أبدًا حركة مرور LAN غير مصادق عليها.",
+    "ollamaOff": "إيقاف",
+    "ollamaLoopback": "مفتوح على loopback",
+    "ollamaKeyRequired": "مفتاح API مطلوب",
+    "claudeAliases": "أسماء بديلة لاكتشاف Claude Code",
+    "claudeAliasesHint": "اعرض أسماء بديلة بصيغة claude/<model> ليتمكن منتقي النماذج في البوابة من عرض الكتالوج.",
+    "urlTokensTitle": "رموز URL قابلة للإلغاء",
+    "urlTokensDesc": "للعملاء بدون ترويسات فقط. قد تتسرب رموز URL إلى المحفوظات والسجلات، لذا ألغِها عندما لا تعود هناك حاجة إليها.",
+    "urlTokenLabel": "تسمية الرمز",
+    "createUrlToken": "إنشاء رمز",
+    "urlTokenOnce": "انسخ هذا الرمز الآن. لن يتم عرضه مرة أخرى.",
+    "revoked": "مُلغى",
+    "revoke": "إلغاء"
   },
   "status": {
     "healthy": "صحي",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "بداية الإزاحة من بداية الطلب · مدة المحاولة",
     "requestedModel": "النموذج المطلوب",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "الطلبات حسب الوكيل"
   },
   "playground": {
     "title": "ملعب",
@@ -700,13 +700,13 @@
     "passwordMin": "أحرف {min} على الأقل"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "وكلاء البرمجة",
+    "description": "اربط أدوات البرمجة ببوابة واحدة للنماذج المجانية مع تكوين مُنشأ تلقائيًا وآمن للنسخ الاحتياطي.",
+    "apiKey": "مفتاح API",
+    "quickstart": "أسرع طريقة: قم بتكوين Claude Code من الكتالوج المباشر.",
+    "currentKey": "المفتاح الموحد الحالي:",
+    "seenRecently": "شوهد مؤخرًا",
+    "endpoint": "نقطة النهاية",
+    "documentation": "التوثيق"
   }
 }

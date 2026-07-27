@@ -117,6 +117,35 @@ requires_openai_auth = false
 }
 `;
 
+exports[`tool generators > setup-codex with a named profile has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "content": "# freellmapi:start
+[model_providers.freellmapi]
+name = "FreeLLMAPI"
+base_url = "http://localhost:3000/v1"
+wire_api = "responses"
+env_key = "FREELLMAPI_API_KEY"
+requires_openai_auth = false
+
+[profiles.work]
+model = "fast-coder"
+model_provider = "freellmapi"
+# freellmapi:end
+",
+      "format": "toml",
+      "path": "/home/tester/.codex/config.toml",
+    },
+  ],
+  "notes": [
+    "Export FREELLMAPI_API_KEY before running codex; the key is not written to config.toml.",
+    "Activate this profile with: codex --profile work",
+    "Selected fast-coder with a 131072 token context window.",
+  ],
+}
+`;
+
 exports[`tool generators > setup-continue has stable golden output 1`] = `
 {
   "files": [

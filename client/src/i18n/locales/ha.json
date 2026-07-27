@@ -14,7 +14,7 @@
     "switchToChinese": "Canja zuwa Sinanci",
     "switchToEnglish": "Canja zuwa Turanci",
     "modelsMenu": "Bincika nau'ikan samfuri",
-    "agents": "Agents"
+    "agents": "Wakilai"
   },
   "auth": {
     "createYourAccount": "Ƙirƙiri asusun ku",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Ya rage",
     "quotaReset": "Sake saiti",
     "quotaObserved": "An lura",
-    "tabAgents": "Agents",
+    "tabAgents": "Wakilai",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Taswirar samfuran Gemini",
+    "geminiDesc": "Haɗa sunayen Gemini Pro, Flash da Flash-Lite zuwa Auto ko wani takamaiman samfurin kundin.",
+    "compatibilityTitle": "Dacewar wakilai",
+    "compatibilityDesc": "Sarrafa wuraren dacewa na zaɓi da gano samfuran Claude Code.",
+    "ollamaMode": "Kwaikwayon Ollama",
+    "ollamaModeHint": "Buɗewa a loopback ba ya taɓa karɓar zirga-zirgar LAN da ba a tantance ba.",
+    "ollamaOff": "A kashe",
+    "ollamaLoopback": "A buɗe a loopback",
+    "ollamaKeyRequired": "Ana buƙatar maɓallin API",
+    "claudeAliases": "Sunayen gano na Claude Code",
+    "claudeAliasesHint": "Fitar da sunayen claude/<model> domin mazaɓin samfura na gateway ya iya lissafa kundin.",
+    "urlTokensTitle": "Alamomin URL masu sokewa",
+    "urlTokensDesc": "Don abokan ciniki marasa header kawai. Alamomin URL na iya zuba cikin tarihi da rajistan ayyuka, don haka soke su idan ba a buƙatarsu.",
+    "urlTokenLabel": "Lakabin alama",
+    "createUrlToken": "Ƙirƙiri alama",
+    "urlTokenOnce": "Kwafi wannan alamar yanzu. Ba za a sake nuna ta ba.",
+    "revoked": "An soke",
+    "revoke": "Soke"
   },
   "status": {
     "healthy": "lafiya",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Fara biya daga farkon buƙatun · lokacin ƙoƙarin",
     "requestedModel": "Samfurin da ake nema",
     "ttft": "Saukewa: TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Bukatu ta kowane wakili"
   },
   "playground": {
     "title": "filin wasa",
@@ -700,13 +700,13 @@
     "passwordMin": "Akalla haruffa {min}"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
+    "title": "Wakilan rubuta kod",
+    "description": "Haɗa kayan aikin rubuta kod zuwa gateway ɗaya na samfura kyauta tare da saitin da aka ƙirƙira, mai kiyaye madadin.",
+    "apiKey": "Maɓallin API",
+    "quickstart": "Hanya mafi sauri: saita Claude Code daga kundin kai tsaye.",
+    "currentKey": "Maɓallin haɗaɗɗe na yanzu:",
+    "seenRecently": "An gan shi kwanan nan",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "Takardun bayani"
   }
 }

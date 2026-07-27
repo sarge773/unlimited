@@ -14,7 +14,7 @@
     "switchToChinese": "Beralih ke Bahasa Cina",
     "switchToEnglish": "Beralih ke Bahasa Inggeris",
     "modelsMenu": "Semak jenis model",
-    "agents": "Agents"
+    "agents": "Ejen"
   },
   "auth": {
     "createYourAccount": "Cipta akaun anda",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Baki",
     "quotaReset": "Tetapkan Semula",
     "quotaObserved": "diperhatikan",
-    "tabAgents": "Agents",
+    "tabAgents": "Ejen",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Pemetaan model Gemini",
+    "geminiDesc": "Petakan nama Gemini Pro, Flash dan Flash-Lite kepada Auto atau model katalog tertentu.",
+    "compatibilityTitle": "Keserasian ejen",
+    "compatibilityDesc": "Kawal permukaan keserasian pilihan dan penemuan model Claude Code.",
+    "ollamaMode": "Emulasi Ollama",
+    "ollamaModeHint": "Loopback terbuka tidak sekali-kali menerima trafik LAN yang tidak disahkan.",
+    "ollamaOff": "Mati",
+    "ollamaLoopback": "Terbuka pada loopback",
+    "ollamaKeyRequired": "Kunci API diperlukan",
+    "claudeAliases": "Alias penemuan Claude Code",
+    "claudeAliasesHint": "Dedahkan alias claude/<model> supaya pemilih model gateway dapat menyenaraikan katalog.",
+    "urlTokensTitle": "Token URL boleh dibatalkan",
+    "urlTokensDesc": "Untuk klien tanpa pengepala sahaja. Token URL boleh bocor ke dalam sejarah dan log, jadi batalkannya apabila tidak lagi diperlukan.",
+    "urlTokenLabel": "Label token",
+    "createUrlToken": "Cipta token",
+    "urlTokenOnce": "Salin token ini sekarang. Ia tidak akan dipaparkan lagi.",
+    "revoked": "Dibatalkan",
+    "revoke": "Batalkan"
   },
   "status": {
     "healthy": "sihat",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Offset mula dari permintaan mula · tempoh cubaan",
     "requestedModel": "Model yang diminta",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Permintaan mengikut ejen"
   },
   "playground": {
     "title": "Taman Permainan",
@@ -700,13 +700,13 @@
     "passwordMin": "Sekurang-kurangnya {min} watak"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Ejen pengekodan",
+    "description": "Sambungkan alat pengekodan kepada satu gateway model percuma dengan konfigurasi terjana yang selamat untuk sandaran.",
+    "apiKey": "Kunci API",
+    "quickstart": "Laluan terpantas: konfigurasikan Claude Code daripada katalog langsung.",
+    "currentKey": "Kunci bersatu semasa:",
+    "seenRecently": "Dilihat baru-baru ini",
+    "endpoint": "Titik akhir",
+    "documentation": "Dokumentasi"
   }
 }

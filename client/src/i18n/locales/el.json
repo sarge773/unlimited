@@ -14,7 +14,7 @@
     "switchToChinese": "Μετάβαση στα Κινέζικα",
     "switchToEnglish": "Μετάβαση στα Αγγλικά",
     "modelsMenu": "Αναζήτηση τύπων μοντέλων",
-    "agents": "Agents"
+    "agents": "Πράκτορες"
   },
   "auth": {
     "createYourAccount": "Δημιουργήστε τον λογαριασμό σας",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Υπόλοιπο",
     "quotaReset": "Επαναφορά",
     "quotaObserved": "Παρατηρήθηκε",
-    "tabAgents": "Agents",
+    "tabAgents": "Πράκτορες",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Αντιστοίχιση μοντέλων Gemini",
+    "geminiDesc": "Αντιστοιχίστε τα ονόματα Gemini Pro, Flash και Flash-Lite στο Auto ή σε συγκεκριμένο μοντέλο του καταλόγου.",
+    "compatibilityTitle": "Συμβατότητα πρακτόρων",
+    "compatibilityDesc": "Ελέγξτε τις προαιρετικές επιφάνειες συμβατότητας και την ανακάλυψη μοντέλων του Claude Code.",
+    "ollamaMode": "Εξομοίωση Ollama",
+    "ollamaModeHint": "Το ανοιχτό loopback δεν δέχεται ποτέ μη πιστοποιημένη κίνηση LAN.",
+    "ollamaOff": "Ανενεργό",
+    "ollamaLoopback": "Ανοιχτό στο loopback",
+    "ollamaKeyRequired": "Απαιτείται κλειδί API",
+    "claudeAliases": "Ψευδώνυμα ανακάλυψης Claude Code",
+    "claudeAliasesHint": "Εκθέστε ψευδώνυμα claude/<model> ώστε ο επιλογέας μοντέλων της πύλης να εμφανίζει τον κατάλογο.",
+    "urlTokensTitle": "Ανακλητά token URL",
+    "urlTokensDesc": "Μόνο για πελάτες χωρίς κεφαλίδες. Τα token URL μπορούν να διαρρεύσουν στο ιστορικό και στα αρχεία καταγραφής, γι' αυτό ανακαλέστε τα όταν δεν χρειάζονται πια.",
+    "urlTokenLabel": "Ετικέτα token",
+    "createUrlToken": "Δημιουργία token",
+    "urlTokenOnce": "Αντιγράψτε αυτό το token τώρα. Δεν θα εμφανιστεί ξανά.",
+    "revoked": "Ανακλήθηκε",
+    "revoke": "Ανάκληση"
   },
   "status": {
     "healthy": "υγιής",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Μετατόπιση έναρξης από την έναρξη αιτήματος · Διάρκεια προσπάθειας",
     "requestedModel": "Ζητούμενο μοντέλο",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Αιτήματα ανά πράκτορα"
   },
   "playground": {
     "title": "Παιδική χαρά",
@@ -700,13 +700,13 @@
     "passwordMin": "Τουλάχιστον {min} χαρακτήρες"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Πράκτορες προγραμματισμού",
+    "description": "Συνδέστε εργαλεία προγραμματισμού σε μία πύλη δωρεάν μοντέλων με παραγόμενη διαμόρφωση που προστατεύει τα αντίγραφα ασφαλείας.",
+    "apiKey": "Κλειδί API",
+    "quickstart": "Ο γρηγορότερος δρόμος: διαμορφώστε το Claude Code από τον ζωντανό κατάλογο.",
+    "currentKey": "Τρέχον ενοποιημένο κλειδί:",
+    "seenRecently": "Εμφανίστηκε πρόσφατα",
+    "endpoint": "Τελικό σημείο",
+    "documentation": "Τεκμηρίωση"
   }
 }

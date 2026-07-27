@@ -14,7 +14,7 @@
     "switchToChinese": "切换到中文",
     "switchToEnglish": "Switch to English",
     "modelsMenu": "浏览模型类型",
-    "agents": "Agents"
+    "agents": "智能体"
   },
   "auth": {
     "createYourAccount": "创建账号",
@@ -377,28 +377,28 @@
     "quotaRemaining": "剩余",
     "quotaReset": "重置",
     "quotaObserved": "观测时间",
-    "tabAgents": "Agents",
+    "tabAgents": "智能体",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini 模型映射",
+    "geminiDesc": "将 Gemini Pro、Flash 和 Flash-Lite 名称映射到 Auto 或特定的目录模型。",
+    "compatibilityTitle": "智能体兼容性",
+    "compatibilityDesc": "控制需主动启用的兼容性接口以及 Claude Code 模型发现。",
+    "ollamaMode": "Ollama 模拟",
+    "ollamaModeHint": "开放环回绝不接受未经认证的局域网流量。",
+    "ollamaOff": "关闭",
+    "ollamaLoopback": "在环回上开放",
+    "ollamaKeyRequired": "需要 API 密钥",
+    "claudeAliases": "Claude Code 发现别名",
+    "claudeAliasesHint": "公开 claude/<model> 别名，以便网关模型选择器列出目录。",
+    "urlTokensTitle": "可撤销的 URL 令牌",
+    "urlTokensDesc": "仅供无法发送请求头的客户端使用。URL 令牌可能泄露到历史记录和日志中，不再需要时请及时撤销。",
+    "urlTokenLabel": "令牌标签",
+    "createUrlToken": "创建令牌",
+    "urlTokenOnce": "请立即复制此令牌，它不会再次显示。",
+    "revoked": "已撤销",
+    "revoke": "撤销"
   },
   "status": {
     "healthy": "健康",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "自请求开始的偏移 · 尝试耗时",
     "requestedModel": "请求的模型",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "按智能体统计的请求"
   },
   "playground": {
     "title": "试玩台",
@@ -700,13 +700,13 @@
     "passwordMin": "至少 {min} 个字符"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "编码智能体",
+    "description": "通过生成的、可安全备份的配置，将编码工具连接到同一个免费模型网关。",
+    "apiKey": "API 密钥",
+    "quickstart": "最快路径：从实时目录配置 Claude Code。",
+    "currentKey": "当前统一密钥：",
+    "seenRecently": "最近活跃",
+    "endpoint": "端点",
+    "documentation": "文档"
   }
 }

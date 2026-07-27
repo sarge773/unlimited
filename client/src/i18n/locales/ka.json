@@ -14,7 +14,7 @@
     "switchToChinese": "ჩინურზე გადართვა",
     "switchToEnglish": "ინგლისურზე გადართვა",
     "modelsMenu": "მოდელის ტიპების დათვალიერება",
-    "agents": "Agents"
+    "agents": "აგენტები"
   },
   "auth": {
     "createYourAccount": "შექმენით თქვენი ანგარიში",
@@ -377,28 +377,28 @@
     "quotaRemaining": "დარჩენილი",
     "quotaReset": "გადატვირთვა",
     "quotaObserved": "დააკვირდა",
-    "tabAgents": "Agents",
+    "tabAgents": "აგენტები",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini მოდელების მაპინგი",
+    "geminiDesc": "მიაბით Gemini Pro, Flash და Flash-Lite სახელები Auto-ს ან კონკრეტულ კატალოგის მოდელს.",
+    "compatibilityTitle": "აგენტების თავსებადობა",
+    "compatibilityDesc": "მართეთ არჩევითი თავსებადობის ზედაპირები და Claude Code მოდელების აღმოჩენა.",
+    "ollamaMode": "Ollama ემულაცია",
+    "ollamaModeHint": "ღია loopback არასოდეს იღებს არაავტორიზებულ LAN ტრაფიკს.",
+    "ollamaOff": "გამორთული",
+    "ollamaLoopback": "ღია loopback-ზე",
+    "ollamaKeyRequired": "საჭიროა API გასაღები",
+    "claudeAliases": "Claude Code აღმოჩენის ალიასები",
+    "claudeAliasesHint": "გამოაჩინეთ claude/<model> ალიასები, რომ გეითვეის მოდელის ამრჩევმა შეძლოს კატალოგის ჩამოთვლა.",
+    "urlTokensTitle": "გაუქმებადი URL ტოკენები",
+    "urlTokensDesc": "მხოლოდ ჰედერების გარეშე კლიენტებისთვის. URL ტოკენები შეიძლება მოხვდეს ისტორიასა და ჟურნალებში, ამიტომ გააუქმეთ ისინი, როცა აღარ გჭირდებათ.",
+    "urlTokenLabel": "ტოკენის ლეიბლი",
+    "createUrlToken": "ტოკენის შექმნა",
+    "urlTokenOnce": "დააკოპირეთ ეს ტოკენი ახლავე. ის აღარ გამოჩნდება.",
+    "revoked": "გაუქმებულია",
+    "revoke": "გაუქმება"
   },
   "status": {
     "healthy": "ჯანსაღი",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "ოფსეტის დაწყება მოთხოვნის დაწყებიდან · მცდელობის ხანგრძლივობა",
     "requestedModel": "მოთხოვნილი მოდელი",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "მოთხოვნები აგენტების მიხედვით"
   },
   "playground": {
     "title": "სათამაშო მოედანი",
@@ -700,13 +700,13 @@
     "passwordMin": "მინიმუმ {min} სიმბოლო"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "კოდირების აგენტები",
+    "description": "დააკავშირეთ კოდირების ხელსაწყოები ერთ უფასო მოდელების გეითვეისთან გენერირებული, სარეზერვო ასლისთვის უსაფრთხო კონფიგურაციით.",
+    "apiKey": "API გასაღები",
+    "quickstart": "ყველაზე სწრაფი გზა: დააკონფიგურირეთ Claude Code ცოცხალი კატალოგიდან.",
+    "currentKey": "მიმდინარე ერთიანი გასაღები:",
+    "seenRecently": "ბოლოს ნანახი",
+    "endpoint": "საბოლოო წერტილი",
+    "documentation": "დოკუმენტაცია"
   }
 }

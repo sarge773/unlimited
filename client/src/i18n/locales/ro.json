@@ -14,7 +14,7 @@
     "switchToChinese": "Trecerea la chineză",
     "switchToEnglish": "Trecerea la engleză",
     "modelsMenu": "Explorează tipurile de modele",
-    "agents": "Agents"
+    "agents": "Agenți"
   },
   "auth": {
     "createYourAccount": "Creează-ți contul",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Rămași",
     "quotaReset": "Resetare",
     "quotaObserved": "Observat",
-    "tabAgents": "Agents",
+    "tabAgents": "Agenți",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Maparea modelelor Gemini",
+    "geminiDesc": "Mapează numele Gemini Pro, Flash și Flash-Lite la Auto sau la un model anume din catalog.",
+    "compatibilityTitle": "Compatibilitate agenți",
+    "compatibilityDesc": "Controlează suprafețele de compatibilitate opționale și descoperirea modelelor Claude Code.",
+    "ollamaMode": "Emulare Ollama",
+    "ollamaModeHint": "Loopback-ul deschis nu acceptă niciodată trafic LAN neautentificat.",
+    "ollamaOff": "Dezactivat",
+    "ollamaLoopback": "Deschis pe loopback",
+    "ollamaKeyRequired": "Cheie API necesară",
+    "claudeAliases": "Aliasuri de descoperire Claude Code",
+    "claudeAliasesHint": "Expune aliasurile claude/<model> pentru ca selectorul de modele al gateway-ului să poată lista catalogul.",
+    "urlTokensTitle": "Tokenuri URL revocabile",
+    "urlTokensDesc": "Doar pentru clienți fără anteturi. Tokenurile URL pot ajunge în istoric și în loguri, așa că revocă-le când nu mai sunt necesare.",
+    "urlTokenLabel": "Etichetă token",
+    "createUrlToken": "Creează token",
+    "urlTokenOnce": "Copiază acest token acum. Nu va mai fi afișat.",
+    "revoked": "Revocat",
+    "revoke": "Revocă"
   },
   "status": {
     "healthy": "Sănătos",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Start offset față de începutul cererii · Durata încercării",
     "requestedModel": "Modelul cerut",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Cereri per agent"
   },
   "playground": {
     "title": "Locul de joacă",
@@ -700,13 +700,13 @@
     "passwordMin": "Cel puțin {min} personaje"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
+    "title": "Agenți de codare",
+    "description": "Conectează instrumentele de codare la un singur gateway de modele gratuite, cu configurație generată, sigură pentru backup.",
+    "apiKey": "Cheie API",
+    "quickstart": "Cea mai rapidă cale: configurează Claude Code din catalogul live.",
+    "currentKey": "Cheia unificată curentă:",
+    "seenRecently": "Văzut recent",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "Documentație"
   }
 }

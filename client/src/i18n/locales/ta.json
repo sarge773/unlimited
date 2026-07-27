@@ -14,7 +14,7 @@
     "switchToChinese": "சீன மொழிக்கு மாறவும்",
     "switchToEnglish": "ஆங்கிலத்திற்கு மாறவும்",
     "modelsMenu": "மாதிரி வகைகளை உலாவவும்",
-    "agents": "Agents"
+    "agents": "முகவர்கள்"
   },
   "auth": {
     "createYourAccount": "உங்கள் கணக்கை உருவாக்கவும்",
@@ -377,28 +377,28 @@
     "quotaRemaining": "மீதமுள்ளவை",
     "quotaReset": "மீட்டமை",
     "quotaObserved": "கவனிக்கப்பட்டது",
-    "tabAgents": "Agents",
+    "tabAgents": "முகவர்கள்",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini மாதிரி மேப்பிங்",
+    "geminiDesc": "Gemini Pro, Flash மற்றும் Flash-Lite பெயர்களை Auto அல்லது குறிப்பிட்ட கேட்டலாக் மாதிரிக்கு மேப் செய்யவும்.",
+    "compatibilityTitle": "முகவர் இணக்கத்தன்மை",
+    "compatibilityDesc": "விருப்பத்தேர்வு இணக்கத்தன்மை அம்சங்களையும் Claude Code மாதிரி கண்டறிதலையும் கட்டுப்படுத்தவும்.",
+    "ollamaMode": "Ollama எமுலேஷன்",
+    "ollamaModeHint": "திறந்த லூப்பேக் ஒருபோதும் அங்கீகரிக்கப்படாத LAN போக்குவரத்தை ஏற்காது.",
+    "ollamaOff": "ஆஃப்",
+    "ollamaLoopback": "லூப்பேக்கில் திறந்தது",
+    "ollamaKeyRequired": "API விசை தேவை",
+    "claudeAliases": "Claude Code கண்டறிதல் மாற்றுப்பெயர்கள்",
+    "claudeAliasesHint": "கேட்வே மாதிரி தேர்வி கேட்டலாக்கைப் பட்டியலிட claude/<model> மாற்றுப்பெயர்களை வெளிப்படுத்தவும்.",
+    "urlTokensTitle": "ரத்து செய்யக்கூடிய URL டோக்கன்கள்",
+    "urlTokensDesc": "தலைப்புகள் இல்லாத கிளையண்டுகளுக்கு மட்டும். URL டோக்கன்கள் வரலாறு மற்றும் பதிவுகளில் கசியக்கூடும், எனவே தேவையில்லாதபோது அவற்றை ரத்து செய்யவும்.",
+    "urlTokenLabel": "டோக்கன் லேபிள்",
+    "createUrlToken": "டோக்கனை உருவாக்கு",
+    "urlTokenOnce": "இந்த டோக்கனை இப்போதே நகலெடுக்கவும். இது மீண்டும் காட்டப்படாது.",
+    "revoked": "ரத்து செய்யப்பட்டது",
+    "revoke": "ரத்து செய்"
   },
   "status": {
     "healthy": "ஆரோக்கியமான",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "கோரிக்கை தொடக்கத்திலிருந்து ஆஃப்செட்டைத் தொடங்கு · முயற்சி காலம்",
     "requestedModel": "கோரப்பட்ட மாதிரி",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "முகவர் வாரியாக கோரிக்கைகள்"
   },
   "playground": {
     "title": "விளையாட்டு மைதானம்",
@@ -700,13 +700,13 @@
     "passwordMin": "குறைந்தது {min} எழுத்துகள்"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "கோடிங் முகவர்கள்",
+    "description": "உருவாக்கப்பட்ட, காப்புப்பிரதி-பாதுகாப்பான உள்ளமைவுடன் கோடிங் கருவிகளை ஒரே இலவச-மாதிரி கேட்வேயுடன் இணைக்கவும்.",
+    "apiKey": "API விசை",
+    "quickstart": "விரைவான வழி: நேரடி கேட்டலாக்கிலிருந்து Claude Code ஐ உள்ளமைக்கவும்.",
+    "currentKey": "தற்போதைய ஒருங்கிணைந்த விசை:",
+    "seenRecently": "சமீபத்தில் காணப்பட்டது",
+    "endpoint": "எண்ட்பாயிண்ட்",
+    "documentation": "ஆவணங்கள்"
   }
 }

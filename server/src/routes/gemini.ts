@@ -195,17 +195,21 @@ async function handleGenerate(req: Request, res: Response, stream: boolean): Pro
   );
   const rawSession = req.headers['x-goog-request-id'] ?? req.headers['x-session-id'];
   const sessionId = Array.isArray(rawSession) ? rawSession[0] : rawSession;
+  const tools = geminiToolsToChatTools(body.tools);
   await runInboundChat(req, res, {
     model: resolveGeminiModel(model),
     messages: geminiContentsToMessages(body),
     stream,
-    maxTokens: generation?.maxOutputTokens,
+    // Gemini CLI never sends maxOutputTokens; the shared 1024-token default
+    // would truncate every response, so match Gemini's own model default.
+    maxTokens: generation?.maxOutputTokens ?? 8192,
     temperature: generation?.temperature,
     topP: generation?.topP,
     topK: generation?.topK,
     stop: generation?.stopSequences,
-    tools: geminiToolsToChatTools(body.tools),
-    toolChoice: geminiToolChoice(body.toolConfig),
+    tools,
+    // tool_choice without tools 400s on strict OpenAI-compatible upstreams.
+    toolChoice: tools ? geminiToolChoice(body.toolConfig) : undefined,
     responseFormat: geminiResponseFormat(generation),
     reasoningEffort: effortFromGeminiThinking(generation),
     sessionId,

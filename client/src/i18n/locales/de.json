@@ -14,7 +14,7 @@
     "switchToChinese": "Wechseln Sie zu Chinesisch",
     "switchToEnglish": "Wechseln Sie zu Englisch",
     "modelsMenu": "Durchsuchen Sie Modelltypen",
-    "agents": "Agents"
+    "agents": "Agenten"
   },
   "auth": {
     "createYourAccount": "Erstellen Sie Ihr Konto",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Übrig",
     "quotaReset": "Zurücksetzen",
     "quotaObserved": "Beobachtet",
-    "tabAgents": "Agents",
+    "tabAgents": "Agenten",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini-Modell-Zuordnung",
+    "geminiDesc": "Ordnen Sie die Namen Gemini Pro, Flash und Flash-Lite Auto oder einem bestimmten Katalogmodell zu.",
+    "compatibilityTitle": "Agent-Kompatibilität",
+    "compatibilityDesc": "Steuern Sie optionale Kompatibilitätsschnittstellen und die Modellerkennung von Claude Code.",
+    "ollamaMode": "Ollama-Emulation",
+    "ollamaModeHint": "Open-Loopback akzeptiert niemals nicht authentifizierten LAN-Verkehr.",
+    "ollamaOff": "Aus",
+    "ollamaLoopback": "Offen auf Loopback",
+    "ollamaKeyRequired": "API-Schlüssel erforderlich",
+    "claudeAliases": "Claude-Code-Erkennungsaliase",
+    "claudeAliasesHint": "Stellen Sie claude/<model>-Aliase bereit, damit die Modellauswahl des Gateways den Katalog auflisten kann.",
+    "urlTokensTitle": "Widerrufbare URL-Tokens",
+    "urlTokensDesc": "Nur für Clients ohne Header. URL-Tokens können in Verlauf und Protokolle gelangen. Widerrufen Sie sie daher, wenn sie nicht mehr benötigt werden.",
+    "urlTokenLabel": "Token-Bezeichnung",
+    "createUrlToken": "Token erstellen",
+    "urlTokenOnce": "Kopieren Sie dieses Token jetzt. Es wird nicht erneut angezeigt.",
+    "revoked": "Widerrufen",
+    "revoke": "Widerrufen"
   },
   "status": {
     "healthy": "gesund",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Startoffset vom Anforderungsstart · Versuchsdauer",
     "requestedModel": "Angefragtes Modell",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Anfragen nach Agent"
   },
   "playground": {
     "title": "Spielplatz",
@@ -700,13 +700,13 @@
     "passwordMin": "Mindestens {min} Zeichen"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Coding-Agenten",
+    "description": "Verbinden Sie Coding-Tools mit einem einzigen Gateway für kostenlose Modelle – mit generierter, backupsicherer Konfiguration.",
+    "apiKey": "API-Schlüssel",
+    "quickstart": "Schnellster Weg: Konfigurieren Sie Claude Code aus dem Live-Katalog.",
+    "currentKey": "Aktueller einheitlicher Schlüssel:",
+    "seenRecently": "Kürzlich gesehen",
+    "endpoint": "Endpunkt",
+    "documentation": "Dokumentation"
   }
 }

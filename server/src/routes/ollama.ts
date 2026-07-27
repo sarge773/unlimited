@@ -60,11 +60,26 @@ function authorize(req: Request, res: Response): boolean {
   return true;
 }
 
+// Ollama clients routinely configure `name:latest`; catalog ids carry no tag.
+export function normalizeOllamaModel(name: string | undefined): string {
+  const trimmed = name?.trim().replace(/:latest$/i, '');
+  return trimmed || 'auto';
+}
+
+// Real Ollama only emits stop/length/load/unload; clients switch on it before
+// reading tool_calls, so upstream finish reasons like "tool_calls" map to stop.
+function ollamaDoneReason(finishReason: string | null | undefined): string {
+  return finishReason === 'length' ? 'length' : 'stop';
+}
+
+// Epoch-0 renders as "55 years ago" in Ollama UIs; boot time is honest enough.
+const CATALOG_MODIFIED_AT = new Date().toISOString();
+
 function ollamaModel(model: ReturnType<typeof buildModelListing>['models'][number]) {
   return {
     name: model.id,
     model: model.id,
-    modified_at: new Date(0).toISOString(),
+    modified_at: CATALOG_MODIFIED_AT,
     size: 0,
     digest: '',
     details: {
@@ -80,12 +95,32 @@ function ollamaModel(model: ReturnType<typeof buildModelListing>['models'][numbe
 
 ollamaRouter.get('/api/tags', (req, res) => {
   if (!authorize(req, res)) return;
-  res.json({ models: buildModelListing().models.map(ollamaModel) });
+  const { models } = buildModelListing();
+  // Ollama clients always pick an explicit model from this list, so advertise
+  // `auto` and only models /api/chat will actually accept (see proxy.ts /v1/models).
+  const auto = {
+    name: 'auto',
+    model: 'auto',
+    modified_at: CATALOG_MODIFIED_AT,
+    size: 0,
+    digest: '',
+    details: {
+      parent_model: '',
+      format: 'freellmapi',
+      family: 'freellmapi',
+      families: ['freellmapi'],
+      parameter_size: 'remote',
+      quantization_level: 'remote',
+    },
+  };
+  res.json({ models: [auto, ...models.filter(model => model.available === 1).map(ollamaModel)] });
 });
 
 ollamaRouter.get('/api/version', (req, res) => {
   if (!authorize(req, res)) return;
-  res.json({ version: '0.9.9-freellmapi' });
+  // Plain semver: a prerelease suffix would compare BELOW 0.9.9 for clients
+  // that gate features on a minimum Ollama version.
+  res.json({ version: '0.9.9' });
 });
 
 const showSchema = z.object({ model: z.string().optional(), name: z.string().optional() }).passthrough();
@@ -96,7 +131,7 @@ ollamaRouter.post('/api/show', (req, res) => {
     res.status(400).json({ error: 'model is required' });
     return;
   }
-  const id = parsed.data.model || parsed.data.name!;
+  const id = normalizeOllamaModel(parsed.data.model || parsed.data.name);
   const model = buildModelListing().models.find(entry => entry.id === id);
   if (!model) {
     res.status(404).json({ error: `model '${id}' not found` });
@@ -104,6 +139,7 @@ ollamaRouter.post('/api/show', (req, res) => {
   }
   res.json({
     license: '',
+    modified_at: CATALOG_MODIFIED_AT,
     modelfile: `FROM ${model.id}`,
     parameters: `num_ctx ${model.contextWindow ?? 128000}`,
     template: '{{ .Prompt }}',
@@ -127,7 +163,8 @@ const messageSchema = z.object({
 
 const chatSchema = z.object({
   model: z.string().optional(),
-  messages: z.array(messageSchema).min(1),
+  // Empty messages is a documented Ollama load/unload probe, not an error.
+  messages: z.array(messageSchema).default([]),
   stream: z.boolean().optional(),
   tools: z.array(z.object({}).passthrough()).optional(),
   options: z.object({}).passthrough().optional(),
@@ -168,9 +205,23 @@ function ollamaMessages(raw: z.infer<typeof messageSchema>[]): ChatMessage[] {
         toolCallId = firstPending?.shift() ?? `call_${messageIndex}`;
       }
     }
+    // Ollama vision requests carry base64 images alongside text; convert them
+    // to content blocks so vision-capable routing (hasImages) sees them.
+    const images = (message as { images?: unknown }).images;
+    const imageBlocks = Array.isArray(images)
+      ? images
+        .filter((image): image is string => typeof image === 'string' && image.length > 0)
+        .map(image => ({
+          type: 'image_url' as const,
+          image_url: { url: image.startsWith('data:') ? image : `data:image/png;base64,${image}` },
+        }))
+      : [];
+    const textContent = typeof message.content === 'string' ? message.content : '';
     converted.push({
       role: message.role,
-      content: message.content ?? '',
+      content: imageBlocks.length
+        ? [{ type: 'text', text: textContent }, ...imageBlocks]
+        : message.content ?? '',
       ...(message.tool_name ? { name: message.tool_name } : {}),
       ...(toolCallId ? { tool_call_id: toolCallId } : {}),
       ...(toolCalls?.length ? { tool_calls: toolCalls } : {}),
@@ -211,8 +262,25 @@ function ollamaToolCalls(result: Pick<InboundChatResult, 'toolCalls'>) {
   });
 }
 
+// Rough nanosecond timings measured at the gateway: clients compute
+// tokens/sec as eval_count / eval_duration and choke on zero/undefined.
+function ollamaDurations(startedMs: number, promptTokens: number, completionTokens: number) {
+  const totalNs = Math.max(1, Math.round((performance.now() - startedMs) * 1e6));
+  const promptShare = promptTokens + completionTokens > 0
+    ? promptTokens / (promptTokens + completionTokens)
+    : 0.5;
+  const promptNs = Math.max(1, Math.round(totalNs * promptShare * 0.2));
+  return {
+    total_duration: totalNs,
+    load_duration: 0,
+    prompt_eval_duration: promptNs,
+    eval_duration: Math.max(1, totalNs - promptNs),
+  };
+}
+
 function ollamaWire(model: string): InboundChatWire {
   const createdAt = () => new Date().toISOString();
+  const startedMs = performance.now();
   return {
     sendError: (res, status, message) => res.status(status).json({ error: message }),
     sendNonStream: (res, result) => {
@@ -226,9 +294,8 @@ function ollamaWire(model: string): InboundChatWire {
           ...(result.toolCalls.length ? { tool_calls: ollamaToolCalls(result) } : {}),
         },
         done: true,
-        done_reason: result.finishReason ?? 'stop',
-        total_duration: 0,
-        load_duration: 0,
+        done_reason: ollamaDoneReason(result.finishReason),
+        ...ollamaDurations(startedMs, result.promptTokens, result.completionTokens),
         prompt_eval_count: result.promptTokens,
         eval_count: result.completionTokens,
       });
@@ -271,9 +338,8 @@ function ollamaWire(model: string): InboundChatWire {
         created_at: createdAt(),
         message: { role: 'assistant', content: '' },
         done: true,
-        done_reason: result.finishReason ?? 'stop',
-        total_duration: 0,
-        load_duration: 0,
+        done_reason: ollamaDoneReason(result.finishReason),
+        ...ollamaDurations(startedMs, result.promptTokens, result.completionTokens),
         prompt_eval_count: result.promptTokens,
         eval_count: result.completionTokens,
       })}\n`);
@@ -293,11 +359,25 @@ ollamaRouter.post('/api/chat', (req, res) => {
     return;
   }
   const body = parsed.data;
+  const model = normalizeOllamaModel(body.model);
+  if (body.messages.length === 0) {
+    // Model load/unload probe: real Ollama answers immediately without
+    // generating. Never burn upstream quota on it.
+    const unload = (body as { keep_alive?: unknown }).keep_alive === 0;
+    res.json({
+      model,
+      created_at: new Date().toISOString(),
+      message: { role: 'assistant', content: '' },
+      done: true,
+      done_reason: unload ? 'unload' : 'load',
+    });
+    return;
+  }
   const options = body.options as Record<string, unknown> | undefined;
   const rawSession = req.headers['x-ollama-session-id'] ?? req.headers['x-session-id'];
   const sessionId = Array.isArray(rawSession) ? rawSession[0] : rawSession;
   void runInboundChat(req, res, {
-    model: body.model || 'auto',
+    model,
     messages: ollamaMessages(body.messages),
     stream: body.stream !== false,
     maxTokens: typeof options?.num_predict === 'number' ? options.num_predict : undefined,
@@ -315,7 +395,7 @@ ollamaRouter.post('/api/chat', (req, res) => {
       : undefined,
     sessionId,
     endpoint: 'ollama/chat',
-  }, ollamaWire(body.model || 'auto'));
+  }, ollamaWire(model));
 });
 
 const generateSchema = z.object({
@@ -330,6 +410,7 @@ const generateSchema = z.object({
 
 function generateWire(model: string): InboundChatWire {
   const wire = ollamaWire(model);
+  const startedMs = performance.now();
   return {
     ...wire,
     sendNonStream: (res, result) => {
@@ -339,9 +420,11 @@ function generateWire(model: string): InboundChatWire {
         response: result.text,
         thinking: result.reasoning || undefined,
         done: true,
-        done_reason: result.finishReason ?? 'stop',
-        total_duration: 0,
-        load_duration: 0,
+        done_reason: ollamaDoneReason(result.finishReason),
+        // The gateway cannot produce real Ollama context tokens (an opaque
+        // tokenizer artifact); an empty array keeps strict clients parsing.
+        context: [],
+        ...ollamaDurations(startedMs, result.promptTokens, result.completionTokens),
         prompt_eval_count: result.promptTokens,
         eval_count: result.completionTokens,
       });
@@ -363,6 +446,23 @@ function generateWire(model: string): InboundChatWire {
         done: false,
       })}\n`);
     },
+    // The inherited finisher emits a chat-shaped `message` frame; generate
+    // consumers append `chunk.response` from every frame and strict parsers
+    // reject the terminal frame without it.
+    finishStream: (res, result) => {
+      res.write(`${JSON.stringify({
+        model,
+        created_at: new Date().toISOString(),
+        response: '',
+        done: true,
+        done_reason: ollamaDoneReason(result.finishReason),
+        context: [],
+        ...ollamaDurations(startedMs, result.promptTokens, result.completionTokens),
+        prompt_eval_count: result.promptTokens,
+        eval_count: result.completionTokens,
+      })}\n`);
+      res.end();
+    },
   };
 }
 
@@ -374,6 +474,19 @@ ollamaRouter.post('/api/generate', (req, res) => {
     return;
   }
   const body = parsed.data;
+  const model = normalizeOllamaModel(body.model);
+  if (!body.prompt && !body.suffix) {
+    // Model load/unload probe; real Ollama answers without generating.
+    const unload = (body as { keep_alive?: unknown }).keep_alive === 0;
+    res.json({
+      model,
+      created_at: new Date().toISOString(),
+      response: '',
+      done: true,
+      done_reason: unload ? 'unload' : 'load',
+    });
+    return;
+  }
   const options = body.options as Record<string, unknown> | undefined;
   const messages: ChatMessage[] = [];
   if (body.system) messages.push({ role: 'system', content: body.system });
@@ -384,7 +497,7 @@ ollamaRouter.post('/api/generate', (req, res) => {
       : body.prompt,
   });
   void runInboundChat(req, res, {
-    model: body.model || 'auto',
+    model,
     messages,
     stream: body.stream !== false,
     maxTokens: typeof options?.num_predict === 'number' ? options.num_predict : undefined,
@@ -397,14 +510,19 @@ ollamaRouter.post('/api/generate', (req, res) => {
         : { type: 'json_schema', json_schema: { name: 'ollama_response', schema: body.format } })
       : undefined,
     endpoint: 'ollama/generate',
-  }, generateWire(body.model || 'auto'));
+  }, generateWire(model));
 });
 
 const embedSchema = z.object({
   model: z.string().optional(),
-  input: z.union([z.string(), z.array(z.string())]),
+  // /api/embed sends `input`; the legacy /api/embeddings body — the whole
+  // reason that endpoint exists — sends `prompt`.
+  input: z.union([z.string(), z.array(z.string())]).optional(),
+  prompt: z.string().optional(),
   dimensions: z.number().int().positive().optional(),
-}).passthrough();
+}).passthrough().refine(data => data.input != null || data.prompt != null, {
+  message: 'input is required',
+});
 
 async function handleEmbed(req: Request, res: Response, legacy: boolean): Promise<void> {
   if (!authorize(req, res)) return;
@@ -413,9 +531,14 @@ async function handleEmbed(req: Request, res: Response, legacy: boolean): Promis
     res.status(400).json({ error: `invalid request: ${parsed.error.message}` });
     return;
   }
-  const inputs = Array.isArray(parsed.data.input) ? parsed.data.input : [parsed.data.input];
+  const rawInput = parsed.data.input ?? parsed.data.prompt ?? '';
+  const inputs = Array.isArray(rawInput) ? rawInput : [rawInput];
   try {
-    const result = await runEmbeddings(parsed.data.model, inputs, parsed.data.dimensions);
+    const result = await runEmbeddings(
+      parsed.data.model?.replace(/:latest$/i, ''),
+      inputs,
+      parsed.data.dimensions,
+    );
     if (legacy) {
       res.json({ embedding: result.vectors[0] ?? [] });
     } else {
@@ -445,6 +568,13 @@ ollamaRouter.post('/api/embeddings', (req: Request, res: Response, next: NextFun
     ?? (req.headers['x-dashboard-token'] as string | undefined);
   if (validateSession(dashboardToken)) {
     next();
+    return;
+  }
+  // A stale dashboard session must still surface as 401 so the SPA's
+  // re-login flow triggers — unless the bearer could be a unified API key
+  // for key-required Ollama mode, which handleEmbed will verify itself.
+  if (dashboardToken && getOllamaEmulationMode() !== 'key-required') {
+    res.status(401).json({ error: { message: 'Authentication required', type: 'authentication_error' } });
     return;
   }
   void handleEmbed(req, res, true);

@@ -14,7 +14,7 @@
     "switchToChinese": "ಚೈನೀಸ್‌ಗೆ ಬದಲಿಸಿ",
     "switchToEnglish": "ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಿಸಿ",
     "modelsMenu": "ಮಾದರಿ ಪ್ರಕಾರಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ",
-    "agents": "Agents"
+    "agents": "ಏಜೆಂಟ್‌ಗಳು"
   },
   "auth": {
     "createYourAccount": "ನಿಮ್ಮ ಖಾತೆಯನ್ನು ರಚಿಸಿ",
@@ -377,28 +377,28 @@
     "quotaRemaining": "ಉಳಿದಿದೆ",
     "quotaReset": "ಮರುಹೊಂದಿಸಿ",
     "quotaObserved": "ಗಮನಿಸಿದೆ",
-    "tabAgents": "Agents",
+    "tabAgents": "ಏಜೆಂಟ್‌ಗಳು",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini ಮಾದರಿ ಮ್ಯಾಪಿಂಗ್",
+    "geminiDesc": "Gemini Pro, Flash ಮತ್ತು Flash-Lite ಹೆಸರುಗಳನ್ನು ಆಟೋ ಅಥವಾ ನಿರ್ದಿಷ್ಟ ಕ್ಯಾಟಲಾಗ್ ಮಾದರಿಗೆ ಮ್ಯಾಪ್ ಮಾಡಿ.",
+    "compatibilityTitle": "ಏಜೆಂಟ್ ಹೊಂದಾಣಿಕೆ",
+    "compatibilityDesc": "ಆಪ್ಟ್-ಇನ್ ಹೊಂದಾಣಿಕೆ ಮೇಲ್ಮೈಗಳು ಮತ್ತು Claude Code ಮಾದರಿ ಅನ್ವೇಷಣೆಯನ್ನು ನಿಯಂತ್ರಿಸಿ.",
+    "ollamaMode": "Ollama ಅನುಕರಣೆ",
+    "ollamaModeHint": "ತೆರೆದ ಲೂಪ್‌ಬ್ಯಾಕ್ ಎಂದಿಗೂ ದೃಢೀಕರಿಸದ LAN ಟ್ರಾಫಿಕ್ ಅನ್ನು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ.",
+    "ollamaOff": "ಆಫ್",
+    "ollamaLoopback": "ಲೂಪ್‌ಬ್ಯಾಕ್‌ನಲ್ಲಿ ತೆರೆದಿದೆ",
+    "ollamaKeyRequired": "API ಕೀ ಅಗತ್ಯವಿದೆ",
+    "claudeAliases": "Claude Code ಅನ್ವೇಷಣೆ ಅಲಿಯಾಸ್‌ಗಳು",
+    "claudeAliasesHint": "ಗೇಟ್‌ವೇ ಮಾದರಿ ಆಯ್ಕೆಗಾರ ಕ್ಯಾಟಲಾಗ್ ಅನ್ನು ಪಟ್ಟಿ ಮಾಡಲು claude/<model> ಅಲಿಯಾಸ್‌ಗಳನ್ನು ಬಹಿರಂಗಪಡಿಸಿ.",
+    "urlTokensTitle": "ಹಿಂಪಡೆಯಬಹುದಾದ URL ಟೋಕನ್‌ಗಳು",
+    "urlTokensDesc": "ಹೆಡರ್ ಇಲ್ಲದ ಕ್ಲೈಂಟ್‌ಗಳಿಗೆ ಮಾತ್ರ. URL ಟೋಕನ್‌ಗಳು ಇತಿಹಾಸ ಮತ್ತು ಲಾಗ್‌ಗಳಿಗೆ ಸೋರಿಕೆಯಾಗಬಹುದು, ಆದ್ದರಿಂದ ಅಗತ್ಯವಿಲ್ಲದಾಗ ಅವುಗಳನ್ನು ಹಿಂಪಡೆಯಿರಿ.",
+    "urlTokenLabel": "ಟೋಕನ್ ಲೇಬಲ್",
+    "createUrlToken": "ಟೋಕನ್ ರಚಿಸಿ",
+    "urlTokenOnce": "ಈ ಟೋಕನ್ ಅನ್ನು ಈಗಲೇ ನಕಲಿಸಿ. ಇದನ್ನು ಮತ್ತೆ ತೋರಿಸಲಾಗುವುದಿಲ್ಲ.",
+    "revoked": "ಹಿಂಪಡೆಯಲಾಗಿದೆ",
+    "revoke": "ಹಿಂಪಡೆಯಿರಿ"
   },
   "status": {
     "healthy": "ಆರೋಗ್ಯಕರ",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "ವಿನಂತಿಯ ಪ್ರಾರಂಭದಿಂದ ಆಫ್‌ಸೆಟ್ ಪ್ರಾರಂಭಿಸಿ · ಪ್ರಯತ್ನದ ಅವಧಿ",
     "requestedModel": "ವಿನಂತಿಸಿದ ಮಾದರಿ",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "ಏಜೆಂಟ್ ಪ್ರಕಾರ ವಿನಂತಿಗಳು"
   },
   "playground": {
     "title": "ಆಟದ ಮೈದಾನ",
@@ -700,13 +700,13 @@
     "passwordMin": "ಕನಿಷ್ಠ {min} ಅಕ್ಷರಗಳು"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "ಕೋಡಿಂಗ್ ಏಜೆಂಟ್‌ಗಳು",
+    "description": "ರಚಿಸಲಾದ, ಬ್ಯಾಕಪ್-ಸುರಕ್ಷಿತ ಕಾನ್ಫಿಗರೇಶನ್‌ನೊಂದಿಗೆ ಕೋಡಿಂಗ್ ಉಪಕರಣಗಳನ್ನು ಒಂದು ಉಚಿತ-ಮಾದರಿ ಗೇಟ್‌ವೇಗೆ ಸಂಪರ್ಕಿಸಿ.",
+    "apiKey": "API ಕೀ",
+    "quickstart": "ಅತಿ ವೇಗದ ಮಾರ್ಗ: ಲೈವ್ ಕ್ಯಾಟಲಾಗ್‌ನಿಂದ Claude Code ಅನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ.",
+    "currentKey": "ಪ್ರಸ್ತುತ ಏಕೀಕೃತ ಕೀ:",
+    "seenRecently": "ಇತ್ತೀಚೆಗೆ ಕಂಡುಬಂದಿದೆ",
+    "endpoint": "ಅಂತಿಮ ಬಿಂದು",
+    "documentation": "ದಾಖಲಾತಿ"
   }
 }

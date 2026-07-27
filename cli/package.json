@@ -2,6 +2,12 @@
   "name": "freellmapi",
   "version": "0.3.0",
   "description": "Set up coding agents to use a FreeLLMAPI gateway",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tashfeenahmed/freellmapi.git",
+    "directory": "cli"
+  },
   "type": "module",
   "bin": {
     "freellmapi": "./dist/index.js"
@@ -23,7 +29,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
   },
   "engines": {
     "node": ">=20.18.0 <25.0.0"

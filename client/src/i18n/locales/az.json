@@ -14,7 +14,7 @@
     "switchToChinese": "Çin dilinə keçid",
     "switchToEnglish": "İngiliscəyə keçid",
     "modelsMenu": "Model tiplərinə baxın",
-    "agents": "Agents"
+    "agents": "Agentlər"
   },
   "auth": {
     "createYourAccount": "Hesabınızı yaradın",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Qalanlar",
     "quotaReset": "Reset",
     "quotaObserved": "Müşahidə olunanlar",
-    "tabAgents": "Agents",
+    "tabAgents": "Agentlər",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini model uyğunlaşdırması",
+    "geminiDesc": "Gemini Pro, Flash və Flash-Lite adlarını Auto-ya və ya konkret kataloq modelinə uyğunlaşdırın.",
+    "compatibilityTitle": "Agent uyğunluğu",
+    "compatibilityDesc": "Könüllü uyğunluq interfeyslərini və Claude Code model aşkarlamasını idarə edin.",
+    "ollamaMode": "Ollama emulyasiyası",
+    "ollamaModeHint": "Açıq loopback heç vaxt autentifikasiya olunmamış LAN trafikini qəbul etmir.",
+    "ollamaOff": "Söndürülüb",
+    "ollamaLoopback": "Loopback-də açıq",
+    "ollamaKeyRequired": "API açarı tələb olunur",
+    "claudeAliases": "Claude Code aşkarlama aliasları",
+    "claudeAliasesHint": "Şlüzün model seçicisi kataloqu göstərə bilsin deyə claude/<model> aliaslarını açın.",
+    "urlTokensTitle": "Ləğv edilə bilən URL tokenləri",
+    "urlTokensDesc": "Yalnız başlıqsız müştərilər üçün. URL tokenləri tarixçəyə və loqlara sıza bilər, ona görə də artıq lazım olmadıqda onları ləğv edin.",
+    "urlTokenLabel": "Token etiketi",
+    "createUrlToken": "Token yarat",
+    "urlTokenOnce": "Bu tokeni indi kopyalayın. O, bir daha göstərilməyəcək.",
+    "revoked": "Ləğv edilib",
+    "revoke": "Ləğv et"
   },
   "status": {
     "healthy": "sağlam",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Sorğu başlanğıcından ofset · Cəhd müddəti",
     "requestedModel": "Tələb olunan model",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Agent üzrə sorğular"
   },
   "playground": {
     "title": "Uşaq meydançası",
@@ -700,13 +700,13 @@
     "passwordMin": "Ən azı {min} personaj"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
+    "title": "Kodlaşdırma agentləri",
+    "description": "Kodlaşdırma alətlərini generasiya olunmuş, ehtiyat nüsxə üçün təhlükəsiz konfiqurasiya ilə vahid pulsuz model şlüzünə qoşun.",
+    "apiKey": "API açarı",
+    "quickstart": "Ən sürətli yol: Claude Code-u canlı kataloqdan konfiqurasiya edin.",
+    "currentKey": "Cari vahid açar:",
+    "seenRecently": "Bu yaxınlarda görülüb",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "Sənədlər"
   }
 }

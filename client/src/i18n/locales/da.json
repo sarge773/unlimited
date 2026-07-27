@@ -14,7 +14,7 @@
     "switchToChinese": "Skift til kinesisk",
     "switchToEnglish": "Skift til engelsk",
     "modelsMenu": "Gennemse modeltyper",
-    "agents": "Agents"
+    "agents": "Agenter"
   },
   "auth": {
     "createYourAccount": "Opret din konto",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Resterende",
     "quotaReset": "Nulstil",
     "quotaObserved": "Observeret",
-    "tabAgents": "Agents",
+    "tabAgents": "Agenter",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini-modelmapping",
+    "geminiDesc": "Map Gemini Pro-, Flash- og Flash-Lite-navne til Auto eller en bestemt katalogmodel.",
+    "compatibilityTitle": "Agentkompatibilitet",
+    "compatibilityDesc": "Styr tilvalgte kompatibilitetsflader og Claude Codes modelopdagelse.",
+    "ollamaMode": "Ollama-emulering",
+    "ollamaModeHint": "Åben loopback accepterer aldrig uautentificeret LAN-trafik.",
+    "ollamaOff": "Fra",
+    "ollamaLoopback": "Åben på loopback",
+    "ollamaKeyRequired": "API-nøgle påkrævet",
+    "claudeAliases": "Claude Code-opdagelsesaliasser",
+    "claudeAliasesHint": "Eksponér claude/<model>-aliasser, så gatewayens modelvælger kan vise kataloget.",
+    "urlTokensTitle": "Tilbagekaldelige URL-tokens",
+    "urlTokensDesc": "Kun til klienter uden headers. URL-tokens kan lække til historik og logs, så tilbagekald dem, når de ikke længere er nødvendige.",
+    "urlTokenLabel": "Token-etiket",
+    "createUrlToken": "Opret token",
+    "urlTokenOnce": "Kopiér dette token nu. Det vises ikke igen.",
+    "revoked": "Tilbagekaldt",
+    "revoke": "Tilbagekald"
   },
   "status": {
     "healthy": "sundt",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Startforskydning fra anmodningsstart · Forsøgsvarighed",
     "requestedModel": "Efterspurgt model",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Anmodninger pr. agent"
   },
   "playground": {
     "title": "Legeplads",
@@ -700,13 +700,13 @@
     "passwordMin": "I det mindste {min} karakterer"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
+    "title": "Kodningsagenter",
+    "description": "Forbind kodningsværktøjer til én gateway for gratis modeller med genereret, backup-sikker konfiguration.",
+    "apiKey": "API-nøgle",
+    "quickstart": "Hurtigste vej: konfigurér Claude Code fra live-kataloget.",
+    "currentKey": "Nuværende samlede nøgle:",
+    "seenRecently": "Set for nylig",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "Dokumentation"
   }
 }

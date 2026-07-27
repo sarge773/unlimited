@@ -35,4 +35,25 @@ describe('client agent classification', () => {
       'user-agent': 'crush/0.8',
     }))).toBe('crush');
   });
+
+  it('recognizes Claude Code by its real claude-cli user agent', () => {
+    expect(classifyClientAgent(request('/v1/messages', {
+      'user-agent': 'claude-cli/1.0.62 (external, cli)',
+    }))).toBe('claude-code');
+    expect(classifyClientAgent(request('/v1/messages', {
+      'x-session-id': 'affinity',
+    }))).toBe('claude-code');
+    expect(classifyClientAgent(request('/v1/messages'))).toBe('anthropic-sdk');
+  });
+
+  it('lets user agents beat wire-format fallbacks', () => {
+    // Qwen Code speaks the Gemini wire; it must not count as gemini-cli.
+    expect(classifyClientAgent(request('/v1beta/models/x:generateContent', {
+      'user-agent': 'QwenCode/0.5 qwen-code',
+    }))).toBe('qwen-code');
+    // A plain openai SDK on /v1/responses is not Codex.
+    expect(classifyClientAgent(request('/v1/responses', {
+      'user-agent': 'OpenAI/NodeJS/4.52.0',
+    }))).toBe('openai-sdk');
+  });
 });

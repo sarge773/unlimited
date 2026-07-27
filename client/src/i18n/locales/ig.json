@@ -14,7 +14,7 @@
     "switchToChinese": "Banye na Chinese",
     "switchToEnglish": "Banye na bekee",
     "modelsMenu": "Chọgharịa ụdị nlereanya",
-    "agents": "Agents"
+    "agents": "Ndị ejenti"
   },
   "auth": {
     "createYourAccount": "Mepụta akaụntụ gị",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Nke fọdụrụ",
     "quotaReset": "Tọgharia",
     "quotaObserved": "Ahụrụ",
-    "tabAgents": "Agents",
+    "tabAgents": "Ndị ejenti",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Maapụ ụdị Gemini",
+    "geminiDesc": "Maapụ aha Gemini Pro, Flash, na Flash-Lite na Auto ma ọ bụ otu ụdị katalọgụ akọwapụtara.",
+    "compatibilityTitle": "Ndakọrịta ejenti",
+    "compatibilityDesc": "Chịkwaa elu ndakọrịta nke nhọrọ yana nchọpụta ụdị Claude Code.",
+    "ollamaMode": "Iṅomi Ollama",
+    "ollamaModeHint": "Loopback mepere emepe anaghị anabata okporo ụzọ LAN na-enweghị nkwenye.",
+    "ollamaOff": "Gbanyụọ",
+    "ollamaLoopback": "Mepee na loopback",
+    "ollamaKeyRequired": "Achọrọ igodo API",
+    "claudeAliases": "Aha ọzọ nchọpụta Claude Code",
+    "claudeAliasesHint": "Gosipụta aha ọzọ claude/<model> ka onye nhọrọ ụdị nke ọnụ ụzọ nwee ike depụta katalọgụ.",
+    "urlTokensTitle": "Akara URL enwere ike ịkagbu",
+    "urlTokensDesc": "Naanị maka ndị ahịa na-enweghị nkụnye eji isi mee. Akara URL nwere ike ịbanye na akụkọ ihe mere eme na ndekọ, ya mere kagbuo ha mgbe achọghịzi ha.",
+    "urlTokenLabel": "Labelụ akara",
+    "createUrlToken": "Mepụta akara",
+    "urlTokenOnce": "Detuo akara a ugbu a. A gaghị egosi ya ọzọ.",
+    "revoked": "Akagbuola",
+    "revoke": "Kagbuo"
   },
   "status": {
     "healthy": "ahụike",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Malite nkwụsị site na mmalite arịrịọ · Ogologo oge nwaa",
     "requestedModel": "Ihe nlereanya achọrọ",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Arịrịọ site na ejenti"
   },
   "playground": {
     "title": "Ebe egwuregwu",
@@ -700,13 +700,13 @@
     "passwordMin": "Opekempe mkpụrụedemede {min}"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Ndị ejenti koodu",
+    "description": "Jikọọ ngwaọrụ koodu na otu ọnụ ụzọ ụdị n'efu nwere nhazi emepụtara nke dị mma maka ndabere.",
+    "apiKey": "Igodo API",
+    "quickstart": "Ụzọ kachasị ọsọ: hazie Claude Code site na katalọgụ dị ndụ.",
+    "currentKey": "Igodo jikọtara ọnụ ugbu a:",
+    "seenRecently": "A hụrụ ya nso nso a",
+    "endpoint": "Njedebe",
+    "documentation": "Akwụkwọ ntuziaka"
   }
 }

@@ -73,34 +73,52 @@ function claude(ctx: GenerateContext): Generation {
 
 function codex(ctx: GenerateContext): Generation {
   const model = primaryModel(ctx.models);
-  const target = ctx.profile === 'default'
-    ? path.join(ctx.homeDir, '.codex', 'config.toml')
-    : path.join(ctx.homeDir, '.codex', `${ctx.profile}.config.toml`);
   const compact = Math.max(16_000, Math.floor(contextWindow(model) * 0.9));
+  const providerTable = [
+    '[model_providers.freellmapi]',
+    'name = "FreeLLMAPI"',
+    `base_url = ${JSON.stringify(v1Url(ctx.url))}`,
+    'wire_api = "responses"',
+    'env_key = "FREELLMAPI_API_KEY"',
+    'requires_openai_auth = false',
+  ];
+  // Codex reads exactly one file, ~/.codex/config.toml. Named profiles are
+  // `[profiles.NAME]` tables in that same file, selected with
+  // `codex --profile NAME`; separate per-profile files are never read.
+  const content = ctx.profile === 'default'
+    ? [
+      '# freellmapi:start',
+      `model = ${JSON.stringify(model.id)}`,
+      'model_provider = "freellmapi"',
+      `model_context_window = ${contextWindow(model)}`,
+      `model_auto_compact_token_limit = ${compact}`,
+      'tool_output_token_limit = 20000',
+      '',
+      ...providerTable,
+      '# freellmapi:end',
+      '',
+    ]
+    : [
+      '# freellmapi:start',
+      ...providerTable,
+      '',
+      `[profiles.${/^[A-Za-z0-9_-]+$/.test(ctx.profile) ? ctx.profile : JSON.stringify(ctx.profile)}]`,
+      `model = ${JSON.stringify(model.id)}`,
+      'model_provider = "freellmapi"',
+      '# freellmapi:end',
+      '',
+    ];
   return {
     files: [{
-      path: target,
+      path: path.join(ctx.homeDir, '.codex', 'config.toml'),
       format: 'toml',
-      content: [
-        '# freellmapi:start',
-        `model = ${JSON.stringify(model.id)}`,
-        'model_provider = "freellmapi"',
-        `model_context_window = ${contextWindow(model)}`,
-        `model_auto_compact_token_limit = ${compact}`,
-        'tool_output_token_limit = 20000',
-        '',
-        '[model_providers.freellmapi]',
-        'name = "FreeLLMAPI"',
-        `base_url = ${JSON.stringify(v1Url(ctx.url))}`,
-        'wire_api = "responses"',
-        'env_key = "FREELLMAPI_API_KEY"',
-        'requires_openai_auth = false',
-        '# freellmapi:end',
-        '',
-      ].join('\n'),
+      content: content.join('\n'),
     }],
     notes: [
       'Export FREELLMAPI_API_KEY before running codex; the key is not written to config.toml.',
+      ...(ctx.profile === 'default'
+        ? []
+        : [`Activate this profile with: codex --profile ${ctx.profile}`]),
       `Selected ${model.id} with a ${contextWindow(model)} token context window.`,
     ],
   };

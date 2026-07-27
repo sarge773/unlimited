@@ -63,7 +63,76 @@ describe('Ollama emulation', () => {
     const tags = await request(app, 'GET', '/api/tags');
     expect(tags.status).toBe(200);
     expect(tags.body.models.length).toBeGreaterThan(0);
-    expect((await request(app, 'GET', '/api/version')).body.version).toContain('freellmapi');
+    // Plain semver — a prerelease suffix compares below the base version for
+    // clients that gate features on a minimum Ollama version.
+    expect((await request(app, 'GET', '/api/version')).body.version).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
+  it('advertises auto plus only available models, and accepts :latest names', async () => {
+    setSetting('ollama_emulation', 'open-loopback');
+    const tags = await request(app, 'GET', '/api/tags');
+    expect(tags.status).toBe(200);
+    expect(tags.body.models[0].name).toBe('auto');
+    const shown = await request(app, 'POST', '/api/show', { model: `${tags.body.models[1].name}:latest` });
+    expect(shown.status).toBe(200);
+    expect(shown.body.modified_at).toBeTruthy();
+  });
+
+  it('answers load/unload probes without calling any provider', async () => {
+    setSetting('ollama_emulation', 'open-loopback');
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const load = await request(app, 'POST', '/api/chat', { model: 'auto', messages: [] });
+    expect(load.status).toBe(200);
+    expect(load.body.done_reason).toBe('load');
+    const unload = await request(app, 'POST', '/api/generate', { model: 'auto', prompt: '', keep_alive: 0 });
+    expect(unload.body.done_reason).toBe('unload');
+    expect(unload.body.response).toBe('');
+    const upstreamCalls = fetchSpy.mock.calls.filter(([url]) =>
+      String(url).startsWith('http') && !String(url).includes('127.0.0.1'));
+    expect(upstreamCalls).toHaveLength(0);
+  });
+
+  it('streams generate frames with a generate-shaped terminal frame', async () => {
+    setSetting('ollama_emulation', 'open-loopback');
+    const originalFetch = global.fetch;
+    vi.spyOn(global, 'fetch').mockImplementation(async (url, init) => {
+      if (String(url).includes('api.groq.com/openai/v1/chat/completions')) {
+        return new Response(
+          'data: {"id":"x","object":"chat.completion.chunk","created":1,"model":"x","choices":[{"index":0,"delta":{"content":"hi"},"finish_reason":null}]}\n\n'
+          + 'data: {"id":"x","object":"chat.completion.chunk","created":1,"model":"x","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":2,"completion_tokens":1}}\n\n'
+          + 'data: [DONE]\n\n',
+          { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+        );
+      }
+      return originalFetch(url, init);
+    });
+    const response = await request(app, 'POST', '/api/generate', { model: 'auto', prompt: 'say hi' });
+    expect(response.status).toBe(200);
+    const frames = response.text.trim().split('\n').map(line => JSON.parse(line));
+    expect(frames[0].response).toBe('hi');
+    const last = frames.at(-1);
+    // Terminal frame must be generate-shaped: `response`, never `message`.
+    expect(last.response).toBe('');
+    expect(last.message).toBeUndefined();
+    expect(last.done).toBe(true);
+    expect(Array.isArray(last.context)).toBe(true);
+    expect(last.eval_duration).toBeGreaterThan(0);
+  });
+
+  it('accepts the real legacy embeddings body ({model, prompt})', async () => {
+    setSetting('ollama_emulation', 'open-loopback');
+    const response = await request(app, 'POST', '/api/embeddings', { model: 'auto', prompt: 'embed me' });
+    // No embedding provider is seeded, so upstream fails — but the request
+    // must pass validation (not 400 invalid request).
+    expect(response.status).not.toBe(400);
+  });
+
+  it('returns 401 for a stale dashboard session on the shared embeddings path', async () => {
+    setSetting('ollama_emulation', 'off');
+    const response = await request(app, 'POST', '/api/embeddings', {}, {
+      Authorization: 'Bearer stale-session-token',
+    });
+    expect(response.status).toBe(401);
   });
 
   it('does not treat LAN peers as loopback clients', () => {

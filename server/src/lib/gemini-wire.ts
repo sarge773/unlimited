@@ -31,6 +31,9 @@ export interface GeminiInboundRequest {
     name?: string;
     description?: string;
     parameters?: Record<string, unknown>;
+    // Newer @google/genai clients (incl. Gemini CLI's MCP tool path) send
+    // plain JSON Schema under this alternative field instead of `parameters`.
+    parametersJsonSchema?: Record<string, unknown>;
   }> }>;
   toolConfig?: {
     functionCallingConfig?: {
@@ -46,8 +49,41 @@ export interface GeminiInboundRequest {
     stopSequences?: string[];
     responseMimeType?: string;
     responseSchema?: Record<string, unknown>;
+    responseJsonSchema?: Record<string, unknown>;
     thinkingConfig?: { thinkingBudget?: number };
   };
+}
+
+// Gemini-native clients write schemas in the API's OpenAPI-flavored dialect:
+// Type enum casing ("OBJECT", "STRING") and `nullable: true`. OpenAI-style
+// strict json_schema validators reject both, so normalize the inbound
+// direction (the outbound direction has sanitizeForGemini).
+const GEMINI_TYPE_ENUM = new Set(['object', 'string', 'number', 'integer', 'boolean', 'array', 'null']);
+
+export function normalizeGeminiSchema(schema: unknown): unknown {
+  if (Array.isArray(schema)) return schema.map(normalizeGeminiSchema);
+  if (!schema || typeof schema !== 'object') return schema;
+  const out: Record<string, unknown> = {};
+  let nullable = false;
+  for (const [key, value] of Object.entries(schema as Record<string, unknown>)) {
+    if (key === 'nullable') {
+      nullable = value === true;
+      continue;
+    }
+    if (key === 'type' && typeof value === 'string' && GEMINI_TYPE_ENUM.has(value.toLowerCase())) {
+      out.type = value.toLowerCase();
+      continue;
+    }
+    if (key === 'properties' && value && typeof value === 'object' && !Array.isArray(value)) {
+      out.properties = Object.fromEntries(
+        Object.entries(value as Record<string, unknown>).map(([name, child]) => [name, normalizeGeminiSchema(child)]),
+      );
+      continue;
+    }
+    out[key] = normalizeGeminiSchema(value);
+  }
+  if (nullable && typeof out.type === 'string') out.type = [out.type, 'null'];
+  return out;
 }
 
 const UNSUPPORTED_SCHEMA_KEYS = new Set([
@@ -107,7 +143,10 @@ function systemText(system?: GeminiInboundRequest['systemInstruction']): string 
 
 export function geminiContentsToMessages(body: GeminiInboundRequest): ChatMessage[] {
   const messages: ChatMessage[] = [];
-  const lastCallIdByName = new Map<string, string>();
+  // FIFO per name: parallel calls to the same tool without client-echoed ids
+  // must each consume their own synthesized id, or one call is left without a
+  // response and strict upstreams reject the history.
+  const pendingCallIdsByName = new Map<string, string[]>();
   const system = systemText(body.systemInstruction);
   if (system) messages.push({ role: 'system', content: system });
 
@@ -118,7 +157,10 @@ export function geminiContentsToMessages(body: GeminiInboundRequest): ChatMessag
     const functionResponses: GeminiPart[] = [];
 
     for (const part of content.parts ?? []) {
-      if (typeof part.text === 'string') textBlocks.push({ type: 'text', text: part.text });
+      // Thought summaries kept in client history are not conversation content.
+      if (typeof part.text === 'string' && part.thought !== true) {
+        textBlocks.push({ type: 'text', text: part.text });
+      }
       const inline = part.inlineData ?? (
         part.inline_data
           ? { mimeType: part.inline_data.mime_type, data: part.inline_data.data }
@@ -143,7 +185,9 @@ export function geminiContentsToMessages(body: GeminiInboundRequest): ChatMessag
           },
           ...(part.thoughtSignature ? { thought_signature: part.thoughtSignature } : {}),
         });
-        lastCallIdByName.set(part.functionCall.name, id);
+        const queue = pendingCallIdsByName.get(part.functionCall.name) ?? [];
+        queue.push(id);
+        pendingCallIdsByName.set(part.functionCall.name, queue);
       }
       if (part.functionResponse?.name) functionResponses.push(part);
     }
@@ -154,21 +198,25 @@ export function geminiContentsToMessages(body: GeminiInboundRequest): ChatMessag
         content: textBlocks.length ? textBlocks : null,
         ...(calls.length ? { tool_calls: calls } : {}),
       });
-    } else if (textBlocks.length || functionResponses.length === 0) {
-      messages.push({
-        role: 'user',
-        content: textBlocks.length ? textBlocks : '',
-      });
     }
 
+    // Tool results answer the preceding assistant tool_calls; they must come
+    // before any new user text or strict upstreams reject the ordering.
     for (const part of functionResponses) {
       const response = part.functionResponse!;
       messages.push({
         role: 'tool',
-        tool_call_id: response.id || lastCallIdByName.get(response.name!)
+        tool_call_id: response.id || pendingCallIdsByName.get(response.name!)?.shift()
           || `call_${messages.length}`,
         name: response.name,
         content: serializeResponse(response.response),
+      });
+    }
+
+    if (role !== 'assistant' && (textBlocks.length || functionResponses.length === 0)) {
+      messages.push({
+        role: 'user',
+        content: textBlocks.length ? textBlocks : '',
       });
     }
   }
@@ -186,7 +234,11 @@ export function geminiToolsToChatTools(
       function: {
         name: declaration.name!,
         description: declaration.description,
-        parameters: declaration.parameters ?? { type: 'object', properties: {} },
+        parameters: normalizeGeminiSchema(
+          declaration.parameters
+            ?? declaration.parametersJsonSchema
+            ?? { type: 'object', properties: {} },
+        ) as Record<string, unknown>,
       },
     }));
   return converted.length ? converted : undefined;
@@ -195,7 +247,10 @@ export function geminiToolsToChatTools(
 export function geminiToolChoice(config: GeminiInboundRequest['toolConfig']): ChatToolChoice | undefined {
   const fc = config?.functionCallingConfig;
   const mode = fc?.mode?.toUpperCase();
-  if (!mode || mode === 'AUTO') return 'auto';
+  // No toolConfig at all must map to undefined: emitting tool_choice on a
+  // tool-free request 400s on strict OpenAI-compatible upstreams.
+  if (!mode) return undefined;
+  if (mode === 'AUTO') return 'auto';
   if (mode === 'NONE') return 'none';
   if (mode === 'ANY') {
     const name = fc?.allowedFunctionNames?.[0];
@@ -208,12 +263,13 @@ export function geminiResponseFormat(
   config: GeminiInboundRequest['generationConfig'],
 ): ResponseFormat | undefined {
   if (config?.responseMimeType !== 'application/json') return undefined;
-  if (config.responseSchema) {
+  const schema = config.responseSchema ?? config.responseJsonSchema;
+  if (schema) {
     return {
       type: 'json_schema',
       json_schema: {
         name: 'gemini_response',
-        schema: config.responseSchema,
+        schema: normalizeGeminiSchema(schema) as Record<string, unknown>,
       },
     };
   }
@@ -225,7 +281,10 @@ export function effortFromGeminiThinking(
 ): ReasoningEffort | undefined {
   const budget = config?.thinkingConfig?.thinkingBudget;
   if (budget == null) return undefined;
-  if (budget <= 0) return 'none';
+  // -1 is the API's "dynamic thinking" (model-managed budget) and is Gemini
+  // CLI's default — leave the provider default in place rather than disabling.
+  if (budget < 0) return undefined;
+  if (budget === 0) return 'none';
   if (budget < 4096) return 'low';
   if (budget < 16384) return 'medium';
   return 'high';
@@ -285,15 +344,23 @@ export function geminiResponseFromResult(result: InboundChatResult): Record<stri
   };
 }
 
-export function estimateGeminiTokens(body: Pick<GeminiInboundRequest, 'contents' | 'systemInstruction'>): number {
-  const messages = geminiContentsToMessages({
-    contents: body.contents,
-    systemInstruction: body.systemInstruction,
-  });
-  return messages.reduce((sum, message) => {
-    const text = typeof message.content === 'string'
-      ? message.content
-      : JSON.stringify(message.content ?? '');
-    return sum + Math.ceil(text.length / 4);
-  }, 0);
+// Gemini bills images at a fixed per-tile cost; counting their base64 length
+// as text overreports by orders of magnitude and triggers premature client
+// context compression.
+const GEMINI_IMAGE_TOKENS = 258;
+
+export function estimateGeminiTokens(
+  body: Pick<GeminiInboundRequest, 'contents' | 'systemInstruction' | 'tools'>,
+): number {
+  let tokens = Math.ceil(systemText(body.systemInstruction).length / 4);
+  for (const content of body.contents ?? []) {
+    for (const part of content.parts ?? []) {
+      if (typeof part.text === 'string') tokens += Math.ceil(part.text.length / 4);
+      if (part.inlineData?.data || part.inline_data?.data) tokens += GEMINI_IMAGE_TOKENS;
+      if (part.functionCall) tokens += Math.ceil(JSON.stringify(part.functionCall).length / 4);
+      if (part.functionResponse) tokens += Math.ceil(JSON.stringify(part.functionResponse).length / 4);
+    }
+  }
+  if (body.tools?.length) tokens += Math.ceil(JSON.stringify(body.tools).length / 4);
+  return tokens;
 }

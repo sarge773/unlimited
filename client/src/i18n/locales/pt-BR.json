@@ -14,7 +14,7 @@
     "switchToChinese": "Mudar para chinês",
     "switchToEnglish": "Mudar para inglês",
     "modelsMenu": "Explorar tipos de modelo",
-    "agents": "Agents"
+    "agents": "Agentes"
   },
   "auth": {
     "createYourAccount": "Crie sua conta",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Restante",
     "quotaReset": "Redefinição",
     "quotaObserved": "Observado",
-    "tabAgents": "Agents",
+    "tabAgents": "Agentes",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Mapeamento de modelos Gemini",
+    "geminiDesc": "Mapeie os nomes Gemini Pro, Flash e Flash-Lite para Auto ou um modelo específico do catálogo.",
+    "compatibilityTitle": "Compatibilidade de agentes",
+    "compatibilityDesc": "Controle superfícies de compatibilidade opcionais e a descoberta de modelos do Claude Code.",
+    "ollamaMode": "Emulação do Ollama",
+    "ollamaModeHint": "O loopback aberto nunca aceita tráfego de LAN não autenticado.",
+    "ollamaOff": "Desativado",
+    "ollamaLoopback": "Aberto no loopback",
+    "ollamaKeyRequired": "Chave de API obrigatória",
+    "claudeAliases": "Aliases de descoberta do Claude Code",
+    "claudeAliasesHint": "Exponha aliases claude/<model> para que o seletor de modelos do gateway possa listar o catálogo.",
+    "urlTokensTitle": "Tokens de URL revogáveis",
+    "urlTokensDesc": "Apenas para clientes sem cabeçalhos. Tokens de URL podem vazar para o histórico e os logs; revogue-os quando não forem mais necessários.",
+    "urlTokenLabel": "Rótulo do token",
+    "createUrlToken": "Criar token",
+    "urlTokenOnce": "Copie este token agora. Ele não será exibido novamente.",
+    "revoked": "Revogado",
+    "revoke": "Revogar"
   },
   "status": {
     "healthy": "saudável",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Deslocamento desde o início da requisição · duração da tentativa",
     "requestedModel": "Modelo solicitado",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Solicitações por agente"
   },
   "playground": {
     "title": "Playground",
@@ -700,13 +700,13 @@
     "passwordMin": "Pelo menos {min} caracteres"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
+    "title": "Agentes de codificação",
+    "description": "Conecte ferramentas de codificação a um único gateway de modelos gratuitos com configuração gerada e segura para backup.",
+    "apiKey": "Chave de API",
+    "quickstart": "Caminho mais rápido: configure o Claude Code a partir do catálogo ao vivo.",
+    "currentKey": "Chave unificada atual:",
+    "seenRecently": "Visto recentemente",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "Documentação"
   }
 }

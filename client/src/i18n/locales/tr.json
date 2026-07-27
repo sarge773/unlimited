@@ -14,7 +14,7 @@
     "switchToChinese": "Çinceye geç",
     "switchToEnglish": "İngilizceye geç",
     "modelsMenu": "Model türlerine göz atın",
-    "agents": "Agents"
+    "agents": "Ajanlar"
   },
   "auth": {
     "createYourAccount": "Hesabınızı oluşturun",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Kalan",
     "quotaReset": "Sıfırla",
     "quotaObserved": "Gözlemlendi",
-    "tabAgents": "Agents",
+    "tabAgents": "Ajanlar",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini model eşleme",
+    "geminiDesc": "Gemini Pro, Flash ve Flash-Lite adlarını Auto'ya veya belirli bir katalog modeline eşleyin.",
+    "compatibilityTitle": "Ajan uyumluluğu",
+    "compatibilityDesc": "İsteğe bağlı uyumluluk yüzeylerini ve Claude Code model keşfini kontrol edin.",
+    "ollamaMode": "Ollama emülasyonu",
+    "ollamaModeHint": "Açık loopback, kimliği doğrulanmamış LAN trafiğini asla kabul etmez.",
+    "ollamaOff": "Kapalı",
+    "ollamaLoopback": "Loopback'te açık",
+    "ollamaKeyRequired": "API anahtarı gerekli",
+    "claudeAliases": "Claude Code keşif takma adları",
+    "claudeAliasesHint": "Ağ geçidi model seçicisinin kataloğu listeleyebilmesi için claude/<model> takma adlarını açığa çıkarın.",
+    "urlTokensTitle": "İptal edilebilir URL belirteçleri",
+    "urlTokensDesc": "Yalnızca başlık gönderemeyen istemciler için. URL belirteçleri geçmişe ve günlüklere sızabilir; bu yüzden artık gerekmediğinde iptal edin.",
+    "urlTokenLabel": "Belirteç etiketi",
+    "createUrlToken": "Belirteç oluştur",
+    "urlTokenOnce": "Bu belirteci şimdi kopyalayın. Bir daha gösterilmeyecek.",
+    "revoked": "İptal edildi",
+    "revoke": "İptal et"
   },
   "status": {
     "healthy": "sağlıklı",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "İstek başlangıcından itibaren başlangıç dengelemesi · deneme süresi",
     "requestedModel": "İstenilen model",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Ajan başına istekler"
   },
   "playground": {
     "title": "Bahçesi",
@@ -700,13 +700,13 @@
     "passwordMin": "En az {min} karakter"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Kodlama ajanları",
+    "description": "Kodlama araçlarını, oluşturulmuş ve yedeklemeye uygun yapılandırmayla tek bir ücretsiz model ağ geçidine bağlayın.",
+    "apiKey": "API anahtarı",
+    "quickstart": "En hızlı yol: Claude Code'u canlı katalogdan yapılandırın.",
+    "currentKey": "Geçerli birleşik anahtar:",
+    "seenRecently": "Son zamanlarda görüldü",
+    "endpoint": "Uç nokta",
+    "documentation": "Dokümantasyon"
   }
 }

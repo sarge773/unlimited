@@ -14,7 +14,7 @@
     "switchToChinese": "চাইনিজ এ স্যুইচ করুন",
     "switchToEnglish": "ইংরেজিতে স্যুইচ করুন",
     "modelsMenu": "মডেলের ধরন ব্রাউজ করুন",
-    "agents": "Agents"
+    "agents": "এজেন্ট"
   },
   "auth": {
     "createYourAccount": "আপনার অ্যাকাউন্ট তৈরি করুন",
@@ -377,28 +377,28 @@
     "quotaRemaining": "অবশিষ্ট",
     "quotaReset": "রিসেট করুন",
     "quotaObserved": "পর্যবেক্ষণ করা হয়েছে",
-    "tabAgents": "Agents",
+    "tabAgents": "এজেন্ট",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Gemini মডেল ম্যাপিং",
+    "geminiDesc": "Gemini Pro, Flash এবং Flash-Lite নামগুলি Auto বা ক্যাটালগের একটি নির্দিষ্ট মডেলে ম্যাপ করুন।",
+    "compatibilityTitle": "এজেন্ট সামঞ্জস্য",
+    "compatibilityDesc": "ঐচ্ছিক সামঞ্জস্য পৃষ্ঠতল এবং Claude Code মডেল আবিষ্কার নিয়ন্ত্রণ করুন।",
+    "ollamaMode": "Ollama এমুলেশন",
+    "ollamaModeHint": "লুপব্যাকে খোলা মোড কখনও প্রমাণীকরণবিহীন LAN ট্র্যাফিক গ্রহণ করে না।",
+    "ollamaOff": "বন্ধ",
+    "ollamaLoopback": "লুপব্যাকে খোলা",
+    "ollamaKeyRequired": "API কী প্রয়োজন",
+    "claudeAliases": "Claude Code আবিষ্কারের অ্যালিয়াস",
+    "claudeAliasesHint": "গেটওয়ের মডেল নির্বাচক যাতে ক্যাটালগ তালিকাভুক্ত করতে পারে সেজন্য claude/<model> অ্যালিয়াস উন্মুক্ত করুন।",
+    "urlTokensTitle": "প্রত্যাহারযোগ্য URL টোকেন",
+    "urlTokensDesc": "শুধুমাত্র হেডারবিহীন ক্লায়েন্টদের জন্য। URL টোকেন ইতিহাস এবং লগে ফাঁস হতে পারে, তাই আর প্রয়োজন না হলে সেগুলি প্রত্যাহার করুন।",
+    "urlTokenLabel": "টোকেন লেবেল",
+    "createUrlToken": "টোকেন তৈরি করুন",
+    "urlTokenOnce": "এই টোকেনটি এখনই কপি করুন। এটি আর দেখানো হবে না।",
+    "revoked": "প্রত্যাহার করা হয়েছে",
+    "revoke": "প্রত্যাহার করুন"
   },
   "status": {
     "healthy": "সুস্থ",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "অনুরোধ শুরু থেকে অফসেট শুরু করুন · প্রচেষ্টার সময়কাল",
     "requestedModel": "অনুরোধ করা মডেল",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "এজেন্ট অনুযায়ী অনুরোধ"
   },
   "playground": {
     "title": "খেলার মাঠ",
@@ -700,13 +700,13 @@
     "passwordMin": "অন্তত {min} অক্ষর"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "কোডিং এজেন্ট",
+    "description": "জেনারেট করা, ব্যাকআপ-নিরাপদ কনফিগারেশন সহ কোডিং টুলগুলিকে একটি ফ্রি-মডেল গেটওয়েতে সংযুক্ত করুন।",
+    "apiKey": "API কী",
+    "quickstart": "দ্রুততম পথ: লাইভ ক্যাটালগ থেকে Claude Code কনফিগার করুন।",
+    "currentKey": "বর্তমান একীভূত কী:",
+    "seenRecently": "সম্প্রতি দেখা গেছে",
+    "endpoint": "এন্ডপয়েন্ট",
+    "documentation": "ডকুমেন্টেশন"
   }
 }

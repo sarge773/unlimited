@@ -14,7 +14,7 @@
     "switchToChinese": "Prijelaz na kineski",
     "switchToEnglish": "Prijelaz na engleski",
     "modelsMenu": "Pregledajte vrste modela",
-    "agents": "Agents"
+    "agents": "Agenti"
   },
   "auth": {
     "createYourAccount": "Kreirajte svoj račun",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Preostali",
     "quotaReset": "Reset",
     "quotaObserved": "Opaženo",
-    "tabAgents": "Agents",
+    "tabAgents": "Agenti",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Mapiranje Gemini modela",
+    "geminiDesc": "Mapirajte nazive Gemini Pro, Flash i Flash-Lite na Auto ili određeni model iz kataloga.",
+    "compatibilityTitle": "Kompatibilnost agenata",
+    "compatibilityDesc": "Upravljajte opcionalnim sučeljima kompatibilnosti i otkrivanjem modela za Claude Code.",
+    "ollamaMode": "Ollama emulacija",
+    "ollamaModeHint": "Otvoreni loopback nikada ne prihvaća neautentificirani LAN promet.",
+    "ollamaOff": "Isključeno",
+    "ollamaLoopback": "Otvoreno na loopbacku",
+    "ollamaKeyRequired": "Potreban API ključ",
+    "claudeAliases": "Aliasi za otkrivanje Claude Codea",
+    "claudeAliasesHint": "Izložite claude/<model> aliase kako bi birač modela gatewaya mogao izlistati katalog.",
+    "urlTokensTitle": "Opozivi URL tokeni",
+    "urlTokensDesc": "Samo za klijente bez zaglavlja. URL tokeni mogu procuriti u povijest i logove, pa ih opozovite kad više nisu potrebni.",
+    "urlTokenLabel": "Oznaka tokena",
+    "createUrlToken": "Stvori token",
+    "urlTokenOnce": "Kopirajte ovaj token sada. Neće se ponovno prikazati.",
+    "revoked": "Opozvano",
+    "revoke": "Opozovi"
   },
   "status": {
     "healthy": "Zdravo",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Početak offseta od početka zahtjeva · Trajanje pokušaja",
     "requestedModel": "Traženi model",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Zahtjevi po agentu"
   },
   "playground": {
     "title": "Igralište",
@@ -700,13 +700,13 @@
     "passwordMin": "Barem {min} likova"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Agenti za kodiranje",
+    "description": "Povežite alate za kodiranje s jednim gatewayem besplatnih modela uz generiranu konfiguraciju sigurnu za backup.",
+    "apiKey": "API ključ",
+    "quickstart": "Najbrži put: konfigurirajte Claude Code iz live kataloga.",
+    "currentKey": "Trenutni objedinjeni ključ:",
+    "seenRecently": "Nedavno viđeno",
+    "endpoint": "Krajnja točka",
+    "documentation": "Dokumentacija"
   }
 }

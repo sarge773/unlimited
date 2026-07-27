@@ -14,7 +14,7 @@
     "switchToChinese": "Пребаци на кинески",
     "switchToEnglish": "Пребаците се на енглески",
     "modelsMenu": "Прегледајте типове модела",
-    "agents": "Agents"
+    "agents": "Агенти"
   },
   "auth": {
     "createYourAccount": "Креирајте свој налог",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Преостало",
     "quotaReset": "Ресетуј",
     "quotaObserved": "Посматрано",
-    "tabAgents": "Agents",
+    "tabAgents": "Агенти",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Мапирање Gemini модела",
+    "geminiDesc": "Мапирајте називе Gemini Pro, Flash и Flash-Lite на Auto или одређени модел из каталога.",
+    "compatibilityTitle": "Компатибилност агената",
+    "compatibilityDesc": "Управљајте опционим површинама компатибилности и откривањем модела за Claude Code.",
+    "ollamaMode": "Ollama емулација",
+    "ollamaModeHint": "Отворени loopback никада не прихвата неаутентификовани LAN саобраћај.",
+    "ollamaOff": "Искључено",
+    "ollamaLoopback": "Отворено на loopback-у",
+    "ollamaKeyRequired": "Потребан је API кључ",
+    "claudeAliases": "Алијаси за откривање Claude Code-а",
+    "claudeAliasesHint": "Изложите claude/<model> алијасе како би бирач модела мрежног пролаза могао да прикаже каталог.",
+    "urlTokensTitle": "Опозиви URL токени",
+    "urlTokensDesc": "Само за клијенте без заглавља. URL токени могу да процуре у историју и логове, па их опозовите када више нису потребни.",
+    "urlTokenLabel": "Ознака токена",
+    "createUrlToken": "Направи токен",
+    "urlTokenOnce": "Копирајте овај токен одмах. Неће бити поново приказан.",
+    "revoked": "Опозван",
+    "revoke": "Опозови"
   },
   "status": {
     "healthy": "здраво",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Почетак одступања од почетка захтева · трајање покушаја",
     "requestedModel": "Тражени модел",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Захтеви по агенту"
   },
   "playground": {
     "title": "Игралиште",
@@ -700,13 +700,13 @@
     "passwordMin": "Најмање {min} знакова"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Агенти за кодирање",
+    "description": "Повежите алате за кодирање са једним мрежним пролазом бесплатних модела уз генерисану конфигурацију безбедну за резервне копије.",
+    "apiKey": "API кључ",
+    "quickstart": "Најбржи пут: конфигуришите Claude Code из каталога уживо.",
+    "currentKey": "Тренутни обједињени кључ:",
+    "seenRecently": "Недавно виђен",
+    "endpoint": "Крајња тачка",
+    "documentation": "Документација"
   }
 }

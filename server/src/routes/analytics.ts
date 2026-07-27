@@ -307,7 +307,7 @@ analyticsRouter.get('/by-client', (req: Request, res: Response) => {
       MAX(strftime('%Y-%m-%dT%H:%M:%SZ', created_at)) AS last_seen_at
     FROM requests
     WHERE created_at >= ?
-    GROUP BY COALESCE(client_agent, 'unknown')
+    GROUP BY client_agent
     ORDER BY requests DESC
   `).all(since) as any[];
 

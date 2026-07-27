@@ -14,7 +14,7 @@
     "switchToChinese": "Yipada si Kannada",
     "switchToEnglish": "Yipada si English",
     "modelsMenu": "Kiri awoṣe orisi",
-    "agents": "Agents"
+    "agents": "Awọn aṣoju"
   },
   "auth": {
     "createYourAccount": "Ṣẹda akọọlẹ rẹ",
@@ -377,28 +377,28 @@
     "quotaRemaining": "Ti o ku",
     "quotaReset": "Tunto",
     "quotaObserved": "Ti ṣe akiyesi",
-    "tabAgents": "Agents",
+    "tabAgents": "Awọn aṣoju",
     "familyGeminiPro": "Gemini Pro",
     "familyGeminiFlash": "Gemini Flash",
     "familyGeminiFlashLite": "Gemini Flash-Lite",
-    "geminiTitle": "Gemini model mapping",
-    "geminiDesc": "Map Gemini Pro, Flash, and Flash-Lite names to Auto or a specific catalog model.",
-    "compatibilityTitle": "Agent compatibility",
-    "compatibilityDesc": "Control opt-in compatibility surfaces and Claude Code model discovery.",
-    "ollamaMode": "Ollama emulation",
-    "ollamaModeHint": "Open-loopback never accepts unauthenticated LAN traffic.",
-    "ollamaOff": "Off",
-    "ollamaLoopback": "Open on loopback",
-    "ollamaKeyRequired": "API key required",
-    "claudeAliases": "Claude Code discovery aliases",
-    "claudeAliasesHint": "Expose claude/<model> aliases so the gateway model picker can list the catalog.",
-    "urlTokensTitle": "Revocable URL tokens",
-    "urlTokensDesc": "For headerless clients only. URL tokens can leak into history and logs, so revoke them when no longer needed.",
-    "urlTokenLabel": "Token label",
-    "createUrlToken": "Create token",
-    "urlTokenOnce": "Copy this token now. It will not be shown again.",
-    "revoked": "Revoked",
-    "revoke": "Revoke"
+    "geminiTitle": "Isopọ awoṣe Gemini",
+    "geminiDesc": "So awọn orukọ Gemini Pro, Flash, ati Flash-Lite pọ mọ Auto tabi awoṣe katalogu kan pato.",
+    "compatibilityTitle": "Ibamu aṣoju",
+    "compatibilityDesc": "Ṣakoso awọn oju ibamu yiyan ati wiwa awoṣe Claude Code.",
+    "ollamaMode": "Afarawe Ollama",
+    "ollamaModeHint": "Loopback ṣiṣi ko gba ijabọ LAN ti ko ni ijẹrisi rara.",
+    "ollamaOff": "Pa",
+    "ollamaLoopback": "Ṣii lori loopback",
+    "ollamaKeyRequired": "A nilo bọtini API",
+    "claudeAliases": "Awọn inagijẹ wiwa Claude Code",
+    "claudeAliasesHint": "Fi awọn inagijẹ claude/<model> han ki oluyan awoṣe ẹnu-ọna le ṣe atokọ katalogu naa.",
+    "urlTokensTitle": "Awọn tokini URL ti a le fagile",
+    "urlTokensDesc": "Fun awọn alabara ti ko ni akọsori nikan. Awọn tokini URL le jo sinu itan-akọọlẹ ati awọn akọsilẹ, nitorinaa fagile wọn nigbati wọn ko ba nilo mọ.",
+    "urlTokenLabel": "Aami tokini",
+    "createUrlToken": "Ṣẹda tokini",
+    "urlTokenOnce": "Daakọ tokini yii ni bayi. Kii yoo han lẹẹkansi.",
+    "revoked": "Ti fagile",
+    "revoke": "Fagile"
   },
   "status": {
     "healthy": "ni ilera",
@@ -478,7 +478,7 @@
     "attemptTimingHint": "Bẹrẹ aiṣedeede lati ibere ibere · Iye akoko igbiyanju",
     "requestedModel": "Awoṣe ti a beere",
     "ttft": "TTFT",
-    "requestsByAgent": "Requests by agent"
+    "requestsByAgent": "Awọn ibeere nipasẹ aṣoju"
   },
   "playground": {
     "title": "Ibi isereile",
@@ -700,13 +700,13 @@
     "passwordMin": "O kere ju awọn ohun kikọ {min}"
   },
   "agents": {
-    "title": "Coding agents",
-    "description": "Connect coding tools to one free-model gateway with generated, backup-safe configuration.",
-    "apiKey": "API key",
-    "quickstart": "Fastest path: configure Claude Code from the live catalog.",
-    "currentKey": "Current unified key:",
-    "seenRecently": "Seen recently",
-    "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "title": "Awọn aṣoju kikọ koodu",
+    "description": "So awọn irinṣẹ kikọ koodu pọ mọ ẹnu-ọna awoṣe ọfẹ kan pẹlu iṣeto ti a ṣẹda, ti o ni aabo afẹyinti.",
+    "apiKey": "Bọtini API",
+    "quickstart": "Ọna ti o yara julọ: ṣeto Claude Code lati inu katalogu laaye.",
+    "currentKey": "Bọtini iṣọkan lọwọlọwọ:",
+    "seenRecently": "Ti a rii laipẹ",
+    "endpoint": "Ebute",
+    "documentation": "Iwe akọsilẹ"
   }
 }
