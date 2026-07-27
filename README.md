@@ -2,7 +2,7 @@
 
 # FreeLLMAPI
 
-**One OpenAI-compatible endpoint. 28 free LLM providers. 339 free model endpoints. ~4 billion tokens per month.**
+**4 billion tokens per month.  28 free LLM providers. 339 free model endpoints. One OpenAI-compatible endpoint.**
 
 Aggregate free tiers from dozens of providers, plus custom OpenAI-compatible chat, embedding, image, and audio endpoints, behind a single `/v1` API. Keys are stored encrypted. A router picks the best available model for each request, falls over to the next provider when one is rate-limited, and tracks per-key usage so you stay under every free-tier cap.
 
@@ -15,10 +15,11 @@ Aggregate free tiers from dozens of providers, plus custom OpenAI-compatible cha
 
 **[freellmapi.co](https://freellmapi.co/?utm_source=github&utm_medium=readme&utm_campaign=repository&utm_content=readme_top)** · browse the full catalog: 235 model families, 339 free endpoints
 
+![FreeLLMAPI dashboard — Models page with the monthly token budget](repo-assets/github-hero.png)
+
+
 Your router updates its own model catalog from a signed feed: new free models, quota changes, and compatibility fixes land without a `git pull`.
 **[Go live at freellmapi.co](https://freellmapi.co/?utm_source=github&utm_medium=readme&utm_campaign=premium&utm_content=readme_top#pricing)** ($19/yr, cancel anytime).
-
-![FreeLLMAPI dashboard — Models page with the monthly token budget](repo-assets/github-hero.png)
 
 </div>
 
@@ -50,7 +51,7 @@ Your router updates its own model catalog from a signed feed: new free models, q
 
 ## Why this exists
 
-Every serious AI lab now offers a free tier — a few million tokens a month, a few thousand requests a day. On its own each tier is a toy. Stacked together, they add up to roughly **4 billion tokens per month** of working inference capacity, across **235 model families / 339 provider endpoints** from small-and-fast to reasonably capable.
+Every serious AI lab now offers a free tier, a few million tokens a month, a few thousand requests a day. On its own each tier is a toy. Stacked together, they add up to roughly **4 billion tokens per month** of working inference capacity, across **235 model families / 339 provider endpoints** from small-and-fast to reasonably capable.
 
 The problem is that stacking them by hand is painful: twenty-eight different SDKs, twenty-eight different rate limits, twenty-eight places a request can fail. FreeLLMAPI collapses that into one OpenAI-compatible endpoint. Point any OpenAI client library at your local server, and it routes transparently across whichever providers you've added keys for.
 
