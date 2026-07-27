@@ -44,7 +44,24 @@ export function checkFidelity(before: ChatMessage[], after: ChatMessage[]): Fide
     };
   }
 
-  const input = allMessageText(before);
+  // Only messages the pipeline actually rewrote can lose protected content —
+  // an unchanged message preserves its spans by definition. Scanning just the
+  // changed slices keeps the gate linear on large conversations where an
+  // engine touched one tool result. Removed/deduplicated messages count as
+  // changed, so their protected content must still survive elsewhere.
+  const afterCounts = new Map<string, number>();
+  for (const message of after) {
+    const text = allMessageText([message]);
+    afterCounts.set(text, (afterCounts.get(text) ?? 0) + 1);
+  }
+  const changed: string[] = [];
+  for (const message of before) {
+    const text = allMessageText([message]);
+    const count = afterCounts.get(text) ?? 0;
+    if (count > 0) afterCounts.set(text, count - 1);
+    else changed.push(text);
+  }
+  const input = changed.join('\n');
   const output = allMessageText(after);
   // Numbers and JSON keys have their own deliberately shaped invariants below:
   // jsoncompact keeps a key in the table header (without its original colon),
@@ -57,7 +74,12 @@ export function checkFidelity(before: ChatMessage[], after: ChatMessage[]): Fide
       .map(span => span.text),
     output,
   );
-  const numericLiteralsPreserved = survival(extractProtectedValues(input, 'number'), output) === 1;
+  // Numbers are by far the highest-cardinality protected kind; a substring
+  // scan per distinct literal is quadratic on numeric tool output. A literal
+  // "survives" when the same standalone literal still appears in the output.
+  const outputNumbers = new Set(extractProtectedValues(output, 'number'));
+  const numericLiteralsPreserved = unique(extractProtectedValues(input, 'number'))
+    .every(value => outputNumbers.has(value));
   const jsonKeySurvival = survival(
     extractProtectedValues(input, 'json-key').map(value => value.replace(/\s*:\s*$/, '')),
     output,

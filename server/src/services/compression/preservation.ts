@@ -84,11 +84,12 @@ export function transformUnprotectedText(text: string, transform: (part: string)
     cursor = span.end;
   });
   masked += text.slice(cursor);
-  let result = transform(masked);
-  placeholders.forEach((value, index) => {
-    result = result.replace(`\uE000${index.toString(36)}\uE001`, value);
-  });
-  return result;
+  // Restore in one pass \u2014 a per-placeholder `.replace()` rescans the whole
+  // string each time and turns span-heavy text quadratic.
+  return transform(masked).replace(
+    /\uE000([0-9a-z]+)\uE001/g,
+    (match, index: string) => placeholders[Number.parseInt(index, 36)] ?? match,
+  );
 }
 
 export function hasProtectedContent(text: string): boolean {

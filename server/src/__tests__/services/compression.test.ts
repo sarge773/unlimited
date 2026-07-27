@@ -362,4 +362,30 @@ describe('compression engines', () => {
     });
     expect(performance.now() - balancedStarted).toBeLessThan(25);
   });
+
+  it('stays linear on protected-token-heavy adversarial payloads', () => {
+    // A stack-trace-detected rule skips head/tail trimming, so the char-budget
+    // pass sees every line; this payload once made it quadratic.
+    const traceLines = ['Traceback (most recent call last)'];
+    for (let i = 0; i < 20_000; i += 1) {
+      traceLines.push(`processing item alpha beta gamma delta run ${'x'.repeat(20)}${i.toString(36)}`);
+    }
+    const call = (content: string) => compressRequest([
+      msg('assistant', '', {
+        tool_calls: [{ id: 'c1', type: 'function', function: { name: 'run_command', arguments: '{"command":"python x.py"}' } }],
+      }),
+      msg('tool', content, { tool_call_id: 'c1' }),
+    ], { config: config('standard'), recordStats: false });
+    const traceStarted = performance.now();
+    call(traceLines.join('\n'));
+    expect(performance.now() - traceStarted).toBeLessThan(250);
+
+    // Distinct numeric literals are the highest-cardinality protected kind;
+    // the fidelity survival scan once rescanned the output per literal.
+    const numberLines: string[] = [];
+    for (let i = 0; i < 12_000; i += 1) numberLines.push(`metric row ${i * 7 + 1_000_003} value ok`);
+    const numbersStarted = performance.now();
+    call(numberLines.join('\n'));
+    expect(performance.now() - numbersStarted).toBeLessThan(250);
+  });
 });

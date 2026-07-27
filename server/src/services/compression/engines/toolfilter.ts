@@ -27,8 +27,20 @@ function matches(rule: ToolFilterRule, content: string, origin?: ToolCallOrigin)
   return rule.detect.content.some(pattern => safeRegex(pattern, 'im')?.test(content));
 }
 
-function mustKeep(line: string): boolean {
+function rawMustKeep(line: string): boolean {
   return ERROR_GUARD_RE.test(line) || scanProtectedSpans(line).length > 0;
+}
+
+// One protected-span scan per distinct line per rule application; the same
+// line is otherwise re-scanned by every filtering stage.
+let mustKeepCache = new Map<string, boolean>();
+
+function mustKeep(line: string): boolean {
+  const cached = mustKeepCache.get(line);
+  if (cached !== undefined) return cached;
+  const result = rawMustKeep(line);
+  mustKeepCache.set(line, result);
+  return result;
 }
 
 function collapseRuns(lines: string[], minimum: number): string[] {
@@ -68,25 +80,26 @@ function selectHeadTail(lines: string[], head: number, tail: number): string[] {
   return output;
 }
 
+const OMISSION_MARKER_RE = /^\[… \d+ (?:lines|identical lines) omitted …\]$/;
+
 function enforceMaxChars(lines: string[], maxChars: number): string[] {
-  const output = [...lines];
-  const length = () => output.join('\n').length;
-  while (output.length > 2 && length() > maxChars) {
-    let removeAt = -1;
-    let bestDistance = Number.NEGATIVE_INFINITY;
-    const middle = (output.length - 1) / 2;
-    output.forEach((line, index) => {
-      if (mustKeep(line) || /^\[… \d+ (?:lines|identical lines) omitted …\]$/.test(line)) return;
-      const distance = -Math.abs(index - middle);
-      if (distance > bestDistance) {
-        bestDistance = distance;
-        removeAt = index;
-      }
-    });
-    if (removeAt === -1) break;
-    output.splice(removeAt, 1);
+  let total = lines.reduce((sum, line) => sum + line.length + 1, -1);
+  if (lines.length <= 2 || total <= maxChars) return lines;
+  // Rank removable lines center-out once, then delete in a single pass —
+  // recomputing joined length per removal is quadratic on large outputs.
+  const middle = (lines.length - 1) / 2;
+  const removable = lines
+    .map((line, index) => ({ line, index, distance: Math.abs(index - middle) }))
+    .filter(({ line }) => !mustKeep(line) && !OMISSION_MARKER_RE.test(line))
+    .sort((a, b) => a.distance - b.distance);
+  const removed = new Set<number>();
+  for (const { line, index } of removable) {
+    if (total <= maxChars || lines.length - removed.size <= 2) break;
+    removed.add(index);
+    total -= line.length + 1;
   }
-  return output;
+  if (removed.size === 0) return lines;
+  return lines.filter((_line, index) => !removed.has(index));
 }
 
 function applyRule(
@@ -96,17 +109,26 @@ function applyRule(
   configuredMaxLines: number,
   configuredMaxChars: number,
 ): string {
+  mustKeepCache = new Map();
   let lines = (rule.stripAnsi ? content.replace(ANSI_RE, '') : content).split('\n');
+  // Compile every rule pattern once, not once per line.
+  const dropPatterns = rule.dropLines
+    .map(drop => ({
+      pattern: safeRegex(drop.pattern),
+      unless: drop.unless ? safeRegex(drop.unless) : null,
+    }))
+    .filter((drop): drop is { pattern: RegExp; unless: RegExp | null } => drop.pattern != null);
+  const keepPatterns = rule.keepLines
+    .map(pattern => safeRegex(pattern))
+    .filter((pattern): pattern is RegExp => pattern != null);
   lines = lines.filter(line => {
     if (mustKeep(line)) return true;
-    for (const drop of rule.dropLines) {
-      const pattern = safeRegex(drop.pattern);
-      if (!pattern?.test(line)) continue;
-      const unless = drop.unless ? safeRegex(drop.unless) : null;
-      if (!unless || !unless.test(line)) return false;
+    for (const drop of dropPatterns) {
+      if (!drop.pattern.test(line)) continue;
+      if (!drop.unless || !drop.unless.test(line)) return false;
     }
     if (rule.keepLines.length > 0) {
-      return rule.keepLines.some(pattern => safeRegex(pattern)?.test(line));
+      return keepPatterns.some(pattern => pattern.test(line));
     }
     return true;
   });
@@ -126,7 +148,10 @@ function applyRule(
     );
   }
   lines = enforceMaxChars(lines, Math.min(configuredMaxChars, rule.maxChars ?? Infinity));
-  return lines.join('\n');
+  const result = lines.join('\n');
+  // Stats and caches must not retain request content after the call.
+  mustKeepCache = new Map();
+  return result;
 }
 
 const toolFilterEngine: CompressionEngine = {
