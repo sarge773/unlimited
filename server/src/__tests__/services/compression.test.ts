@@ -343,7 +343,11 @@ describe('compression engines', () => {
     samples.sort((a, b) => a - b);
     const p50 = samples[Math.floor(samples.length * 0.5)];
     const p99 = samples[samples.length - 1];
-    expect(p50).toBeLessThan(5);
+    // Hosted-runner CPU scheduling and Node majors add enough jitter to make
+    // 5 ms flaky (Node 22 measured 5.54–5.77 ms in otherwise-green CI runs).
+    // Keep a tight median guard while the p99/adversarial 25 ms caps below
+    // continue to catch material synchronous regressions.
+    expect(p50).toBeLessThan(8);
     expect(p99).toBeLessThan(25);
 
     const unbalancedJson = '['.repeat(100_000);
