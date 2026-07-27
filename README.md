@@ -18,7 +18,7 @@ Aggregate free tiers from dozens of providers, plus custom OpenAI-compatible cha
 Your router updates its own model catalog from a signed feed: new free models, quota changes, and compatibility fixes land without a `git pull`.
 **[Go live at freellmapi.co](https://freellmapi.co/?utm_source=github&utm_medium=readme&utm_campaign=premium&utm_content=readme_top#pricing)** ($19/yr, cancel anytime).
 
-![Fallback chain with per-provider token budget](repo-assets/fallback-chain.png)
+![FreeLLMAPI dashboard — Models page with the monthly token budget](repo-assets/github-hero.png)
 
 </div>
 
