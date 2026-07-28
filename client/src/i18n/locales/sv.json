@@ -122,6 +122,7 @@
     "visionTitle": "Accepterar bildindata",
     "tools": "Verktyg",
     "toolsTitle": "Skickar strukturerade verktygsanrop, så den är berättigad till verktygsbärande förfrågningar",
+    "retired": "Utgått",
     "penalty": "−{value} straff",
     "obs": "{count} observationer",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} av {total} modeller",
     "clearFilters": "Genomskinliga filter",
     "noMatches": "Inga modeller matchar dina filter.",
-    "noModelsTitle": "Inga modeller konfigurerade"
+    "noModelsTitle": "Inga modeller konfigurerade",
+    "intelligenceRank": "Underrättelse",
+    "speedRank": "Hastighet",
+    "rankHint": "Rankning i katalogen — 1 är bäst.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Lämna tomt för ingen gräns."
   },
   "strategies": {
     "title": "Routingstrategi",
@@ -513,7 +522,14 @@
     "errorPrefix": "Fel:",
     "systemPromptLabel": "Systemprompt",
     "systemPromptPlaceholder": "Valfritt. Skickat som ett systemmeddelande innan din chatt.",
-    "errorTitle": "Begäran avvisades"
+    "errorTitle": "Begäran avvisades",
+    "attach": "Bifoga filer",
+    "attachTooMany": "Du kan bifoga upp till {count} filer per meddelande.",
+    "attachTooLarge": "{name} är för stor. Gränsen är {max}.",
+    "attachUnsupported": "{name} stöds inte. Bifoga bilder (PNG, JPEG, WebP, GIF) eller textfiler (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Kunde inte läsa {name}.",
+    "noVisionBadge": "Inga bilder",
+    "visionWarning": "{model} accepterar inte bilder. Välj en modell med bildstöd eller Auto."
   },
   "embeddings": {
     "title": "Modeller",

@@ -122,6 +122,7 @@
     "visionTitle": "ទទួលបញ្ចូលរូបភាព",
     "tools": "ឧបករណ៍",
     "toolsTitle": "បញ្ចេញការហៅឧបករណ៍ដែលមានរចនាសម្ព័ន្ធ ដូច្នេះវាមានសិទ្ធិទទួលសំណើដែលមានឧបករណ៍",
+    "retired": "បញ្ឈប់",
     "penalty": "−{value} ពិន័យ",
     "obs": "{count}",
     "tokPerMonth": "{count} តុក/ខែ",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} {total}",
     "clearFilters": "សម្អាតតម្រង",
     "noMatches": "គ្មានម៉ូដែលណាដែលសមនឹងតម្រងរបស់អ្នកទេ។",
-    "noModelsTitle": "គ្មានម៉ូដែលណាមួយបានកំណត់"
+    "noModelsTitle": "គ្មានម៉ូដែលណាមួយបានកំណត់",
+    "intelligenceRank": "បញ្ញា",
+    "speedRank": "ល្បឿន",
+    "rankHint": "ចំណាត់ថ្នាក់ក្នុងកាតាឡុក — 1 ល្អបំផុត។",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "ទុកឱ្យទទេ ដើម្បីគ្មានដែនកំណត់។"
   },
   "strategies": {
     "title": "យុទ្ធសាស្ត្រផ្លូវបញ្ជូន",
@@ -513,7 +522,14 @@
     "errorPrefix": "កំហុស៖",
     "systemPromptLabel": "ការជូនដំណឹងប្រព័ន្ធ",
     "systemPromptPlaceholder": "ជាជម្រើស។ បានផ្ញើជាសារប្រព័ន្ធមុនពេលជជែករបស់អ្នក។",
-    "errorTitle": "សំណើបរាជ័យ"
+    "errorTitle": "សំណើបរាជ័យ",
+    "attach": "ភ្ជាប់ឯកសារ",
+    "attachTooMany": "អ្នកអាចភ្ជាប់ឯកសារបានរហូតដល់ {count} ក្នុងមួយសារ។",
+    "attachTooLarge": "{name} មានទំហំធំពេក។ ដែនកំណត់គឺ {max}។",
+    "attachUnsupported": "{name} មិនត្រូវបានគាំទ្រទេ។ ភ្ជាប់រូបភាព (PNG, JPEG, WebP, GIF) ឬឯកសារអត្ថបទ (TXT, MD, CSV, JSON, LOG)។",
+    "attachFailed": "មិនអាចអានឯកសារ {name} បានទេ។",
+    "noVisionBadge": "គ្មានរូបភាព",
+    "visionWarning": "{model} មិនទទួលយករូបភាពទេ។ សូមជ្រើសរើសម៉ូដែលដែលទទួលរូបភាព ឬ Auto។"
   },
   "embeddings": {
     "title": "ម៉ូដែល",

@@ -122,6 +122,7 @@
     "visionTitle": "Akceptuje wejście obrazu",
     "tools": "Narzędzia",
     "toolsTitle": "Emituje uporządkowane wywołania narzędzi, więc kwalifikuje się do żądań łożysk narzędziowych",
+    "retired": "Wycofany",
     "penalty": "−{value} kara",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mies",
@@ -178,7 +179,15 @@
     "showingCount": "Modele {shown} lub {total}",
     "clearFilters": "Wyczyść filtry",
     "noMatches": "Żaden model nie pasuje do Twoich filtrów.",
-    "noModelsTitle": "Nie skonfigurowano żadnych modeli"
+    "noModelsTitle": "Nie skonfigurowano żadnych modeli",
+    "intelligenceRank": "Inteligencja",
+    "speedRank": "Prędkość",
+    "rankHint": "Ranga w katalogu — 1 jest najlepsza.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Pozostaw puste, aby nie było limitu."
   },
   "strategies": {
     "title": "Strategia routingu",
@@ -513,7 +522,14 @@
     "errorPrefix": "Błąd:",
     "systemPromptLabel": "Monit systemowy",
     "systemPromptPlaceholder": "Opcjonalne. Wysłane jako wiadomość systemowa przed rozmową.",
-    "errorTitle": "Żądanie nie powiodło się"
+    "errorTitle": "Żądanie nie powiodło się",
+    "attach": "Załącz pliki",
+    "attachTooMany": "W jednej wiadomości możesz załączyć maksymalnie {count} plików.",
+    "attachTooLarge": "Plik {name} jest za duży. Limit to {max}.",
+    "attachUnsupported": "{name} nie jest obsługiwany. Załącz obrazy (PNG, JPEG, WebP, GIF) lub pliki tekstowe (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Nie udało się odczytać pliku {name}.",
+    "noVisionBadge": "Bez obrazów",
+    "visionWarning": "{model} nie przyjmuje obrazów. Wybierz model obsługujący obrazy lub Auto."
   },
   "embeddings": {
     "title": "Modele",

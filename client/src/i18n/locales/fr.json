@@ -122,6 +122,7 @@
     "visionTitle": "Accepte les images en entrée",
     "tools": "Outils",
     "toolsTitle": "Émet des appels d'outils structurés, il est donc éligible aux requêtes avec outils",
+    "retired": "Retiré",
     "penalty": "pénalité de −{value}",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mois",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} sur {total} modèles",
     "clearFilters": "Effacer les filtres",
     "noMatches": "Aucun modèle ne correspond à vos filtres.",
-    "noModelsTitle": "Aucun modèle configuré"
+    "noModelsTitle": "Aucun modèle configuré",
+    "intelligenceRank": "Intelligence",
+    "speedRank": "Vitesse",
+    "rankHint": "Classement dans le catalogue — 1 est le meilleur.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Laissez vide pour aucune limite."
   },
   "strategies": {
     "title": "Stratégie de routage",
@@ -513,7 +522,14 @@
     "errorPrefix": "Erreur :",
     "systemPromptLabel": "Prompt système",
     "systemPromptPlaceholder": "Facultatif. Envoyé comme message système avant votre conversation.",
-    "errorTitle": "La requête a échoué"
+    "errorTitle": "La requête a échoué",
+    "attach": "Joindre des fichiers",
+    "attachTooMany": "Vous pouvez joindre jusqu'à {count} fichiers par message.",
+    "attachTooLarge": "{name} est trop volumineux. La limite est de {max}.",
+    "attachUnsupported": "{name} n'est pas pris en charge. Joignez des images (PNG, JPEG, WebP, GIF) ou des fichiers texte (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Impossible de lire {name}.",
+    "noVisionBadge": "Sans images",
+    "visionWarning": "{model} n'accepte pas les images. Choisissez un modèle vision ou Auto."
   },
   "embeddings": {
     "title": "Modèles",

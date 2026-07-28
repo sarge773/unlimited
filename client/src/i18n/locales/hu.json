@@ -122,6 +122,7 @@
     "visionTitle": "Képbemenetet fogad",
     "tools": "Eszközök",
     "toolsTitle": "Strukturált eszközhívásokat bocsát ki, így jogosult szerszámtartó kérésekre",
+    "retired": "Kivonva",
     "penalty": "−{value} büntető",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} {total} modell",
     "clearFilters": "Tiszta szűrők",
     "noMatches": "Egyetlen modell sem egyezik a szűrőiddel.",
-    "noModelsTitle": "Nincsenek konfigurált modellek"
+    "noModelsTitle": "Nincsenek konfigurált modellek",
+    "intelligenceRank": "Intelligencia",
+    "speedRank": "Sebesség",
+    "rankHint": "Rangsor a katalógusban — az 1 a legjobb.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Hagyja üresen, ha nincs korlát."
   },
   "strategies": {
     "title": "Útvonaltervezési stratégia",
@@ -513,7 +522,14 @@
     "errorPrefix": "Hiba:",
     "systemPromptLabel": "Rendszerprompt",
     "systemPromptPlaceholder": "Opcionális. Rendszerüzenetként küldték el a csevegés előtt.",
-    "errorTitle": "Kérés meghiúsult"
+    "errorTitle": "Kérés meghiúsult",
+    "attach": "Fájlok csatolása",
+    "attachTooMany": "Üzenetenként legfeljebb {count} fájlt csatolhatsz.",
+    "attachTooLarge": "A(z) {name} túl nagy. A korlát {max}.",
+    "attachUnsupported": "A(z) {name} nem támogatott. Csatolj képeket (PNG, JPEG, WebP, GIF) vagy szövegfájlokat (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "A(z) {name} nem olvasható.",
+    "noVisionBadge": "Nincs kép",
+    "visionWarning": "A(z) {model} nem fogad képeket. Válassz képfeldolgozó modellt vagy az Automatikus lehetőséget."
   },
   "embeddings": {
     "title": "Modellek",

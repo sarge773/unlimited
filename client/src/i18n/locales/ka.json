@@ -122,6 +122,7 @@
     "visionTitle": "იღებს სურათის შეყვანას",
     "tools": "ხელსაწყოები",
     "toolsTitle": "ავრცელებს სტრუქტურირებულ ხელსაწყოების ზარებს, ამიტომ ის დასაშვებია ხელსაწყოების შემცველი მოთხოვნებისთვის",
+    "retired": "შეწყვეტილია",
     "penalty": "−{value} ჯარიმა",
     "obs": "{count} obs",
     "tokPerMonth": "{count} ტოკ/თვე",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} {total} მოდელებიდან",
     "clearFilters": "ფილტრების გასუფთავება",
     "noMatches": "არცერთი მოდელი არ შეესაბამება თქვენს ფილტრებს.",
-    "noModelsTitle": "მოდელები არ არის კონფიგურირებული"
+    "noModelsTitle": "მოდელები არ არის კონფიგურირებული",
+    "intelligenceRank": "დაზვერვა",
+    "speedRank": "სიჩქარე",
+    "rankHint": "რანგი კატალოგში — 1 საუკეთესოა.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "დატოვეთ ცარიელი ლიმიტის გარეშე."
   },
   "strategies": {
     "title": "მარშრუტიზაციის სტრატეგია",
@@ -513,7 +522,14 @@
     "errorPrefix": "შეცდომა:",
     "systemPromptLabel": "სისტემის მოთხოვნა",
     "systemPromptPlaceholder": "სურვილისამებრ. გაიგზავნა სისტემური შეტყობინების სახით თქვენი ჩატის წინ.",
-    "errorTitle": "მოთხოვნა ვერ მოხერხდა"
+    "errorTitle": "მოთხოვნა ვერ მოხერხდა",
+    "attach": "ფაილების მიმაგრება",
+    "attachTooMany": "ერთ შეტყობინებაზე შეგიძლიათ მაქსიმუმ {count} ფაილის მიმაგრება.",
+    "attachTooLarge": "{name} ძალიან დიდია. ლიმიტია {max}.",
+    "attachUnsupported": "{name} არ არის მხარდაჭერილი. მიამაგრეთ სურათები (PNG, JPEG, WebP, GIF) ან ტექსტური ფაილები (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "{name} ვერ წაიკითხა.",
+    "noVisionBadge": "სურათების გარეშე",
+    "visionWarning": "{model} არ იღებს სურათებს. აირჩიეთ ხედვის მოდელი ან ავტომატური."
   },
   "embeddings": {
     "title": "მოდელები",

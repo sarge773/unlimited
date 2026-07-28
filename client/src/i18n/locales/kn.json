@@ -122,6 +122,7 @@
     "visionTitle": "ಚಿತ್ರದ ಇನ್‌ಪುಟ್ ಅನ್ನು ಸ್ವೀಕರಿಸುತ್ತದೆ",
     "tools": "ಪರಿಕರಗಳು",
     "toolsTitle": "ರಚನಾತ್ಮಕ ಟೂಲ್ ಕರೆಗಳನ್ನು ಹೊರಸೂಸುತ್ತದೆ, ಆದ್ದರಿಂದ ಇದು ಟೂಲ್-ಬೇರಿಂಗ್ ವಿನಂತಿಗಳಿಗೆ ಅರ್ಹವಾಗಿದೆ",
+    "retired": "ನಿಲ್ಲಿಸಲಾಗಿದೆ",
     "penalty": "−{value} ಪೆನಾಲ್ಟಿ",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{total} ಮಾದರಿಗಳ {shown}",
     "clearFilters": "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ",
     "noMatches": "ನಿಮ್ಮ ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಯಾವುದೇ ಮಾದರಿಗಳು ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ.",
-    "noModelsTitle": "ಯಾವುದೇ ಮಾದರಿಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ"
+    "noModelsTitle": "ಯಾವುದೇ ಮಾದರಿಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ",
+    "intelligenceRank": "ಗುಪ್ತಚರ",
+    "speedRank": "ವೇಗ",
+    "rankHint": "ಕ್ಯಾಟಲಾಗ್‌ನಲ್ಲಿ ಶ್ರೇಣಿ — 1 ಅತ್ಯುತ್ತಮ.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "ಮಿತಿ ಬೇಡವಾದರೆ ಖಾಲಿ ಬಿಡಿ."
   },
   "strategies": {
     "title": "ರೂಟಿಂಗ್ ತಂತ್ರ",
@@ -513,7 +522,14 @@
     "errorPrefix": "ದೋಷ:",
     "systemPromptLabel": "ಸಿಸ್ಟಮ್ ಪ್ರಾಂಪ್ಟ್",
     "systemPromptPlaceholder": "ಐಚ್ಛಿಕ. ನಿಮ್ಮ ಚಾಟ್‌ಗೆ ಮೊದಲು ಸಿಸ್ಟಮ್ ಸಂದೇಶವಾಗಿ ಕಳುಹಿಸಲಾಗಿದೆ.",
-    "errorTitle": "ವಿನಂತಿ ವಿಫಲವಾಗಿದೆ"
+    "errorTitle": "ವಿನಂತಿ ವಿಫಲವಾಗಿದೆ",
+    "attach": "ಫೈಲ್‌ಗಳನ್ನು ಲಗತ್ತಿಸಿ",
+    "attachTooMany": "ಪ್ರತಿ ಸಂದೇಶಕ್ಕೆ ನೀವು ಗರಿಷ್ಠ {count} ಫೈಲ್‌ಗಳನ್ನು ಲಗತ್ತಿಸಬಹುದು.",
+    "attachTooLarge": "{name} ತುಂಬಾ ದೊಡ್ಡದಾಗಿದೆ. ಮಿತಿ {max} ಆಗಿದೆ.",
+    "attachUnsupported": "{name} ಬೆಂಬಲಿತವಾಗಿಲ್ಲ. ಚಿತ್ರಗಳನ್ನು (PNG, JPEG, WebP, GIF) ಅಥವಾ ಪಠ್ಯ ಫೈಲ್‌ಗಳನ್ನು (TXT, MD, CSV, JSON, LOG) ಲಗತ್ತಿಸಿ.",
+    "attachFailed": "{name} ಅನ್ನು ಓದಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "noVisionBadge": "ಚಿತ್ರಗಳಿಲ್ಲ",
+    "visionWarning": "{model} ಚಿತ್ರಗಳನ್ನು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ. ಚಿತ್ರದ ಇನ್‌ಪುಟ್ ಸ್ವೀಕರಿಸುವ ಮಾದರಿ ಅಥವಾ ಸ್ವಯಂ ಆಯ್ಕೆಮಾಡಿ."
   },
   "embeddings": {
     "title": "ಮಾದರಿಗಳು",

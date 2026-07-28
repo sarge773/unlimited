@@ -122,6 +122,7 @@
     "visionTitle": "Akzeptiert Bildeingaben",
     "tools": "Werkzeuge",
     "toolsTitle": "Gibt strukturierte Werkzeugaufrufe aus und ist daher für werkzeugtragende Anforderungen geeignet",
+    "retired": "Eingestellt",
     "penalty": "−{value} Strafe",
     "obs": "{count} obs",
     "tokPerMonth": "{count} Tok/Mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} der {total}-Modelle",
     "clearFilters": "Filter löschen",
     "noMatches": "Kein Modell entspricht Ihren Filtern.",
-    "noModelsTitle": "Keine Modelle konfiguriert"
+    "noModelsTitle": "Keine Modelle konfiguriert",
+    "intelligenceRank": "Intelligenz",
+    "speedRank": "Geschwindigkeit",
+    "rankHint": "Rang im Katalog — 1 ist am besten.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Leer lassen für kein Limit."
   },
   "strategies": {
     "title": "Routing-Strategie",
@@ -513,7 +522,14 @@
     "errorPrefix": "Fehler:",
     "systemPromptLabel": "Systemaufforderung",
     "systemPromptPlaceholder": "Optional. Wird als Systemnachricht vor Ihrem Chat gesendet.",
-    "errorTitle": "Die Anfrage ist fehlgeschlagen"
+    "errorTitle": "Die Anfrage ist fehlgeschlagen",
+    "attach": "Dateien anhängen",
+    "attachTooMany": "Sie können bis zu {count} Dateien pro Nachricht anhängen.",
+    "attachTooLarge": "{name} ist zu groß. Das Limit beträgt {max}.",
+    "attachUnsupported": "{name} wird nicht unterstützt. Hängen Sie Bilder (PNG, JPEG, WebP, GIF) oder Textdateien (TXT, MD, CSV, JSON, LOG) an.",
+    "attachFailed": "{name} konnte nicht gelesen werden.",
+    "noVisionBadge": "Keine Bilder",
+    "visionWarning": "{model} akzeptiert keine Bilder. Wählen Sie ein Vision-Modell oder Auto."
   },
   "embeddings": {
     "title": "Modelle",

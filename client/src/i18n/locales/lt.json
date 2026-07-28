@@ -122,6 +122,7 @@
     "visionTitle": "Priima vaizdo įvestį",
     "tools": "Įrankiai",
     "toolsTitle": "Skleidžia struktūrizuotus įrankių kvietimus, todėl yra tinkamas įrankių nešimo užklausoms",
+    "retired": "Pašalintas",
     "penalty": "−{value} bauda",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{total} modelių {shown}",
     "clearFilters": "Skaidrūs filtrai",
     "noMatches": "Nėra modelių, atitinkančių jūsų filtrus.",
-    "noModelsTitle": "Nėra jokių modelių, kurie būtų sukonfigūruoti"
+    "noModelsTitle": "Nėra jokių modelių, kurie būtų sukonfigūruoti",
+    "intelligenceRank": "Intelektas",
+    "speedRank": "Greitis",
+    "rankHint": "Reitingas kataloge — 1 yra geriausias.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Palikite tuščią, jei nėra ribos."
   },
   "strategies": {
     "title": "Maršrutizavimo strategija",
@@ -513,7 +522,14 @@
     "errorPrefix": "Klaida:",
     "systemPromptLabel": "Sistemos užklausa",
     "systemPromptPlaceholder": "Pasirinktinai. Siunčiama kaip sistemos žinutė prieš jūsų pokalbį.",
-    "errorTitle": "Užklausa atmesta"
+    "errorTitle": "Užklausa atmesta",
+    "attach": "Pridėti failus",
+    "attachTooMany": "Prie vienos žinutės galite pridėti iki {count} failų.",
+    "attachTooLarge": "Failas {name} yra per didelis. Riba yra {max}.",
+    "attachUnsupported": "Failas {name} nepalaikomas. Pridėkite vaizdų (PNG, JPEG, WebP, GIF) arba tekstinių failų (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Nepavyko perskaityti failo {name}.",
+    "noVisionBadge": "Be vaizdų",
+    "visionWarning": "Modelis {model} nepriima vaizdų. Pasirinkite vaizdo įvestį palaikantį modelį arba Auto."
   },
   "embeddings": {
     "title": "Modeliai",

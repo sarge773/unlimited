@@ -122,6 +122,7 @@
     "visionTitle": "Приема въвеждане на изображения",
     "tools": "Инструменти",
     "toolsTitle": "Изпуска структурирани повиквания на инструменти, така че е допустим за заявки, носещи инструменти,",
+    "retired": "Изтеглен",
     "penalty": "−{value} наказание",
     "obs": "{count} OBS",
     "tokPerMonth": "{count} ток/мо",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} от {total} модели",
     "clearFilters": "Прозрачни филтри",
     "noMatches": "Нито един модел, който да съвпадне с вашите филтри.",
-    "noModelsTitle": "Няма конфигурирани модели"
+    "noModelsTitle": "Няма конфигурирани модели",
+    "intelligenceRank": "Разузнаване",
+    "speedRank": "Скорост",
+    "rankHint": "Ранг в каталога — 1 е най-добър.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Оставете празно за без ограничение."
   },
   "strategies": {
     "title": "Стратегия за маршрутизиране",
@@ -513,7 +522,14 @@
     "errorPrefix": "Грешка:",
     "systemPromptLabel": "Системна подсказка",
     "systemPromptPlaceholder": "По желание. Изпратено е като системно съобщение преди чата.",
-    "errorTitle": "Заявката беше провалена"
+    "errorTitle": "Заявката беше провалена",
+    "attach": "Прикачване на файлове",
+    "attachTooMany": "Може да прикачите до {count} файла на съобщение.",
+    "attachTooLarge": "{name} е твърде голям. Ограничението е {max}.",
+    "attachUnsupported": "{name} не се поддържа. Прикачете изображения (PNG, JPEG, WebP, GIF) или текстови файлове (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "{name} не може да бъде прочетен.",
+    "noVisionBadge": "Без изображения",
+    "visionWarning": "{model} не приема изображения. Изберете модел с визия или Авто."
   },
   "embeddings": {
     "title": "Модели",

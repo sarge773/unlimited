@@ -122,6 +122,7 @@
     "visionTitle": "Aceita entrada de imagem",
     "tools": "Ferramentas",
     "toolsTitle": "Emite chamadas estruturadas de ferramentas, tornando-se elegível para pedidos de suporte de ferramenta",
+    "retired": "Descontinuado",
     "penalty": "−{value} penalização",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} dos modelos {total}",
     "clearFilters": "Filtros transparentes",
     "noMatches": "Nenhum modelo corresponde aos teus filtros.",
-    "noModelsTitle": "Sem modelos configurados"
+    "noModelsTitle": "Sem modelos configurados",
+    "intelligenceRank": "Inteligência",
+    "speedRank": "Velocidade",
+    "rankHint": "Classificação no catálogo — 1 é a melhor.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Deixe em branco para não ter limite."
   },
   "strategies": {
     "title": "Estratégia de encaminhamento",
@@ -513,7 +522,14 @@
     "errorPrefix": "Erro:",
     "systemPromptLabel": "Prompt do sistema",
     "systemPromptPlaceholder": "Opcional. Enviado como mensagem do sistema antes do teu chat.",
-    "errorTitle": "Pedido falhado"
+    "errorTitle": "Pedido falhado",
+    "attach": "Anexar ficheiros",
+    "attachTooMany": "Pode anexar até {count} ficheiros por mensagem.",
+    "attachTooLarge": "{name} é demasiado grande. O limite é {max}.",
+    "attachUnsupported": "{name} não é suportado. Anexe imagens (PNG, JPEG, WebP, GIF) ou ficheiros de texto (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Não foi possível ler {name}.",
+    "noVisionBadge": "Sem imagens",
+    "visionWarning": "{model} não aceita imagens. Escolha um modelo de visão ou Auto."
   },
   "embeddings": {
     "title": "Modelos",

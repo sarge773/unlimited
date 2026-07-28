@@ -160,6 +160,14 @@ export function RowContent({
               {t('models.tools')}
             </span>
           )}
+          {row.retiredUpstream && (
+            <span
+              title={row.retiredReason ?? undefined}
+              className="text-[10px] rounded-full px-1.5 py-0.5 bg-rose-600/15 text-rose-700 dark:bg-rose-400/15 dark:text-rose-400"
+            >
+              {t('models.retired')}
+            </span>
+          )}
           {(row.penalty ?? 0) > 0 && (
             <span className="text-[10px] text-amber-600 dark:text-amber-400">{t('models.penalty', { value: row.penalty })}</span>
           )}

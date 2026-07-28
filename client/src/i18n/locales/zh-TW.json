@@ -122,6 +122,7 @@
     "visionTitle": "接受影像輸入",
     "tools": "工具",
     "toolsTitle": "會發出結構化工具呼叫，因此有資格進行工具承載請求",
+    "retired": "已下線",
     "penalty": "−{value} 罰則",
     "obs": "{count}觀察",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{total}型號{shown}",
     "clearFilters": "透明濾網",
     "noMatches": "沒有任何模型符合你的濾鏡。",
-    "noModelsTitle": "未設定任何模型"
+    "noModelsTitle": "未設定任何模型",
+    "intelligenceRank": "智慧",
+    "speedRank": "速度",
+    "rankHint": "目錄中的排名 — 1 為最佳。",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "留空表示不限制。"
   },
   "strategies": {
     "title": "路由策略",
@@ -513,7 +522,14 @@
     "errorPrefix": "錯誤：",
     "systemPromptLabel": "系統提示",
     "systemPromptPlaceholder": "可選的。在聊天前以系統訊息形式發送。",
-    "errorTitle": "申請失敗"
+    "errorTitle": "申請失敗",
+    "attach": "附加檔案",
+    "attachTooMany": "每則訊息最多可附加 {count} 個檔案。",
+    "attachTooLarge": "{name} 太大了。上限為 {max}。",
+    "attachUnsupported": "{name} 不受支援。請附加圖片（PNG、JPEG、WebP、GIF）或文字檔案（TXT、MD、CSV、JSON、LOG）。",
+    "attachFailed": "無法讀取 {name}。",
+    "noVisionBadge": "無圖片",
+    "visionWarning": "{model} 不接受圖片。請選擇支援影像輸入的模型或「自動」。"
   },
   "embeddings": {
     "title": "型號",

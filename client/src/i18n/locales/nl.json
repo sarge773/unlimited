@@ -122,6 +122,7 @@
     "visionTitle": "Accepteert beeldinvoer",
     "tools": "Gereedschappen",
     "toolsTitle": "Zendt gestructureerde tooloproepen uit, zodat het in aanmerking komt voor tool-bearing verzoeken",
+    "retired": "Uitgefaseerd",
     "penalty": "−{value} straf",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} van {total} modellen",
     "clearFilters": "Doorzichtige filters",
     "noMatches": "Geen enkel model past bij jouw filters.",
-    "noModelsTitle": "Geen modellen geconfigureerd"
+    "noModelsTitle": "Geen modellen geconfigureerd",
+    "intelligenceRank": "Intelligentie",
+    "speedRank": "Snelheid",
+    "rankHint": "Rang in de catalogus — 1 is het beste.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Laat leeg voor geen limiet."
   },
   "strategies": {
     "title": "Routingstrategie",
@@ -513,7 +522,14 @@
     "errorPrefix": "Fout:",
     "systemPromptLabel": "Systeemprompt",
     "systemPromptPlaceholder": "Optioneel. Verzonden als een systeembericht vóór je chat.",
-    "errorTitle": "Verzoek afgewezen"
+    "errorTitle": "Verzoek afgewezen",
+    "attach": "Bestanden bijvoegen",
+    "attachTooMany": "Je kunt maximaal {count} bestanden per bericht bijvoegen.",
+    "attachTooLarge": "{name} is te groot. De limiet is {max}.",
+    "attachUnsupported": "{name} wordt niet ondersteund. Voeg afbeeldingen (PNG, JPEG, WebP, GIF) of tekstbestanden (TXT, MD, CSV, JSON, LOG) toe.",
+    "attachFailed": "Kan {name} niet lezen.",
+    "noVisionBadge": "Geen afbeeldingen",
+    "visionWarning": "{model} accepteert geen afbeeldingen. Kies een model met beeldinvoer of Auto."
   },
   "embeddings": {
     "title": "Modellen",

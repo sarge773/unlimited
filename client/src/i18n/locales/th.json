@@ -122,6 +122,7 @@
     "visionTitle": "ยอมรับอินพุตรูปภาพ",
     "tools": "เครื่องมือ",
     "toolsTitle": "ส่งเสียงการเรียกเครื่องมือที่มีโครงสร้าง ดังนั้นจึงมีสิทธิ์ได้รับคำขอเกี่ยวกับเครื่องมือ",
+    "retired": "ยกเลิกแล้ว",
     "penalty": "−{value} การลงโทษ",
     "obs": "{count} obs",
     "tokPerMonth": "{count} ท็อค/เดือน",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} ของรุ่น {total}",
     "clearFilters": "ล้างตัวกรอง",
     "noMatches": "ไม่มีรุ่นที่ตรงกับตัวกรองของคุณ",
-    "noModelsTitle": "ไม่มีโมเดลที่กำหนดค่าไว้"
+    "noModelsTitle": "ไม่มีโมเดลที่กำหนดค่าไว้",
+    "intelligenceRank": "ความฉลาด",
+    "speedRank": "ความเร็ว",
+    "rankHint": "อันดับในแคตตาล็อก — 1 ดีที่สุด",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "เว้นว่างไว้หากไม่จำกัด"
   },
   "strategies": {
     "title": "กลยุทธ์การกำหนดเส้นทาง",
@@ -513,7 +522,14 @@
     "errorPrefix": "ข้อผิดพลาด:",
     "systemPromptLabel": "พร้อมท์ระบบ",
     "systemPromptPlaceholder": "ไม่จำเป็น ส่งเป็นข้อความระบบก่อนการแชทของคุณ",
-    "errorTitle": "คำขอล้มเหลว"
+    "errorTitle": "คำขอล้มเหลว",
+    "attach": "แนบไฟล์",
+    "attachTooMany": "คุณแนบไฟล์ได้สูงสุด {count} ไฟล์ต่อหนึ่งข้อความ",
+    "attachTooLarge": "{name} มีขนาดใหญ่เกินไป ขีดจำกัดคือ {max}",
+    "attachUnsupported": "{name} ไม่รองรับ กรุณาแนบรูปภาพ (PNG, JPEG, WebP, GIF) หรือไฟล์ข้อความ (TXT, MD, CSV, JSON, LOG)",
+    "attachFailed": "ไม่สามารถอ่าน {name} ได้",
+    "noVisionBadge": "ไม่รับรูปภาพ",
+    "visionWarning": "{model} ไม่รองรับรูปภาพ เลือกโมเดลที่รองรับรูปภาพหรืออัตโนมัติ"
   },
   "embeddings": {
     "title": "โมเดล",

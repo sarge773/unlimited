@@ -122,6 +122,7 @@
     "visionTitle": "امیج ان پٹ کو قبول کرتا ہے۔",
     "tools": "اوزار",
     "toolsTitle": "سٹرکچرڈ ٹول کالز کو خارج کرتا ہے، اس لیے یہ ٹول بیئرنگ کی درخواستوں کے لیے اہل ہے۔",
+    "retired": "بند",
     "penalty": "−{value} جرمانہ",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{total} ماڈلز کے {shown}",
     "clearFilters": "فلٹرز صاف کریں۔",
     "noMatches": "کوئی ماڈل آپ کے فلٹرز سے مماثل نہیں ہے۔",
-    "noModelsTitle": "کوئی ماڈل ترتیب نہیں دیا گیا ہے۔"
+    "noModelsTitle": "کوئی ماڈل ترتیب نہیں دیا گیا ہے۔",
+    "intelligenceRank": "ذہانت",
+    "speedRank": "رفتار",
+    "rankHint": "کیٹلاگ میں درجہ — 1 بہترین ہے۔",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "کوئی حد نہ رکھنے کے لیے خالی چھوڑیں۔"
   },
   "strategies": {
     "title": "روٹنگ کی حکمت عملی",
@@ -513,7 +522,14 @@
     "errorPrefix": "خرابی:",
     "systemPromptLabel": "سسٹم پرامپٹ",
     "systemPromptPlaceholder": "اختیاری آپ کی چیٹ سے پہلے سسٹم پیغام کے طور پر بھیجا گیا۔",
-    "errorTitle": "درخواست ناکام ہوگئی"
+    "errorTitle": "درخواست ناکام ہوگئی",
+    "attach": "فائلیں منسلک کریں۔",
+    "attachTooMany": "آپ فی پیغام زیادہ سے زیادہ {count} فائلیں منسلک کر سکتے ہیں۔",
+    "attachTooLarge": "{name} بہت بڑی ہے۔ حد {max} ہے۔",
+    "attachUnsupported": "{name} سپورٹڈ نہیں ہے۔ تصاویر (PNG، JPEG، WebP، GIF) یا ٹیکسٹ فائلیں (TXT، MD، CSV، JSON، LOG) منسلک کریں۔",
+    "attachFailed": "{name} کو پڑھا نہیں جا سکا۔",
+    "noVisionBadge": "تصاویر نہیں",
+    "visionWarning": "{model} تصاویر قبول نہیں کرتا۔ کوئی وژن ماڈل یا آٹو منتخب کریں۔"
   },
   "embeddings": {
     "title": "ماڈلز",

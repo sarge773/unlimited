@@ -122,6 +122,7 @@
     "visionTitle": "Aceita imagens como entrada",
     "tools": "Ferramentas",
     "toolsTitle": "Emite chamadas de ferramentas estruturadas, por isso é elegível para solicitações com ferramentas",
+    "retired": "Descontinuado",
     "penalty": "penalidade de −{value}",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mês",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} de {total} modelos",
     "clearFilters": "Limpar filtros",
     "noMatches": "Nenhum modelo corresponde aos seus filtros.",
-    "noModelsTitle": "Nenhum modelo configurado"
+    "noModelsTitle": "Nenhum modelo configurado",
+    "intelligenceRank": "Inteligência",
+    "speedRank": "Velocidade",
+    "rankHint": "Classificação no catálogo — 1 é a melhor.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Deixe em branco para não ter limite."
   },
   "strategies": {
     "title": "Estratégia de roteamento",
@@ -513,7 +522,14 @@
     "errorPrefix": "Erro:",
     "systemPromptLabel": "Prompt do sistema",
     "systemPromptPlaceholder": "Opcional. Enviado como uma mensagem de sistema antes do seu chat.",
-    "errorTitle": "A solicitação falhou"
+    "errorTitle": "A solicitação falhou",
+    "attach": "Anexar arquivos",
+    "attachTooMany": "Você pode anexar até {count} arquivos por mensagem.",
+    "attachTooLarge": "{name} é muito grande. O limite é {max}.",
+    "attachUnsupported": "{name} não é compatível. Anexe imagens (PNG, JPEG, WebP, GIF) ou arquivos de texto (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Não foi possível ler {name}.",
+    "noVisionBadge": "Sem imagens",
+    "visionWarning": "{model} não aceita imagens. Escolha um modelo de visão ou Auto."
   },
   "embeddings": {
     "title": "Modelos",

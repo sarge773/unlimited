@@ -122,6 +122,7 @@
     "visionTitle": "Tumatanggap ng image input",
     "tools": "Mga Kasangkapan",
     "toolsTitle": "Naglalabas ng structured tool calls, kaya ito ay kwalipikado para sa mga tool-bearing request",
+    "retired": "Itinigil",
     "penalty": "−{value} penalty",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/buwan",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} ng mga modelo ng {total}",
     "clearFilters": "Linisin ang mga filter",
     "noMatches": "Walang modelo na tumutugma sa iyong mga filter.",
-    "noModelsTitle": "Walang mga modelong naka-configure"
+    "noModelsTitle": "Walang mga modelong naka-configure",
+    "intelligenceRank": "Intelihensiya",
+    "speedRank": "Bilis",
+    "rankHint": "Ranggo sa katalogo — 1 ang pinakamahusay.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Iwanang blangko para walang limitasyon."
   },
   "strategies": {
     "title": "Estratehiya sa Pag-ruta",
@@ -513,7 +522,14 @@
     "errorPrefix": "Error:",
     "systemPromptLabel": "System prompt",
     "systemPromptPlaceholder": "Opsyonal. Ipinadala bilang system message bago ang iyong chat.",
-    "errorTitle": "Nabigo ang kahilingan"
+    "errorTitle": "Nabigo ang kahilingan",
+    "attach": "Maglakip ng mga file",
+    "attachTooMany": "Puwede kang maglakip ng hanggang {count} file kada mensahe.",
+    "attachTooLarge": "Masyadong malaki ang {name}. Ang limitasyon ay {max}.",
+    "attachUnsupported": "Hindi suportado ang {name}. Maglakip ng mga larawan (PNG, JPEG, WebP, GIF) o mga text file (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Hindi mabasa ang {name}.",
+    "noVisionBadge": "Walang larawan",
+    "visionWarning": "Hindi tumatanggap ng larawan ang {model}. Pumili ng modelong tumatanggap ng larawan o Auto."
   },
   "embeddings": {
     "title": "Mga Modelo",

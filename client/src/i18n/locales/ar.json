@@ -122,6 +122,7 @@
     "visionTitle": "يقبل إدخال الصورة",
     "tools": "أدوات",
     "toolsTitle": "يصدر استدعاءات أداة منظمة، لذا فهو مؤهل لطلبات حاملة الأداة",
+    "retired": "متوقف",
     "penalty": "−{value} عقوبة",
     "obs": "{count} ملاحظة",
     "tokPerMonth": "{count} توك/مو",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} من موديلات {total}",
     "clearFilters": "مسح المرشحات",
     "noMatches": "لا توجد نماذج تتطابق مع المرشحات الخاصة بك.",
-    "noModelsTitle": "لم يتم تكوين أي نماذج"
+    "noModelsTitle": "لم يتم تكوين أي نماذج",
+    "intelligenceRank": "الذكاء",
+    "speedRank": "السرعة",
+    "rankHint": "الترتيب ضمن الكتالوج — 1 هو الأفضل.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "اتركه فارغًا لعدم وجود حد."
   },
   "strategies": {
     "title": "استراتيجية التوجيه",
@@ -513,7 +522,14 @@
     "errorPrefix": "خطأ:",
     "systemPromptLabel": "موجه النظام",
     "systemPromptPlaceholder": "اختياري. يتم إرسالها كرسالة نظام قبل الدردشة.",
-    "errorTitle": "فشل الطلب"
+    "errorTitle": "فشل الطلب",
+    "attach": "إرفاق الملفات",
+    "attachTooMany": "يمكنك إرفاق ما يصل إلى {count} ملفات لكل رسالة.",
+    "attachTooLarge": "حجم {name} كبير جدًا. الحد الأقصى هو {max}.",
+    "attachUnsupported": "{name} غير مدعوم. أرفق صورًا (PNG، JPEG، WebP، GIF) أو ملفات نصية (TXT، MD، CSV، JSON، LOG).",
+    "attachFailed": "تعذّرت قراءة {name}.",
+    "noVisionBadge": "بدون صور",
+    "visionWarning": "{model} لا يقبل الصور. اختر نموذج رؤية أو «تلقائي»."
   },
   "embeddings": {
     "title": "نماذج",

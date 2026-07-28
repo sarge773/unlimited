@@ -122,6 +122,7 @@
     "visionTitle": "Принимает ввод изображения",
     "tools": "Инструменты",
     "toolsTitle": "Выполняет структурированные вызовы инструментов, поэтому он имеет право на запросы с инструментами.",
+    "retired": "Снят",
     "penalty": "−{value} штраф",
     "obs": "{count} обс",
     "tokPerMonth": "{count} ток/мес",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} моделей {total}",
     "clearFilters": "Очистить фильтры",
     "noMatches": "Ни одна модель не соответствует вашим фильтрам.",
-    "noModelsTitle": "Ни одна модель не настроена"
+    "noModelsTitle": "Ни одна модель не настроена",
+    "intelligenceRank": "Интеллект",
+    "speedRank": "Скорость",
+    "rankHint": "Ранг в каталоге — 1 лучший.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Оставьте пустым, чтобы не было ограничения."
   },
   "strategies": {
     "title": "Стратегия маршрутизации",
@@ -513,7 +522,14 @@
     "errorPrefix": "Ошибка:",
     "systemPromptLabel": "Системная подсказка",
     "systemPromptPlaceholder": "Необязательно. Отправляется как системное сообщение перед вашим чатом.",
-    "errorTitle": "Запрос не выполнен"
+    "errorTitle": "Запрос не выполнен",
+    "attach": "Прикрепить файлы",
+    "attachTooMany": "К одному сообщению можно прикрепить не более {count} файлов.",
+    "attachTooLarge": "Файл {name} слишком большой. Лимит — {max}.",
+    "attachUnsupported": "{name} не поддерживается. Прикрепите изображения (PNG, JPEG, WebP, GIF) или текстовые файлы (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Не удалось прочитать {name}.",
+    "noVisionBadge": "Без изображений",
+    "visionWarning": "{model} не принимает изображения. Выберите модель с поддержкой изображений или «Авто»."
   },
   "embeddings": {
     "title": "Модели",

@@ -122,6 +122,7 @@
     "visionTitle": "Accepts image input",
     "tools": "Tools",
     "toolsTitle": "Emits structured tool calls, so it is eligible for tool-bearing requests",
+    "retired": "Retired",
     "penalty": "−{value} penalty",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} of {total} models",
     "clearFilters": "Clear filters",
     "noMatches": "No models match your filters.",
-    "noModelsTitle": "No models configured"
+    "noModelsTitle": "No models configured",
+    "intelligenceRank": "Intelligence",
+    "speedRank": "Speed",
+    "rankHint": "Rank across the catalog — 1 is best.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Leave blank for no limit."
   },
   "strategies": {
     "title": "Routing strategy",
@@ -523,7 +532,14 @@
     "errorPrefix": "Error:",
     "systemPromptLabel": "System prompt",
     "systemPromptPlaceholder": "Optional. Sent as a system message before your chat.",
-    "errorTitle": "Request failed"
+    "errorTitle": "Request failed",
+    "attach": "Attach files",
+    "attachTooMany": "You can attach up to {count} files per message.",
+    "attachTooLarge": "{name} is too large. The limit is {max}.",
+    "attachUnsupported": "{name} is not supported. Attach images (PNG, JPEG, WebP, GIF) or text files (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Could not read {name}.",
+    "noVisionBadge": "No images",
+    "visionWarning": "{model} does not accept images. Choose a vision model or Auto."
   },
   "embeddings": {
     "title": "Models",

@@ -122,6 +122,7 @@
     "visionTitle": "画像入力を受け付ける",
     "tools": "ツール",
     "toolsTitle": "構造化されたツール呼び出しを発行するため、ツールを含むリクエストに適格です",
+    "retired": "提供終了",
     "penalty": "−{value}ペナルティ",
     "obs": "{count} オブス",
     "tokPerMonth": "{count} トク/月",
@@ -178,7 +179,15 @@
     "showingCount": "{total} モデルの {shown}",
     "clearFilters": "フィルターをクリアする",
     "noMatches": "フィルターに一致するモデルはありません。",
-    "noModelsTitle": "モデルが設定されていません"
+    "noModelsTitle": "モデルが設定されていません",
+    "intelligenceRank": "インテリジェンス",
+    "speedRank": "速度",
+    "rankHint": "カタログ内の順位 — 1 が最高です。",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "制限なしにするには空欄にします。"
   },
   "strategies": {
     "title": "ルーティング戦略",
@@ -513,7 +522,14 @@
     "errorPrefix": "エラー:",
     "systemPromptLabel": "システムプロンプト",
     "systemPromptPlaceholder": "オプション。チャットの前にシステム メッセージとして送信されます。",
-    "errorTitle": "リクエストが失敗しました"
+    "errorTitle": "リクエストが失敗しました",
+    "attach": "ファイルを添付",
+    "attachTooMany": "1 件のメッセージに添付できるファイルは最大 {count} 件です。",
+    "attachTooLarge": "{name} は大きすぎます。上限は {max} です。",
+    "attachUnsupported": "{name} はサポートされていません。画像 (PNG、JPEG、WebP、GIF) またはテキスト ファイル (TXT、MD、CSV、JSON、LOG) を添付してください。",
+    "attachFailed": "{name} を読み取れませんでした。",
+    "noVisionBadge": "画像不可",
+    "visionWarning": "{model} は画像を受け付けません。ビジョン モデルまたは「自動」を選択してください。"
   },
   "embeddings": {
     "title": "モデル",

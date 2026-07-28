@@ -122,6 +122,7 @@
     "visionTitle": "Hyväksyy kuvasyötteen",
     "tools": "Työkalut",
     "toolsTitle": "Lähettää rakenteellisia työkalukutsuja, joten se on kelpoinen työkalun kantamiseen liittyviin pyyntöihin",
+    "retired": "Poistettu",
     "penalty": "−{value} rangaistus",
     "obs": "{count} Obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} {total} mallia",
     "clearFilters": "Clear-suodattimet",
     "noMatches": "Yksikään malli ei vastaa suodattimiasi.",
-    "noModelsTitle": "Ei malleja konfiguroituna"
+    "noModelsTitle": "Ei malleja konfiguroituna",
+    "intelligenceRank": "Tiedustelu",
+    "speedRank": "Nopeus",
+    "rankHint": "Sijoitus luettelossa — 1 on paras.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Jätä tyhjäksi, jos ei rajaa."
   },
   "strategies": {
     "title": "Reititysstrategia",
@@ -513,7 +522,14 @@
     "errorPrefix": "Virhe:",
     "systemPromptLabel": "Järjestelmäkehote",
     "systemPromptPlaceholder": "Valinnainen. Lähetetty järjestelmäviestinä ennen keskusteluasi.",
-    "errorTitle": "Pyyntö epäonnistui"
+    "errorTitle": "Pyyntö epäonnistui",
+    "attach": "Liitä tiedostoja",
+    "attachTooMany": "Voit liittää enintään {count} tiedostoa viestiä kohden.",
+    "attachTooLarge": "{name} on liian suuri. Raja on {max}.",
+    "attachUnsupported": "{name} ei ole tuettu. Liitä kuvia (PNG, JPEG, WebP, GIF) tai tekstitiedostoja (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Tiedostoa {name} ei voitu lukea.",
+    "noVisionBadge": "Ei kuvia",
+    "visionWarning": "{model} ei hyväksy kuvia. Valitse kuvasyötteen hyväksyvä malli tai Auto."
   },
   "embeddings": {
     "title": "Mallit",

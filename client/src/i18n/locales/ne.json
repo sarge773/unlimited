@@ -122,6 +122,7 @@
     "visionTitle": "छवि आगत स्वीकार गर्दछ",
     "tools": "उपकरणहरू",
     "toolsTitle": "संरचित उपकरण कलहरू उत्सर्जन गर्दछ, त्यसैले यो उपकरण-असर अनुरोधहरूको लागि योग्य छ",
+    "retired": "बन्द",
     "penalty": "−{value} पेनाल्टी",
     "obs": "{count} obs",
     "tokPerMonth": "{count} टोक/मो",
@@ -178,7 +179,15 @@
     "showingCount": "{total} मोडेलहरूको {shown}",
     "clearFilters": "फिल्टर खाली गर्नुहोस्",
     "noMatches": "कुनै पनि मोडेलहरू तपाईंको फिल्टरहरूसँग मेल खाँदैनन्।",
-    "noModelsTitle": "कुनै नमूना कन्फिगर गरिएको छैन"
+    "noModelsTitle": "कुनै नमूना कन्फिगर गरिएको छैन",
+    "intelligenceRank": "इन्टेलिजेन्स",
+    "speedRank": "गति",
+    "rankHint": "क्याटलगमा श्रेणी — 1 उत्तम हो।",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "कुनै सीमा नराख्न खाली छोड्नुहोस्।"
   },
   "strategies": {
     "title": "राउटिङ रणनीति",
@@ -513,7 +522,14 @@
     "errorPrefix": "त्रुटि:",
     "systemPromptLabel": "प्रणाली प्रवर्धन",
     "systemPromptPlaceholder": "वैकल्पिक छ । तपाईँको कुराकानी भन्दा पहिले प्रणाली सन्देशको रूपमा पठाइयो ।",
-    "errorTitle": "अनुरोध असफल भयो"
+    "errorTitle": "अनुरोध असफल भयो",
+    "attach": "फाइलहरू संलग्न गर्नुहोस्",
+    "attachTooMany": "तपाईं प्रति सन्देश {count} वटासम्म फाइल संलग्न गर्न सक्नुहुन्छ।",
+    "attachTooLarge": "{name} धेरै ठूलो छ। सीमा {max} हो।",
+    "attachUnsupported": "{name} समर्थित छैन। छवि (PNG, JPEG, WebP, GIF) वा पाठ फाइलहरू (TXT, MD, CSV, JSON, LOG) संलग्न गर्नुहोस्।",
+    "attachFailed": "{name} पढ्न सकिएन।",
+    "noVisionBadge": "छवि छैन",
+    "visionWarning": "{model} ले छवि स्वीकार गर्दैन। छवि स्वीकार गर्ने मोडेल वा स्वत: छान्नुहोस्।"
   },
   "embeddings": {
     "title": "नमूनाहरू",

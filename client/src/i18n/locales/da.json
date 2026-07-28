@@ -122,6 +122,7 @@
     "visionTitle": "Accepterer billedinput",
     "tools": "Værktøjer",
     "toolsTitle": "Udsender strukturerede værktøjskald, så den er berettiget til værktøjsbærende anmodninger",
+    "retired": "Udgået",
     "penalty": "−{value} straf",
     "obs": "{count} observationer",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} af {total} modeller",
     "clearFilters": "Klare filtre",
     "noMatches": "Ingen modeller matcher dine filtre.",
-    "noModelsTitle": "Ingen modeller konfigureret"
+    "noModelsTitle": "Ingen modeller konfigureret",
+    "intelligenceRank": "Intelligens",
+    "speedRank": "Hastighed",
+    "rankHint": "Rangering i kataloget — 1 er bedst.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Lad stå tomt for ingen grænse."
   },
   "strategies": {
     "title": "Routingstrategi",
@@ -513,7 +522,14 @@
     "errorPrefix": "Fejl:",
     "systemPromptLabel": "Systemprompt",
     "systemPromptPlaceholder": "Valgfrit. Sendt som en systembesked før din chat.",
-    "errorTitle": "Anmodningen mislykkedes"
+    "errorTitle": "Anmodningen mislykkedes",
+    "attach": "Vedhæft filer",
+    "attachTooMany": "Du kan vedhæfte op til {count} filer pr. besked.",
+    "attachTooLarge": "{name} er for stor. Grænsen er {max}.",
+    "attachUnsupported": "{name} understøttes ikke. Vedhæft billeder (PNG, JPEG, WebP, GIF) eller tekstfiler (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Kunne ikke læse {name}.",
+    "noVisionBadge": "Ingen billeder",
+    "visionWarning": "{model} accepterer ikke billeder. Vælg en model med billedinput eller Auto."
   },
   "embeddings": {
     "title": "Modeller",

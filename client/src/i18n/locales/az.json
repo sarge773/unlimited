@@ -122,6 +122,7 @@
     "visionTitle": "Şəkil girişini qəbul edir",
     "tools": "Alətlər",
     "toolsTitle": "Strukturlaşdırılmış alət çağırışları yayır, buna görə də alət daşıma sorğuları üçün uyğundur",
+    "retired": "Dayandırılıb",
     "penalty": "−{value} penalti",
     "obs": "{count}",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{shown} {total} modelləri",
     "clearFilters": "Təmiz filtrlər",
     "noMatches": "Heç bir model filtrlərinizlə uyğun gəlmir.",
-    "noModelsTitle": "Heç bir model konfiqurasiya olunmur"
+    "noModelsTitle": "Heç bir model konfiqurasiya olunmur",
+    "intelligenceRank": "Kəşfiyyat",
+    "speedRank": "Sürət",
+    "rankHint": "Kataloqdakı reytinq — 1 ən yaxşısıdır.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Limit olmaması üçün boş buraxın."
   },
   "strategies": {
     "title": "Marşrut strategiyası",
@@ -513,7 +522,14 @@
     "errorPrefix": "Səhv:",
     "systemPromptLabel": "Sistem sorğusu",
     "systemPromptPlaceholder": "İstəyə bağlıdır. Çatdan əvvəl sistem mesajı kimi göndərildi.",
-    "errorTitle": "Tələb uğursuz oldu"
+    "errorTitle": "Tələb uğursuz oldu",
+    "attach": "Fayl əlavə et",
+    "attachTooMany": "Hər mesaja ən çox {count} fayl əlavə edə bilərsiniz.",
+    "attachTooLarge": "{name} çox böyükdür. Maksimum həcm: {max}.",
+    "attachUnsupported": "{name} dəstəklənmir. Şəkil (PNG, JPEG, WebP, GIF) və ya mətn faylları (TXT, MD, CSV, JSON, LOG) əlavə edin.",
+    "attachFailed": "{name} oxunmadı.",
+    "noVisionBadge": "Şəkilsiz",
+    "visionWarning": "{model} şəkilləri qəbul etmir. Şəkil dəstəkləyən model və ya Avtomatik seçin."
   },
   "embeddings": {
     "title": "Modellər",

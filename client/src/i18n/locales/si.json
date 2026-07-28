@@ -122,6 +122,7 @@
     "visionTitle": "රූප ආදානය පිළිගනී",
     "tools": "මෙවලම්",
     "toolsTitle": "ව්‍යුහගත මෙවලම් ඇමතුම් නිකුත් කරයි, එබැවින් එය මෙවලම් දරණ ඉල්ලීම් සඳහා සුදුසුකම් ලබයි",
+    "retired": "නවතා ඇත",
     "penalty": "−{value} දඩුවම",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",
@@ -178,7 +179,15 @@
     "showingCount": "{total} මාදිලිවල {shown}",
     "clearFilters": "පෙරහන් හිස් කරන්න",
     "noMatches": "ඔබගේ ෆිල්ටර වලට ගැලපෙන මාදිලි නොමැත.",
-    "noModelsTitle": "මාදිලි කිසිවක් වින්‍යාස කර නැත"
+    "noModelsTitle": "මාදිලි කිසිවක් වින්‍යාස කර නැත",
+    "intelligenceRank": "බුද්ධිය",
+    "speedRank": "වේගය",
+    "rankHint": "නාමාවලියේ ශ්‍රේණිය — 1 හොඳම වේ.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "සීමාවක් නොමැති නම් හිස්ව තබන්න."
   },
   "strategies": {
     "title": "මාර්ගගත කිරීමේ උපාය",
@@ -513,7 +522,14 @@
     "errorPrefix": "දෝෂය:",
     "systemPromptLabel": "පද්ධති විමසුම",
     "systemPromptPlaceholder": "විකල්ප. ඔබගේ කතාබස් කිරීමට පෙර පද්ධති පණිවිඩයක් ලෙස යවන ලදී.",
-    "errorTitle": "ඉල්ලීම අසාර්ථක විය"
+    "errorTitle": "ඉල්ලීම අසාර්ථක විය",
+    "attach": "ගොනු අමුණන්න",
+    "attachTooMany": "එක් පණිවිඩයකට ගොනු {count}ක් දක්වා අමුණා ගත හැක.",
+    "attachTooLarge": "{name} ඉතා විශාලයි. සීමාව {max} වේ.",
+    "attachUnsupported": "{name} සඳහා සහාය නොදක්වයි. රූප (PNG, JPEG, WebP, GIF) හෝ පෙළ ගොනු (TXT, MD, CSV, JSON, LOG) අමුණන්න.",
+    "attachFailed": "{name} කියවිය නොහැකි විය.",
+    "noVisionBadge": "රූප නැත",
+    "visionWarning": "{model} රූප පිළිගන්නේ නැත. රූප පිළිගන්නා ආකෘතියක් හෝ ස්වයංක්‍රීය තෝරන්න."
   },
   "embeddings": {
     "title": "ආකෘති",
