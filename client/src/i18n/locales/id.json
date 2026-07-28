@@ -726,9 +726,15 @@
     "title": "Agen coding",
     "description": "Hubungkan alat coding ke satu gateway model gratis dengan konfigurasi yang dihasilkan otomatis dan aman untuk dicadangkan.",
     "apiKey": "Kunci API",
+    "quickstartTitle": "Mulai cepat",
     "quickstart": "Jalur tercepat: konfigurasikan Claude Code dari katalog langsung.",
     "currentKey": "Kunci terpadu saat ini:",
     "seenRecently": "Terlihat baru-baru ini",
+    "setupLabel": "Penyiapan otomatis",
+    "setupHint": "Menulis berkas konfigurasi alat ini untuk Anda, diarahkan ke gerbang ini.",
+    "setupGuideHint": "Menampilkan langkah penyiapan alat ini; tidak ada berkas yang ditulis.",
+    "manualLabel": "Koneksi manual",
+    "manualHint": "URL dasar dan kunci untuk dimasukkan ke pengaturan alat itu sendiri.",
     "endpoint": "Titik akhir",
     "documentation": "Dokumentasi"
   }

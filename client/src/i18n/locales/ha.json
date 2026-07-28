@@ -726,9 +726,15 @@
     "title": "Wakilan rubuta kod",
     "description": "Haɗa kayan aikin rubuta kod zuwa gateway ɗaya na samfura kyauta tare da saitin da aka ƙirƙira, mai kiyaye madadin.",
     "apiKey": "Maɓallin API",
+    "quickstartTitle": "Farawa da sauri",
     "quickstart": "Hanya mafi sauri: saita Claude Code daga kundin kai tsaye.",
     "currentKey": "Maɓallin haɗaɗɗe na yanzu:",
     "seenRecently": "An gan shi kwanan nan",
+    "setupLabel": "Saiti ta atomatik",
+    "setupHint": "Yana rubuta fayil ɗin saitin wannan kayan aiki dominka, yana nuni ga wannan ƙofar.",
+    "setupGuideHint": "Yana nuna matakan saitin wannan kayan aiki; ba a rubuta wani fayil ba.",
+    "manualLabel": "Haɗi da hannu",
+    "manualHint": "Babban URL da maɓalli don shigarwa cikin saitunan kayan aikin.",
     "endpoint": "Endpoint",
     "documentation": "Takardun bayani"
   }

@@ -726,9 +726,15 @@
     "title": "Agentes de programação",
     "description": "Ligue ferramentas de programação a um único gateway de modelos gratuitos com configuração gerada e segura para cópias de segurança.",
     "apiKey": "Chave de API",
+    "quickstartTitle": "Início rápido",
     "quickstart": "Caminho mais rápido: configure o Claude Code a partir do catálogo em direto.",
     "currentKey": "Chave unificada atual:",
     "seenRecently": "Visto recentemente",
+    "setupLabel": "Configuração automática",
+    "setupHint": "Escreve por si o ficheiro de configuração desta ferramenta, apontado para esta gateway.",
+    "setupGuideHint": "Mostra os passos de configuração desta ferramenta; não é escrito nenhum ficheiro.",
+    "manualLabel": "Ligação manual",
+    "manualHint": "URL base e chave para introduzir nas definições da própria ferramenta.",
     "endpoint": "Endpoint",
     "documentation": "Documentação"
   }

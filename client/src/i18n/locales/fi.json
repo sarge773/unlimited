@@ -726,9 +726,15 @@
     "title": "Koodausagentit",
     "description": "Yhdistä koodaustyökalut yhteen ilmaisten mallien yhdyskäytävään generoidulla, varmuuskopiot turvaavalla kokoonpanolla.",
     "apiKey": "API-avain",
+    "quickstartTitle": "Pika-aloitus",
     "quickstart": "Nopein tapa: määritä Claude Code live-katalogista.",
     "currentKey": "Nykyinen yhtenäinen avain:",
     "seenRecently": "Nähty äskettäin",
+    "setupLabel": "Automaattinen määritys",
+    "setupHint": "Kirjoittaa tämän työkalun asetustiedoston puolestasi ja osoittaa sen tähän yhdyskäytävään.",
+    "setupGuideHint": "Näyttää työkalun määritysvaiheet; tiedostoja ei kirjoiteta.",
+    "manualLabel": "Manuaalinen yhteys",
+    "manualHint": "Perus-URL ja avain työkalun omiin asetuksiin.",
     "endpoint": "Päätepiste",
     "documentation": "Dokumentaatio"
   }

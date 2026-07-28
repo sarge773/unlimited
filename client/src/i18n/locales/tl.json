@@ -726,9 +726,15 @@
     "title": "Mga coding agent",
     "description": "Ikonekta ang mga coding tool sa iisang free-model gateway gamit ang nabuong, backup-safe na configuration.",
     "apiKey": "API key",
+    "quickstartTitle": "Mabilisang simula",
     "quickstart": "Pinakamabilis na paraan: i-configure ang Claude Code mula sa live na catalog.",
     "currentKey": "Kasalukuyang pinag-isang key:",
     "seenRecently": "Nakita kamakailan",
+    "setupLabel": "Awtomatikong setup",
+    "setupHint": "Isinusulat para sa iyo ang config file ng tool na ito, nakaturo sa gateway na ito.",
+    "setupGuideHint": "Ipinapakita ang mga hakbang sa setup ng tool na ito; walang file na isinusulat.",
+    "manualLabel": "Manwal na koneksyon",
+    "manualHint": "Base URL at key na ilalagay sa sariling settings ng tool.",
     "endpoint": "Endpoint",
     "documentation": "Dokumentasyon"
   }

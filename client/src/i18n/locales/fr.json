@@ -726,9 +726,15 @@
     "title": "Agents de codage",
     "description": "Connectez vos outils de codage à une passerelle unique de modèles gratuits, avec une configuration générée et sans risque pour vos sauvegardes.",
     "apiKey": "Clé API",
+    "quickstartTitle": "Démarrage rapide",
     "quickstart": "Le plus rapide : configurez Claude Code depuis le catalogue en direct.",
     "currentKey": "Clé unifiée actuelle :",
     "seenRecently": "Vu récemment",
+    "setupLabel": "Configuration automatique",
+    "setupHint": "Écrit pour vous le fichier de configuration de cet outil, pointé vers cette passerelle.",
+    "setupGuideHint": "Affiche les étapes de configuration de cet outil ; aucun fichier n'est écrit.",
+    "manualLabel": "Connexion manuelle",
+    "manualHint": "URL de base et clé à saisir dans les réglages de l'outil.",
     "endpoint": "Endpoint",
     "documentation": "Documentation"
   }

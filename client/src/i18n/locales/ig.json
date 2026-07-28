@@ -726,9 +726,15 @@
     "title": "Ndị ejenti koodu",
     "description": "Jikọọ ngwaọrụ koodu na otu ọnụ ụzọ ụdị n'efu nwere nhazi emepụtara nke dị mma maka ndabere.",
     "apiKey": "Igodo API",
+    "quickstartTitle": "Mmalite ngwa ngwa",
     "quickstart": "Ụzọ kachasị ọsọ: hazie Claude Code site na katalọgụ dị ndụ.",
     "currentKey": "Igodo jikọtara ọnụ ugbu a:",
     "seenRecently": "A hụrụ ya nso nso a",
+    "setupLabel": "Ntọlite akpaaka",
+    "setupHint": "Ọ na-edepụtara gị faịlụ nhazi nke ngwá ọrụ a, na-atụ aka na ọnụ ụzọ a.",
+    "setupGuideHint": "Ọ na-egosi usoro ntọlite nke ngwá ọrụ a; ọ dịghị faịlụ a na-ede.",
+    "manualLabel": "Njikọ aka",
+    "manualHint": "Isi URL na igodo ị ga-etinye na ntọala nke ngwá ọrụ ahụ.",
     "endpoint": "Njedebe",
     "documentation": "Akwụkwọ ntuziaka"
   }

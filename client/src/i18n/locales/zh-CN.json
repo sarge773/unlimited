@@ -726,9 +726,15 @@
     "title": "编码智能体",
     "description": "通过生成的、可安全备份的配置，将编码工具连接到同一个免费模型网关。",
     "apiKey": "API 密钥",
+    "quickstartTitle": "快速开始",
     "quickstart": "最快路径：从实时目录配置 Claude Code。",
     "currentKey": "当前统一密钥：",
     "seenRecently": "最近活跃",
+    "setupLabel": "自动配置",
+    "setupHint": "自动写入该工具的配置文件，并指向此网关。",
+    "setupGuideHint": "打印该工具的配置步骤，不会写入任何文件。",
+    "manualLabel": "手动连接",
+    "manualHint": "在该工具自身的设置中填入此基础 URL 和密钥。",
     "endpoint": "端点",
     "documentation": "文档"
   }

@@ -726,9 +726,15 @@
     "title": "Agenti di coding",
     "description": "Collega gli strumenti di coding a un unico gateway di modelli gratuiti con configurazione generata e sicura per il backup.",
     "apiKey": "Chiave API",
+    "quickstartTitle": "Avvio rapido",
     "quickstart": "La via più rapida: configura Claude Code dal catalogo live.",
     "currentKey": "Chiave unificata attuale:",
     "seenRecently": "Visto di recente",
+    "setupLabel": "Configurazione automatica",
+    "setupHint": "Scrive per te il file di configurazione di questo strumento, puntato a questo gateway.",
+    "setupGuideHint": "Mostra i passaggi di configurazione di questo strumento; non viene scritto alcun file.",
+    "manualLabel": "Connessione manuale",
+    "manualHint": "URL di base e chiave da inserire nelle impostazioni dello strumento.",
     "endpoint": "Endpoint",
     "documentation": "Documentazione"
   }

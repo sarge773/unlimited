@@ -726,9 +726,15 @@
     "title": "የኮድ አጻጻፍ ወኪሎች",
     "description": "የኮድ አጻጻፍ መሣሪያዎችን በተፈጠረ እና ምትኬን በሚጠብቅ ውቅር ወደ አንድ የነፃ ሞዴል ጌትዌይ ያገናኙ።",
     "apiKey": "የAPI ቁልፍ",
+    "quickstartTitle": "ፈጣን ጅምር",
     "quickstart": "ፈጣኑ መንገድ፦ Claude Codeን ከቀጥታ ካታሎግ ያዋቅሩ።",
     "currentKey": "አሁናዊ የተዋሃደ ቁልፍ፦",
     "seenRecently": "በቅርቡ ታይቷል",
+    "setupLabel": "ራስ-ሰር ማዋቀር",
+    "setupHint": "የዚህን መሣሪያ የማዋቀሪያ ፋይል ወደዚህ መተላለፊያ በማመልከት ለእርስዎ ይጽፋል።",
+    "setupGuideHint": "የዚህን መሣሪያ የማዋቀር ደረጃዎች ያሳያል፤ ምንም ፋይል አይጻፍም።",
+    "manualLabel": "በእጅ መገናኘት",
+    "manualHint": "በመሣሪያው ራሱ ቅንብሮች ውስጥ የሚገባ የመሠረት URL እና ቁልፍ።",
     "endpoint": "የመዳረሻ ነጥብ",
     "documentation": "ሰነዶች"
   }

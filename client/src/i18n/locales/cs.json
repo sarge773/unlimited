@@ -726,9 +726,15 @@
     "title": "Agenti pro kódování",
     "description": "Připojte kódovací nástroje k jedné bráně bezplatných modelů s generovanou konfigurací a bezpečným zálohováním.",
     "apiKey": "API klíč",
+    "quickstartTitle": "Rychlý start",
     "quickstart": "Nejrychlejší cesta: nakonfigurujte Claude Code z živého katalogu.",
     "currentKey": "Aktuální jednotný klíč:",
     "seenRecently": "Nedávno aktivní",
+    "setupLabel": "Automatické nastavení",
+    "setupHint": "Zapíše za vás konfigurační soubor tohoto nástroje s odkazem na tuto bránu.",
+    "setupGuideHint": "Vypíše kroky nastavení tohoto nástroje; žádný soubor se nezapisuje.",
+    "manualLabel": "Ruční připojení",
+    "manualHint": "Základní URL a klíč k zadání do vlastního nastavení nástroje.",
     "endpoint": "Endpoint",
     "documentation": "Dokumentace"
   }

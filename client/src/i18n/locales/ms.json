@@ -726,9 +726,15 @@
     "title": "Ejen pengekodan",
     "description": "Sambungkan alat pengekodan kepada satu gateway model percuma dengan konfigurasi terjana yang selamat untuk sandaran.",
     "apiKey": "Kunci API",
+    "quickstartTitle": "Mula pantas",
     "quickstart": "Laluan terpantas: konfigurasikan Claude Code daripada katalog langsung.",
     "currentKey": "Kunci bersatu semasa:",
     "seenRecently": "Dilihat baru-baru ini",
+    "setupLabel": "Persediaan automatik",
+    "setupHint": "Menulis fail konfigurasi alat ini untuk anda, menghala ke get laluan ini.",
+    "setupGuideHint": "Memaparkan langkah persediaan alat ini; tiada fail ditulis.",
+    "manualLabel": "Sambungan manual",
+    "manualHint": "URL asas dan kunci untuk dimasukkan dalam tetapan alat itu sendiri.",
     "endpoint": "Titik akhir",
     "documentation": "Dokumentasi"
   }

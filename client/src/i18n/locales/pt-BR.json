@@ -726,9 +726,15 @@
     "title": "Agentes de codificação",
     "description": "Conecte ferramentas de codificação a um único gateway de modelos gratuitos com configuração gerada e segura para backup.",
     "apiKey": "Chave de API",
+    "quickstartTitle": "Início rápido",
     "quickstart": "Caminho mais rápido: configure o Claude Code a partir do catálogo ao vivo.",
     "currentKey": "Chave unificada atual:",
     "seenRecently": "Visto recentemente",
+    "setupLabel": "Configuração automática",
+    "setupHint": "Escreve para você o arquivo de configuração desta ferramenta, apontando para este gateway.",
+    "setupGuideHint": "Exibe os passos de configuração desta ferramenta; nenhum arquivo é escrito.",
+    "manualLabel": "Conexão manual",
+    "manualHint": "URL base e chave para inserir nas configurações da própria ferramenta.",
     "endpoint": "Endpoint",
     "documentation": "Documentação"
   }

@@ -726,9 +726,15 @@
     "title": "Kodeagenter",
     "description": "Koble kodeverktøy til én gateway for gratis modeller med generert, sikkerhetskopivennlig konfigurasjon.",
     "apiKey": "API-nøkkel",
+    "quickstartTitle": "Hurtigstart",
     "quickstart": "Raskeste vei: konfigurer Claude Code fra live-katalogen.",
     "currentKey": "Gjeldende samlenøkkel:",
     "seenRecently": "Nylig sett",
+    "setupLabel": "Automatisk oppsett",
+    "setupHint": "Skriver verktøyets konfigurasjonsfil for deg, rettet mot denne gatewayen.",
+    "setupGuideHint": "Viser verktøyets oppsettstrinn; ingen filer skrives.",
+    "manualLabel": "Manuell tilkobling",
+    "manualHint": "Basis-URL og nøkkel til verktøyets egne innstillinger.",
     "endpoint": "Endepunkt",
     "documentation": "Dokumentasjon"
   }

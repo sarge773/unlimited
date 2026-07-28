@@ -726,9 +726,15 @@
     "title": "Agenci kodujący",
     "description": "Połącz narzędzia programistyczne z jedną bramą darmowych modeli dzięki generowanej konfiguracji bezpiecznej dla kopii zapasowych.",
     "apiKey": "Klucz API",
+    "quickstartTitle": "Szybki start",
     "quickstart": "Najszybsza ścieżka: skonfiguruj Claude Code na podstawie aktualnego katalogu.",
     "currentKey": "Bieżący wspólny klucz:",
     "seenRecently": "Ostatnio widziany",
+    "setupLabel": "Konfiguracja automatyczna",
+    "setupHint": "Zapisuje za Ciebie plik konfiguracyjny tego narzędzia, wskazujący na tę bramę.",
+    "setupGuideHint": "Wypisuje kroki konfiguracji tego narzędzia; żaden plik nie jest zapisywany.",
+    "manualLabel": "Połączenie ręczne",
+    "manualHint": "Bazowy adres URL i klucz do wpisania w ustawieniach samego narzędzia.",
     "endpoint": "Punkt końcowy",
     "documentation": "Dokumentacja"
   }

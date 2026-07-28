@@ -726,9 +726,15 @@
     "title": "코딩 에이전트",
     "description": "자동 생성되고 백업에 안전한 구성으로 코딩 도구를 하나의 무료 모델 게이트웨이에 연결하세요.",
     "apiKey": "API 키",
+    "quickstartTitle": "빠른 시작",
     "quickstart": "가장 빠른 방법: 라이브 카탈로그에서 Claude Code를 구성하세요.",
     "currentKey": "현재 통합 키:",
     "seenRecently": "최근 확인됨",
+    "setupLabel": "자동 설정",
+    "setupHint": "이 도구의 설정 파일을 이 게이트웨이를 가리키도록 대신 작성합니다.",
+    "setupGuideHint": "이 도구의 설정 단계를 출력합니다. 파일은 작성되지 않습니다.",
+    "manualLabel": "수동 연결",
+    "manualHint": "도구 자체 설정에 입력할 기본 URL과 키입니다.",
     "endpoint": "엔드포인트",
     "documentation": "문서"
   }

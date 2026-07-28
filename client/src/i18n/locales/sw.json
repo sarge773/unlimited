@@ -726,9 +726,15 @@
     "title": "Mawakala wa usimbaji",
     "description": "Unganisha zana za usimbaji na lango moja la miundo ya bure kwa usanidi ulioundwa na ulio salama kwa hifadhi rudufu.",
     "apiKey": "Ufunguo wa API",
+    "quickstartTitle": "Anza haraka",
     "quickstart": "Njia ya haraka zaidi: sanidi Claude Code kutoka kwenye katalogi ya moja kwa moja.",
     "currentKey": "Ufunguo wa pamoja wa sasa:",
     "seenRecently": "Imeonekana hivi karibuni",
+    "setupLabel": "Usanidi otomatiki",
+    "setupHint": "Huandika faili ya usanidi ya zana hii kwa niaba yako, ikielekeza kwenye lango hili.",
+    "setupGuideHint": "Huonyesha hatua za usanidi za zana hii; hakuna faili inayoandikwa.",
+    "manualLabel": "Muunganisho wa mikono",
+    "manualHint": "URL msingi na ufunguo wa kuweka katika mipangilio ya zana yenyewe.",
     "endpoint": "Kituo cha mwisho",
     "documentation": "Nyaraka"
   }

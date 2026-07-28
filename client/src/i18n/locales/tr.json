@@ -726,9 +726,15 @@
     "title": "Kodlama ajanları",
     "description": "Kodlama araçlarını, oluşturulmuş ve yedeklemeye uygun yapılandırmayla tek bir ücretsiz model ağ geçidine bağlayın.",
     "apiKey": "API anahtarı",
+    "quickstartTitle": "Hızlı başlangıç",
     "quickstart": "En hızlı yol: Claude Code'u canlı katalogdan yapılandırın.",
     "currentKey": "Geçerli birleşik anahtar:",
     "seenRecently": "Son zamanlarda görüldü",
+    "setupLabel": "Otomatik kurulum",
+    "setupHint": "Bu aracın yapılandırma dosyasını sizin için bu ağ geçidine yönlendirerek yazar.",
+    "setupGuideHint": "Bu aracın kurulum adımlarını yazdırır; hiçbir dosya yazılmaz.",
+    "manualLabel": "Manuel bağlantı",
+    "manualHint": "Aracın kendi ayarlarına girilecek temel URL ve anahtar.",
     "endpoint": "Uç nokta",
     "documentation": "Dokümantasyon"
   }

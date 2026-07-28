@@ -726,9 +726,15 @@
     "title": "Agenți de codare",
     "description": "Conectează instrumentele de codare la un singur gateway de modele gratuite, cu configurație generată, sigură pentru backup.",
     "apiKey": "Cheie API",
+    "quickstartTitle": "Pornire rapidă",
     "quickstart": "Cea mai rapidă cale: configurează Claude Code din catalogul live.",
     "currentKey": "Cheia unificată curentă:",
     "seenRecently": "Văzut recent",
+    "setupLabel": "Configurare automată",
+    "setupHint": "Scrie pentru tine fișierul de configurare al acestui instrument, orientat către acest gateway.",
+    "setupGuideHint": "Afișează pașii de configurare ai acestui instrument; niciun fișier nu este scris.",
+    "manualLabel": "Conexiune manuală",
+    "manualHint": "URL de bază și cheia de introdus în setările instrumentului.",
     "endpoint": "Endpoint",
     "documentation": "Documentație"
   }

@@ -726,9 +726,15 @@
     "title": "Kodningsagenter",
     "description": "Anslut kodningsverktyg till en gemensam gateway för gratismodeller med genererad konfiguration som säkerhetskopieras tryggt.",
     "apiKey": "API-nyckel",
+    "quickstartTitle": "Snabbstart",
     "quickstart": "Snabbaste vägen: konfigurera Claude Code från livekatalogen.",
     "currentKey": "Aktuell enhetlig nyckel:",
     "seenRecently": "Nyligen sedd",
+    "setupLabel": "Automatisk konfiguration",
+    "setupHint": "Skriver verktygets konfigurationsfil åt dig, riktad mot den här gatewayen.",
+    "setupGuideHint": "Visar verktygets konfigurationssteg; inga filer skrivs.",
+    "manualLabel": "Manuell anslutning",
+    "manualHint": "Bas-URL och nyckel att ange i verktygets egna inställningar.",
     "endpoint": "Slutpunkt",
     "documentation": "Dokumentation"
   }

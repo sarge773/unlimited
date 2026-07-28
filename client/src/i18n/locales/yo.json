@@ -726,9 +726,15 @@
     "title": "Awọn aṣoju kikọ koodu",
     "description": "So awọn irinṣẹ kikọ koodu pọ mọ ẹnu-ọna awoṣe ọfẹ kan pẹlu iṣeto ti a ṣẹda, ti o ni aabo afẹyinti.",
     "apiKey": "Bọtini API",
+    "quickstartTitle": "Ìbẹ̀rẹ̀ kíákíá",
     "quickstart": "Ọna ti o yara julọ: ṣeto Claude Code lati inu katalogu laaye.",
     "currentKey": "Bọtini iṣọkan lọwọlọwọ:",
     "seenRecently": "Ti a rii laipẹ",
+    "setupLabel": "Ìṣètò aládàáṣe",
+    "setupHint": "Ó kọ fáìlì ìṣètò irinṣẹ́ yìí fún ọ, tí ó tọ́ka sí ẹnu-ọ̀nà yìí.",
+    "setupGuideHint": "Ó ṣàfihàn àwọn ìgbésẹ̀ ìṣètò irinṣẹ́ yìí; kò kọ fáìlì kankan.",
+    "manualLabel": "Ìsopọ̀ àfọwọ́ṣe",
+    "manualHint": "URL ìpìlẹ̀ àti kọ́kọ́rọ́ láti tẹ̀ sínú ètò irinṣẹ́ náà.",
     "endpoint": "Ebute",
     "documentation": "Iwe akọsilẹ"
   }

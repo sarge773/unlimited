@@ -726,9 +726,15 @@
     "title": "Kodlaşdırma agentləri",
     "description": "Kodlaşdırma alətlərini generasiya olunmuş, ehtiyat nüsxə üçün təhlükəsiz konfiqurasiya ilə vahid pulsuz model şlüzünə qoşun.",
     "apiKey": "API açarı",
+    "quickstartTitle": "Sürətli başlanğıc",
     "quickstart": "Ən sürətli yol: Claude Code-u canlı kataloqdan konfiqurasiya edin.",
     "currentKey": "Cari vahid açar:",
     "seenRecently": "Bu yaxınlarda görülüb",
+    "setupLabel": "Avtomatik quraşdırma",
+    "setupHint": "Bu alətin konfiqurasiya faylını sizin üçün yazır və bu şlüzə yönəldir.",
+    "setupGuideHint": "Bu alətin quraşdırma addımlarını göstərir; heç bir fayl yazılmır.",
+    "manualLabel": "Əl ilə qoşulma",
+    "manualHint": "Alətin öz parametrlərinə daxil ediləcək əsas URL və açar.",
     "endpoint": "Endpoint",
     "documentation": "Sənədlər"
   }

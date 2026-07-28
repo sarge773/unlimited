@@ -726,9 +726,15 @@
     "title": "Coding-Agenten",
     "description": "Verbinden Sie Coding-Tools mit einem einzigen Gateway für kostenlose Modelle – mit generierter, backupsicherer Konfiguration.",
     "apiKey": "API-Schlüssel",
+    "quickstartTitle": "Schnellstart",
     "quickstart": "Schnellster Weg: Konfigurieren Sie Claude Code aus dem Live-Katalog.",
     "currentKey": "Aktueller einheitlicher Schlüssel:",
     "seenRecently": "Kürzlich gesehen",
+    "setupLabel": "Automatische Einrichtung",
+    "setupHint": "Schreibt die Konfigurationsdatei dieses Tools für Sie, ausgerichtet auf dieses Gateway.",
+    "setupGuideHint": "Zeigt die Einrichtungsschritte dieses Tools an; es werden keine Dateien geschrieben.",
+    "manualLabel": "Manuelle Verbindung",
+    "manualHint": "Basis-URL und Schlüssel für die eigenen Einstellungen des Tools.",
     "endpoint": "Endpunkt",
     "documentation": "Dokumentation"
   }
