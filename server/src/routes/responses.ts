@@ -9,7 +9,7 @@ import type {
   ChatToolChoice,
   Platform,
 } from '@freellmapi/shared/types.js';
-import { routeRequest, hasEnabledToolsModel, routingReserveTokens, resolveModelGroupCandidates, type RouteResult, type ChainRow } from '../services/router.js';
+import { routeRequest, hasEnabledToolsModel, resolveStickyPreference, routingReserveTokens, resolveModelGroupCandidates, type RouteResult, type ChainRow } from '../services/router.js';
 import { getDb, getUnifiedApiKey } from '../db/index.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from '../services/model-groups.js';
 import { contentToString } from '../lib/content.js';
@@ -420,7 +420,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
   let groupChain: ChainRow[] | undefined;
 
   if (isAutoModel(requestedModelLabel)) {
-    preferredModel = getStickyModel(messages, sessionIdHeader);
+    preferredModel = resolveStickyPreference(getStickyModel(messages, sessionIdHeader));
   } else {
     const db = getDb();
     const members = isUnifyEnabled() ? resolveRequestedIdToMembers(requestedModelLabel, getModelGroups()) : null;

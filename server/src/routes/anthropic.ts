@@ -9,7 +9,7 @@ import type {
   ChatToolChoice,
   ChatContentBlock,
 } from '@freellmapi/shared/types.js';
-import { routeRequest, routingReserveTokens, type RouteResult } from '../services/router.js';
+import { routeRequest, resolveStickyPreference, routingReserveTokens, type RouteResult } from '../services/router.js';
 import { getSetting, getUnifiedApiKey } from '../db/index.js';
 import { contentToString } from '../lib/content.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
@@ -493,7 +493,7 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
   const rawSession = req.headers['x-claude-code-session-id'] ?? req.headers['x-session-id'];
   const sessionId = Array.isArray(rawSession) ? rawSession[0] : rawSession;
   let preferredModel = resolved.preferredModelDbId;
-  if (preferredModel == null) preferredModel = getStickyModel(messages, sessionId);
+  if (preferredModel == null) preferredModel = resolveStickyPreference(getStickyModel(messages, sessionId));
 
   // Thin adapter over the shared fallback loop (lib/fallback-loop.ts): the
   // cooldown/skip/penalty/exhaustion machinery is shared, only the Anthropic

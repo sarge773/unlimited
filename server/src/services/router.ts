@@ -639,6 +639,14 @@ function getChainByProfileName(db: Db, name: string): ChainRow[] | null {
 }
 
 function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
+  // A global sort ignores the chain's ORDER, not its enable flags: a model the
+  // operator switched off — in the catalog or just for auto routing — stays off
+  // here too (#634). Models with no chain row yet (fresh catalog rows) default
+  // to in, so the sort still spans the whole catalog.
+  const profileId = getActiveProfileId(db);
+  const chainEnabled = profileId != null
+    ? 'COALESCE(pm.enabled, fc.enabled, 1) = 1'
+    : 'COALESCE(fc.enabled, 1) = 1';
   const allEnabled = db.prepare(`
     SELECT m.id as model_db_id, 0 as priority, 1 as enabled,
            m.platform, m.model_id, m.display_name, m.intelligence_rank,
@@ -646,8 +654,10 @@ function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
            m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
            m.supports_tools, m.context_window, m.key_id
     FROM models m
-    WHERE m.enabled = 1
-  `).all() as ChainRow[];
+    LEFT JOIN fallback_config fc ON fc.model_db_id = m.id
+    ${profileId != null ? 'LEFT JOIN profile_models pm ON pm.profile_id = ? AND pm.model_db_id = m.id' : ''}
+    WHERE m.enabled = 1 AND ${chainEnabled}
+  `).all(...(profileId != null ? [profileId] : [])) as ChainRow[];
 
   const strategyMap: Record<string, RoutingStrategy> = {
     'smart': 'smartest',
@@ -1284,6 +1294,27 @@ export function getRoutingScores(): { strategy: RoutingStrategy; weights: Routin
   // has saved their own — distinct from `weights`, which is null in priority
   // mode and the active preset otherwise.
   return { strategy, weights: weightsFor(strategy), customWeights: getCustomWeights(), scores };
+}
+
+/**
+ * Filter a sticky-session pin down to something still routable (#634).
+ *
+ * A sticky entry holds a model db id for up to 30 minutes, so it goes stale the
+ * moment the operator disables that model — in the catalog, or just for auto
+ * routing. It must NOT be handed to routeRequest as-is: an off-chain preferred
+ * id is treated as an explicit pin and injected ahead of the chain, which is
+ * right for a client that named the model and wrong for a pin the client never
+ * asked for. Dropping it here falls the request through to normal auto routing.
+ *
+ * Pass the same chain the request will route over (the prefetched auto chain);
+ * omit it to check the active chain, which is what routeRequest would use.
+ */
+export function resolveStickyPreference(stickyModelDbId: number | undefined, chain?: ChainRow[]): number | undefined {
+  if (stickyModelDbId == null) return undefined;
+  const rows = chain ?? getActiveChain(getDb());
+  return rows.some(entry => entry.model_db_id === stickyModelDbId && entry.enabled)
+    ? stickyModelDbId
+    : undefined;
 }
 
 // Whether at least one vision-capable model is enabled in the fallback chain.

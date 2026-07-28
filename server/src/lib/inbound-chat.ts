@@ -8,6 +8,7 @@ import type {
 import { getDb } from '../db/index.js';
 import {
   routeRequest,
+  resolveStickyPreference,
   routingReserveTokens,
   resolveModelGroupCandidates,
   type ChainRow,
@@ -108,7 +109,7 @@ function resolvePin(model: string | undefined, messages: ChatMessage[], sessionI
   const auto = !requested || requested.toLowerCase() === 'auto' || requested.toLowerCase().startsWith('auto:');
   if (auto) {
     return {
-      preferredModel: getStickyModel(messages, sessionId),
+      preferredModel: resolveStickyPreference(getStickyModel(messages, sessionId)),
       pinnedLabel: null,
     };
   }

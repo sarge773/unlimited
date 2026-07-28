@@ -3,7 +3,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import type { ChatMessage, ChatToolCall, ModelListRow } from '@freellmapi/shared/types.js';
-import { routeRequest, resolveRoutingChain, resolveModelGroupCandidates, recordRateLimitHit, recordSuccess, hasEnabledVisionModel, hasEnabledToolsModel, hasOtherUsableKey, routingReserveTokens, type RouteResult, type ResolvedChain, type ChainRow } from '../services/router.js';
+import { routeRequest, resolveRoutingChain, resolveModelGroupCandidates, resolveStickyPreference, recordRateLimitHit, recordSuccess, hasEnabledVisionModel, hasEnabledToolsModel, hasOtherUsableKey, routingReserveTokens, type RouteResult, type ResolvedChain, type ChainRow } from '../services/router.js';
 import { recordRequest, recordTokens, setCooldown, getCooldownDurationForLimit, PAYMENT_REQUIRED_COOLDOWN_MS, MODEL_FORBIDDEN_COOLDOWN_MS, learnLimitFromError } from '../services/ratelimit.js';
 import { runEmbeddings, EmbeddingsError } from '../services/embeddings.js';
 import { runImageGeneration, runSpeech, runTranscription, MediaError, MAX_TRANSCRIPTION_BYTES } from '../services/media.js';
@@ -1562,7 +1562,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   let stickyStrategyKey: string | undefined = strategyKey;
 
   if (isAutoModel(requestedModel)) {
-    preferredModel = getStickyModel(messages, sessionIdHeader, strategyKey);
+    preferredModel = resolveStickyPreference(getStickyModel(messages, sessionIdHeader, strategyKey), resolvedChain?.chain);
   } else if (requestedModel) {
     const db = getDb();
     // Unify ON: a requested id (canonical slug OR any provider's model_id) maps
@@ -1622,7 +1622,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       }
     }
   } else {
-    preferredModel = getStickyModel(messages, sessionIdHeader, strategyKey);
+    preferredModel = resolveStickyPreference(getStickyModel(messages, sessionIdHeader, strategyKey), resolvedChain?.chain);
   }
 
   // For analytics: the model id the client pinned, null when auto-routed
