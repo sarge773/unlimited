@@ -251,9 +251,9 @@ function logEmbeddingRequest(
   try {
     const client = getClientContext();
     getDb().prepare(`
-      INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, error, request_type, client_ip, client_user_agent)
-      VALUES (?, ?, ?, ?, ?, 0, ?, ?, 'embedding', ?, ?)
-    `).run(row.platform, row.model_id, keyId, status, inputTokens, latencyMs, error, client.ip, client.userAgent);
+      INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, error, request_type, client_ip, client_user_agent, client_agent)
+      VALUES (?, ?, ?, ?, ?, 0, ?, ?, 'embedding', ?, ?, ?)
+    `).run(row.platform, row.model_id, keyId, status, inputTokens, latencyMs, error, client.ip, client.userAgent, client.agent);
   } catch (e) {
     console.error('Failed to log embedding request:', e);
   }

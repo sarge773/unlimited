@@ -8,6 +8,13 @@ import * as requestClientInfo from '../migrations/20260706_000001_request_client
 import * as customModelToolSupport from '../migrations/20260706_000002_custom_model_tool_support.js';
 import * as profileChainBackfill from '../migrations/20260714_000001_profile_chain_backfill.js';
 import * as keyHealthError from '../migrations/20260720_000001_key_health_error.js';
+import * as cooldownProbeProvenance from '../migrations/20260726_000001_cooldown_probe_provenance.js';
+import * as requestAttempts from '../migrations/20260726_000002_request_attempts.js';
+import * as modelSourceProvenance from '../migrations/20260726_000003_model_source_provenance.js';
+import * as mediaModelMeta from '../migrations/20260726_000004_media_model_meta.js';
+import * as requestServedModel from '../migrations/20260726_000005_request_served_model.js';
+import * as attemptErrorSummary from '../migrations/20260726_000006_attempt_error_summary.js';
+import * as agentCompatibility from '../migrations/20260727_000001_agent_compatibility.js';
 
 export interface MigrationModule {
   up(db: Db): void;
@@ -28,6 +35,13 @@ export const REQUEST_CLIENT_INFO_FILENAME = '20260706_000001_request_client_info
 export const CUSTOM_MODEL_TOOL_SUPPORT_FILENAME = '20260706_000002_custom_model_tool_support.ts';
 export const PROFILE_CHAIN_BACKFILL_FILENAME = '20260714_000001_profile_chain_backfill.ts';
 export const KEY_HEALTH_ERROR_FILENAME = '20260720_000001_key_health_error.ts';
+export const COOLDOWN_PROBE_PROVENANCE_FILENAME = '20260726_000001_cooldown_probe_provenance.ts';
+export const REQUEST_ATTEMPTS_FILENAME = '20260726_000002_request_attempts.ts';
+export const MODEL_SOURCE_PROVENANCE_FILENAME = '20260726_000003_model_source_provenance.ts';
+export const MEDIA_MODEL_META_FILENAME = '20260726_000004_media_model_meta.ts';
+export const REQUEST_SERVED_MODEL_FILENAME = '20260726_000005_request_served_model.ts';
+export const ATTEMPT_ERROR_SUMMARY_FILENAME = '20260726_000006_attempt_error_summary.ts';
+export const AGENT_COMPATIBILITY_FILENAME = '20260727_000001_agent_compatibility.ts';
 
 export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: LEGACY_BASELINE_FILENAME, module: legacyBaseline },
@@ -39,4 +53,11 @@ export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: CUSTOM_MODEL_TOOL_SUPPORT_FILENAME, module: customModelToolSupport },
   { filename: PROFILE_CHAIN_BACKFILL_FILENAME, module: profileChainBackfill },
   { filename: KEY_HEALTH_ERROR_FILENAME, module: keyHealthError },
+  { filename: COOLDOWN_PROBE_PROVENANCE_FILENAME, module: cooldownProbeProvenance },
+  { filename: REQUEST_ATTEMPTS_FILENAME, module: requestAttempts },
+  { filename: MODEL_SOURCE_PROVENANCE_FILENAME, module: modelSourceProvenance },
+  { filename: MEDIA_MODEL_META_FILENAME, module: mediaModelMeta },
+  { filename: REQUEST_SERVED_MODEL_FILENAME, module: requestServedModel },
+  { filename: ATTEMPT_ERROR_SUMMARY_FILENAME, module: attemptErrorSummary },
+  { filename: AGENT_COMPATIBILITY_FILENAME, module: agentCompatibility },
 ];
