@@ -17,6 +17,7 @@
 
 import type { RouteResult } from '../services/router.js';
 import { recordRateLimitHit, recordSuccess, hasOtherUsableKey, formatResetEta } from '../services/router.js';
+import { safeHeaderValue } from './header-value.js';
 import {
   recordRequest,
   recordTokens,
@@ -302,6 +303,7 @@ export function classifyAttemptError(err: any): AttemptErrorClass {
 }
 
 const TRAIL_MAX_SHOWN = 10;
+const TRAIL_HEADER_MAX_LENGTH = 1024;
 
 export function formatAttemptTrail(attempts: AttemptRecord[]): string {
   const shown = attempts
@@ -317,8 +319,9 @@ export function formatAttemptTrail(attempts: AttemptRecord[]): string {
  * X-Fallback-Trail (what each hop was and why it failed). Until now the trail
  * only reached clients inside exhaustion error MESSAGES — a request that
  * eventually succeeded gave no hint that it burned five hops first, which is
- * exactly the case an operator wants to notice. Control characters are
- * scrubbed so a hostile model id can't inject header lines.
+ * exactly the case an operator wants to notice. Values go through
+ * safeHeaderValue so a non-ASCII or control-laden model id can neither inject
+ * header lines nor make Node reject the response outright (#619).
  */
 export function setFallbackHeaders(
   res: { setHeader(name: string, value: string): void },
@@ -331,7 +334,9 @@ export function setFallbackHeaders(
       .slice(0, TRAIL_MAX_SHOWN)
       .map(a => `${a.platform}/${a.modelId} key${a.keyOrdinal}=${a.errorClass}`)
       .join('; ') + (trail.length > TRAIL_MAX_SHOWN ? `; +${trail.length - TRAIL_MAX_SHOWN} more` : '');
-    res.setHeader('X-Fallback-Trail', value.replace(/[^\t\x20-\x7e]/g, '?'));
+    // Ten hops of "platform/model keyN=class" outgrow the default cap, so the
+    // trail gets its own budget.
+    res.setHeader('X-Fallback-Trail', safeHeaderValue(value, TRAIL_HEADER_MAX_LENGTH));
   }
 }
 

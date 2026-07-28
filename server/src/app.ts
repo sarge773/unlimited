@@ -22,6 +22,7 @@ import { compressionRouter } from './routes/compression.js';
 import { authRouter } from './routes/auth.js';
 import { docsRouter } from './routes/docs.js';
 import { mcpRouter } from './routes/mcp.js';
+import { statusRouter, providersRouter } from './routes/status.js';
 import { geminiRouter } from './routes/gemini.js';
 import { ollamaRouter } from './routes/ollama.js';
 import { urlTokenRouter } from './routes/url-tokens.js';
@@ -122,6 +123,12 @@ export function createApp(config?: Config) {
   // owns those two paths; everything else falls through to the routers below.
   app.use('/v1', docsRouter);
 
+  // Read-only per-upstream status for meta-gateways (GET /v1/providers, #433).
+  // Unified-key auth is enforced inside the handler; mounted before the rate
+  // limiter (like docsRouter) so status polling doesn't draw down a caller's
+  // request budget.
+  app.use('/v1', providersRouter);
+
   // Separately revocable URL tokens for clients that cannot set headers.
   app.use('/v1/t/:token', createProxyRateLimiter(cfg.proxyRateLimitRpm));
   app.use('/v1/t/:token', urlTokenRouter);
@@ -156,6 +163,12 @@ export function createApp(config?: Config) {
   app.get('/api/ping', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
+
+  // Liveness / readiness probes for orchestrators (GET /livez, /readyz, #433).
+  // Unauthenticated so a load balancer can probe them; registered before the
+  // static / SPA-fallback block below so these root paths resolve to JSON
+  // instead of index.html.
+  app.use(statusRouter);
 
   // Error handler (for API routes)
   app.use(errorHandler);

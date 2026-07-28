@@ -22,6 +22,7 @@ import { parseBudget } from '../lib/budget.js';
 import { platformDropsResponseFormat } from '../lib/sampling-params.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from './model-groups.js';
 import { getActiveProfileId } from './profile-models.js';
+import { customEndpointKeyIds } from './custom-endpoint.js';
 import type { BaseProvider } from '../providers/base.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import type { Db } from '../db/types.js';
@@ -639,6 +640,14 @@ function getChainByProfileName(db: Db, name: string): ChainRow[] | null {
 }
 
 function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
+  // A global sort ignores the chain's ORDER, not its enable flags: a model the
+  // operator switched off — in the catalog or just for auto routing — stays off
+  // here too (#634). Models with no chain row yet (fresh catalog rows) default
+  // to in, so the sort still spans the whole catalog.
+  const profileId = getActiveProfileId(db);
+  const chainEnabled = profileId != null
+    ? 'COALESCE(pm.enabled, fc.enabled, 1) = 1'
+    : 'COALESCE(fc.enabled, 1) = 1';
   const allEnabled = db.prepare(`
     SELECT m.id as model_db_id, 0 as priority, 1 as enabled,
            m.platform, m.model_id, m.display_name, m.intelligence_rank,
@@ -646,8 +655,10 @@ function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
            m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
            m.supports_tools, m.context_window, m.key_id
     FROM models m
-    WHERE m.enabled = 1
-  `).all() as ChainRow[];
+    LEFT JOIN fallback_config fc ON fc.model_db_id = m.id
+    ${profileId != null ? 'LEFT JOIN profile_models pm ON pm.profile_id = ? AND pm.model_db_id = m.id' : ''}
+    WHERE m.enabled = 1 AND ${chainEnabled}
+  `).all(...(profileId != null ? [profileId] : [])) as ChainRow[];
 
   const strategyMap: Record<string, RoutingStrategy> = {
     'smart': 'smartest',
@@ -788,13 +799,19 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
   let idx = roundRobinIndex.get(rrKey) ?? 0;
   const ranked = orderKeysByScore(entry, keys);
 
+  // A custom model belongs to exactly one endpoint (#212), but an endpoint can
+  // hold several credentials — so the pool is every key on the same base_url,
+  // rotated like any other platform's keys (#619). Legacy rows (key_id NULL)
+  // keep the old any-key match.
+  const endpointKeyIds = entry.platform === 'custom' && entry.key_id != null
+    ? customEndpointKeyIds(db, entry.key_id)
+    : null;
+
   for (let attempt = 0; attempt < keys.length; attempt++) {
     const key = ranked ? ranked[attempt] : keys[idx % keys.length];
     idx++;
 
-    // A custom model belongs to exactly one endpoint (#212); legacy rows
-    // (key_id NULL) keep the old any-key match.
-    if (entry.platform === 'custom' && entry.key_id != null && key.id !== entry.key_id) { note('custom-key-mismatch'); continue; }
+    if (endpointKeyIds && !endpointKeyIds.has(key.id)) { note('custom-key-mismatch'); continue; }
 
     const skipId = `${entry.platform}:${entry.model_id}:${key.id}`;
     if (skipKeys?.has(skipId)) { note('already-failed-this-request'); continue; }
@@ -886,11 +903,15 @@ export function hasOtherUsableKey(modelDbId: number, excludingKeyId: number, ski
     "SELECT id FROM api_keys WHERE platform = ? AND enabled = 1 AND status IN ('healthy', 'unknown')"
   ).all(m.platform) as { id: number }[];
 
+  // Keys of the model's own custom endpoint (#212, #619); a key belonging to a
+  // DIFFERENT endpoint cannot serve it, so it doesn't count as an alternative.
+  const endpointKeyIds = m.platform === 'custom' && m.key_id != null
+    ? customEndpointKeyIds(db, m.key_id)
+    : null;
+
   for (const k of keys) {
     if (k.id === excludingKeyId) continue;
-    // A custom model binds to exactly one endpoint key (#212); a sibling custom
-    // key cannot serve it, so it doesn't count as an alternative.
-    if (m.platform === 'custom' && m.key_id != null && k.id !== m.key_id) continue;
+    if (endpointKeyIds && !endpointKeyIds.has(k.id)) continue;
     if (skipKeys?.has(`${m.platform}:${m.model_id}:${k.id}`)) continue;
     if (isOnCooldown(m.platform, m.model_id, k.id)) continue;
     if (!canUseProvider(m.platform, k.id)) continue;
@@ -1008,7 +1029,7 @@ export interface FusionCandidate {
  * so the panel's auto-pick draws from the highest-scored models first and the
  * fusion layer just needs to apply provider-diversity on top.
  */
-export function getOrderedFusionChain(): FusionCandidate[] {
+export function getOrderedFusionChain(estimatedTokens: number): FusionCandidate[] {
   const db = getDb();
   const strategy = getRoutingStrategy();
   if (strategy !== 'priority') refreshStatsCache(db);
@@ -1023,6 +1044,13 @@ export function getOrderedFusionChain(): FusionCandidate[] {
   // currently cooled down (huggingface/Kimi-K2.6) would claim a panel slot it
   // can't fill — surfacing as "no available key" and pushing out a usable model,
   // which also makes the panel look like it's ignoring the routing strategy.
+  //
+  // The SIZE gates matter as much as the key gates: a model whose context window
+  // cannot hold the prompt can NEVER fill its slot, yet diversifyChain keeps
+  // handing it one on every request when it is its platform's only representative.
+  // That leaves one panel slot dead on arrival and reports the failure as the
+  // misleading "no available key for model". Passing a placeholder token count
+  // here made both size gates no-ops.
   const usableKeys = db.prepare(
     "SELECT id, platform FROM api_keys WHERE enabled = 1 AND status IN ('healthy', 'unknown')"
   ).all() as { id: number; platform: string }[];
@@ -1032,16 +1060,23 @@ export function getOrderedFusionChain(): FusionCandidate[] {
     if (arr) arr.push(k.id); else keysByPlatform.set(k.platform, [k.id]);
   }
   const servable = chain.filter(e => {
+    // A null context_window means "unknown", not "zero": same convention the
+    // auto-router uses, so an unspecified window is never itself a reason to skip.
+    if (e.context_window != null && estimatedTokens > e.context_window) return false;
     const keyIds = keysByPlatform.get(e.platform);
     if (!keyIds) return false;
+    // Same endpoint-pool rule the router applies (#619).
+    const endpointKeyIds = e.platform === 'custom' && e.key_id != null
+      ? customEndpointKeyIds(db, e.key_id)
+      : null;
     const limits = { rpm: e.rpm_limit, rpd: e.rpd_limit, tpm: e.tpm_limit, tpd: e.tpd_limit };
     return keyIds.some(kid =>
-      (e.key_id == null || kid === e.key_id) &&
+      (endpointKeyIds == null || endpointKeyIds.has(kid)) &&
       !isOnCooldown(e.platform, e.model_id, kid) &&
       canUseProvider(e.platform, kid) &&
       canUseProviderMinute(e.platform, kid) &&
       canMakeRequest(e.platform, e.model_id, kid, limits) &&
-      canUseProviderTokens(e.platform, kid, e.model_id, 1),
+      canUseProviderTokens(e.platform, kid, e.model_id, estimatedTokens),
     );
   });
 
@@ -1274,6 +1309,27 @@ export function getRoutingScores(): { strategy: RoutingStrategy; weights: Routin
   // has saved their own — distinct from `weights`, which is null in priority
   // mode and the active preset otherwise.
   return { strategy, weights: weightsFor(strategy), customWeights: getCustomWeights(), scores };
+}
+
+/**
+ * Filter a sticky-session pin down to something still routable (#634).
+ *
+ * A sticky entry holds a model db id for up to 30 minutes, so it goes stale the
+ * moment the operator disables that model — in the catalog, or just for auto
+ * routing. It must NOT be handed to routeRequest as-is: an off-chain preferred
+ * id is treated as an explicit pin and injected ahead of the chain, which is
+ * right for a client that named the model and wrong for a pin the client never
+ * asked for. Dropping it here falls the request through to normal auto routing.
+ *
+ * Pass the same chain the request will route over (the prefetched auto chain);
+ * omit it to check the active chain, which is what routeRequest would use.
+ */
+export function resolveStickyPreference(stickyModelDbId: number | undefined, chain?: ChainRow[]): number | undefined {
+  if (stickyModelDbId == null) return undefined;
+  const rows = chain ?? getActiveChain(getDb());
+  return rows.some(entry => entry.model_db_id === stickyModelDbId && entry.enabled)
+    ? stickyModelDbId
+    : undefined;
 }
 
 // Whether at least one vision-capable model is enabled in the fallback chain.

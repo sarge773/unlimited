@@ -44,6 +44,8 @@ export const PREFIX_MAP: Record<string, string> = {
   BYNARA_: 'nara',
   SEALION_: 'sealion',
   SEA_LION_: 'sealion',
+  MODELSCOPE_: 'modelscope',
+  MODEL_SCOPE_: 'modelscope',
   AIHORDE_: 'aihorde',
 };
 
@@ -69,6 +71,8 @@ export const AUTH_JSON_PROVIDER_MAP: Record<string, string> = {
   'nara-router': 'nara',
   sealion: 'sealion',
   'sea-lion': 'sealion',
+  modelscope: 'modelscope',
+  'model-scope': 'modelscope',
 };
 
 export function detectPlatform(prefix: string): string | null {
@@ -90,11 +94,15 @@ export function parseDotEnv(content: string): Array<{ key: string; value: string
 
     const key = line.slice(0, eqIndex).trim();
     let value = line.slice(eqIndex + 1).trimStart();
-    const doubleQuoted = value.startsWith('"') && value.endsWith('"');
-    const singleQuoted = value.startsWith("'") && value.endsWith("'");
+    // A quoted value ends at its closing quote; whatever follows is an inline
+    // comment, not part of the credential. Matching on endsWith instead meant
+    // `KEY="secret" # note` failed the quoted test, took the unquoted branch,
+    // and imported the key with its quote characters still attached.
+    const quote = value.startsWith('"') || value.startsWith("'") ? value[0] : '';
+    const closeIndex = quote ? value.indexOf(quote, 1) : -1;
 
-    if (doubleQuoted || singleQuoted) {
-      value = value.slice(1, -1);
+    if (closeIndex !== -1) {
+      value = value.slice(1, closeIndex);
     } else {
       const commentIndex = value.indexOf(' #');
       if (commentIndex !== -1) value = value.slice(0, commentIndex);
