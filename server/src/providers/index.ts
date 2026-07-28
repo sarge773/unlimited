@@ -6,6 +6,7 @@ import { CohereProvider } from './cohere.js';
 import { CloudflareProvider } from './cloudflare.js';
 import { AIHordeProvider } from './aihorde.js';
 import { ModelScopeProvider } from './modelscope.js';
+import { PollinationsProvider } from './pollinations.js';
 
 const providers = new Map<Platform, BaseProvider>();
 
@@ -151,11 +152,11 @@ register(new OpenAICompatProvider({
 // text.pollinations.ai host returned 502 in the July 2026 audit; publishable
 // keys now use the unified gen.pollinations.ai endpoint. Free capacity accrues
 // at one pollen per IP per hour, so chat requires a real publishable key.
-register(new OpenAICompatProvider({
-  platform: 'pollinations',
-  name: 'Pollinations',
-  baseUrl: 'https://gen.pollinations.ai/v1',
-}));
+// Dedicated PollinationsProvider (not plain OpenAICompatProvider) because
+// GET /v1/models is public — it answers 200 for a revoked key — so validation
+// probes the authenticated /account/key instead; see providers/pollinations.ts
+// and issue #608.
+register(new PollinationsProvider());
 
 // LLM7.io — OpenAI-compatible aggregator. 100 req/hr free; anonymous access
 // also works for basic models. Wraps a handful of upstream models behind one
