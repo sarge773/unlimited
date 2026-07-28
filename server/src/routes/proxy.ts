@@ -20,6 +20,7 @@ import { logRequest } from '../lib/request-log.js';
 import { observeServedModel } from '../lib/served-model.js';
 import { parseCacheDirective, cacheActive, isCacheableTemperature, computeCacheKey, getCachedResponse, storeCachedResponse } from '../services/cache.js';
 import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, exhaustedRetryError, setFallbackHeaders, exhaustionErrorPayload, setExhaustionHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
+import { routedViaValue, safeHeaderValue } from '../lib/header-value.js';
 import { applyTokenBudget, tokenBudgetMessage } from '../lib/guardrails.js';
 import { samplingParamSchemaFields, pickSamplingParams, supportedParametersForPlatforms } from '../lib/sampling-params.js';
 import { enforceJsonContent } from '../lib/structured-output.js';
@@ -567,7 +568,7 @@ proxyRouter.post('/audio/speech', async (req: Request, res: Response) => {
       input: parsed.data.input, voice: parsed.data.voice, format: parsed.data.response_format,
     });
     res.setHeader('Content-Type', result.contentType);
-    res.setHeader('X-Provider', result.platform);
+    res.setHeader('X-Provider', safeHeaderValue(result.platform));
     res.send(result.audio);
   } catch (err: any) {
     const status = err instanceof MediaError ? err.status : 502;
@@ -674,8 +675,8 @@ proxyRouter.post('/audio/transcriptions', (req: Request, res: Response, next) =>
       temperature,
       responseFormat,
     });
-    res.setHeader('X-Provider', result.platform);
-    res.setHeader('X-Model', result.modelId);
+    res.setHeader('X-Provider', safeHeaderValue(result.platform));
+    res.setHeader('X-Model', safeHeaderValue(result.modelId));
     if (responseFormat === 'text') {
       res.type('text/plain').send(result.text);
       return;
@@ -925,7 +926,7 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
           res.setHeader('Content-Type', 'text/event-stream');
           res.setHeader('Cache-Control', 'no-cache');
           res.setHeader('Connection', 'keep-alive');
-          res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+          res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
           setFallbackHeaders(res, attempt, attemptLog);
           headerSent = true;
           for (const frame of buffered) res.write(`data: ${JSON.stringify(frame)}\n\n`);
@@ -1050,7 +1051,7 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
       const totalTokens = result.usage?.total_tokens ?? (promptTokens + completionTokens);
       recordUpstreamSuccess(route, totalTokens);
 
-      res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+      res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
       setFallbackHeaders(res, attempt, attemptLog);
       res.json({
         id: completionIdFromChat(result.id),
@@ -1459,7 +1460,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           if (enforced.healed) fusionMsg.content = enforced.content;
         }
       }
-      res.setHeader('X-Routed-Via', routedVia);
+      res.setHeader('X-Routed-Via', safeHeaderValue(routedVia));
       res.json(response);
     } catch (err: any) {
       if (err instanceof FusionError) {
@@ -1734,7 +1735,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           res.setHeader('Content-Type', 'text/event-stream');
           res.setHeader('Cache-Control', 'no-cache');
           res.setHeader('Connection', 'keep-alive');
-          res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+          res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
           setFallbackHeaders(res, attempt, attemptLog);
           headerSent = true;
           for (const p of preamble) res.write(`data: ${JSON.stringify(p)}\n\n`);
@@ -2088,7 +2089,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
         setStickyModel(messages, route.modelDbId, sessionIdHeader, stickyStrategyKey);
         if (handoffMode !== 'off' && sessionKey) recordSuccessfulModel({ sessionKey, modelKey });
 
-        res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+        res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
         setFallbackHeaders(res, attempt, attemptLog);
         // Repair double-encoded tool arguments against the request's tool
         // schemas (e.g. GLM emitting an array parameter as a JSON string),

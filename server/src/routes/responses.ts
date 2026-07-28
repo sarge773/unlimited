@@ -25,6 +25,7 @@ import {
   logRequest,
 } from './proxy.js';
 import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, setFallbackHeaders, exhaustionErrorPayload, setExhaustionHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
+import { routedViaValue } from '../lib/header-value.js';
 import { applyTokenBudget, tokenBudgetMessage } from '../lib/guardrails.js';
 import { samplingParamSchemaFields, pickSamplingParams, type ResponseFormat } from '../lib/sampling-params.js';
 import { enforceJsonContent } from '../lib/structured-output.js';
@@ -550,7 +551,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
           res.setHeader('Content-Type', 'text/event-stream');
           res.setHeader('Cache-Control', 'no-cache');
           res.setHeader('Connection', 'keep-alive');
-          res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+          res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
           setFallbackHeaders(res, attempt, attemptLog);
           const skeleton = {
             id: responseId, object: 'response', created_at: nowUnix(),
@@ -862,7 +863,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
       recordUpstreamSuccess(route, result.usage?.total_tokens ?? (promptTokens + completionTokens));
       setStickyModel(messages, route.modelDbId, sessionIdHeader);
 
-      res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+      res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
       setFallbackHeaders(res, attempt, attemptLog);
       res.json(buildResponseObject({
         id: responseId, model: route.modelId, text, toolCalls,
