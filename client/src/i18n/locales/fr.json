@@ -506,7 +506,14 @@
     "errorPrefix": "Erreur :",
     "systemPromptLabel": "Prompt système",
     "systemPromptPlaceholder": "Facultatif. Envoyé comme message système avant votre conversation.",
-    "errorTitle": "La requête a échoué"
+    "errorTitle": "La requête a échoué",
+    "attach": "Joindre des fichiers",
+    "attachTooMany": "Vous pouvez joindre jusqu'à {count} fichiers par message.",
+    "attachTooLarge": "{name} est trop volumineux. La limite est de {max}.",
+    "attachUnsupported": "{name} n'est pas pris en charge. Joignez des images (PNG, JPEG, WebP, GIF) ou des fichiers texte (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Impossible de lire {name}.",
+    "noVisionBadge": "Sans images",
+    "visionWarning": "{model} n'accepte pas les images. Choisissez un modèle vision ou Auto."
   },
   "embeddings": {
     "title": "Modèles",

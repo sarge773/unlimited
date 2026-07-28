@@ -506,7 +506,14 @@
     "errorPrefix": "Erro:",
     "systemPromptLabel": "Prompt do sistema",
     "systemPromptPlaceholder": "Opcional. Enviado como uma mensagem de sistema antes do seu chat.",
-    "errorTitle": "A solicitação falhou"
+    "errorTitle": "A solicitação falhou",
+    "attach": "Anexar arquivos",
+    "attachTooMany": "Você pode anexar até {count} arquivos por mensagem.",
+    "attachTooLarge": "{name} é muito grande. O limite é {max}.",
+    "attachUnsupported": "{name} não é compatível. Anexe imagens (PNG, JPEG, WebP, GIF) ou arquivos de texto (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Não foi possível ler {name}.",
+    "noVisionBadge": "Sem imagens",
+    "visionWarning": "{model} não aceita imagens. Escolha um modelo de visão ou Auto."
   },
   "embeddings": {
     "title": "Modelos",

@@ -506,7 +506,14 @@
     "errorPrefix": "ስህተት",
     "systemPromptLabel": "የስርዓት ጥያቄ",
     "systemPromptPlaceholder": "አማራጭ። ከውይይትዎ በፊት እንደ የስርዓት መልእክት ተልኳል።",
-    "errorTitle": "ጥያቄ አልተሳካም"
+    "errorTitle": "ጥያቄ አልተሳካም",
+    "attach": "ፋይሎችን ያያይዙ",
+    "attachTooMany": "በአንድ መልእክት እስከ {count} ፋይሎች ማያያዝ ይችላሉ።",
+    "attachTooLarge": "{name} በጣም ትልቅ ነው። ገደቡ {max} ነው።",
+    "attachUnsupported": "{name} አይደገፍም። ምስሎችን (PNG, JPEG, WebP, GIF) ወይም የጽሑፍ ፋይሎችን (TXT, MD, CSV, JSON, LOG) ያያይዙ።",
+    "attachFailed": "{name} ማንበብ አልተቻለም።",
+    "noVisionBadge": "ምስል የለም",
+    "visionWarning": "{model} ምስሎችን አይቀበልም። ምስል የሚቀበል ሞዴል ወይም ራስ-ሰር ይምረጡ።"
   },
   "embeddings": {
     "title": "ሞዴሎች",

@@ -506,7 +506,14 @@
     "errorPrefix": "အမှား:",
     "systemPromptLabel": "System prompt",
     "systemPromptPlaceholder": "ရွေးချယ်နိုင်ပါတယ်။ သင့်စကားပြောမှုမတိုင်မီ စနစ်မက်ဆေ့ခ်ျအဖြစ် ပို့သည်။",
-    "errorTitle": "တောင်းဆိုမှု မအောင်မြင်ပါ"
+    "errorTitle": "တောင်းဆိုမှု မအောင်မြင်ပါ",
+    "attach": "ဖိုင်များ ပူးတွဲပါ",
+    "attachTooMany": "မက်ဆေ့ခ်ျတစ်ခုလျှင် ဖိုင် {count} ခုအထိ ပူးတွဲနိုင်ပါသည်။",
+    "attachTooLarge": "{name} သည် အရွယ်အစား ကြီးလွန်းသည်။ ကန့်သတ်ချက်မှာ {max} ဖြစ်သည်။",
+    "attachUnsupported": "{name} ကို မပံ့ပိုးပါ။ ပုံများ (PNG, JPEG, WebP, GIF) သို့မဟုတ် စာသားဖိုင်များ (TXT, MD, CSV, JSON, LOG) ကို ပူးတွဲပါ။",
+    "attachFailed": "{name} ကို ဖတ်၍မရပါ။",
+    "noVisionBadge": "ပုံမရ",
+    "visionWarning": "{model} သည် ပုံများကို လက်မခံပါ။ ပုံရိပ်ထည့်သွင်းမှုကို လက်ခံသော မော်ဒယ် သို့မဟုတ် အော်တို ကို ရွေးပါ။"
   },
   "embeddings": {
     "title": "မော်ဒယ်များ",

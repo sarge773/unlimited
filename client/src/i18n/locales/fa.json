@@ -506,7 +506,14 @@
     "errorPrefix": "خطا:",
     "systemPromptLabel": "اعلان سیستم",
     "systemPromptPlaceholder": "اختیاری. قبل از چت شما به عنوان یک پیام سیستمی ارسال می شود.",
-    "errorTitle": "درخواست ناموفق بود"
+    "errorTitle": "درخواست ناموفق بود",
+    "attach": "پیوست فایل‌ها",
+    "attachTooMany": "در هر پیام حداکثر می‌توانید {count} فایل پیوست کنید.",
+    "attachTooLarge": "{name} خیلی بزرگ است. محدودیت {max} است.",
+    "attachUnsupported": "{name} پشتیبانی نمی‌شود. تصویر (PNG، JPEG، WebP، GIF) یا فایل متنی (TXT، MD، CSV، JSON، LOG) پیوست کنید.",
+    "attachFailed": "{name} خوانده نشد.",
+    "noVisionBadge": "بدون تصویر",
+    "visionWarning": "{model} تصویر نمی‌پذیرد. یک مدل با ورودی تصویر یا خودکار را انتخاب کنید."
   },
   "embeddings": {
     "title": "مدل ها",

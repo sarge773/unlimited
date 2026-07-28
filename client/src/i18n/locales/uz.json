@@ -506,7 +506,14 @@
     "errorPrefix": "Xato:",
     "systemPromptLabel": "Tizim so'rovi",
     "systemPromptPlaceholder": "Ixtiyoriy. Suhbatingizdan oldin tizim xabari sifatida yuborilgan.",
-    "errorTitle": "So‘rov bajarilmadi"
+    "errorTitle": "So‘rov bajarilmadi",
+    "attach": "Fayllarni biriktirish",
+    "attachTooMany": "Har bir xabarga koʻpi bilan {count} ta fayl biriktirishingiz mumkin.",
+    "attachTooLarge": "{name} juda katta. Cheklov: {max}.",
+    "attachUnsupported": "{name} qoʻllab-quvvatlanmaydi. Rasm (PNG, JPEG, WebP, GIF) yoki matnli fayl (TXT, MD, CSV, JSON, LOG) biriktiring.",
+    "attachFailed": "{name} oʻqib boʻlmadi.",
+    "noVisionBadge": "Rasmsiz",
+    "visionWarning": "{model} rasmlarni qabul qilmaydi. Rasmni qoʻllaydigan model yoki Avtomatik variantini tanlang."
   },
   "embeddings": {
     "title": "Modellar",

@@ -506,7 +506,14 @@
     "errorPrefix": "Ralat:",
     "systemPromptLabel": "Arahan sistem",
     "systemPromptPlaceholder": "Pilihan. Dihantar sebagai mesej sistem sebelum sembang anda.",
-    "errorTitle": "Permintaan gagal"
+    "errorTitle": "Permintaan gagal",
+    "attach": "Lampirkan fail",
+    "attachTooMany": "Anda boleh melampirkan sehingga {count} fail bagi setiap mesej.",
+    "attachTooLarge": "{name} terlalu besar. Hadnya ialah {max}.",
+    "attachUnsupported": "{name} tidak disokong. Lampirkan imej (PNG, JPEG, WebP, GIF) atau fail teks (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Tidak dapat membaca {name}.",
+    "noVisionBadge": "Tiada imej",
+    "visionWarning": "{model} tidak menerima imej. Pilih model yang menyokong imej atau Auto."
   },
   "embeddings": {
     "title": "Model",

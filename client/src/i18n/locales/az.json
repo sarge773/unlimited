@@ -506,7 +506,14 @@
     "errorPrefix": "Səhv:",
     "systemPromptLabel": "Sistem sorğusu",
     "systemPromptPlaceholder": "İstəyə bağlıdır. Çatdan əvvəl sistem mesajı kimi göndərildi.",
-    "errorTitle": "Tələb uğursuz oldu"
+    "errorTitle": "Tələb uğursuz oldu",
+    "attach": "Fayl əlavə et",
+    "attachTooMany": "Hər mesaja ən çox {count} fayl əlavə edə bilərsiniz.",
+    "attachTooLarge": "{name} çox böyükdür. Maksimum həcm: {max}.",
+    "attachUnsupported": "{name} dəstəklənmir. Şəkil (PNG, JPEG, WebP, GIF) və ya mətn faylları (TXT, MD, CSV, JSON, LOG) əlavə edin.",
+    "attachFailed": "{name} oxunmadı.",
+    "noVisionBadge": "Şəkilsiz",
+    "visionWarning": "{model} şəkilləri qəbul etmir. Şəkil dəstəkləyən model və ya Avtomatik seçin."
   },
   "embeddings": {
     "title": "Modellər",

@@ -506,7 +506,14 @@
     "errorPrefix": "त्रुटि:",
     "systemPromptLabel": "सिस्टम प्रॉम्प्ट",
     "systemPromptPlaceholder": "वैकल्पिक. आपकी चैट से पहले एक सिस्टम संदेश के रूप में भेजा गया।",
-    "errorTitle": "अनुरोध विफल"
+    "errorTitle": "अनुरोध विफल",
+    "attach": "फ़ाइलें संलग्न करें",
+    "attachTooMany": "आप प्रति संदेश अधिकतम {count} फ़ाइलें संलग्न कर सकते हैं।",
+    "attachTooLarge": "{name} बहुत बड़ी है। सीमा {max} है।",
+    "attachUnsupported": "{name} समर्थित नहीं है। छवियाँ (PNG, JPEG, WebP, GIF) या टेक्स्ट फ़ाइलें (TXT, MD, CSV, JSON, LOG) संलग्न करें।",
+    "attachFailed": "{name} को पढ़ा नहीं जा सका।",
+    "noVisionBadge": "छवि नहीं",
+    "visionWarning": "{model} छवियाँ स्वीकार नहीं करता। कोई दृष्टि मॉडल या ऑटो चुनें।"
   },
   "embeddings": {
     "title": "मॉडल",

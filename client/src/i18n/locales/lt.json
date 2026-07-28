@@ -506,7 +506,14 @@
     "errorPrefix": "Klaida:",
     "systemPromptLabel": "Sistemos užklausa",
     "systemPromptPlaceholder": "Pasirinktinai. Siunčiama kaip sistemos žinutė prieš jūsų pokalbį.",
-    "errorTitle": "Užklausa atmesta"
+    "errorTitle": "Užklausa atmesta",
+    "attach": "Pridėti failus",
+    "attachTooMany": "Prie vienos žinutės galite pridėti iki {count} failų.",
+    "attachTooLarge": "Failas {name} yra per didelis. Riba yra {max}.",
+    "attachUnsupported": "Failas {name} nepalaikomas. Pridėkite vaizdų (PNG, JPEG, WebP, GIF) arba tekstinių failų (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Nepavyko perskaityti failo {name}.",
+    "noVisionBadge": "Be vaizdų",
+    "visionWarning": "Modelis {model} nepriima vaizdų. Pasirinkite vaizdo įvestį palaikantį modelį arba Auto."
   },
   "embeddings": {
     "title": "Modeliai",

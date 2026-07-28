@@ -506,7 +506,14 @@
     "errorPrefix": "Грешка:",
     "systemPromptLabel": "Системна подсказка",
     "systemPromptPlaceholder": "По желание. Изпратено е като системно съобщение преди чата.",
-    "errorTitle": "Заявката беше провалена"
+    "errorTitle": "Заявката беше провалена",
+    "attach": "Прикачване на файлове",
+    "attachTooMany": "Може да прикачите до {count} файла на съобщение.",
+    "attachTooLarge": "{name} е твърде голям. Ограничението е {max}.",
+    "attachUnsupported": "{name} не се поддържа. Прикачете изображения (PNG, JPEG, WebP, GIF) или текстови файлове (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "{name} не може да бъде прочетен.",
+    "noVisionBadge": "Без изображения",
+    "visionWarning": "{model} не приема изображения. Изберете модел с визия или Авто."
   },
   "embeddings": {
     "title": "Модели",

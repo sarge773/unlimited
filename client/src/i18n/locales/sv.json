@@ -506,7 +506,14 @@
     "errorPrefix": "Fel:",
     "systemPromptLabel": "Systemprompt",
     "systemPromptPlaceholder": "Valfritt. Skickat som ett systemmeddelande innan din chatt.",
-    "errorTitle": "Begäran avvisades"
+    "errorTitle": "Begäran avvisades",
+    "attach": "Bifoga filer",
+    "attachTooMany": "Du kan bifoga upp till {count} filer per meddelande.",
+    "attachTooLarge": "{name} är för stor. Gränsen är {max}.",
+    "attachUnsupported": "{name} stöds inte. Bifoga bilder (PNG, JPEG, WebP, GIF) eller textfiler (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Kunde inte läsa {name}.",
+    "noVisionBadge": "Inga bilder",
+    "visionWarning": "{model} accepterar inte bilder. Välj en modell med bildstöd eller Auto."
   },
   "embeddings": {
     "title": "Modeller",

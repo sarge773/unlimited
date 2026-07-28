@@ -506,7 +506,14 @@
     "errorPrefix": "Kuskure:",
     "systemPromptLabel": "Tsarin tsari",
     "systemPromptPlaceholder": "Na zaɓi. An aika azaman saƙon tsarin kafin tattaunawar ku.",
-    "errorTitle": "Buƙatar ta kasa"
+    "errorTitle": "Buƙatar ta kasa",
+    "attach": "Haɗa fayiloli",
+    "attachTooMany": "Za ka iya haɗa har fayiloli {count} a kowane saƙo.",
+    "attachTooLarge": "{name} ya yi girma sosai. Iyakar ita ce {max}.",
+    "attachUnsupported": "Ba a goyi bayan {name} ba. Haɗa hotuna (PNG, JPEG, WebP, GIF) ko fayilolin rubutu (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Ba a iya karanta {name} ba.",
+    "noVisionBadge": "Babu hotuna",
+    "visionWarning": "{model} ba ya karɓar hotuna. Zaɓi samfurin da ke karɓar hotuna ko Auto."
   },
   "embeddings": {
     "title": "Samfura",

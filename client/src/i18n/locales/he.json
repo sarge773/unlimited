@@ -506,7 +506,14 @@
     "errorPrefix": "שגיאה:",
     "systemPromptLabel": "הנחיית המערכת",
     "systemPromptPlaceholder": "אופציונלי. נשלח כהודעה מערכתית לפני הצ'אט שלך.",
-    "errorTitle": "הבקשה נכשלה"
+    "errorTitle": "הבקשה נכשלה",
+    "attach": "צירוף קבצים",
+    "attachTooMany": "אפשר לצרף עד {count} קבצים בכל הודעה.",
+    "attachTooLarge": "{name} גדול מדי. המגבלה היא {max}.",
+    "attachUnsupported": "{name} אינו נתמך. צרף תמונות (PNG, JPEG, WebP, GIF) או קובצי טקסט (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "לא ניתן לקרוא את {name}.",
+    "noVisionBadge": "ללא תמונות",
+    "visionWarning": "{model} אינו מקבל תמונות. בחר מודל חזון או אוטו."
   },
   "embeddings": {
     "title": "דגמים",

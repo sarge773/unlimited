@@ -506,7 +506,14 @@
     "errorPrefix": "Hiba:",
     "systemPromptLabel": "Rendszerprompt",
     "systemPromptPlaceholder": "Opcionális. Rendszerüzenetként küldték el a csevegés előtt.",
-    "errorTitle": "Kérés meghiúsult"
+    "errorTitle": "Kérés meghiúsult",
+    "attach": "Fájlok csatolása",
+    "attachTooMany": "Üzenetenként legfeljebb {count} fájlt csatolhatsz.",
+    "attachTooLarge": "A(z) {name} túl nagy. A korlát {max}.",
+    "attachUnsupported": "A(z) {name} nem támogatott. Csatolj képeket (PNG, JPEG, WebP, GIF) vagy szövegfájlokat (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "A(z) {name} nem olvasható.",
+    "noVisionBadge": "Nincs kép",
+    "visionWarning": "A(z) {model} nem fogad képeket. Válassz képfeldolgozó modellt vagy az Automatikus lehetőséget."
   },
   "embeddings": {
     "title": "Modellek",

@@ -506,7 +506,14 @@
     "errorPrefix": "Hata:",
     "systemPromptLabel": "Sistem istemi",
     "systemPromptPlaceholder": "İsteğe bağlı. Sohbetinizden önce sistem mesajı olarak gönderilir.",
-    "errorTitle": "İstek başarısız oldu"
+    "errorTitle": "İstek başarısız oldu",
+    "attach": "Dosya ekle",
+    "attachTooMany": "Her mesajda en fazla {count} dosya ekleyebilirsiniz.",
+    "attachTooLarge": "{name} çok büyük. Sınır {max}.",
+    "attachUnsupported": "{name} desteklenmiyor. Görüntü (PNG, JPEG, WebP, GIF) veya metin dosyaları (TXT, MD, CSV, JSON, LOG) ekleyin.",
+    "attachFailed": "{name} okunamadı.",
+    "noVisionBadge": "Görüntü yok",
+    "visionWarning": "{model} görüntü kabul etmiyor. Görüntü destekleyen bir model veya Otomatik seçin."
   },
   "embeddings": {
     "title": "Modeller",
