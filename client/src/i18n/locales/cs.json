@@ -122,6 +122,7 @@
     "visionTitle": "Přijímá vstup obrazu",
     "tools": "Nástroje",
     "toolsTitle": "Vysílá strukturované volání nástrojů, takže je způsobilý pro požadavky na nosiče nástroje",
+    "retired": "Vyřazeno",
     "penalty": "−{value} trest",
     "obs": "{count} OBS",
     "tokPerMonth": "{count} tok/měsíc",
@@ -514,7 +515,14 @@
     "errorPrefix": "Chyba:",
     "systemPromptLabel": "Systémový prompt",
     "systemPromptPlaceholder": "Volitelné. Odesláno jako systémová zpráva před vaším chatem.",
-    "errorTitle": "Žádost neúspěšná"
+    "errorTitle": "Žádost neúspěšná",
+    "attach": "Připojit soubory",
+    "attachTooMany": "Ke zprávě můžete připojit až {count} souborů.",
+    "attachTooLarge": "{name} je příliš velký. Limit je {max}.",
+    "attachUnsupported": "{name} není podporován. Připojte obrázky (PNG, JPEG, WebP, GIF) nebo textové soubory (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Soubor {name} se nepodařilo přečíst.",
+    "noVisionBadge": "Bez obrázků",
+    "visionWarning": "{model} nepřijímá obrázky. Zvolte model podporující obrázky nebo Auto."
   },
   "embeddings": {
     "title": "Modely",

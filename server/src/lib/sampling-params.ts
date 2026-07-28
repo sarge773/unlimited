@@ -208,6 +208,15 @@ export interface PlatformParamPolicy {
   // supported value instead of being forwarded into a 400 (#619). Omitted =
   // forward whatever the client asked for.
   reasoningEfforts?: readonly ReasoningEffort[];
+  // Output-token floor sent when — and ONLY when — the client omitted
+  // max_tokens entirely (#553). Some providers apply a tiny server-side
+  // default in that case and cut the answer off mid-sentence, which clients
+  // experience as a broken stream rather than as a truncation. A
+  // client-supplied value always wins, larger or smaller. Applied by the
+  // adapters through resolveMaxTokens(), so a platform added here only takes
+  // effect once its adapter routes max_tokens through that helper
+  // (openai-compat + cloudflare already do).
+  defaultMaxTokens?: number;
 }
 
 // Keyed by Platform (not string) so a typo'd platform id fails tsc instead of
@@ -238,8 +247,18 @@ export const PLATFORM_PARAM_POLICIES: Partial<Record<Platform, PlatformParamPoli
   // `thinking` object) have no mapping there.
   cohere: { drop: ['top_k', 'min_p', 'repetition_penalty', 'logit_bias', 'logprobs', 'top_logprobs', 'reasoning_effort'] },
   // Workers AI's OpenAI-compat endpoint parses a known subset; send only what
-  // it understands.
-  cloudflare: { drop: ['min_p', 'logit_bias', 'logprobs', 'top_logprobs', 'reasoning_effort'] },
+  // it understands. It also applies a small server-side max_tokens default
+  // when the request omits one, so an SDK client that never sets max_tokens
+  // (the common case) sees answers stop a couple of seconds in — reported on
+  // @cf/openai/gpt-oss-120b, where the model's own reasoning trace eats the
+  // default before any visible text lands (#553). 8192 is the floor we send
+  // instead: generous for a chat turn plus reasoning, and small enough to fit
+  // inside the smallest context window in the Workers AI catalog (24K on
+  // @cf/meta/llama-3.3-70b-instruct-fp8-fast) with room left for the prompt.
+  cloudflare: {
+    drop: ['min_p', 'logit_bias', 'logprobs', 'top_logprobs', 'reasoning_effort'],
+    defaultMaxTokens: 8192,
+  },
   // AI Horde builds its own payload format; none of the extended set maps.
   aihorde: { drop: [...EXTENDED_SAMPLING_KEYS] },
   // Kilo's anonymous gateway 400s ("Provider returned error") whenever
@@ -286,6 +305,23 @@ export function extendedBodyParams(platform: string, options: ExtendedSamplingOp
     out[policy?.rename?.[key] ?? key] = value;
   }
   return out;
+}
+
+/** The output-token floor this platform sends for a request that carries no
+ *  max_tokens at all, or undefined when the provider's own default is fine. */
+export function defaultMaxTokensFor(platform: string): number | undefined {
+  return PLATFORM_PARAM_POLICIES[platform as Platform]?.defaultMaxTokens;
+}
+
+/**
+ * The max_tokens to put on the wire for one request: whatever the client asked
+ * for, or the platform's floor when the client asked for nothing (#553).
+ * Never clamps — a client-set value passes through untouched in both
+ * directions, and the gateway's own guardrails (token budget, routing reserve)
+ * have already had their say by the time an adapter calls this.
+ */
+export function resolveMaxTokens(platform: string, requested: number | undefined): number | undefined {
+  return requested ?? defaultMaxTokensFor(platform);
 }
 
 /** True when this platform's policy strips response_format before send — the

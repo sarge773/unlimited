@@ -122,6 +122,7 @@
     "visionTitle": "Acceptă intrarea de imagine",
     "tools": "Unelte",
     "toolsTitle": "Emite apeluri structurate pentru unelte, deci este eligibil pentru cereri cu rulante de unelte",
+    "retired": "Retras",
     "penalty": "−{value} penalizare",
     "obs": "{count} observații",
     "tokPerMonth": "{count} tok/mo",
@@ -514,7 +515,14 @@
     "errorPrefix": "Eroare:",
     "systemPromptLabel": "Prompt de sistem",
     "systemPromptPlaceholder": "Opțional. Trimis ca mesaj de sistem înainte de chat.",
-    "errorTitle": "Cerere eșuată"
+    "errorTitle": "Cerere eșuată",
+    "attach": "Atașează fișiere",
+    "attachTooMany": "Poți atașa cel mult {count} fișiere per mesaj.",
+    "attachTooLarge": "{name} este prea mare. Limita este {max}.",
+    "attachUnsupported": "{name} nu este acceptat. Atașează imagini (PNG, JPEG, WebP, GIF) sau fișiere text (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Nu s-a putut citi {name}.",
+    "noVisionBadge": "Fără imagini",
+    "visionWarning": "{model} nu acceptă imagini. Alege un model cu suport pentru imagini sau Auto."
   },
   "embeddings": {
     "title": "Modele",

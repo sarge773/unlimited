@@ -35,6 +35,11 @@ export interface FallbackEntry {
   // Which fields a local override replaces, so the model page can mark the
   // individual inputs that no longer show the catalog default (#551).
   overrideFields?: string[]
+  // The provider reported this model as permanently gone (410 / end of life),
+  // so the gateway disabled it by itself — distinct from a switch the user
+  // flipped off. `retiredReason` is the upstream wording. See #634.
+  retiredUpstream?: boolean
+  retiredReason?: string | null
   keyCount: number
   // Logical-model grouping (sent by the server when unify is relevant). Absent
   // for ungrouped rows; the UI falls back to a per-row "solo" group then.

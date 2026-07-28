@@ -122,6 +122,7 @@
     "visionTitle": "Görüntü girişini kabul eder",
     "tools": "Araçlar",
     "toolsTitle": "Yapılandırılmış araç çağrıları yayınlayarak araç taşıma isteklerine uygun hale gelir",
+    "retired": "Kaldırıldı",
     "penalty": "−{value} cezası",
     "obs": "{count} gözlem",
     "tokPerMonth": "{count} tok/ay",
@@ -514,7 +515,14 @@
     "errorPrefix": "Hata:",
     "systemPromptLabel": "Sistem istemi",
     "systemPromptPlaceholder": "İsteğe bağlı. Sohbetinizden önce sistem mesajı olarak gönderilir.",
-    "errorTitle": "İstek başarısız oldu"
+    "errorTitle": "İstek başarısız oldu",
+    "attach": "Dosya ekle",
+    "attachTooMany": "Her mesajda en fazla {count} dosya ekleyebilirsiniz.",
+    "attachTooLarge": "{name} çok büyük. Sınır {max}.",
+    "attachUnsupported": "{name} desteklenmiyor. Görüntü (PNG, JPEG, WebP, GIF) veya metin dosyaları (TXT, MD, CSV, JSON, LOG) ekleyin.",
+    "attachFailed": "{name} okunamadı.",
+    "noVisionBadge": "Görüntü yok",
+    "visionWarning": "{model} görüntü kabul etmiyor. Görüntü destekleyen bir model veya Otomatik seçin."
   },
   "embeddings": {
     "title": "Modeller",
