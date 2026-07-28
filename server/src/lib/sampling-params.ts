@@ -31,6 +31,57 @@ import type { Platform } from '@freellmapi/shared/types.js';
 export const REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high'] as const;
 export type ReasoningEffort = typeof REASONING_EFFORTS[number];
 
+// Effort spellings clients actually send that aren't on OpenAI's scale, mapped
+// to the nearest value we do support (#619: a strict enum turned a client's
+// `reasoning_effort: 'max'` into a 400 from our own edge — a knob nobody asked
+// to be fatal). Values that mean "let the model decide" ('auto', 'adaptive',
+// 'default') are deliberately absent: they resolve to undefined below, i.e.
+// nothing is forwarded and the provider default stands — same rule
+// effortFromGeminiThinking applies to a -1 thinking budget.
+const EFFORT_ALIASES: Readonly<Record<string, ReasoningEffort>> = {
+  max: 'high', maximum: 'high', highest: 'high', ultra: 'high', xhigh: 'high', 'x-high': 'high',
+  mid: 'medium', moderate: 'medium', balanced: 'medium', normal: 'medium', standard: 'medium',
+  min: 'minimal', minimum: 'minimal', lowest: 'minimal', xlow: 'minimal', 'x-low': 'minimal',
+  off: 'none', disabled: 'none', disable: 'none',
+};
+
+/**
+ * Coerce a client-supplied effort value onto our scale: supported values pass
+ * through, known aliases clamp to the nearest supported one, and anything
+ * else (unknown word, wrong type, "auto") yields undefined — the knob is
+ * dropped and the provider's own default applies. Never throws, so a bad
+ * effort can't fail a request. Exported for tests.
+ */
+export function normalizeReasoningEffort(value: unknown): ReasoningEffort | undefined {
+  if (typeof value !== 'string') return undefined;
+  const key = value.trim().toLowerCase();
+  if ((REASONING_EFFORTS as readonly string[]).includes(key)) return key as ReasoningEffort;
+  return EFFORT_ALIASES[key];
+}
+
+/**
+ * Clamp an effort to the nearest value a platform actually accepts, walking
+ * the ordered scale outward from the requested one (ties go to the stronger
+ * value, so 'medium' on a low/high platform becomes 'high'). Returns
+ * undefined only when the platform accepts nothing.
+ */
+function clampEffortTo(effort: ReasoningEffort, supported: readonly ReasoningEffort[]): ReasoningEffort | undefined {
+  if (supported.includes(effort)) return effort;
+  const want = REASONING_EFFORTS.indexOf(effort);
+  let best: ReasoningEffort | undefined;
+  let bestDistance = Infinity;
+  for (const candidate of supported) {
+    const distance = Math.abs(REASONING_EFFORTS.indexOf(candidate) - want);
+    if (distance < bestDistance
+        || (distance === bestDistance && best !== undefined
+            && REASONING_EFFORTS.indexOf(candidate) > REASONING_EFFORTS.indexOf(best))) {
+      best = candidate;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
 // Every field is `.nullable()` because real clients serialize their whole
 // request struct and send explicit nulls for unset knobs (#200); null is
 // treated as absent and never forwarded.
@@ -52,13 +103,16 @@ export const samplingParamSchemaFields = {
       schema: z.record(z.string(), z.unknown()).optional(),
     }).passthrough().optional(),
   }).passthrough().nullable().optional(),
-  reasoning_effort: z.enum(REASONING_EFFORTS).nullable().optional(),
+  // Accepted as free-form and normalized by pickSamplingParams rather than
+  // validated against the enum: clients invent effort values ('max', 'xhigh')
+  // and rejecting them made an advisory knob fatal (#619).
+  reasoning_effort: z.unknown().optional(),
   // Object-form alias some clients send (OpenRouter-style chat clients, and
   // the Responses API's native shape): `reasoning: { effort }`. Resolved into
   // reasoning_effort by pickSamplingParams; the wrapper object itself is never
   // forwarded. Extra keys (summary, max_tokens…) are tolerated and ignored.
   reasoning: z.object({
-    effort: z.enum(REASONING_EFFORTS).nullable().optional(),
+    effort: z.unknown().optional(),
   }).passthrough().nullable().optional(),
   // OpenAI's newer alias for max_tokens; surfaces resolve it into max_tokens
   // themselves (it is not a forwarded param of its own).
@@ -115,15 +169,19 @@ export function pickSamplingParams(body: ParsedSamplingBody): ExtendedSamplingOp
     const value = body[key];
     if (value === undefined || value === null) continue;
     if (key === 'response_format' && (value as { type?: string }).type === 'text') continue;
+    if (key === 'reasoning_effort') {
+      const effort = normalizeReasoningEffort(value);
+      if (effort === undefined) continue;
+      out[key] = effort;
+      continue;
+    }
     out[key] = value;
   }
   // Object-form fallback: `reasoning: { effort }` fills reasoning_effort only
   // when the flat field wasn't sent (the explicit flat form wins on conflict).
   if (out.reasoning_effort === undefined) {
-    const effort = body.reasoning?.effort;
-    if (typeof effort === 'string' && (REASONING_EFFORTS as readonly string[]).includes(effort)) {
-      out.reasoning_effort = effort;
-    }
+    const effort = normalizeReasoningEffort(body.reasoning?.effort);
+    if (effort !== undefined) out.reasoning_effort = effort;
   }
   return out as ExtendedSamplingOptions;
 }
@@ -145,6 +203,11 @@ export interface PlatformParamPolicy {
   // are 'text' and 'json_schema'."). Upgrade json_object to a permissive
   // json_schema on the wire instead of dropping structured output entirely.
   jsonObjectToSchema?: boolean;
+  // The effort values this platform's API accepts, when it accepts fewer than
+  // the full scale. A request outside the set is clamped to the nearest
+  // supported value instead of being forwarded into a 400 (#619). Omitted =
+  // forward whatever the client asked for.
+  reasoningEfforts?: readonly ReasoningEffort[];
 }
 
 // Keyed by Platform (not string) so a typo'd platform id fails tsc instead of
@@ -162,8 +225,10 @@ export const PLATFORM_PARAM_POLICIES: Partial<Record<Platform, PlatformParamPoli
   // rejects requests that include them.
   groq: { drop: ['logprobs', 'top_logprobs', 'logit_bias'] },
   // GitHub Models sits on Azure OpenAI, which 400s "Unrecognized request
-  // argument" for knobs outside the OpenAI set.
-  github: { drop: ['top_k', 'min_p', 'repetition_penalty'] },
+  // argument" for knobs outside the OpenAI set. Its reasoning_effort enum is
+  // the older low/medium/high one, so 'none'/'minimal' are clamped rather
+  // than sent.
+  github: { drop: ['top_k', 'min_p', 'repetition_penalty'], reasoningEfforts: ['low', 'medium', 'high'] },
   // Gemini's generationConfig has no equivalents for these; the adapter
   // translates the rest natively (topK, seed, penalties, responseSchema, and
   // reasoning_effort → thinkingConfig — see toGeminiExtendedConfig).
@@ -213,6 +278,10 @@ export function extendedBodyParams(platform: string, options: ExtendedSamplingOp
     if (key === 'response_format' && policy?.jsonObjectToSchema
         && (value as { type?: string }).type === 'json_object') {
       value = ANY_OBJECT_SCHEMA;
+    }
+    if (key === 'reasoning_effort' && policy?.reasoningEfforts) {
+      value = clampEffortTo(value as ReasoningEffort, policy.reasoningEfforts);
+      if (value === undefined) continue;
     }
     out[policy?.rename?.[key] ?? key] = value;
   }
