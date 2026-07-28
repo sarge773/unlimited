@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} modelləri",
     "clearFilters": "Təmiz filtrlər",
     "noMatches": "Heç bir model filtrlərinizlə uyğun gəlmir.",
-    "noModelsTitle": "Heç bir model konfiqurasiya olunmur"
+    "noModelsTitle": "Heç bir model konfiqurasiya olunmur",
+    "intelligenceRank": "Kəşfiyyat",
+    "speedRank": "Sürət",
+    "rankHint": "Kataloqdakı reytinq — 1 ən yaxşısıdır.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Limit olmaması üçün boş buraxın."
   },
   "strategies": {
     "title": "Marşrut strategiyası",

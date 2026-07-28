@@ -178,7 +178,15 @@
     "showingCount": "{shown} از مدل های {total}",
     "clearFilters": "فیلترها را پاک کنید",
     "noMatches": "هیچ مدلی با فیلترهای شما مطابقت ندارد.",
-    "noModelsTitle": "هیچ مدلی پیکربندی نشده است"
+    "noModelsTitle": "هیچ مدلی پیکربندی نشده است",
+    "intelligenceRank": "هوش",
+    "speedRank": "سرعت",
+    "rankHint": "رتبه در فهرست — 1 بهترین است.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "برای بدون محدودیت خالی بگذارید."
   },
   "strategies": {
     "title": "استراتژی مسیریابی",

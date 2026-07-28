@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} მოდელებიდან",
     "clearFilters": "ფილტრების გასუფთავება",
     "noMatches": "არცერთი მოდელი არ შეესაბამება თქვენს ფილტრებს.",
-    "noModelsTitle": "მოდელები არ არის კონფიგურირებული"
+    "noModelsTitle": "მოდელები არ არის კონფიგურირებული",
+    "intelligenceRank": "დაზვერვა",
+    "speedRank": "სიჩქარე",
+    "rankHint": "რანგი კატალოგში — 1 საუკეთესოა.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "დატოვეთ ცარიელი ლიმიტის გარეშე."
   },
   "strategies": {
     "title": "მარშრუტიზაციის სტრატეგია",

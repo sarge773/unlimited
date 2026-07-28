@@ -61,6 +61,17 @@ function cleanPatch(patch: ModelOverridePatch): StoredOverrides {
   return cleaned;
 }
 
+/**
+ * The fields a stored overrides blob actually overrides, for callers that
+ * already selected `model_overrides.overrides_json` alongside the model row.
+ * The dashboard uses this to mark individual inputs as locally overridden
+ * instead of flagging the whole model (#551).
+ */
+export function overriddenFieldNames(overridesJson: string | null | undefined): Array<keyof ModelOverridePatch> {
+  const stored = parseOverrides(overridesJson ?? undefined);
+  return (Object.keys(stored) as Array<keyof ModelOverridePatch>).filter(key => key in OVERRIDE_COLUMNS);
+}
+
 export function isCatalogManagedModel(row: { platform: string; key_id?: number | null; source?: string }): boolean {
   // `source` is the authoritative provenance (models.source, 'catalog'|'user');
   // callers that select it get an exact answer. The platform/key_id fallback

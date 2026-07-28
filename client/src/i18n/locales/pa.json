@@ -178,7 +178,15 @@
     "showingCount": "{total} ਮਾਡਲਾਂ ਦਾ {shown}",
     "clearFilters": "ਫਿਲਟਰ ਸਾਫ਼ ਕਰੋ",
     "noMatches": "ਕੋਈ ਵੀ ਮਾਡਲ ਤੁਹਾਡੇ ਫਿਲਟਰਾਂ ਨਾਲ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ।",
-    "noModelsTitle": "ਕੋਈ ਮਾਡਲ ਕੌਂਫਿਗਰ ਨਹੀਂ ਕੀਤੇ ਗਏ"
+    "noModelsTitle": "ਕੋਈ ਮਾਡਲ ਕੌਂਫਿਗਰ ਨਹੀਂ ਕੀਤੇ ਗਏ",
+    "intelligenceRank": "ਬੁੱਧੀ",
+    "speedRank": "ਗਤੀ",
+    "rankHint": "ਕੈਟਾਲਾਗ ਵਿੱਚ ਦਰਜਾ — 1 ਸਭ ਤੋਂ ਵਧੀਆ ਹੈ।",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "ਕੋਈ ਹੱਦ ਨਾ ਰੱਖਣ ਲਈ ਖਾਲੀ ਛੱਡੋ।"
   },
   "strategies": {
     "title": "ਰੂਟਿੰਗ ਰਣਨੀਤੀ",

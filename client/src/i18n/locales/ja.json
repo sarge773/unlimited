@@ -178,7 +178,15 @@
     "showingCount": "{total} モデルの {shown}",
     "clearFilters": "フィルターをクリアする",
     "noMatches": "フィルターに一致するモデルはありません。",
-    "noModelsTitle": "モデルが設定されていません"
+    "noModelsTitle": "モデルが設定されていません",
+    "intelligenceRank": "インテリジェンス",
+    "speedRank": "速度",
+    "rankHint": "カタログ内の順位 — 1 が最高です。",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "制限なしにするには空欄にします。"
   },
   "strategies": {
     "title": "ルーティング戦略",

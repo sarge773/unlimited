@@ -178,7 +178,15 @@
     "showingCount": "{shown} của mẫu {total}",
     "clearFilters": "Xóa bộ lọc",
     "noMatches": "Không có mô hình nào phù hợp với bộ lọc của bạn.",
-    "noModelsTitle": "Không có mô hình nào được định cấu hình"
+    "noModelsTitle": "Không có mô hình nào được định cấu hình",
+    "intelligenceRank": "Tình báo",
+    "speedRank": "Tốc độ",
+    "rankHint": "Thứ hạng trong danh mục — 1 là tốt nhất.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Để trống nếu không giới hạn."
   },
   "strategies": {
     "title": "Chiến lược định tuyến",

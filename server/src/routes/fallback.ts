@@ -13,6 +13,7 @@ import { parseBudget } from '../lib/budget.js';
 import { getModelGroups } from '../services/model-groups.js';
 import { getPenaltyInspector } from '../services/penalty-inspector.js';
 import { getActiveProfileId } from '../services/profile-models.js';
+import { overriddenFieldNames } from '../services/model-state.js';
 
 export const fallbackRouter = Router();
 
@@ -72,7 +73,8 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
            m.tpm_limit, m.tpd_limit, m.context_window,
            m.monthly_token_budget, m.supports_vision, m.supports_tools,
            m.key_id, ak.label AS key_label,
-           mo.overrides_json IS NOT NULL AS has_overrides
+           mo.overrides_json IS NOT NULL AS has_overrides,
+           mo.overrides_json
     FROM profile_models pm
     JOIN models m ON m.id = pm.model_db_id
     LEFT JOIN api_keys ak ON ak.id = m.key_id
@@ -89,7 +91,8 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
            m.tpm_limit, m.tpd_limit, m.context_window,
            m.monthly_token_budget, m.supports_vision, m.supports_tools,
            m.key_id, ak.label AS key_label,
-           mo.overrides_json IS NOT NULL AS has_overrides
+           mo.overrides_json IS NOT NULL AS has_overrides,
+           mo.overrides_json
     FROM fallback_config fc
     JOIN models m ON m.id = fc.model_db_id
     LEFT JOIN api_keys ak ON ak.id = m.key_id
@@ -160,6 +163,9 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
       keyId: r.key_id ?? null,
       keyLabel: r.key_label ?? null,
       hasOverrides: Boolean(r.has_overrides),
+      // Which fields the local override actually replaces, so the model page
+      // can mark the individual inputs it edits (#551).
+      overrideFields: overriddenFieldNames(r.overrides_json),
       keyCount: keyCountMap.get(r.platform) ?? 0,
     };
   }));

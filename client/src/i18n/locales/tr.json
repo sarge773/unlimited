@@ -178,7 +178,15 @@
     "showingCount": "{total} modellerinin {shown}'si",
     "clearFilters": "Filtreleri temizle",
     "noMatches": "Filtrelerinizle eşleşen model yok.",
-    "noModelsTitle": "Yapılandırılmış model yok"
+    "noModelsTitle": "Yapılandırılmış model yok",
+    "intelligenceRank": "İstihbarat",
+    "speedRank": "Hız",
+    "rankHint": "Katalogdaki sıra — 1 en iyisidir.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Sınır olmaması için boş bırakın."
   },
   "strategies": {
     "title": "Yönlendirme stratejisi",

@@ -178,7 +178,15 @@
     "showingCount": "{total} මාදිලිවල {shown}",
     "clearFilters": "පෙරහන් හිස් කරන්න",
     "noMatches": "ඔබගේ ෆිල්ටර වලට ගැලපෙන මාදිලි නොමැත.",
-    "noModelsTitle": "මාදිලි කිසිවක් වින්‍යාස කර නැත"
+    "noModelsTitle": "මාදිලි කිසිවක් වින්‍යාස කර නැත",
+    "intelligenceRank": "බුද්ධිය",
+    "speedRank": "වේගය",
+    "rankHint": "නාමාවලියේ ශ්‍රේණිය — 1 හොඳම වේ.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "සීමාවක් නොමැති නම් හිස්ව තබන්න."
   },
   "strategies": {
     "title": "මාර්ගගත කිරීමේ උපාය",

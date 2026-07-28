@@ -178,7 +178,15 @@
     "showingCount": "{total} मॉडल का {shown}",
     "clearFilters": "फ़िल्टर साफ़ करें",
     "noMatches": "कोई भी मॉडल आपके फ़िल्टर से मेल नहीं खाता.",
-    "noModelsTitle": "कोई मॉडल कॉन्फ़िगर नहीं किया गया"
+    "noModelsTitle": "कोई मॉडल कॉन्फ़िगर नहीं किया गया",
+    "intelligenceRank": "बुद्धि",
+    "speedRank": "गति",
+    "rankHint": "कैटलॉग में रैंक — 1 सर्वश्रेष्ठ है।",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "कोई सीमा न रखने के लिए खाली छोड़ें।"
   },
   "strategies": {
     "title": "रूटिंग रणनीति",

@@ -178,7 +178,15 @@
     "showingCount": "{total} மாடல்களின் {shown}",
     "clearFilters": "வடிகட்டிகளை அழிக்கவும்",
     "noMatches": "உங்கள் வடிப்பான்களுடன் எந்த மாதிரியும் பொருந்தவில்லை.",
-    "noModelsTitle": "மாதிரிகள் எதுவும் கட்டமைக்கப்படவில்லை"
+    "noModelsTitle": "மாதிரிகள் எதுவும் கட்டமைக்கப்படவில்லை",
+    "intelligenceRank": "உளவுத்துறை",
+    "speedRank": "வேகம்",
+    "rankHint": "பட்டியலில் தரவரிசை — 1 சிறந்தது.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "வரம்பு வேண்டாம் எனில் காலியாக விடவும்."
   },
   "strategies": {
     "title": "ரூட்டிங் உத்தி",

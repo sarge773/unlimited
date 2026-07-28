@@ -178,7 +178,15 @@
     "showingCount": "{shown} ya miundo ya {total}",
     "clearFilters": "Futa vichungi",
     "noMatches": "Hakuna miundo inayolingana na vichujio vyako.",
-    "noModelsTitle": "Hakuna miundo iliyosanidiwa"
+    "noModelsTitle": "Hakuna miundo iliyosanidiwa",
+    "intelligenceRank": "Akili",
+    "speedRank": "Kasi",
+    "rankHint": "Nafasi katika katalogi — 1 ndiyo bora.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Acha wazi ili kusiwe na kikomo."
   },
   "strategies": {
     "title": "Mkakati wa uelekezaji",

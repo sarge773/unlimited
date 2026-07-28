@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { ChevronLeft, Merge, Save, Split, Trash2 } from 'lucide-react'
@@ -21,14 +21,14 @@ import {
   type RoutingData,
   type Row,
 } from '@/lib/routing'
-
-type ModelSettingsPatch = {
-  displayName: string
-  contextWindow: number | null
-  supportsVision: boolean
-  supportsTools: boolean
-  fallbackEnabled: boolean
-}
+import {
+  modelSettingsForm,
+  reviewModelSettings,
+  RANK_MAX,
+  RANK_MIN,
+  type ModelSettingsPatch,
+  type ModelSettingsSource,
+} from '@/lib/model-settings'
 
 // The persisted unify overrides (see server model-groups.ts). `splits` forces a
 // "platform:model_id" member out of its computed group into its own entry.
@@ -283,41 +283,33 @@ function ProviderSettingsRow({
   splitAction?: SplitAction
 }) {
   const { t } = useI18n()
-  const [displayName, setDisplayName] = useState(model.displayName)
-  const [contextWindow, setContextWindow] = useState(model.contextWindow ? String(model.contextWindow) : '')
-  const [supportsVision, setSupportsVision] = useState(model.supportsVision)
-  const [supportsTools, setSupportsTools] = useState(model.supportsTools)
-  const [fallbackEnabled, setFallbackEnabled] = useState(model.enabled)
+  // `members` is rebuilt on every render, so depend on the model's own values
+  // rather than the object identity — otherwise the form resets mid-edit.
+  const {
+    modelDbId, displayName, contextWindow, intelligenceRank, speedRank,
+    rpmLimit, rpdLimit, tpmLimit, tpdLimit, supportsVision, supportsTools, enabled,
+  } = model
+  const source: ModelSettingsSource = useMemo(() => ({
+    displayName, contextWindow, intelligenceRank, speedRank,
+    rpmLimit, rpdLimit, tpmLimit, tpdLimit, supportsVision, supportsTools, enabled,
+  }), [displayName, contextWindow, intelligenceRank, speedRank, rpmLimit, rpdLimit,
+    tpmLimit, tpdLimit, supportsVision, supportsTools, enabled])
 
-  useEffect(() => {
-    setDisplayName(model.displayName)
-    setContextWindow(model.contextWindow ? String(model.contextWindow) : '')
-    setSupportsVision(model.supportsVision)
-    setSupportsTools(model.supportsTools)
-    setFallbackEnabled(model.enabled)
-  }, [model.modelDbId, model.displayName, model.contextWindow, model.supportsVision, model.supportsTools, model.enabled])
+  const [form, setForm] = useState(() => modelSettingsForm(source))
+  useEffect(() => setForm(modelSettingsForm(source)), [modelDbId, source])
+  const setField = <K extends keyof typeof form>(key: K, value: typeof form[K]) =>
+    setForm(current => ({ ...current, [key]: value }))
 
-  const parsedContext = contextWindow.trim() === '' ? null : Number(contextWindow)
-  const contextInvalid = parsedContext !== null && (!Number.isInteger(parsedContext) || parsedContext <= 0)
-  const nameInvalid = displayName.trim().length === 0
-  const dirty =
-    displayName.trim() !== model.displayName ||
-    parsedContext !== (model.contextWindow ?? null) ||
-    supportsVision !== model.supportsVision ||
-    supportsTools !== model.supportsTools ||
-    fallbackEnabled !== model.enabled
-  const canSave = dirty && !nameInvalid && !contextInvalid && !saving && !deleting
+  const { patch, invalid, dirty } = reviewModelSettings(source, form)
+  const canSave = dirty && patch !== null && !saving && !deleting
   const sourceLabel = model.source === 'custom' ? t('models.customModel') : t('models.catalogModel')
+  // Fields whose effective value comes from a local override instead of the
+  // catalog. Custom models are never catalog-managed, so this stays empty.
+  const overridden = new Set(model.overrideFields ?? [])
 
   function save() {
-    if (!canSave) return
-    onSave({
-      displayName: displayName.trim(),
-      contextWindow: parsedContext,
-      supportsVision,
-      supportsTools,
-      fallbackEnabled,
-    })
+    if (!canSave || !patch) return
+    onSave(patch)
   }
 
   return (
@@ -354,36 +346,31 @@ function ProviderSettingsRow({
       </div>
       <div className="grid gap-3 md:grid-cols-[minmax(12rem,1fr)_8rem_auto_auto_auto_auto] md:items-end">
         <label className="space-y-1 text-xs text-muted-foreground">
-          <span>{t('models.displayName')}</span>
+          <FieldLabel text={t('models.displayName')} overridden={overridden.has('displayName')} />
           <Input
-            value={displayName}
-            onChange={e => setDisplayName(e.target.value)}
-            aria-invalid={nameInvalid}
+            value={form.displayName}
+            onChange={e => setField('displayName', e.target.value)}
+            aria-invalid={invalid.displayName}
             className="text-sm"
           />
         </label>
-        <label className="space-y-1 text-xs text-muted-foreground">
-          <span>{t('models.contextWindow')}</span>
-          <Input
-            type="number"
-            min={1}
-            step={1}
-            value={contextWindow}
-            onChange={e => setContextWindow(e.target.value)}
-            aria-invalid={contextInvalid}
-            className="text-sm tabular-nums"
-          />
+        <NumberField
+          label={t('models.contextWindow')}
+          value={form.contextWindow}
+          invalid={invalid.contextWindow}
+          overridden={overridden.has('contextWindow')}
+          onChange={value => setField('contextWindow', value)}
+        />
+        <label className="flex h-8 items-center gap-2 text-xs">
+          <Switch size="sm" checked={form.supportsTools} onCheckedChange={value => setField('supportsTools', value)} />
+          <FieldLabel text={t('models.tools')} overridden={overridden.has('supportsTools')} />
         </label>
         <label className="flex h-8 items-center gap-2 text-xs">
-          <Switch size="sm" checked={supportsTools} onCheckedChange={setSupportsTools} />
-          <span>{t('models.tools')}</span>
+          <Switch size="sm" checked={form.supportsVision} onCheckedChange={value => setField('supportsVision', value)} />
+          <FieldLabel text={t('models.vision')} overridden={overridden.has('supportsVision')} />
         </label>
         <label className="flex h-8 items-center gap-2 text-xs">
-          <Switch size="sm" checked={supportsVision} onCheckedChange={setSupportsVision} />
-          <span>{t('models.vision')}</span>
-        </label>
-        <label className="flex h-8 items-center gap-2 text-xs">
-          <Switch size="sm" checked={fallbackEnabled} onCheckedChange={setFallbackEnabled} />
+          <Switch size="sm" checked={form.fallbackEnabled} onCheckedChange={value => setField('fallbackEnabled', value)} />
           <span>{t('models.inFallback')}</span>
         </label>
         <div className="flex items-center justify-end gap-1">
@@ -405,6 +392,118 @@ function ProviderSettingsRow({
           </ConfirmButton>
         </div>
       </div>
+
+      {/* Router inputs: the two ranks feed the scoring axes, the four limits
+          feed rate-limit accounting. Editable because the catalog can be wrong
+          for a given account, or silent about a brand-new model (#551). */}
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+        <NumberField
+          label={t('models.intelligenceRank')}
+          hint={t('models.rankHint')}
+          min={RANK_MIN}
+          max={RANK_MAX}
+          value={form.intelligenceRank}
+          invalid={invalid.intelligenceRank}
+          overridden={overridden.has('intelligenceRank')}
+          onChange={value => setField('intelligenceRank', value)}
+        />
+        <NumberField
+          label={t('models.speedRank')}
+          hint={t('models.rankHint')}
+          min={RANK_MIN}
+          max={RANK_MAX}
+          value={form.speedRank}
+          invalid={invalid.speedRank}
+          overridden={overridden.has('speedRank')}
+          onChange={value => setField('speedRank', value)}
+        />
+        <NumberField
+          label={t('models.limitRpm')}
+          hint={t('models.limitHint')}
+          value={form.rpmLimit}
+          invalid={invalid.rpmLimit}
+          overridden={overridden.has('rpmLimit')}
+          onChange={value => setField('rpmLimit', value)}
+        />
+        <NumberField
+          label={t('models.limitRpd')}
+          hint={t('models.limitHint')}
+          value={form.rpdLimit}
+          invalid={invalid.rpdLimit}
+          overridden={overridden.has('rpdLimit')}
+          onChange={value => setField('rpdLimit', value)}
+        />
+        <NumberField
+          label={t('models.limitTpm')}
+          hint={t('models.limitHint')}
+          value={form.tpmLimit}
+          invalid={invalid.tpmLimit}
+          overridden={overridden.has('tpmLimit')}
+          onChange={value => setField('tpmLimit', value)}
+        />
+        <NumberField
+          label={t('models.limitTpd')}
+          hint={t('models.limitHint')}
+          value={form.tpdLimit}
+          invalid={invalid.tpdLimit}
+          overridden={overridden.has('tpdLimit')}
+          onChange={value => setField('tpdLimit', value)}
+        />
+      </div>
     </div>
+  )
+}
+
+// A field label that says whether the value below it is still the catalog's or
+// has been replaced locally — the same emerald the row-level badge uses.
+function FieldLabel({ text, overridden }: { text: string; overridden: boolean }) {
+  const { t } = useI18n()
+  return (
+    <span className="flex items-center gap-1">
+      {text}
+      {overridden && (
+        <span
+          title={t('models.localOverride')}
+          aria-label={t('models.localOverride')}
+          className="size-1.5 shrink-0 rounded-full bg-emerald-600 dark:bg-emerald-400"
+        />
+      )}
+    </span>
+  )
+}
+
+function NumberField({
+  label,
+  hint,
+  value,
+  invalid,
+  overridden,
+  onChange,
+  min = 1,
+  max,
+}: {
+  label: string
+  hint?: string
+  value: string
+  invalid: boolean
+  overridden: boolean
+  onChange: (value: string) => void
+  min?: number
+  max?: number
+}) {
+  return (
+    <label className="space-y-1 text-xs text-muted-foreground" title={hint}>
+      <FieldLabel text={label} overridden={overridden} />
+      <Input
+        type="number"
+        min={min}
+        max={max}
+        step={1}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        aria-invalid={invalid}
+        className="text-sm tabular-nums"
+      />
+    </label>
   )
 }

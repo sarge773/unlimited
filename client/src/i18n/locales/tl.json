@@ -178,7 +178,15 @@
     "showingCount": "{shown} ng mga modelo ng {total}",
     "clearFilters": "Linisin ang mga filter",
     "noMatches": "Walang modelo na tumutugma sa iyong mga filter.",
-    "noModelsTitle": "Walang mga modelong naka-configure"
+    "noModelsTitle": "Walang mga modelong naka-configure",
+    "intelligenceRank": "Intelihensiya",
+    "speedRank": "Bilis",
+    "rankHint": "Ranggo sa katalogo — 1 ang pinakamahusay.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Iwanang blangko para walang limitasyon."
   },
   "strategies": {
     "title": "Estratehiya sa Pag-ruta",

@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total}",
     "clearFilters": "စစ်ထုတ်မှုများ ဖယ်ရှားပါ",
     "noMatches": "မော်ဒယ်တွေက သင့်ဖလ်တာနဲ့ မကိုက်ညီပါဘူး။",
-    "noModelsTitle": "မော်ဒယ်များ မပြင်ဆင်ထားပါ"
+    "noModelsTitle": "မော်ဒယ်များ မပြင်ဆင်ထားပါ",
+    "intelligenceRank": "ဉာဏ်ရည်",
+    "speedRank": "အမြန်နှုန်း",
+    "rankHint": "ကတ်တလောက်အတွင်း အဆင့် — 1 သည် အကောင်းဆုံးဖြစ်သည်။",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "ကန့်သတ်ချက်မလိုပါက ကွက်လပ်ထားပါ။"
   },
   "strategies": {
     "title": "လမ်းကြောင်းသတ်မှတ်မှု မဟာဗျူဟာ",

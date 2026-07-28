@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} μοντέλων",
     "clearFilters": "Καθαρισμός φίλτρων",
     "noMatches": "Κανένα μοντέλο δεν ταιριάζει με τα φίλτρα σας.",
-    "noModelsTitle": "Δεν έχουν διαμορφωθεί μοντέλα"
+    "noModelsTitle": "Δεν έχουν διαμορφωθεί μοντέλα",
+    "intelligenceRank": "Ευφυΐα",
+    "speedRank": "Ταχύτητα",
+    "rankHint": "Κατάταξη στον κατάλογο — το 1 είναι το καλύτερο.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Αφήστε το κενό για κανένα όριο."
   },
   "strategies": {
     "title": "Στρατηγική δρομολόγησης",

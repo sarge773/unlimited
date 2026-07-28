@@ -6,6 +6,7 @@ import { hasProvider } from '../providers/index.js';
 import { deleteUnusedCustomEndpointKey } from '../lib/custom-provider-cleanup.js';
 import {
   isCatalogManagedModel,
+  overriddenFieldNames,
   recordCatalogModelTombstone,
   upsertModelOverrides,
   type ModelOverridePatch,
@@ -200,7 +201,7 @@ modelsRouter.get('/', (_req: Request, res: Response) => {
   const activeProfileId = getActiveProfileId(db);
   const models = activeProfileId == null ? db.prepare(`
     SELECT m.*, fc.priority, fc.enabled as fallback_enabled,
-           mo.overrides_json IS NOT NULL AS has_overrides,
+           mo.overrides_json IS NOT NULL AS has_overrides, mo.overrides_json,
            ak.label AS key_label
     FROM models m
     LEFT JOIN fallback_config fc ON fc.model_db_id = m.id
@@ -210,7 +211,7 @@ modelsRouter.get('/', (_req: Request, res: Response) => {
   `).all() as any[] : db.prepare(`
     SELECT m.*, COALESCE(pm.priority, fc.priority) AS priority,
            COALESCE(pm.enabled, fc.enabled) AS fallback_enabled,
-           mo.overrides_json IS NOT NULL AS has_overrides,
+           mo.overrides_json IS NOT NULL AS has_overrides, mo.overrides_json,
            ak.label AS key_label
     FROM models m
     LEFT JOIN fallback_config fc ON fc.model_db_id = m.id
@@ -257,6 +258,7 @@ modelsRouter.get('/', (_req: Request, res: Response) => {
     keyId: m.key_id ?? null,
     keyLabel: m.key_label ?? null,
     hasOverrides: Boolean(m.has_overrides),
+    overrideFields: overriddenFieldNames(m.overrides_json),
     hasProvider: hasProvider(m.platform),
     keyCount: keyCountMap.get(m.platform) ?? 0,
   }));

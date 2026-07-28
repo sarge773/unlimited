@@ -178,7 +178,15 @@
     "showingCount": "{shown} van {total} modellen",
     "clearFilters": "Doorzichtige filters",
     "noMatches": "Geen enkel model past bij jouw filters.",
-    "noModelsTitle": "Geen modellen geconfigureerd"
+    "noModelsTitle": "Geen modellen geconfigureerd",
+    "intelligenceRank": "Intelligentie",
+    "speedRank": "Snelheid",
+    "rankHint": "Rang in de catalogus — 1 is het beste.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Laat leeg voor geen limiet."
   },
   "strategies": {
     "title": "Routingstrategie",

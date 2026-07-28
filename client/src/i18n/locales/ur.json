@@ -178,7 +178,15 @@
     "showingCount": "{total} ماڈلز کے {shown}",
     "clearFilters": "فلٹرز صاف کریں۔",
     "noMatches": "کوئی ماڈل آپ کے فلٹرز سے مماثل نہیں ہے۔",
-    "noModelsTitle": "کوئی ماڈل ترتیب نہیں دیا گیا ہے۔"
+    "noModelsTitle": "کوئی ماڈل ترتیب نہیں دیا گیا ہے۔",
+    "intelligenceRank": "ذہانت",
+    "speedRank": "رفتار",
+    "rankHint": "کیٹلاگ میں درجہ — 1 بہترین ہے۔",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "کوئی حد نہ رکھنے کے لیے خالی چھوڑیں۔"
   },
   "strategies": {
     "title": "روٹنگ کی حکمت عملی",

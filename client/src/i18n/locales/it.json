@@ -178,7 +178,15 @@
     "showingCount": "{shown} di {total} modelli",
     "clearFilters": "Cancella filtri",
     "noMatches": "Nessun modello corrisponde ai tuoi filtri.",
-    "noModelsTitle": "Nessun modello configurato"
+    "noModelsTitle": "Nessun modello configurato",
+    "intelligenceRank": "Intelligenza",
+    "speedRank": "Velocità",
+    "rankHint": "Posizione nel catalogo — 1 è la migliore.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Lascia vuoto per nessun limite."
   },
   "strategies": {
     "title": "Strategia di routing",

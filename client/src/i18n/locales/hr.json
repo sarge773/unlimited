@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} modela",
     "clearFilters": "Prozirni filteri",
     "noMatches": "Nijedan model ne odgovara vašim filterima.",
-    "noModelsTitle": "Nema konfiguriranih modela"
+    "noModelsTitle": "Nema konfiguriranih modela",
+    "intelligenceRank": "Obavještajna služba",
+    "speedRank": "Brzina",
+    "rankHint": "Rang u katalogu — 1 je najbolji.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Ostavite prazno za bez ograničenja."
   },
   "strategies": {
     "title": "Strategija usmjeravanja",

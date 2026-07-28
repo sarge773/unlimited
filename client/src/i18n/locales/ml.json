@@ -178,7 +178,15 @@
     "showingCount": "{total} മോഡലുകളുടെ {shown}",
     "clearFilters": "ഫിൽട്ടറുകൾ മായ്ക്കുക",
     "noMatches": "നിങ്ങളുടെ ഫിൽട്ടറുകളുമായി പൊരുത്തപ്പെടുന്ന മോഡലുകളൊന്നുമില്ല.",
-    "noModelsTitle": "മോഡലുകളൊന്നും കോൺഫിഗർ ചെയ്തിട്ടില്ല"
+    "noModelsTitle": "മോഡലുകളൊന്നും കോൺഫിഗർ ചെയ്തിട്ടില്ല",
+    "intelligenceRank": "ഇൻ്റലിജൻസ്",
+    "speedRank": "വേഗത",
+    "rankHint": "കാറ്റലോഗിലെ റാങ്ക് — 1 ആണ് ഏറ്റവും മികച്ചത്.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "പരിധി വേണ്ടെങ്കിൽ ശൂന്യമായി വിടുക."
   },
   "strategies": {
     "title": "റൂട്ടിംഗ് തന്ത്രം",

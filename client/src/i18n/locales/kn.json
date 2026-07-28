@@ -178,7 +178,15 @@
     "showingCount": "{total} ಮಾದರಿಗಳ {shown}",
     "clearFilters": "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ",
     "noMatches": "ನಿಮ್ಮ ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಯಾವುದೇ ಮಾದರಿಗಳು ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ.",
-    "noModelsTitle": "ಯಾವುದೇ ಮಾದರಿಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ"
+    "noModelsTitle": "ಯಾವುದೇ ಮಾದರಿಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ",
+    "intelligenceRank": "ಗುಪ್ತಚರ",
+    "speedRank": "ವೇಗ",
+    "rankHint": "ಕ್ಯಾಟಲಾಗ್‌ನಲ್ಲಿ ಶ್ರೇಣಿ — 1 ಅತ್ಯುತ್ತಮ.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "ಮಿತಿ ಬೇಡವಾದರೆ ಖಾಲಿ ಬಿಡಿ."
   },
   "strategies": {
     "title": "ರೂಟಿಂಗ್ ತಂತ್ರ",

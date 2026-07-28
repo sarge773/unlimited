@@ -178,7 +178,15 @@
     "showingCount": "{shown} modelelor {total}",
     "clearFilters": "Filtre clare",
     "noMatches": "Niciun model nu se potrivește cu filtrele tale.",
-    "noModelsTitle": "Niciun model configurat"
+    "noModelsTitle": "Niciun model configurat",
+    "intelligenceRank": "Inteligență",
+    "speedRank": "Viteză",
+    "rankHint": "Rangul în catalog — 1 este cel mai bun.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Lăsați gol pentru nicio limită."
   },
   "strategies": {
     "title": "Strategia de rutare",

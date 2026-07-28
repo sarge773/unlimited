@@ -178,7 +178,15 @@
     "showingCount": "{total} modellarining {shown}",
     "clearFilters": "Filtrlarni tozalash",
     "noMatches": "Filtrlaringizga mos modellar topilmadi.",
-    "noModelsTitle": "Hech qanday model sozlanmagan"
+    "noModelsTitle": "Hech qanday model sozlanmagan",
+    "intelligenceRank": "Intellekt",
+    "speedRank": "Tezlik",
+    "rankHint": "Katalogdagi reyting — 1 eng yaxshisi.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Cheklov boʻlmasligi uchun boʻsh qoldiring."
   },
   "strategies": {
     "title": "Marshrut strategiyasi",

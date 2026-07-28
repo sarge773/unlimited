@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} మోడల్స్",
     "clearFilters": "ఫిల్టర్‌లను క్లియర్ చేయండి",
     "noMatches": "మీ ఫిల్టర్‌లకు సరిపోలే మోడల్‌లు లేవు.",
-    "noModelsTitle": "మోడల్‌లు ఏవీ కాన్ఫిగర్ చేయబడలేదు"
+    "noModelsTitle": "మోడల్‌లు ఏవీ కాన్ఫిగర్ చేయబడలేదు",
+    "intelligenceRank": "ఇంటెలిజెన్స్",
+    "speedRank": "వేగం",
+    "rankHint": "కేటలాగ్‌లో ర్యాంక్ — 1 ఉత్తమం.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "పరిమితి వద్దనుకుంటే ఖాళీగా వదిలేయండి."
   },
   "strategies": {
     "title": "రూటింగ్ వ్యూహం",

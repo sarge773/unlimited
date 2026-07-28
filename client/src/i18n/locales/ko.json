@@ -178,7 +178,15 @@
     "showingCount": "{total} 모델의 {shown}",
     "clearFilters": "필터 지우기",
     "noMatches": "필터와 일치하는 모델이 없습니다.",
-    "noModelsTitle": "구성된 모델이 없습니다."
+    "noModelsTitle": "구성된 모델이 없습니다.",
+    "intelligenceRank": "지능",
+    "speedRank": "속도",
+    "rankHint": "카탈로그 내 순위 — 1이 가장 좋습니다.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "제한 없음으로 두려면 비워 두세요."
   },
   "strategies": {
     "title": "라우팅 전략",

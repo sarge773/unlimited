@@ -178,7 +178,15 @@
     "showingCount": "{shown} ti {total} si dede",
     "clearFilters": "Ko awọn asẹ kuro",
     "noMatches": "Ko si awọn awoṣe ti o baamu awọn asẹ rẹ.",
-    "noModelsTitle": "Ko si awọn awoṣe tunto"
+    "noModelsTitle": "Ko si awọn awoṣe tunto",
+    "intelligenceRank": "Imọye",
+    "speedRank": "Iyara",
+    "rankHint": "Ipò nínú àkójọ — 1 ni ó dára jùlọ.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Fi sílẹ̀ ní òfìfo fún àìní ààlà."
   },
   "strategies": {
     "title": "Ilana ipa ọna",

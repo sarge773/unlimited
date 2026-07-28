@@ -178,7 +178,15 @@
     "showingCount": "{total} ሞዴሎች {shown}",
     "clearFilters": "ማጣሪያዎችን አጽዳ",
     "noMatches": "ከማጣሪያዎችዎ ጋር የሚዛመዱ ሞዴሎች የሉም።",
-    "noModelsTitle": "ምንም ሞዴሎች አልተዋቀሩም"
+    "noModelsTitle": "ምንም ሞዴሎች አልተዋቀሩም",
+    "intelligenceRank": "አእምሮ",
+    "speedRank": "ፍጥነት",
+    "rankHint": "በካታሎግ ውስጥ ደረጃ — 1 የተሻለ ነው።",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "ገደብ እንዳይኖር ባዶ ይተዉት።"
   },
   "strategies": {
     "title": "የማዞሪያ ስትራቴጂ",

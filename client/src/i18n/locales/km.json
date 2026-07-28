@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total}",
     "clearFilters": "សម្អាតតម្រង",
     "noMatches": "គ្មានម៉ូដែលណាដែលសមនឹងតម្រងរបស់អ្នកទេ។",
-    "noModelsTitle": "គ្មានម៉ូដែលណាមួយបានកំណត់"
+    "noModelsTitle": "គ្មានម៉ូដែលណាមួយបានកំណត់",
+    "intelligenceRank": "បញ្ញា",
+    "speedRank": "ល្បឿន",
+    "rankHint": "ចំណាត់ថ្នាក់ក្នុងកាតាឡុក — 1 ល្អបំផុត។",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "ទុកឱ្យទទេ ដើម្បីគ្មានដែនកំណត់។"
   },
   "strategies": {
     "title": "យុទ្ធសាស្ត្រផ្លូវបញ្ជូន",

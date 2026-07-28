@@ -178,7 +178,15 @@
     "showingCount": "{shown} من موديلات {total}",
     "clearFilters": "مسح المرشحات",
     "noMatches": "لا توجد نماذج تتطابق مع المرشحات الخاصة بك.",
-    "noModelsTitle": "لم يتم تكوين أي نماذج"
+    "noModelsTitle": "لم يتم تكوين أي نماذج",
+    "intelligenceRank": "الذكاء",
+    "speedRank": "السرعة",
+    "rankHint": "الترتيب ضمن الكتالوج — 1 هو الأفضل.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "اتركه فارغًا لعدم وجود حد."
   },
   "strategies": {
     "title": "استراتيجية التوجيه",

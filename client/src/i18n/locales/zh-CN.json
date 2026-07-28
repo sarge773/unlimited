@@ -178,7 +178,15 @@
     "showingCount": "{total} 个模型中的 {shown} 个",
     "clearFilters": "清除筛选",
     "noMatches": "没有符合筛选条件的模型。",
-    "noModelsTitle": "尚未配置模型"
+    "noModelsTitle": "尚未配置模型",
+    "intelligenceRank": "智能",
+    "speedRank": "速度",
+    "rankHint": "目录中的排名 — 1 为最佳。",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "留空表示不限制。"
   },
   "strategies": {
     "title": "路由策略",

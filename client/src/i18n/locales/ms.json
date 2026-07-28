@@ -178,7 +178,15 @@
     "showingCount": "{shown} model {total}",
     "clearFilters": "Padam penapis",
     "noMatches": "Tiada model yang sepadan dengan penapis anda.",
-    "noModelsTitle": "Tiada model yang dikonfigurasikan"
+    "noModelsTitle": "Tiada model yang dikonfigurasikan",
+    "intelligenceRank": "Perisikan",
+    "speedRank": "Kelajuan",
+    "rankHint": "Kedudukan dalam katalog — 1 adalah yang terbaik.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Biarkan kosong untuk tiada had."
   },
   "strategies": {
     "title": "Strategi penghalaan",

@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} modell",
     "clearFilters": "Tiszta szűrők",
     "noMatches": "Egyetlen modell sem egyezik a szűrőiddel.",
-    "noModelsTitle": "Nincsenek konfigurált modellek"
+    "noModelsTitle": "Nincsenek konfigurált modellek",
+    "intelligenceRank": "Intelligencia",
+    "speedRank": "Sebesség",
+    "rankHint": "Rangsor a katalógusban — az 1 a legjobb.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Hagyja üresen, ha nincs korlát."
   },
   "strategies": {
     "title": "Útvonaltervezési stratégia",

@@ -178,7 +178,15 @@
     "showingCount": "{total} মডেলের {shown}",
     "clearFilters": "ফিল্টার সাফ করুন",
     "noMatches": "কোনো মডেল আপনার ফিল্টার মেলে না.",
-    "noModelsTitle": "কোন মডেল কনফিগার করা"
+    "noModelsTitle": "কোন মডেল কনফিগার করা",
+    "intelligenceRank": "বুদ্ধিমত্তা",
+    "speedRank": "গতি",
+    "rankHint": "ক্যাটালগে র‍্যাঙ্ক — 1 সেরা।",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "কোনো সীমা না রাখতে ফাঁকা রাখুন।"
   },
   "strategies": {
     "title": "রাউটিং কৌশল",

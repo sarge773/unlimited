@@ -178,7 +178,15 @@
     "showingCount": "{shown} модела {total}",
     "clearFilters": "Обриши филтере",
     "noMatches": "Ниједан модел не одговара вашим филтерима.",
-    "noModelsTitle": "Ниједан модел није конфигурисан"
+    "noModelsTitle": "Ниједан модел није конфигурисан",
+    "intelligenceRank": "Интелигенција",
+    "speedRank": "Брзина",
+    "rankHint": "Ранг у каталогу — 1 је најбољи.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Оставите празно за без ограничења."
   },
   "strategies": {
     "title": "Стратегија рутирања",

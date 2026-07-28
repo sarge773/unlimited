@@ -178,7 +178,15 @@
     "showingCount": "{shown} dos modelos {total}",
     "clearFilters": "Filtros transparentes",
     "noMatches": "Nenhum modelo corresponde aos teus filtros.",
-    "noModelsTitle": "Sem modelos configurados"
+    "noModelsTitle": "Sem modelos configurados",
+    "intelligenceRank": "Inteligência",
+    "speedRank": "Velocidade",
+    "rankHint": "Classificação no catálogo — 1 é a melhor.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Deixe em branco para não ter limite."
   },
   "strategies": {
     "title": "Estratégia de encaminhamento",

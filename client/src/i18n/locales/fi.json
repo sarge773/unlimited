@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} mallia",
     "clearFilters": "Clear-suodattimet",
     "noMatches": "Yksikään malli ei vastaa suodattimiasi.",
-    "noModelsTitle": "Ei malleja konfiguroituna"
+    "noModelsTitle": "Ei malleja konfiguroituna",
+    "intelligenceRank": "Tiedustelu",
+    "speedRank": "Nopeus",
+    "rankHint": "Sijoitus luettelossa — 1 on paras.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Jätä tyhjäksi, jos ei rajaa."
   },
   "strategies": {
     "title": "Reititysstrategia",

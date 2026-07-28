@@ -178,7 +178,15 @@
     "showingCount": "{total} મોડલ્સના {shown}",
     "clearFilters": "ફિલ્ટર્સ સાફ કરો",
     "noMatches": "કોઈ મોડલ તમારા ફિલ્ટર સાથે મેળ ખાતા નથી.",
-    "noModelsTitle": "કોઈ મોડલ ગોઠવેલ નથી"
+    "noModelsTitle": "કોઈ મોડલ ગોઠવેલ નથી",
+    "intelligenceRank": "બુદ્ધિ",
+    "speedRank": "ઝડપ",
+    "rankHint": "કૅટલૉગમાં ક્રમ — 1 શ્રેષ્ઠ છે.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "કોઈ મર્યાદા ન રાખવા ખાલી છોડો."
   },
   "strategies": {
     "title": "રૂટીંગ વ્યૂહરચના",

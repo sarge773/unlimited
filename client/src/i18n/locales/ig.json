@@ -178,7 +178,15 @@
     "showingCount": "{shown} nke ụdị {total}",
     "clearFilters": "Kpochapụ ihe nzacha",
     "noMatches": "Ọ nweghị ụdị dabara na nzacha gị.",
-    "noModelsTitle": "Ọnweghị ụdị ahaziri"
+    "noModelsTitle": "Ọnweghị ụdị ahaziri",
+    "intelligenceRank": "ọgụgụ isi",
+    "speedRank": "Ọsọ",
+    "rankHint": "Ọkwa na katalọgụ — 1 kacha mma.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Hapụ ya efu ka enweghị oke."
   },
   "strategies": {
     "title": "Atụmatụ ụzọ",

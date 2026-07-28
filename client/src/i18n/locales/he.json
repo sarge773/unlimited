@@ -178,7 +178,15 @@
     "showingCount": "{shown} הדגמים {total}",
     "clearFilters": "מסננים שקופים",
     "noMatches": "אין מודלים שמתאימים למסננים שלך.",
-    "noModelsTitle": "אין דגמים מוגדרים"
+    "noModelsTitle": "אין דגמים מוגדרים",
+    "intelligenceRank": "מודיעין",
+    "speedRank": "מהירות",
+    "rankHint": "דירוג בקטלוג — 1 הוא הטוב ביותר.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "השאירו ריק כדי לא להגביל."
   },
   "strategies": {
     "title": "אסטרטגיית ניתוב",

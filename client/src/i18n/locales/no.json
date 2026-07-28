@@ -178,7 +178,15 @@
     "showingCount": "{shown} av {total} modeller",
     "clearFilters": "Gjennomsiktige filtre",
     "noMatches": "Ingen modeller matcher filtrene dine.",
-    "noModelsTitle": "Ingen modeller konfigurert"
+    "noModelsTitle": "Ingen modeller konfigurert",
+    "intelligenceRank": "Etterretning",
+    "speedRank": "Hastighet",
+    "rankHint": "Rangering i katalogen — 1 er best.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "La stå tomt for ingen grense."
   },
   "strategies": {
     "title": "Routingstrategi",

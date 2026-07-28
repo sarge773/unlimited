@@ -178,7 +178,15 @@
     "showingCount": "{shown} моделей {total}",
     "clearFilters": "Очистить фильтры",
     "noMatches": "Ни одна модель не соответствует вашим фильтрам.",
-    "noModelsTitle": "Ни одна модель не настроена"
+    "noModelsTitle": "Ни одна модель не настроена",
+    "intelligenceRank": "Интеллект",
+    "speedRank": "Скорость",
+    "rankHint": "Ранг в каталоге — 1 лучший.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Оставьте пустым, чтобы не было ограничения."
   },
   "strategies": {
     "title": "Стратегия маршрутизации",

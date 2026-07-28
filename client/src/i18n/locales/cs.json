@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} modelů",
     "clearFilters": "Průhledné filtry",
     "noMatches": "Žádný model neodpovídá vašim filtrům.",
-    "noModelsTitle": "Žádné modely nejsou konfigurovány"
+    "noModelsTitle": "Žádné modely nejsou konfigurovány",
+    "intelligenceRank": "Zpravodajství",
+    "speedRank": "Rychlost",
+    "rankHint": "Pořadí v katalogu — 1 je nejlepší.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Ponechte prázdné pro žádný limit."
   },
   "strategies": {
     "title": "Strategie směrování",

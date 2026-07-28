@@ -178,7 +178,15 @@
     "showingCount": "{shown} ของรุ่น {total}",
     "clearFilters": "ล้างตัวกรอง",
     "noMatches": "ไม่มีรุ่นที่ตรงกับตัวกรองของคุณ",
-    "noModelsTitle": "ไม่มีโมเดลที่กำหนดค่าไว้"
+    "noModelsTitle": "ไม่มีโมเดลที่กำหนดค่าไว้",
+    "intelligenceRank": "ความฉลาด",
+    "speedRank": "ความเร็ว",
+    "rankHint": "อันดับในแคตตาล็อก — 1 ดีที่สุด",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "เว้นว่างไว้หากไม่จำกัด"
   },
   "strategies": {
     "title": "กลยุทธ์การกำหนดเส้นทาง",

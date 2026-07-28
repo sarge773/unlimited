@@ -178,7 +178,15 @@
     "showingCount": "{shown} na samfurin {total}",
     "clearFilters": "Share masu tacewa",
     "noMatches": "Babu samfurin da ya dace da matatun ku.",
-    "noModelsTitle": "Babu samfurin da aka saita"
+    "noModelsTitle": "Babu samfurin da aka saita",
+    "intelligenceRank": "Hankali",
+    "speedRank": "Gudu",
+    "rankHint": "Matsayi a cikin katalogi — 1 shi ne mafi kyau.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Bar shi fanko domin babu iyaka."
   },
   "strategies": {
     "title": "Dabarar hanya",

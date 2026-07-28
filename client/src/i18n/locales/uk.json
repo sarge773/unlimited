@@ -178,7 +178,15 @@
     "showingCount": "{shown} моделей {total}",
     "clearFilters": "Очистити фільтри",
     "noMatches": "Жодна модель не відповідає вашим фільтрам.",
-    "noModelsTitle": "Немає налаштованих моделей"
+    "noModelsTitle": "Немає налаштованих моделей",
+    "intelligenceRank": "Інтелект",
+    "speedRank": "швидкість",
+    "rankHint": "Ранг у каталозі — 1 найкращий.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Залиште порожнім, щоб не було обмеження."
   },
   "strategies": {
     "title": "Стратегія маршрутизації",

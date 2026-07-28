@@ -178,7 +178,15 @@
     "showingCount": "{shown} de {total} modelos",
     "clearFilters": "Borrar filtros",
     "noMatches": "Ningún modelo coincide con tus filtros.",
-    "noModelsTitle": "No hay modelos configurados"
+    "noModelsTitle": "No hay modelos configurados",
+    "intelligenceRank": "Inteligencia",
+    "speedRank": "Velocidad",
+    "rankHint": "Rango en el catálogo — 1 es el mejor.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Déjalo en blanco para no aplicar límite."
   },
   "strategies": {
     "title": "Estrategia de enrutamiento",

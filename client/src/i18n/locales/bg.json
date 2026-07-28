@@ -178,7 +178,15 @@
     "showingCount": "{shown} от {total} модели",
     "clearFilters": "Прозрачни филтри",
     "noMatches": "Нито един модел, който да съвпадне с вашите филтри.",
-    "noModelsTitle": "Няма конфигурирани модели"
+    "noModelsTitle": "Няма конфигурирани модели",
+    "intelligenceRank": "Разузнаване",
+    "speedRank": "Скорост",
+    "rankHint": "Ранг в каталога — 1 е най-добър.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Оставете празно за без ограничение."
   },
   "strategies": {
     "title": "Стратегия за маршрутизиране",

@@ -178,7 +178,15 @@
     "showingCount": "{total} modelių {shown}",
     "clearFilters": "Skaidrūs filtrai",
     "noMatches": "Nėra modelių, atitinkančių jūsų filtrus.",
-    "noModelsTitle": "Nėra jokių modelių, kurie būtų sukonfigūruoti"
+    "noModelsTitle": "Nėra jokių modelių, kurie būtų sukonfigūruoti",
+    "intelligenceRank": "Intelektas",
+    "speedRank": "Greitis",
+    "rankHint": "Reitingas kataloge — 1 yra geriausias.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Palikite tuščią, jei nėra ribos."
   },
   "strategies": {
     "title": "Maršrutizavimo strategija",

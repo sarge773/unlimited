@@ -178,7 +178,15 @@
     "showingCount": "{total} मोडेलहरूको {shown}",
     "clearFilters": "फिल्टर खाली गर्नुहोस्",
     "noMatches": "कुनै पनि मोडेलहरू तपाईंको फिल्टरहरूसँग मेल खाँदैनन्।",
-    "noModelsTitle": "कुनै नमूना कन्फिगर गरिएको छैन"
+    "noModelsTitle": "कुनै नमूना कन्फिगर गरिएको छैन",
+    "intelligenceRank": "इन्टेलिजेन्स",
+    "speedRank": "गति",
+    "rankHint": "क्याटलगमा श्रेणी — 1 उत्तम हो।",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "कुनै सीमा नराख्न खाली छोड्नुहोस्।"
   },
   "strategies": {
     "title": "राउटिङ रणनीति",

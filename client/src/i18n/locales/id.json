@@ -178,7 +178,15 @@
     "showingCount": "{shown} dari model {total}",
     "clearFilters": "Hapus filter",
     "noMatches": "Tidak ada model yang cocok dengan filter Anda.",
-    "noModelsTitle": "Tidak ada model yang dikonfigurasi"
+    "noModelsTitle": "Tidak ada model yang dikonfigurasi",
+    "intelligenceRank": "Intelijen",
+    "speedRank": "Kecepatan",
+    "rankHint": "Peringkat dalam katalog — 1 adalah yang terbaik.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Kosongkan untuk tanpa batas."
   },
   "strategies": {
     "title": "Strategi perutean",

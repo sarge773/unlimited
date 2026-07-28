@@ -178,7 +178,15 @@
     "showingCount": "{shown} {total} modelov",
     "clearFilters": "Priehľadné filtre",
     "noMatches": "Žiadny model nezodpovedá vašim filtrom.",
-    "noModelsTitle": "Žiadne modely nie sú nakonfigurované"
+    "noModelsTitle": "Žiadne modely nie sú nakonfigurované",
+    "intelligenceRank": "Spravodajstvo",
+    "speedRank": "Rýchlosť",
+    "rankHint": "Poradie v katalógu — 1 je najlepšie.",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "Ponechajte prázdne pre žiadny limit."
   },
   "strategies": {
     "title": "Stratégia smerovania",

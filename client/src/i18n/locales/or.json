@@ -178,7 +178,15 @@
     "showingCount": "{total} ମଡେଲଗୁଡିକର {shown}",
     "clearFilters": "ଫିଲ୍ଟରଗୁଡିକ ଖାଲି କରନ୍ତୁ",
     "noMatches": "କୌଣସି ମଡେଲ୍ ଆପଣଙ୍କ ଫିଲ୍ଟରଗୁଡିକ ସହ ମେଳକ ହେଉନାହିଁ।",
-    "noModelsTitle": "କୌଣସି ମଡେଲ୍ କନଫିଗର୍ ହୋଇନାହିଁ"
+    "noModelsTitle": "କୌଣସି ମଡେଲ୍ କନଫିଗର୍ ହୋଇନାହିଁ",
+    "intelligenceRank": "ବୁଦ୍ଧିମତା",
+    "speedRank": "ବେଗ",
+    "rankHint": "କାଟାଲଗରେ ର୍ୟାଙ୍କ — 1 ସର୍ବୋତ୍ତମ।",
+    "limitRpm": "RPM",
+    "limitRpd": "RPD",
+    "limitTpm": "TPM",
+    "limitTpd": "TPD",
+    "limitHint": "କୌଣସି ସୀମା ନ ରଖିବାକୁ ଖାଲି ଛାଡ଼ନ୍ତୁ।"
   },
   "strategies": {
     "title": "ରାଉଟିଂ ରଣନୀତି",
