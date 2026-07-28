@@ -138,6 +138,30 @@ export function getModelOverrides(
   return parseOverrides(row?.overrides_json);
 }
 
+/**
+ * Every model whose stored overrides pin ONE given field, as a set of
+ * "platform:model_id" keys. One query over a table that only ever holds the
+ * models a user has actually touched, so callers that need "is this field
+ * user-owned?" for a whole catalog don't do it per model.
+ *
+ * Note it keys off the field, not the row: a user who renamed a model has an
+ * override row but has said nothing about its speed_rank, so a derived value
+ * may still fill that column (#619).
+ */
+export function modelsWithOverriddenField(
+  db: Db,
+  field: keyof ModelOverridePatch,
+): Set<string> {
+  const rows = db.prepare('SELECT platform, model_id, overrides_json FROM model_overrides')
+    .all() as { platform: string; model_id: string; overrides_json: string }[];
+  const pinned = new Set<string>();
+  for (const row of rows) {
+    const overrides = parseOverrides(row.overrides_json);
+    if (overrides[field] !== undefined) pinned.add(`${row.platform}:${row.model_id}`);
+  }
+  return pinned;
+}
+
 export function applyModelOverrides(
   db: Db,
   platform: string,

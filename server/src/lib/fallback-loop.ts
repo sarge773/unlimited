@@ -41,6 +41,7 @@ import {
   isProviderBadRequestError,
   isProviderDegradedError,
   isContextTooLargeError,
+  isTimeoutErrorText,
 } from './error-classify.js';
 import { sanitizeProviderErrorMessage, summarizeAttemptError } from './error-redaction.js';
 import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js';
@@ -295,7 +296,7 @@ export function classifyAttemptError(err: any): AttemptErrorClass {
   const msg = (err?.message ?? '').toLowerCase();
   if (msg.includes('empty completion')) return 'empty_completion';
   if (msg.includes('ignored response_format') || msg.includes('truncated json')) return 'format_ignored';
-  if (msg.includes('timeout') || msg.includes('stalled') || msg.includes('etimedout') || msg.includes('aborted')) return 'timeout';
+  if (isTimeoutErrorText(msg)) return 'timeout';
   if (msg.includes('429') || msg.includes('rate limit') || msg.includes('too many requests') || msg.includes('quota')) return 'rate_limited';
   const status = typeof err?.status === 'number' ? err.status : 0;
   if (status >= 500 || msg.includes('500') || msg.includes('502') || msg.includes('503') || msg.includes('unavailable') || msg.includes('internal server error')) return 'upstream_error';

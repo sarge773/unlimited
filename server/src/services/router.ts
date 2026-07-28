@@ -17,7 +17,10 @@ import {
   BANDIT_PRESETS, DEFAULT_STRATEGY, type RoutingStrategy, type RoutingWeights,
   reliabilityPosterior, expectedReliability, sampleBeta,
   speedScore, intelligenceScore, headroomFactor, rateLimitFactor, combineScore,
+  observedSpeedRank, TIMEOUT_LATENCY_CAP_MS,
 } from './scoring.js';
+import { TIMEOUT_ERROR_MARKERS } from '../lib/error-classify.js';
+import { modelsWithOverriddenField } from './model-state.js';
 import { parseBudget } from '../lib/budget.js';
 import { platformDropsResponseFormat } from '../lib/sampling-params.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from './model-groups.js';
@@ -341,9 +344,16 @@ const CACHE_TTL_MS = 60 * 1000;
 interface ModelStats {
   successes: number;   // decay-weighted pseudo-count
   failures: number;    // decay-weighted pseudo-count
-  tokPerSec: number;   // from successful requests only (0 = no data)
+  // Output tokens from successes over the time spent on successes AND timeouts
+  // (#619 — see the accumulator below); 0 = no data.
+  tokPerSec: number;
   avgTtfbMs: number | null; // null = no first-byte timing yet
   monthlyUsedTokens: number; // calendar-month usage, for the headroom guardrail
+  // Decay-weighted requests that actually SAY something about speed: successes
+  // plus timeouts. A model can have hundreds of 401s and still no speed signal,
+  // so this — not successes + failures — is what gates the observed speed_rank
+  // writeback.
+  speedSamples: number;
 }
 
 // Per-key slice of the same window (#580): reliability/speed observed through
@@ -366,6 +376,16 @@ function decayWeight(ageDays: number): number {
   return Math.pow(0.5, Math.max(0, ageDays) / HALF_LIFE_DAYS);
 }
 
+// SQL predicate for "this row is a timed-out request" (#619). `requests.status`
+// only ever holds 'success' or 'error' — a timeout is an error row whose text
+// carries one of the shared timeout markers (lib/error-classify.ts), which is
+// also what the failover attempt trail classifies on. The markers are
+// hard-coded lowercase identifiers from our own source, never user input, so
+// interpolating them into the LIKE list is safe.
+const IS_TIMEOUT_SQL = `(status != 'success' AND (${
+  TIMEOUT_ERROR_MARKERS.map(m => `LOWER(COALESCE(error, '')) LIKE '%${m}%'`).join(' OR ')
+}))`;
+
 export function refreshStatsCache(db: Db, force = false): void {
   if (!force && statsCache && Date.now() - statsCacheTime < CACHE_TTL_MS) return;
 
@@ -382,25 +402,37 @@ export function refreshStatsCache(db: Db, force = false): void {
       SUM(CASE WHEN status = 'success' THEN output_tokens ELSE 0 END) AS succ_out,
       SUM(CASE WHEN status = 'success' THEN latency_ms ELSE 0 END) AS succ_lat,
       SUM(CASE WHEN status = 'success' AND ttfb_ms IS NOT NULL THEN ttfb_ms ELSE 0 END) AS succ_ttfb_sum,
-      SUM(CASE WHEN status = 'success' AND ttfb_ms IS NOT NULL THEN 1 ELSE 0 END) AS succ_ttfb_cnt
+      SUM(CASE WHEN status = 'success' AND ttfb_ms IS NOT NULL THEN 1 ELSE 0 END) AS succ_ttfb_cnt,
+      SUM(CASE WHEN ${IS_TIMEOUT_SQL} THEN 1 ELSE 0 END) AS timeouts,
+      SUM(CASE WHEN ${IS_TIMEOUT_SQL} THEN MIN(MAX(latency_ms, 0), ${TIMEOUT_LATENCY_CAP_MS}) ELSE 0 END) AS timeout_lat
     FROM requests
     WHERE created_at >= ?
     GROUP BY platform, model_id, key_id, age_days
   `).all(since) as Array<{
     platform: string; model_id: string; key_id: number | null; age_days: number; total: number; successes: number;
     succ_out: number; succ_lat: number; succ_ttfb_sum: number; succ_ttfb_cnt: number;
+    timeouts: number; timeout_lat: number;
   }>;
 
   // Accumulate decay-weighted sums per model AND per key.
-  interface Acc { wSucc: number; wFail: number; wOut: number; wLat: number; wTtfbSum: number; wTtfbCnt: number }
-  const emptyAcc = (): Acc => ({ wSucc: 0, wFail: 0, wOut: 0, wLat: 0, wTtfbSum: 0, wTtfbCnt: 0 });
+  //
+  // Timeouts (#619) land in the SAME latency/TTFB accumulators as successes,
+  // because that is what they are: time spent, nothing produced. Each one adds
+  // its capped wall-clock latency to the throughput denominator with zero
+  // output tokens, and that same figure as a first-byte sample — which is past
+  // TTFB_WORST_MS, so it scores no latency credit. Net effect: a model that
+  // times out constantly can no longer keep a stellar speed number just because
+  // its handful of successes were quick.
+  interface Acc { wSucc: number; wFail: number; wOut: number; wLat: number; wTtfbSum: number; wTtfbCnt: number; wTimeouts: number }
+  const emptyAcc = (): Acc => ({ wSucc: 0, wFail: 0, wOut: 0, wLat: 0, wTtfbSum: 0, wTtfbCnt: 0, wTimeouts: 0 });
   const addBucket = (a: Acc, w: number, b: (typeof buckets)[number]): void => {
     a.wSucc += w * b.successes;
     a.wFail += w * (b.total - b.successes);
     a.wOut += w * b.succ_out;
-    a.wLat += w * b.succ_lat;
-    a.wTtfbSum += w * b.succ_ttfb_sum;
-    a.wTtfbCnt += w * b.succ_ttfb_cnt;
+    a.wLat += w * (b.succ_lat + b.timeout_lat);
+    a.wTtfbSum += w * (b.succ_ttfb_sum + b.timeout_lat);
+    a.wTtfbCnt += w * (b.succ_ttfb_cnt + b.timeouts);
+    a.wTimeouts += w * b.timeouts;
   };
   const acc = new Map<string, Acc>();
   const keyAcc = new Map<string, Acc>();
@@ -436,12 +468,13 @@ export function refreshStatsCache(db: Db, force = false): void {
       tokPerSec: a.wLat > 0 ? (a.wOut * 1000) / a.wLat : 0,
       avgTtfbMs: a.wTtfbCnt > 0 ? a.wTtfbSum / a.wTtfbCnt : null,
       monthlyUsedTokens: usageMap.get(key) ?? 0,
+      speedSamples: a.wSucc + a.wTimeouts,
     });
   }
   // Models with month usage but no recent window data still need a headroom number.
   for (const [key, used] of usageMap) {
     if (!next.has(key)) {
-      next.set(key, { successes: 0, failures: 0, tokPerSec: 0, avgTtfbMs: null, monthlyUsedTokens: used });
+      next.set(key, { successes: 0, failures: 0, tokPerSec: 0, avgTtfbMs: null, monthlyUsedTokens: used, speedSamples: 0 });
     }
   }
 
@@ -458,6 +491,78 @@ export function refreshStatsCache(db: Db, force = false): void {
   statsCache = next;
   keyStatsCache = nextKeys;
   statsCacheTime = Date.now();
+
+  // Natural tail of a recompute: fold what we just measured back into
+  // models.speed_rank (#619). Never allowed to break routing — the caches above
+  // are already published, and a failed write just means the column keeps its
+  // previous value until the next pass.
+  if (Date.now() - speedRankWriteTime >= SPEED_RANK_WRITE_INTERVAL_MS) {
+    speedRankWriteTime = Date.now();
+    try {
+      writeObservedSpeedRanks(db);
+    } catch (e) {
+      console.error('Failed to write observed speed ranks:', e);
+    }
+  }
+}
+
+// ── Observed speed_rank writeback (#619) ────────────────────────────────────
+// models.speed_rank is the catalog's hand-assigned speed ordering and drives
+// the dashboard's sort-by-speed preset. It was only ever WRITTEN by the seed
+// migrations, catalog sync, and an explicit user override — never by anything
+// that had actually watched the model run, so a relay model that hangs on half
+// its calls kept whatever rank the catalog guessed for it forever.
+//
+// This folds the live speed axis back into the column, under three rules:
+//   - a model needs SPEED_RANK_MIN_SAMPLES decay-weighted speed-bearing
+//     requests (successes + timeouts) before we claim to know anything; below
+//     that it keeps its catalog value;
+//   - a user-set speed_rank override always wins — we skip those models
+//     entirely rather than fight applyModelOverrides for the column;
+//   - the UPDATE is guarded on the value actually changing, so a steady system
+//     writes nothing at all.
+//
+// A catalog sync re-stamps speed_rank from the catalog; the next pass simply
+// re-derives the observed value, which is why this is a periodic write rather
+// than a one-shot migration.
+export const SPEED_RANK_MIN_SAMPLES = 20;
+const SPEED_RANK_WRITE_INTERVAL_MS = 10 * 60 * 1000;
+let speedRankWriteTime = 0;
+
+/** Test hook: forget when the last writeback ran so the next refresh does one. */
+export function resetSpeedRankWriteback(): void {
+  speedRankWriteTime = 0;
+}
+
+/**
+ * Write an observed speed rank for every model with enough recent samples and
+ * no user-set speed_rank override. Returns how many rows actually changed.
+ * Reads the stats cache as-is — callers refresh it first (refreshStatsCache
+ * calls this from its own tail).
+ */
+export function writeObservedSpeedRanks(db: Db): number {
+  if (!statsCache || statsCache.size === 0) return 0;
+
+  const pinned = modelsWithOverriddenField(db, 'speedRank');
+  const rows = db.prepare('SELECT id, platform, model_id, speed_rank FROM models')
+    .all() as { id: number; platform: string; model_id: string; speed_rank: number }[];
+
+  const update = db.prepare('UPDATE models SET speed_rank = ? WHERE id = ?');
+  let written = 0;
+  const tx = db.transaction(() => {
+    for (const row of rows) {
+      const key = `${row.platform}:${row.model_id}`;
+      if (pinned.has(key)) continue;
+      const stats = statsCache!.get(key);
+      if (!stats || stats.speedSamples < SPEED_RANK_MIN_SAMPLES) continue;
+      const rank = observedSpeedRank(speedScore(stats.tokPerSec, stats.avgTtfbMs));
+      if (rank === row.speed_rank) continue;
+      update.run(rank, row.id);
+      written++;
+    }
+  });
+  tx();
+  return written;
 }
 
 // Composite intelligence: size_label is the cross-provider capability tier
