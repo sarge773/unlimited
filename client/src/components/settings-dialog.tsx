@@ -448,7 +448,9 @@ function UpdateChecker({ active }: { active: boolean }) {
     setError(false)
     setCheckResult(null)
     setActivity([
-      `${t('settings.currentVersion')} ${statusInfo?.localSha ?? '—'}`,
+      statusInfo?.localSha
+        ? `${t('settings.currentVersion')} ${statusInfo.localSha}`
+        : t('settings.notGitInstall'),
       t('keys.checking'),
     ])
     try {
@@ -486,6 +488,7 @@ function UpdateChecker({ active }: { active: boolean }) {
   }
 
   const info = checkResult
+  const currentSha = info?.localSha ?? statusInfo?.localSha
   const lastChecked = formatDateTime(checkResult?.checkedAt, locale)
   const remoteDate = formatDateTime(checkResult?.remoteDate, locale)
   const statusMessage = info?.status === 'current'
@@ -500,15 +503,23 @@ function UpdateChecker({ active }: { active: boolean }) {
             ? t('settings.notGitInstall')
             : null
 
+  if (loadingStatus && !statusInfo) return null
+
   return (
     <section className="space-y-3 border-t pt-5">
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div className="space-y-0.5">
           <h2 className="text-sm font-medium">{t('settings.updatesTitle')}</h2>
-          <p className="text-xs text-muted-foreground">
-            {t('settings.currentVersion')}{' '}
-            <code className="break-all font-mono">{info?.localSha ?? statusInfo?.localSha ?? '—'}</code>
-          </p>
+          {currentSha ? (
+            <p className="text-xs text-muted-foreground">
+              {t('settings.currentVersion')}{' '}
+              <code className="break-all font-mono">{currentSha}</code>
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {error ? t('settings.checkFailed') : t('settings.notGitInstall')}
+            </p>
+          )}
         </div>
         <button
           type="button"
@@ -532,9 +543,11 @@ function UpdateChecker({ active }: { active: boolean }) {
               </div>
               <div className="min-w-0">
                 <DialogTitle>{t('settings.updatesTitle')}</DialogTitle>
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                  {t('settings.currentVersion')} <code className="font-mono">{statusInfo?.localSha ?? '—'}</code>
-                </p>
+                {currentSha && (
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {t('settings.currentVersion')} <code className="font-mono">{currentSha}</code>
+                  </p>
+                )}
               </div>
             </div>
             <DialogClose
