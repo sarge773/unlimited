@@ -506,7 +506,14 @@
     "errorPrefix": "Njehie:",
     "systemPromptLabel": "Ngwa ngwa sistemụ",
     "systemPromptPlaceholder": "Nhọrọ. Ezitere dị ka ozi sistemụ tupu nkata gị.",
-    "errorTitle": "Arịrịọ agaghị"
+    "errorTitle": "Arịrịọ agaghị",
+    "attach": "Tinye faịlụ",
+    "attachTooMany": "Ị nwere ike itinye ihe ruru faịlụ {count} n'ozi ọ bụla.",
+    "attachTooLarge": "{name} buru ibu nke ukwuu. Oke ya bụ {max}.",
+    "attachUnsupported": "Anaghị akwado {name}. Tinye onyonyo (PNG, JPEG, WebP, GIF) ma ọ bụ faịlụ ederede (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Enweghị ike ịgụ {name}.",
+    "noVisionBadge": "Enweghị onyonyo",
+    "visionWarning": "{model} anaghị anabata onyonyo. Họrọ ụdị na-anabata onyonyo ma ọ bụ Akpaaka."
   },
   "embeddings": {
     "title": "Ụdị",

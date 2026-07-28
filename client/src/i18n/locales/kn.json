@@ -506,7 +506,14 @@
     "errorPrefix": "ದೋಷ:",
     "systemPromptLabel": "ಸಿಸ್ಟಮ್ ಪ್ರಾಂಪ್ಟ್",
     "systemPromptPlaceholder": "ಐಚ್ಛಿಕ. ನಿಮ್ಮ ಚಾಟ್‌ಗೆ ಮೊದಲು ಸಿಸ್ಟಮ್ ಸಂದೇಶವಾಗಿ ಕಳುಹಿಸಲಾಗಿದೆ.",
-    "errorTitle": "ವಿನಂತಿ ವಿಫಲವಾಗಿದೆ"
+    "errorTitle": "ವಿನಂತಿ ವಿಫಲವಾಗಿದೆ",
+    "attach": "ಫೈಲ್‌ಗಳನ್ನು ಲಗತ್ತಿಸಿ",
+    "attachTooMany": "ಪ್ರತಿ ಸಂದೇಶಕ್ಕೆ ನೀವು ಗರಿಷ್ಠ {count} ಫೈಲ್‌ಗಳನ್ನು ಲಗತ್ತಿಸಬಹುದು.",
+    "attachTooLarge": "{name} ತುಂಬಾ ದೊಡ್ಡದಾಗಿದೆ. ಮಿತಿ {max} ಆಗಿದೆ.",
+    "attachUnsupported": "{name} ಬೆಂಬಲಿತವಾಗಿಲ್ಲ. ಚಿತ್ರಗಳನ್ನು (PNG, JPEG, WebP, GIF) ಅಥವಾ ಪಠ್ಯ ಫೈಲ್‌ಗಳನ್ನು (TXT, MD, CSV, JSON, LOG) ಲಗತ್ತಿಸಿ.",
+    "attachFailed": "{name} ಅನ್ನು ಓದಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "noVisionBadge": "ಚಿತ್ರಗಳಿಲ್ಲ",
+    "visionWarning": "{model} ಚಿತ್ರಗಳನ್ನು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ. ಚಿತ್ರದ ಇನ್‌ಪುಟ್ ಸ್ವೀಕರಿಸುವ ಮಾದರಿ ಅಥವಾ ಸ್ವಯಂ ಆಯ್ಕೆಮಾಡಿ."
   },
   "embeddings": {
     "title": "ಮಾದರಿಗಳು",

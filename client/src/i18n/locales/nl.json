@@ -506,7 +506,14 @@
     "errorPrefix": "Fout:",
     "systemPromptLabel": "Systeemprompt",
     "systemPromptPlaceholder": "Optioneel. Verzonden als een systeembericht vóór je chat.",
-    "errorTitle": "Verzoek afgewezen"
+    "errorTitle": "Verzoek afgewezen",
+    "attach": "Bestanden bijvoegen",
+    "attachTooMany": "Je kunt maximaal {count} bestanden per bericht bijvoegen.",
+    "attachTooLarge": "{name} is te groot. De limiet is {max}.",
+    "attachUnsupported": "{name} wordt niet ondersteund. Voeg afbeeldingen (PNG, JPEG, WebP, GIF) of tekstbestanden (TXT, MD, CSV, JSON, LOG) toe.",
+    "attachFailed": "Kan {name} niet lezen.",
+    "noVisionBadge": "Geen afbeeldingen",
+    "visionWarning": "{model} accepteert geen afbeeldingen. Kies een model met beeldinvoer of Auto."
   },
   "embeddings": {
     "title": "Modellen",

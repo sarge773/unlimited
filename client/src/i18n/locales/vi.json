@@ -506,7 +506,14 @@
     "errorPrefix": "Lỗi:",
     "systemPromptLabel": "Lời nhắc hệ thống",
     "systemPromptPlaceholder": "Tùy chọn. Được gửi dưới dạng tin nhắn hệ thống trước cuộc trò chuyện của bạn.",
-    "errorTitle": "Yêu cầu không thành công"
+    "errorTitle": "Yêu cầu không thành công",
+    "attach": "Đính kèm tệp",
+    "attachTooMany": "Bạn có thể đính kèm tối đa {count} tệp cho mỗi tin nhắn.",
+    "attachTooLarge": "{name} quá lớn. Giới hạn là {max}.",
+    "attachUnsupported": "{name} không được hỗ trợ. Hãy đính kèm hình ảnh (PNG, JPEG, WebP, GIF) hoặc tệp văn bản (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Không thể đọc {name}.",
+    "noVisionBadge": "Không hình ảnh",
+    "visionWarning": "{model} không chấp nhận hình ảnh. Hãy chọn một mô hình hỗ trợ hình ảnh hoặc Tự động."
   },
   "embeddings": {
     "title": "Người mẫu",

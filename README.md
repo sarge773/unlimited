@@ -298,7 +298,7 @@ Manage provider credentials and grab the unified API key your apps connect with.
 
 ### Playground
 
-Send a chat completion through the router and see which provider served it, with the model ID and latency printed right on the message.
+Send a chat completion through the router and see which provider served it, with the model ID and latency printed right on the message. Attach files by button, drag-and-drop, or paste: images (PNG/JPEG/WebP/GIF) are downscaled in the browser and sent as image content parts to a vision-capable model, and text files (TXT/MD/CSV/JSON/LOG) are inlined into the prompt as fenced blocks.
 
 ![Playground page](repo-assets/playground.png)
 

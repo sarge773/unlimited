@@ -516,7 +516,14 @@
     "errorPrefix": "Error:",
     "systemPromptLabel": "System prompt",
     "systemPromptPlaceholder": "Optional. Sent as a system message before your chat.",
-    "errorTitle": "Request failed"
+    "errorTitle": "Request failed",
+    "attach": "Attach files",
+    "attachTooMany": "You can attach up to {count} files per message.",
+    "attachTooLarge": "{name} is too large. The limit is {max}.",
+    "attachUnsupported": "{name} is not supported. Attach images (PNG, JPEG, WebP, GIF) or text files (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Could not read {name}.",
+    "noVisionBadge": "No images",
+    "visionWarning": "{model} does not accept images. Choose a vision model or Auto."
   },
   "embeddings": {
     "title": "Models",

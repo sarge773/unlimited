@@ -506,7 +506,14 @@
     "errorPrefix": "त्रुटी:",
     "systemPromptLabel": "सिस्टम प्रॉम्प्ट",
     "systemPromptPlaceholder": "ऐच्छिक. तुमच्या चॅटपूर्वी सिस्टम मेसेज म्हणून पाठवले.",
-    "errorTitle": "विनंती अयशस्वी"
+    "errorTitle": "विनंती अयशस्वी",
+    "attach": "फाइल्स संलग्न करा",
+    "attachTooMany": "तुम्ही प्रति संदेश जास्तीत जास्त {count} फाइल्स संलग्न करू शकता.",
+    "attachTooLarge": "{name} खूप मोठी आहे. मर्यादा {max} आहे.",
+    "attachUnsupported": "{name} समर्थित नाही. प्रतिमा (PNG, JPEG, WebP, GIF) किंवा मजकूर फाइल्स (TXT, MD, CSV, JSON, LOG) संलग्न करा.",
+    "attachFailed": "{name} वाचता आले नाही.",
+    "noVisionBadge": "प्रतिमा नाही",
+    "visionWarning": "{model} प्रतिमा स्वीकारत नाही. दृष्टी मॉडेल किंवा ऑटो निवडा."
   },
   "embeddings": {
     "title": "मॉडेल्स",

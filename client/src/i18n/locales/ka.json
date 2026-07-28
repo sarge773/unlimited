@@ -506,7 +506,14 @@
     "errorPrefix": "შეცდომა:",
     "systemPromptLabel": "სისტემის მოთხოვნა",
     "systemPromptPlaceholder": "სურვილისამებრ. გაიგზავნა სისტემური შეტყობინების სახით თქვენი ჩატის წინ.",
-    "errorTitle": "მოთხოვნა ვერ მოხერხდა"
+    "errorTitle": "მოთხოვნა ვერ მოხერხდა",
+    "attach": "ფაილების მიმაგრება",
+    "attachTooMany": "ერთ შეტყობინებაზე შეგიძლიათ მაქსიმუმ {count} ფაილის მიმაგრება.",
+    "attachTooLarge": "{name} ძალიან დიდია. ლიმიტია {max}.",
+    "attachUnsupported": "{name} არ არის მხარდაჭერილი. მიამაგრეთ სურათები (PNG, JPEG, WebP, GIF) ან ტექსტური ფაილები (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "{name} ვერ წაიკითხა.",
+    "noVisionBadge": "სურათების გარეშე",
+    "visionWarning": "{model} არ იღებს სურათებს. აირჩიეთ ხედვის მოდელი ან ავტომატური."
   },
   "embeddings": {
     "title": "მოდელები",

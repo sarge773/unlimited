@@ -506,7 +506,14 @@
     "errorPrefix": "错误:",
     "systemPromptLabel": "系统提示词",
     "systemPromptPlaceholder": "可选。作为系统消息在你的对话之前发送。",
-    "errorTitle": "请求失败"
+    "errorTitle": "请求失败",
+    "attach": "附加文件",
+    "attachTooMany": "每条消息最多可附加 {count} 个文件。",
+    "attachTooLarge": "{name} 太大了。上限为 {max}。",
+    "attachUnsupported": "不支持 {name}。请附加图像（PNG、JPEG、WebP、GIF）或文本文件（TXT、MD、CSV、JSON、LOG）。",
+    "attachFailed": "无法读取 {name}。",
+    "noVisionBadge": "无图像",
+    "visionWarning": "{model} 不接受图像。请选择视觉模型或「自动」。"
   },
   "embeddings": {
     "title": "模型",

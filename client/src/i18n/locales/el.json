@@ -506,7 +506,14 @@
     "errorPrefix": "Σφάλμα:",
     "systemPromptLabel": "Προτροπή συστήματος",
     "systemPromptPlaceholder": "Προαιρετικός. Στάλθηκε ως μήνυμα συστήματος πριν από τη συνομιλία σας.",
-    "errorTitle": "Το αίτημα απέτυχε"
+    "errorTitle": "Το αίτημα απέτυχε",
+    "attach": "Επισύναψη αρχείων",
+    "attachTooMany": "Μπορείτε να επισυνάψετε έως {count} αρχεία ανά μήνυμα.",
+    "attachTooLarge": "Το {name} είναι πολύ μεγάλο. Το όριο είναι {max}.",
+    "attachUnsupported": "Το {name} δεν υποστηρίζεται. Επισυνάψτε εικόνες (PNG, JPEG, WebP, GIF) ή αρχεία κειμένου (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Δεν ήταν δυνατή η ανάγνωση του {name}.",
+    "noVisionBadge": "Χωρίς εικόνες",
+    "visionWarning": "Το {model} δεν δέχεται εικόνες. Επιλέξτε μοντέλο με υποστήριξη εικόνας ή Αυτόματο."
   },
   "embeddings": {
     "title": "Μοντέλα",

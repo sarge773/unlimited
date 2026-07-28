@@ -506,7 +506,14 @@
     "errorPrefix": "பிழை:",
     "systemPromptLabel": "சிஸ்டம் ப்ராம்ட்",
     "systemPromptPlaceholder": "விருப்பமானது. உங்கள் அரட்டைக்கு முன் கணினி செய்தியாக அனுப்பப்பட்டது.",
-    "errorTitle": "கோரிக்கை தோல்வியடைந்தது"
+    "errorTitle": "கோரிக்கை தோல்வியடைந்தது",
+    "attach": "கோப்புகளை இணைக்கவும்",
+    "attachTooMany": "ஒரு செய்திக்கு அதிகபட்சம் {count} கோப்புகளை இணைக்கலாம்.",
+    "attachTooLarge": "{name} மிகவும் பெரியது. வரம்பு {max}.",
+    "attachUnsupported": "{name} ஆதரிக்கப்படவில்லை. படங்களை (PNG, JPEG, WebP, GIF) அல்லது உரைக் கோப்புகளை (TXT, MD, CSV, JSON, LOG) இணைக்கவும்.",
+    "attachFailed": "{name} ஐப் படிக்க முடியவில்லை.",
+    "noVisionBadge": "படங்கள் இல்லை",
+    "visionWarning": "{model} படங்களை ஏற்காது. பட உள்ளீட்டை ஏற்கும் மாதிரியை அல்லது ஆட்டோ என்பதைத் தேர்ந்தெடுக்கவும்."
   },
   "embeddings": {
     "title": "மாதிரிகள்",

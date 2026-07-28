@@ -506,7 +506,14 @@
     "errorPrefix": "ত্রুটি:",
     "systemPromptLabel": "সিস্টেম প্রম্পট",
     "systemPromptPlaceholder": "ঐচ্ছিক। আপনার চ্যাটের আগে একটি সিস্টেম বার্তা হিসাবে পাঠানো হয়েছে৷",
-    "errorTitle": "অনুরোধ ব্যর্থ হয়েছে"
+    "errorTitle": "অনুরোধ ব্যর্থ হয়েছে",
+    "attach": "ফাইল সংযুক্ত করুন",
+    "attachTooMany": "আপনি প্রতি বার্তায় সর্বোচ্চ {count}টি ফাইল সংযুক্ত করতে পারেন।",
+    "attachTooLarge": "{name} খুব বড়। সীমা হল {max}।",
+    "attachUnsupported": "{name} সমর্থিত নয়। ছবি (PNG, JPEG, WebP, GIF) বা পাঠ্য ফাইল (TXT, MD, CSV, JSON, LOG) সংযুক্ত করুন।",
+    "attachFailed": "{name} পড়া যায়নি।",
+    "noVisionBadge": "ছবি নেই",
+    "visionWarning": "{model} ছবি গ্রহণ করে না। একটি দৃষ্টি মডেল বা স্বয়ংক্রিয় নির্বাচন করুন।"
   },
   "embeddings": {
     "title": "মডেল",

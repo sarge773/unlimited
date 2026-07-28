@@ -506,7 +506,14 @@
     "errorPrefix": "Chyba:",
     "systemPromptLabel": "Systémový prompt",
     "systemPromptPlaceholder": "Voliteľné. Odoslaná ako systémová správa pred vaším chatom.",
-    "errorTitle": "Žiadosť zlyhala"
+    "errorTitle": "Žiadosť zlyhala",
+    "attach": "Priložiť súbory",
+    "attachTooMany": "K jednej správe môžete priložiť najviac {count} súborov.",
+    "attachTooLarge": "Súbor {name} je príliš veľký. Limit je {max}.",
+    "attachUnsupported": "Súbor {name} nie je podporovaný. Priložte obrázky (PNG, JPEG, WebP, GIF) alebo textové súbory (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Súbor {name} sa nepodarilo prečítať.",
+    "noVisionBadge": "Bez obrázkov",
+    "visionWarning": "Model {model} neprijíma obrázky. Vyberte model s podporou obrázkov alebo Auto."
   },
   "embeddings": {
     "title": "Modely",

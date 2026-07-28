@@ -506,7 +506,14 @@
     "errorPrefix": "خرابی:",
     "systemPromptLabel": "سسٹم پرامپٹ",
     "systemPromptPlaceholder": "اختیاری آپ کی چیٹ سے پہلے سسٹم پیغام کے طور پر بھیجا گیا۔",
-    "errorTitle": "درخواست ناکام ہوگئی"
+    "errorTitle": "درخواست ناکام ہوگئی",
+    "attach": "فائلیں منسلک کریں۔",
+    "attachTooMany": "آپ فی پیغام زیادہ سے زیادہ {count} فائلیں منسلک کر سکتے ہیں۔",
+    "attachTooLarge": "{name} بہت بڑی ہے۔ حد {max} ہے۔",
+    "attachUnsupported": "{name} سپورٹڈ نہیں ہے۔ تصاویر (PNG، JPEG، WebP، GIF) یا ٹیکسٹ فائلیں (TXT، MD، CSV، JSON، LOG) منسلک کریں۔",
+    "attachFailed": "{name} کو پڑھا نہیں جا سکا۔",
+    "noVisionBadge": "تصاویر نہیں",
+    "visionWarning": "{model} تصاویر قبول نہیں کرتا۔ کوئی وژن ماڈل یا آٹو منتخب کریں۔"
   },
   "embeddings": {
     "title": "ماڈلز",

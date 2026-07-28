@@ -506,7 +506,14 @@
     "errorPrefix": "त्रुटि:",
     "systemPromptLabel": "प्रणाली प्रवर्धन",
     "systemPromptPlaceholder": "वैकल्पिक छ । तपाईँको कुराकानी भन्दा पहिले प्रणाली सन्देशको रूपमा पठाइयो ।",
-    "errorTitle": "अनुरोध असफल भयो"
+    "errorTitle": "अनुरोध असफल भयो",
+    "attach": "फाइलहरू संलग्न गर्नुहोस्",
+    "attachTooMany": "तपाईं प्रति सन्देश {count} वटासम्म फाइल संलग्न गर्न सक्नुहुन्छ।",
+    "attachTooLarge": "{name} धेरै ठूलो छ। सीमा {max} हो।",
+    "attachUnsupported": "{name} समर्थित छैन। छवि (PNG, JPEG, WebP, GIF) वा पाठ फाइलहरू (TXT, MD, CSV, JSON, LOG) संलग्न गर्नुहोस्।",
+    "attachFailed": "{name} पढ्न सकिएन।",
+    "noVisionBadge": "छवि छैन",
+    "visionWarning": "{model} ले छवि स्वीकार गर्दैन। छवि स्वीकार गर्ने मोडेल वा स्वत: छान्नुहोस्।"
   },
   "embeddings": {
     "title": "नमूनाहरू",

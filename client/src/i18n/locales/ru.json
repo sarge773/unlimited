@@ -506,7 +506,14 @@
     "errorPrefix": "Ошибка:",
     "systemPromptLabel": "Системная подсказка",
     "systemPromptPlaceholder": "Необязательно. Отправляется как системное сообщение перед вашим чатом.",
-    "errorTitle": "Запрос не выполнен"
+    "errorTitle": "Запрос не выполнен",
+    "attach": "Прикрепить файлы",
+    "attachTooMany": "К одному сообщению можно прикрепить не более {count} файлов.",
+    "attachTooLarge": "Файл {name} слишком большой. Лимит — {max}.",
+    "attachUnsupported": "{name} не поддерживается. Прикрепите изображения (PNG, JPEG, WebP, GIF) или текстовые файлы (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Не удалось прочитать {name}.",
+    "noVisionBadge": "Без изображений",
+    "visionWarning": "{model} не принимает изображения. Выберите модель с поддержкой изображений или «Авто»."
   },
   "embeddings": {
     "title": "Модели",

@@ -506,7 +506,14 @@
     "errorPrefix": "Pogreška:",
     "systemPromptLabel": "Sistemski upit",
     "systemPromptPlaceholder": "Opcionalno. Poslana kao sistemska poruka prije vašeg chata.",
-    "errorTitle": "Zahtjev nije uspio"
+    "errorTitle": "Zahtjev nije uspio",
+    "attach": "Priloži datoteke",
+    "attachTooMany": "Po poruci možete priložiti najviše {count} datoteka.",
+    "attachTooLarge": "Datoteka {name} je prevelika. Ograničenje je {max}.",
+    "attachUnsupported": "Datoteka {name} nije podržana. Priložite slike (PNG, JPEG, WebP, GIF) ili tekstualne datoteke (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Nije moguće pročitati datoteku {name}.",
+    "noVisionBadge": "Bez slika",
+    "visionWarning": "Model {model} ne prihvaća slike. Odaberite model s vizijom ili Auto."
   },
   "embeddings": {
     "title": "Modeli",
