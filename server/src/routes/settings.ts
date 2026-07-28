@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { getUnifiedApiKey, regenerateUnifiedKey, getSetting, setSetting } from '../db/index.js';
-import { applyProxyUrl, applyProxyEnabled, applyProxyBypass, isProxyActive, getProxyUrl, isProxyEnabled, getProxyBypassPlatforms } from '../lib/proxy.js';
+import { applyProxyUrl, applyProxyEnabled, applyProxyBypass, isProxyActive, getProxyUrl, isProxyEnabled, getProxyBypassPlatforms, PROXY_SCHEMES } from '../lib/proxy.js';
 import { getSavedFusionConfig, setSavedFusionConfig, savedFusionConfigSchema, getFusionMaxK } from '../services/fusion.js';
 import { isUnifyEnabled, setUnifyEnabled, getUnifyOverrides, setUnifyOverrides, unifyOverridesSchema } from '../services/model-groups.js';
 import { getClaudeModelMap, setClaudeModelMap } from '../services/anthropic-map.js';
@@ -250,9 +250,12 @@ settingsRouter.put('/proxy', (req: Request, res: Response) => {
     if (trimmed) {
       try {
         const u = new URL(trimmed);
-        if (!['http:', 'https:', 'socks5:', 'socks4:'].includes(u.protocol)) {
+        if (!PROXY_SCHEMES.includes(u.protocol)) {
           res.status(400).json({
-            error: { message: 'Proxy URL must use http, https, socks5, or socks4 scheme', type: 'invalid_request_error' },
+            error: {
+              message: 'Proxy URL must use http, https, socks5, socks5h, socks4, or socks4a scheme',
+              type: 'invalid_request_error',
+            },
           });
           return;
         }
