@@ -19,6 +19,7 @@ import { isClientAbortError, newClientAbortError } from '../lib/error-classify.j
 import { logRequest } from '../lib/request-log.js';
 import { extractApiToken, timingSafeStringEqual, getStickyModel, setStickyModel } from './proxy.js';
 import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, type ExhaustionBody, setFallbackHeaders, setExhaustionHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
+import { routedViaValue } from '../lib/header-value.js';
 import { applyTokenBudget, tokenBudgetMessage } from '../lib/guardrails.js';
 import { resolveAnthropicModel } from '../services/anthropic-map.js';
 import type { ReasoningEffort } from '../lib/sampling-params.js';
@@ -607,7 +608,7 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
         usage: { input_tokens: promptTokens, output_tokens: completionTokens },
       };
 
-      res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+      res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
       setFallbackHeaders(res, attempt, attemptLog);
       logRequest(route.platform, route.modelId, route.keyId, 'success', promptTokens, completionTokens, Date.now() - start, null, null, pinnedModelId);
       res.json(anthropicResponse);
@@ -687,7 +688,7 @@ async function streamCompletion(
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+    res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
     setFallbackHeaders(res, ctx.attempt, ctx.attemptLog);
     writeSse(res, 'message_start', {
       type: 'message_start',

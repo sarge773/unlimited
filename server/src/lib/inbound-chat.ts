@@ -27,6 +27,7 @@ import {
   type AttemptRecord,
   type ExhaustionBody,
 } from './fallback-loop.js';
+import { routedViaValue } from './header-value.js';
 import { applyTokenBudget, tokenBudgetMessage } from './guardrails.js';
 import { contentToString } from './content.js';
 import { repairToolArguments, toolSchemaMap } from './tool-args.js';
@@ -295,7 +296,7 @@ export async function runInboundChat(
         };
         recordUpstreamSuccess(route, result.usage?.total_tokens ?? promptTokens + completionTokens);
         if (pin.pinnedLabel == null) setStickyModel(input.messages, route.modelDbId, input.sessionId);
-        res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+        res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
         setFallbackHeaders(res, attempt, attemptLog);
         logRequest(
           route.platform,
@@ -323,7 +324,7 @@ export async function runInboundChat(
       let heldText = '';
       const commit = () => {
         if (committed) return;
-        res.setHeader('X-Routed-Via', `${route.platform}/${route.modelId}`);
+        res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
         setFallbackHeaders(res, attempt, attemptLog);
         wire.startStream(res, route);
         committed = true;

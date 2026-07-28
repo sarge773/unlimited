@@ -233,6 +233,8 @@ Request the virtual `fusion` model and the router fans your prompt out to a pane
 
 Every response carries an `X-Routed-Via: <platform>/<model>` header so you can see which provider actually served each call. If a request fell over between providers, you'll also see `X-Fallback-Attempts: N`.
 
+HTTP headers only carry printable ASCII, so a model id with characters outside that range (a Chinese name from a relay catalog, for example) is percent-encoded in the header — run the value through `decodeURIComponent` (or `urllib.parse.unquote`) to read it back.
+
 The opt-in response cache can be toggled per request with `X-FreeLLM-Cache: on|off` — an exact-match in-memory LRU for identical non-streaming requests (canonical SHA-256 keys over the full request, TTL and temperature gates, saved-token stats on the dashboard). Off by default; cache hits consume zero provider quota.
 
 When [prompt compression](compression.md) is enabled, `X-FreeLLM-Compress: off|on|lossless|standard|aggressive` can disable or lower the configured mode for one request. It cannot raise the operator's configured mode. The response reports the effective mode and estimated savings, for example `X-FreeLLM-Compress: standard; saved~=1840`.
