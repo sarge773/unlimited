@@ -119,6 +119,30 @@ export function isRateLimitSignal(err: any): boolean {
     || msg.includes('quota') || msg.includes('resource_exhausted');
 }
 
+// ── Timeout wording ─────────────────────────────────────────────────────────
+// The message markers that mean "this attempt ran out of time", in every
+// wording the stack produces: the per-attempt HTTP deadline ("The operation was
+// aborted (groq, chat, 120s)" — enrichAbort in lib/proxy.ts), the mid-stream
+// inactivity watchdog ("… stream stalled: no data for 90000ms (timeout)"), the
+// first-byte grace budget, and a raw socket ETIMEDOUT.
+//
+// A client hang-up is deliberately NOT in here: newClientAbortError's message
+// ("client disconnected — upstream request canceled") carries none of these
+// markers precisely so a vanished client is never read as provider slowness.
+//
+// Single source of truth for two consumers: the attempt-trail classifier
+// (classifyAttemptError) and the analytics query that folds timeouts into the
+// speed score (refreshStatsCache, #619) — so the trail and the score always
+// agree about what a timeout is.
+export const TIMEOUT_ERROR_MARKERS = ['timeout', 'stalled', 'etimedout', 'aborted'] as const;
+
+/** True when an error message reads as a timeout. Expects raw text; caller need
+ * not lowercase it. */
+export function isTimeoutErrorText(message: unknown): boolean {
+  const msg = (typeof message === 'string' ? message : String(message ?? '')).toLowerCase();
+  return TIMEOUT_ERROR_MARKERS.some(marker => msg.includes(marker));
+}
+
 // ── Client-caused aborts ─────────────────────────────────────────────────────
 // When the gateway's OWN client hangs up, the proxy surfaces abort the composed
 // fetch signal with this marked error, and undici rejects the in-flight fetch /

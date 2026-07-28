@@ -6,7 +6,7 @@ import type {
   Platform,
 } from '@freellmapi/shared/types.js';
 import { BaseProvider, providerHttpError, type CompletionOptions, type KeyValidationResult } from './base.js';
-import { extendedBodyParams } from '../lib/sampling-params.js';
+import { extendedBodyParams, resolveMaxTokens } from '../lib/sampling-params.js';
 import { rescueInlineToolCalls } from '../lib/tool-call-rescue.js';
 import { extractThinkFromMessage } from '../lib/think-tags.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
@@ -187,7 +187,7 @@ export class OpenAICompatProvider extends BaseProvider {
         model: modelId,
         messages: this.messagesForPlatform(messages),
         temperature: sampling.temperature,
-        max_tokens: options?.max_tokens,
+        max_tokens: resolveMaxTokens(this.platform, options?.max_tokens),
         top_p: sampling.topP,
         stop: options?.stop,
         tools: options?.tools,
@@ -306,7 +306,7 @@ export class OpenAICompatProvider extends BaseProvider {
         model: modelId,
         messages: this.messagesForPlatform(messages),
         temperature: sampling.temperature,
-        max_tokens: options?.max_tokens,
+        max_tokens: resolveMaxTokens(this.platform, options?.max_tokens),
         top_p: sampling.topP,
         stop: options?.stop,
         tools: options?.tools,
