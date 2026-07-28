@@ -2,8 +2,9 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { getDb } from '../db/index.js';
-import { encrypt, decrypt, maskKey } from '../lib/crypto.js';
+import { maskKey } from '../lib/crypto.js';
 import { deleteUnusedCustomEndpointKey } from '../lib/custom-provider-cleanup.js';
+import { resolveCustomEndpointKey, customEndpointKeyIds } from '../services/custom-endpoint.js';
 import { listAllMediaModels } from '../services/media.js';
 
 export const mediaRouter = Router();
@@ -71,56 +72,22 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
   const quotaLabel = parsed.data.quotaLabel?.trim() || 'custom endpoint';
 
   const upsert = db.transaction(() => {
-    const existingKey = db.prepare(`
-      SELECT id, encrypted_key, iv, auth_tag
-        FROM api_keys
-       WHERE platform = 'custom' AND base_url = ?
-       LIMIT 1
-    `).get(baseUrl) as { id: number; encrypted_key: string; iv: string; auth_tag: string } | undefined;
-    let keyId: number;
-    let storedKeyForMask = providedKey ?? 'no-key';
-    if (existingKey) {
-      keyId = existingKey.id;
-      if (providedKey) {
-        const { encrypted, iv, authTag } = encrypt(providedKey);
-        db.prepare(`
-          UPDATE api_keys
-             SET label = COALESCE(?, label),
-                 encrypted_key = ?,
-                 iv = ?,
-                 auth_tag = ?,
-                 status = 'unknown',
-                 enabled = 1
-           WHERE id = ?
-        `).run(label ?? null, encrypted, iv, authTag, keyId);
-        storedKeyForMask = providedKey;
-      } else {
-        try {
-          storedKeyForMask = decrypt(existingKey.encrypted_key, existingKey.iv, existingKey.auth_tag);
-        } catch {
-          storedKeyForMask = 'no-key';
-        }
-        db.prepare(`
-          UPDATE api_keys
-             SET label = COALESCE(?, label), status = 'unknown', enabled = 1
-           WHERE id = ?
-        `).run(label ?? null, keyId);
-      }
-    } else {
-      const { encrypted, iv, authTag } = encrypt(providedKey ?? 'no-key');
-      const key = db.prepare(`
-        INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled, base_url)
-        VALUES ('custom', ?, ?, ?, ?, 'unknown', 1, ?)
-      `).run(label ?? 'Custom', encrypted, iv, authTag, baseUrl);
-      keyId = Number(key.lastInsertRowid);
-    }
+    // A new secret for a known endpoint is an ADDITIONAL credential, never a
+    // replacement for the stored one (#619).
+    const { keyId, storedKey: storedKeyForMask } = resolveCustomEndpointKey(db, baseUrl, providedKey, label);
+    const endpointKeyIds = customEndpointKeyIds(db, keyId);
 
     const existingModel = db.prepare(`
-      SELECT id, modality, priority
+      SELECT id, modality, priority, key_id
         FROM media_models
        WHERE platform = 'custom' AND model_id = ?
        LIMIT 1
-    `).get(modelId) as { id: number; modality: string; priority: number } | undefined;
+    `).get(modelId) as { id: number; modality: string; priority: number; key_id: number | null } | undefined;
+    // A model already on this endpoint keeps the key it has; only a move to a
+    // different endpoint re-binds it.
+    const bindKeyId = existingModel?.key_id != null && endpointKeyIds.has(existingModel.key_id)
+      ? existingModel.key_id
+      : keyId;
     const priority = existingModel && existingModel.modality === parsed.data.modality
       ? existingModel.priority
       : (db.prepare('SELECT COALESCE(MAX(priority), 0) AS maxPriority FROM media_models WHERE modality = ?')
@@ -136,7 +103,7 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
                quota_label = ?,
                key_id = ?
          WHERE id = ?
-      `).run(displayName, parsed.data.modality, priority, quotaLabel, keyId, existingModel.id);
+      `).run(displayName, parsed.data.modality, priority, quotaLabel, bindKeyId, existingModel.id);
       return { modelDbId: existingModel.id, keyId, storedKeyForMask };
     }
 
@@ -144,7 +111,7 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
       INSERT INTO media_models
         (platform, model_id, display_name, modality, priority, enabled, quota_label, key_id)
       VALUES ('custom', ?, ?, ?, ?, 1, ?, ?)
-    `).run(modelId, displayName, parsed.data.modality, priority, quotaLabel, keyId);
+    `).run(modelId, displayName, parsed.data.modality, priority, quotaLabel, bindKeyId);
     return { modelDbId: Number(model.lastInsertRowid), keyId, storedKeyForMask };
   });
 

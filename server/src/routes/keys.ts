@@ -10,6 +10,7 @@ import { parseKeysFromFile, stripJsoncComments, stripTrailingCommas } from '../l
 import { assessProviderUrl } from '../lib/url-guard.js';
 import { ensureModelInProfiles } from '../services/profile-models.js';
 import { getActiveCooldownsForKeys, clearCooldownsForKey } from '../services/ratelimit.js';
+import { resolveCustomEndpointKey, customEndpointKeyIds, siblingEndpointKeyId } from '../services/custom-endpoint.js';
 
 export const keysRouter = Router();
 
@@ -212,11 +213,20 @@ keysRouter.get('/', (_req: Request, res: Response) => {
        WHERE platform = 'custom' AND key_id IS NOT NULL
     `).all() as any[],
   ];
-  const modelsByKeyId = new Map<number, any[]>();
+  // Models are grouped by ENDPOINT, not by key row: an endpoint can hold
+  // several credentials (#619) while each model binds to just one of them, and
+  // every one of those keys serves the endpoint's whole model list.
+  const endpointOfKey = new Map<number, string>();
+  for (const row of rows) {
+    if (row.platform === 'custom' && row.base_url) endpointOfKey.set(Number(row.id), row.base_url);
+  }
+  const endpointOf = (keyId: number) => endpointOfKey.get(keyId) ?? `key:${keyId}`;
+
+  const modelsByEndpoint = new Map<string, any[]>();
   for (const m of customModels) {
     const keyId = Number(m.key_id);
     if (!Number.isInteger(keyId)) continue;
-    const list = modelsByKeyId.get(keyId) ?? [];
+    const list = modelsByEndpoint.get(endpointOf(keyId)) ?? [];
     list.push({
       id: m.id,
       kind: m.kind,
@@ -224,9 +234,9 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       displayName: m.display_name,
       family: m.family ?? null,
     });
-    modelsByKeyId.set(keyId, list);
+    modelsByEndpoint.set(endpointOf(keyId), list);
   }
-  for (const list of modelsByKeyId.values()) {
+  for (const list of modelsByEndpoint.values()) {
     list.sort((a, b) => {
       const ka = ['chat', 'embedding', 'image', 'audio'].indexOf(a.kind);
       const kb = ['chat', 'embedding', 'image', 'audio'].indexOf(b.kind);
@@ -259,7 +269,7 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       createdAt: row.created_at,
       lastCheckedAt: row.last_checked_at,
       lastHealthError: row.last_health_error ?? null,
-      models: row.platform === 'custom' ? (modelsByKeyId.get(row.id) ?? []) : undefined,
+      models: row.platform === 'custom' ? (modelsByEndpoint.get(endpointOf(Number(row.id))) ?? []) : undefined,
       cooldowns: cooldowns.map(c => ({
         modelId: c.modelId,
         expiresAtMs: c.expiresAtMs,
@@ -534,50 +544,27 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
 
   const db = getDb();
   const upsert = db.transaction(() => {
-    // One 'custom' key row PER ENDPOINT (matched on base_url). Re-submitting
-    // the same endpoint updates its key/label; a new base_url gets its own
-// row instead of clobbering the previous provider. (#212) Re-submitting with a
-// blank key preserves the stored key; only a provided key updates credentials.
-    const existing = db.prepare("SELECT id, encrypted_key, iv, auth_tag FROM api_keys WHERE platform = 'custom' AND base_url = ? LIMIT 1")
-      .get(baseUrl) as { id: number; encrypted_key: string; iv: string; auth_tag: string } | undefined;
-    let keyId: number;
-    let storedKeyForMask = providedKey ?? 'no-key';
-    if (existing) {
-      keyId = existing.id;
-      if (providedKey) {
-        const { encrypted, iv, authTag } = encrypt(providedKey);
-        db.prepare("UPDATE api_keys SET label = COALESCE(?, label), encrypted_key = ?, iv = ?, auth_tag = ?, status = 'unknown', enabled = 1 WHERE id = ?")
-          .run(label ?? null, encrypted, iv, authTag, existing.id);
-        storedKeyForMask = providedKey;
-      } else {
-        try {
-          storedKeyForMask = decrypt(existing.encrypted_key, existing.iv, existing.auth_tag);
-        } catch {
-          storedKeyForMask = 'no-key';
-        }
-        db.prepare("UPDATE api_keys SET label = COALESCE(?, label), status = 'unknown', enabled = 1 WHERE id = ?")
-          .run(label ?? null, existing.id);
-      }
-    } else {
-      const keyToStore = providedKey ?? 'no-key';
-      const { encrypted, iv, authTag } = encrypt(keyToStore);
-      const r = db.prepare(`
-        INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled, base_url)
-        VALUES ('custom', ?, ?, ?, ?, 'unknown', 1, ?)
-      `).run(label ?? 'Custom', encrypted, iv, authTag, baseUrl);
-      keyId = Number(r.lastInsertRowid);
-      storedKeyForMask = keyToStore;
-    }
+    // Key rows are matched on (base_url, secret): a new secret for a known
+    // endpoint is a SECOND credential for it, not a replacement (#619), and a
+    // new base_url is a separate provider (#212). Re-submitting with a blank
+    // key preserves the stored one.
+    const { keyId, storedKey: storedKeyForMask } = resolveCustomEndpointKey(db, baseUrl, providedKey, label);
+    const endpointKeyIds = customEndpointKeyIds(db, keyId);
 
     const registered: { modelDbId: number; model: string; displayName: string; supportsTools: boolean; supportsVision: boolean }[] = [];
     for (const { modelId, displayName, supportsTools, supportsVision } of entries) {
       // Register each model bound to THIS endpoint's key. Custom models carry no
       // rate limits and sort last in the intelligence preset (size_label tier).
-      // Re-registering an existing model id re-binds it (model ids are unique
-      // per platform, so one id can't live on two endpoints at once).
+      // Re-registering an existing model id re-binds it to the submitted
+      // ENDPOINT (model ids are unique per platform, so one id can't live on two
+      // endpoints at once) — but a model already on this endpoint keeps the key
+      // it has, so adding a second credential doesn't silently re-bind it (#619).
       // Capability flags: an unset flag binds NULL so COALESCE picks the insert
       // default (tools 1, vision 0) on a new row and preserves the existing
       // value on re-registration. (#470)
+      const bound = db.prepare("SELECT key_id FROM models WHERE platform = 'custom' AND model_id = ?")
+        .get(modelId) as { key_id: number | null } | undefined;
+      const bindKeyId = bound?.key_id != null && endpointKeyIds.has(bound.key_id) ? bound.key_id : keyId;
       const toolsParam = supportsTools === undefined ? null : (supportsTools ? 1 : 0);
       const visionParam = supportsVision === undefined ? null : (supportsVision ? 1 : 0);
       db.prepare(`
@@ -594,7 +581,7 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
           enabled = 1,
           supports_tools = COALESCE(@tools, supports_tools),
           supports_vision = COALESCE(@vision, supports_vision)
-      `).run({ modelId, displayName, keyId, tools: toolsParam, vision: visionParam });
+      `).run({ modelId, displayName, keyId: bindKeyId, tools: toolsParam, vision: visionParam });
 
       const modelRow = db.prepare("SELECT id, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ?").get(modelId) as { id: number; supports_tools: number; supports_vision: number };
 
@@ -798,13 +785,24 @@ keysRouter.delete('/:id', (req: Request, res: Response) => {
   }
 
   const db = getDb();
-  const row = db.prepare('SELECT platform FROM api_keys WHERE id = ?').get(id) as { platform: string } | undefined;
+  const row = db.prepare('SELECT platform, base_url FROM api_keys WHERE id = ?').get(id) as { platform: string; base_url: string | null } | undefined;
   if (!row) {
     res.status(404).json({ error: { message: 'Key not found' } });
     return;
   }
+  // Another credential for the SAME endpoint keeps it alive — the models move
+  // over to it instead of being cascaded away with this key (#619).
+  const sibling = row.platform === 'custom' ? siblingEndpointKeyId(db, id, row.base_url) : null;
 
   const remove = db.transaction(() => {
+    if (sibling != null) {
+      for (const table of ['models', 'embedding_models', 'media_models']) {
+        db.prepare(`UPDATE ${table} SET key_id = ? WHERE platform = 'custom' AND key_id = ?`).run(sibling, id);
+      }
+      db.prepare('DELETE FROM api_keys WHERE id = ?').run(id);
+      return;
+    }
+
     db.prepare('DELETE FROM api_keys WHERE id = ?').run(id);
     // Custom models exist only because POST /custom registered them alongside
     // their endpoint key (#117) — they can't route without it. Cascade away

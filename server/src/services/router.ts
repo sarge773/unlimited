@@ -22,6 +22,7 @@ import { parseBudget } from '../lib/budget.js';
 import { platformDropsResponseFormat } from '../lib/sampling-params.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from './model-groups.js';
 import { getActiveProfileId } from './profile-models.js';
+import { customEndpointKeyIds } from './custom-endpoint.js';
 import type { BaseProvider } from '../providers/base.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import type { Db } from '../db/types.js';
@@ -788,13 +789,19 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
   let idx = roundRobinIndex.get(rrKey) ?? 0;
   const ranked = orderKeysByScore(entry, keys);
 
+  // A custom model belongs to exactly one endpoint (#212), but an endpoint can
+  // hold several credentials — so the pool is every key on the same base_url,
+  // rotated like any other platform's keys (#619). Legacy rows (key_id NULL)
+  // keep the old any-key match.
+  const endpointKeyIds = entry.platform === 'custom' && entry.key_id != null
+    ? customEndpointKeyIds(db, entry.key_id)
+    : null;
+
   for (let attempt = 0; attempt < keys.length; attempt++) {
     const key = ranked ? ranked[attempt] : keys[idx % keys.length];
     idx++;
 
-    // A custom model belongs to exactly one endpoint (#212); legacy rows
-    // (key_id NULL) keep the old any-key match.
-    if (entry.platform === 'custom' && entry.key_id != null && key.id !== entry.key_id) { note('custom-key-mismatch'); continue; }
+    if (endpointKeyIds && !endpointKeyIds.has(key.id)) { note('custom-key-mismatch'); continue; }
 
     const skipId = `${entry.platform}:${entry.model_id}:${key.id}`;
     if (skipKeys?.has(skipId)) { note('already-failed-this-request'); continue; }
@@ -886,11 +893,15 @@ export function hasOtherUsableKey(modelDbId: number, excludingKeyId: number, ski
     "SELECT id FROM api_keys WHERE platform = ? AND enabled = 1 AND status IN ('healthy', 'unknown')"
   ).all(m.platform) as { id: number }[];
 
+  // Keys of the model's own custom endpoint (#212, #619); a key belonging to a
+  // DIFFERENT endpoint cannot serve it, so it doesn't count as an alternative.
+  const endpointKeyIds = m.platform === 'custom' && m.key_id != null
+    ? customEndpointKeyIds(db, m.key_id)
+    : null;
+
   for (const k of keys) {
     if (k.id === excludingKeyId) continue;
-    // A custom model binds to exactly one endpoint key (#212); a sibling custom
-    // key cannot serve it, so it doesn't count as an alternative.
-    if (m.platform === 'custom' && m.key_id != null && k.id !== m.key_id) continue;
+    if (endpointKeyIds && !endpointKeyIds.has(k.id)) continue;
     if (skipKeys?.has(`${m.platform}:${m.model_id}:${k.id}`)) continue;
     if (isOnCooldown(m.platform, m.model_id, k.id)) continue;
     if (!canUseProvider(m.platform, k.id)) continue;
@@ -1044,9 +1055,13 @@ export function getOrderedFusionChain(estimatedTokens: number): FusionCandidate[
     if (e.context_window != null && estimatedTokens > e.context_window) return false;
     const keyIds = keysByPlatform.get(e.platform);
     if (!keyIds) return false;
+    // Same endpoint-pool rule the router applies (#619).
+    const endpointKeyIds = e.platform === 'custom' && e.key_id != null
+      ? customEndpointKeyIds(db, e.key_id)
+      : null;
     const limits = { rpm: e.rpm_limit, rpd: e.rpd_limit, tpm: e.tpm_limit, tpd: e.tpd_limit };
     return keyIds.some(kid =>
-      (e.key_id == null || kid === e.key_id) &&
+      (endpointKeyIds == null || endpointKeyIds.has(kid)) &&
       !isOnCooldown(e.platform, e.model_id, kid) &&
       canUseProvider(e.platform, kid) &&
       canUseProviderMinute(e.platform, kid) &&
