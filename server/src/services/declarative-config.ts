@@ -6,6 +6,7 @@ import { encrypt } from '../lib/crypto.js';
 import { resolveProvider } from '../providers/index.js';
 import { setCustomWeights, setRoutingStrategy } from './router.js';
 import { ensureModelInProfiles } from './profile-models.js';
+import { customModelSeed } from './custom-model-seed.js';
 import {
   clearCatalogModelTombstone,
   isCatalogManagedModel,
@@ -225,6 +226,10 @@ function registerCustomProvider(db: Db, input: z.infer<typeof customProviderSche
     baseUrl: input.baseUrl,
     enabled: true,
   });
+  // Same median seeding as the dashboard's custom-model path (#488): an
+  // undeclared rank means "unknown", not "worst". An explicitly declared rank
+  // always wins.
+  const seed = customModelSeed(db);
   let registered = 0;
   for (const entry of input.models) {
     const model = normalizeModelEntry(entry);
@@ -249,9 +254,9 @@ function registerCustomProvider(db: Db, input: z.infer<typeof customProviderSche
     `).run(
       model.modelId,
       model.displayName,
-      model.intelligenceRank ?? 50,
-      model.speedRank ?? 50,
-      model.sizeLabel ?? 'Custom',
+      model.intelligenceRank ?? seed.intelligenceRank,
+      model.speedRank ?? seed.speedRank,
+      model.sizeLabel ?? seed.sizeLabel,
       model.monthlyTokenBudget ?? '',
       model.contextWindow ?? null,
       model.supportsVision ? 1 : 0,

@@ -16,7 +16,7 @@ import {
 import {
   BANDIT_PRESETS, DEFAULT_STRATEGY, type RoutingStrategy, type RoutingWeights,
   reliabilityPosterior, expectedReliability, sampleBeta,
-  speedScore, intelligenceScore, headroomFactor, rateLimitFactor, combineScore,
+  speedScore, intelligenceScore, intelligenceComposite, headroomFactor, rateLimitFactor, combineScore,
 } from './scoring.js';
 import { parseBudget } from '../lib/budget.js';
 import { platformDropsResponseFormat } from '../lib/sampling-params.js';
@@ -460,15 +460,9 @@ export function refreshStatsCache(db: Db, force = false): void {
   statsCacheTime = Date.now();
 }
 
-// Composite intelligence: size_label is the cross-provider capability tier
-// (issue #135 — intelligence_rank is only meaningful within one provider), so
-// tier dominates and intelligence_rank breaks ties inside a tier.
-const TIER_VALUE: Record<string, number> = { Frontier: 4, Large: 3, Medium: 2, Small: 1 };
-function intelligenceComposite(sizeLabel: string, intelligenceRank: number): number {
-  const tier = TIER_VALUE[sizeLabel] ?? 0;
-  // tier*1000 keeps tiers strictly separated; -rank prefers lower rank in-tier.
-  return tier * 1000 - intelligenceRank;
-}
+// Composite intelligence (tier-first, rank-as-tiebreaker) lives in scoring.ts
+// so the seeding path can reason about the same tier ladder the router scores
+// on — see intelligenceComposite there.
 
 // Per-model axis values + the final score. `sampled` chooses Thompson sampling
 // (for routing) vs. the expected value (for a stable dashboard display).

@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown, CircleAlert, ExternalLink, KeyRound, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
+import { ChevronDown, CircleAlert, ExternalLink, KeyRound, ListPlus, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
 import type { ApiKey, ApiKeyModel } from '../../../../shared/types'
 import { formatSqliteUtcToLocalTime } from '@/lib/utils'
 import { useI18n } from '@/i18n'
@@ -31,6 +31,7 @@ import {
   statusLabelKey,
 } from './shared'
 import type { HealthData } from './shared'
+import { DiscoverModelsDialog } from './discover-models-dialog'
 
 type StatusFilter = 'all' | 'healthy' | 'issues' | 'disabled'
 
@@ -48,6 +49,9 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
   const [groupOverrides, setGroupOverrides] = useState<Map<string, boolean>>(new Map())
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  // Custom endpoint whose model list is being fetched (#488) — relays change
+  // what they serve constantly, so this is a repeat action, not a one-off.
+  const [discoverKeyId, setDiscoverKeyId] = useState<number | null>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
 
   const { data: keys = [], isLoading } = useQuery<ApiKey[]>({
@@ -413,6 +417,18 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                                   <Pencil className="size-3" />
                                 </Button>
                               )}
+                              {k.platform === 'custom' && k.baseUrl && (
+                                <Tooltip text={t('keys.discoverModels')}>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={() => setDiscoverKeyId(k.id)}
+                                    aria-label={t('keys.discoverModels')}
+                                  >
+                                    <ListPlus className="size-3" />
+                                  </Button>
+                                </Tooltip>
+                              )}
                               <Tooltip text={t('keys.checkNow')}>
                                 <Button
                                   variant="ghost"
@@ -485,6 +501,14 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
             )
           })}
         </div>
+      )}
+
+      {discoverKeyId !== null && (
+        <DiscoverModelsDialog
+          open
+          onOpenChange={(open) => { if (!open) setDiscoverKeyId(null) }}
+          endpoint={{ keyId: discoverKeyId }}
+        />
       )}
     </div>
   )
