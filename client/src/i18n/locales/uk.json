@@ -506,7 +506,14 @@
     "errorPrefix": "Помилка:",
     "systemPromptLabel": "Системна підказка",
     "systemPromptPlaceholder": "Додатково. Надсилається як системне повідомлення перед вашим чатом.",
-    "errorTitle": "Запит не виконано"
+    "errorTitle": "Запит не виконано",
+    "attach": "Прикріпити файли",
+    "attachTooMany": "До одного повідомлення можна прикріпити не більше {count} файлів.",
+    "attachTooLarge": "Файл {name} завеликий. Обмеження — {max}.",
+    "attachUnsupported": "{name} не підтримується. Прикріпіть зображення (PNG, JPEG, WebP, GIF) або текстові файли (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Не вдалося прочитати {name}.",
+    "noVisionBadge": "Без зображень",
+    "visionWarning": "{model} не приймає зображення. Виберіть модель із підтримкою зображень або «Авто»."
   },
   "embeddings": {
     "title": "Моделі",

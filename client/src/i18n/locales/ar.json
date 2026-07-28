@@ -506,7 +506,14 @@
     "errorPrefix": "خطأ:",
     "systemPromptLabel": "موجه النظام",
     "systemPromptPlaceholder": "اختياري. يتم إرسالها كرسالة نظام قبل الدردشة.",
-    "errorTitle": "فشل الطلب"
+    "errorTitle": "فشل الطلب",
+    "attach": "إرفاق الملفات",
+    "attachTooMany": "يمكنك إرفاق ما يصل إلى {count} ملفات لكل رسالة.",
+    "attachTooLarge": "حجم {name} كبير جدًا. الحد الأقصى هو {max}.",
+    "attachUnsupported": "{name} غير مدعوم. أرفق صورًا (PNG، JPEG، WebP، GIF) أو ملفات نصية (TXT، MD، CSV، JSON، LOG).",
+    "attachFailed": "تعذّرت قراءة {name}.",
+    "noVisionBadge": "بدون صور",
+    "visionWarning": "{model} لا يقبل الصور. اختر نموذج رؤية أو «تلقائي»."
   },
   "embeddings": {
     "title": "نماذج",

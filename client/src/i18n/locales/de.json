@@ -506,7 +506,14 @@
     "errorPrefix": "Fehler:",
     "systemPromptLabel": "Systemaufforderung",
     "systemPromptPlaceholder": "Optional. Wird als Systemnachricht vor Ihrem Chat gesendet.",
-    "errorTitle": "Die Anfrage ist fehlgeschlagen"
+    "errorTitle": "Die Anfrage ist fehlgeschlagen",
+    "attach": "Dateien anhängen",
+    "attachTooMany": "Sie können bis zu {count} Dateien pro Nachricht anhängen.",
+    "attachTooLarge": "{name} ist zu groß. Das Limit beträgt {max}.",
+    "attachUnsupported": "{name} wird nicht unterstützt. Hängen Sie Bilder (PNG, JPEG, WebP, GIF) oder Textdateien (TXT, MD, CSV, JSON, LOG) an.",
+    "attachFailed": "{name} konnte nicht gelesen werden.",
+    "noVisionBadge": "Keine Bilder",
+    "visionWarning": "{model} akzeptiert keine Bilder. Wählen Sie ein Vision-Modell oder Auto."
   },
   "embeddings": {
     "title": "Modelle",

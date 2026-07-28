@@ -506,7 +506,14 @@
     "errorPrefix": "Virhe:",
     "systemPromptLabel": "Järjestelmäkehote",
     "systemPromptPlaceholder": "Valinnainen. Lähetetty järjestelmäviestinä ennen keskusteluasi.",
-    "errorTitle": "Pyyntö epäonnistui"
+    "errorTitle": "Pyyntö epäonnistui",
+    "attach": "Liitä tiedostoja",
+    "attachTooMany": "Voit liittää enintään {count} tiedostoa viestiä kohden.",
+    "attachTooLarge": "{name} on liian suuri. Raja on {max}.",
+    "attachUnsupported": "{name} ei ole tuettu. Liitä kuvia (PNG, JPEG, WebP, GIF) tai tekstitiedostoja (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Tiedostoa {name} ei voitu lukea.",
+    "noVisionBadge": "Ei kuvia",
+    "visionWarning": "{model} ei hyväksy kuvia. Valitse kuvasyötteen hyväksyvä malli tai Auto."
   },
   "embeddings": {
     "title": "Mallit",

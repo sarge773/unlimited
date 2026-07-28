@@ -506,7 +506,14 @@
     "errorPrefix": "Hitilafu:",
     "systemPromptLabel": "Agizo la mfumo",
     "systemPromptPlaceholder": "Hiari. Imetumwa kama ujumbe wa mfumo kabla ya gumzo lako.",
-    "errorTitle": "Ombi halijafaulu"
+    "errorTitle": "Ombi halijafaulu",
+    "attach": "Ambatisha faili",
+    "attachTooMany": "Unaweza kuambatisha hadi faili {count} kwa kila ujumbe.",
+    "attachTooLarge": "{name} ni kubwa mno. Kikomo ni {max}.",
+    "attachUnsupported": "{name} haitumiki. Ambatisha picha (PNG, JPEG, WebP, GIF) au faili za maandishi (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Imeshindwa kusoma {name}.",
+    "noVisionBadge": "Hakuna picha",
+    "visionWarning": "{model} haikubali picha. Chagua muundo wa maono au Otomatiki."
   },
   "embeddings": {
     "title": "Mifano",

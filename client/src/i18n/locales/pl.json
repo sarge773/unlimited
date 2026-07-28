@@ -506,7 +506,14 @@
     "errorPrefix": "Błąd:",
     "systemPromptLabel": "Monit systemowy",
     "systemPromptPlaceholder": "Opcjonalne. Wysłane jako wiadomość systemowa przed rozmową.",
-    "errorTitle": "Żądanie nie powiodło się"
+    "errorTitle": "Żądanie nie powiodło się",
+    "attach": "Załącz pliki",
+    "attachTooMany": "W jednej wiadomości możesz załączyć maksymalnie {count} plików.",
+    "attachTooLarge": "Plik {name} jest za duży. Limit to {max}.",
+    "attachUnsupported": "{name} nie jest obsługiwany. Załącz obrazy (PNG, JPEG, WebP, GIF) lub pliki tekstowe (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Nie udało się odczytać pliku {name}.",
+    "noVisionBadge": "Bez obrazów",
+    "visionWarning": "{model} nie przyjmuje obrazów. Wybierz model obsługujący obrazy lub Auto."
   },
   "embeddings": {
     "title": "Modele",

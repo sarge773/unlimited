@@ -506,7 +506,14 @@
     "errorPrefix": "Feil:",
     "systemPromptLabel": "Systemprompt",
     "systemPromptPlaceholder": "Valgfritt. Sendt som en systemmelding før chatten din.",
-    "errorTitle": "Forespørselen ble avvist"
+    "errorTitle": "Forespørselen ble avvist",
+    "attach": "Legg ved filer",
+    "attachTooMany": "Du kan legge ved opptil {count} filer per melding.",
+    "attachTooLarge": "{name} er for stor. Grensen er {max}.",
+    "attachUnsupported": "{name} støttes ikke. Legg ved bilder (PNG, JPEG, WebP, GIF) eller tekstfiler (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Kunne ikke lese {name}.",
+    "noVisionBadge": "Ingen bilder",
+    "visionWarning": "{model} godtar ikke bilder. Velg en modell med bildeinput eller Auto."
   },
   "embeddings": {
     "title": "Modeller",

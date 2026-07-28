@@ -506,7 +506,14 @@
     "errorPrefix": "Chyba:",
     "systemPromptLabel": "Systémový prompt",
     "systemPromptPlaceholder": "Volitelné. Odesláno jako systémová zpráva před vaším chatem.",
-    "errorTitle": "Žádost neúspěšná"
+    "errorTitle": "Žádost neúspěšná",
+    "attach": "Připojit soubory",
+    "attachTooMany": "Ke zprávě můžete připojit až {count} souborů.",
+    "attachTooLarge": "{name} je příliš velký. Limit je {max}.",
+    "attachUnsupported": "{name} není podporován. Připojte obrázky (PNG, JPEG, WebP, GIF) nebo textové soubory (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Soubor {name} se nepodařilo přečíst.",
+    "noVisionBadge": "Bez obrázků",
+    "visionWarning": "{model} nepřijímá obrázky. Zvolte model podporující obrázky nebo Auto."
   },
   "embeddings": {
     "title": "Modely",

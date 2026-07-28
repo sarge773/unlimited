@@ -506,7 +506,14 @@
     "errorPrefix": "లోపం:",
     "systemPromptLabel": "సిస్టమ్ ప్రాంప్ట్",
     "systemPromptPlaceholder": "ఐచ్ఛికం. మీ చాట్‌కు ముందు సిస్టమ్ సందేశంగా పంపబడింది.",
-    "errorTitle": "అభ్యర్థన విఫలమైంది"
+    "errorTitle": "అభ్యర్థన విఫలమైంది",
+    "attach": "ఫైల్‌లను జోడించండి",
+    "attachTooMany": "ఒక్కో సందేశానికి మీరు గరిష్టంగా {count} ఫైల్‌లను జోడించవచ్చు.",
+    "attachTooLarge": "{name} చాలా పెద్దది. పరిమితి {max}.",
+    "attachUnsupported": "{name} మద్దతు లేదు. చిత్రాలను (PNG, JPEG, WebP, GIF) లేదా టెక్స్ట్ ఫైల్‌లను (TXT, MD, CSV, JSON, LOG) జోడించండి.",
+    "attachFailed": "{name} చదవడం సాధ్యం కాలేదు.",
+    "noVisionBadge": "చిత్రాలు లేవు",
+    "visionWarning": "{model} చిత్రాలను అంగీకరించదు. చిత్రాలకు మద్దతిచ్చే మోడల్‌ని లేదా ఆటో ఎంచుకోండి."
   },
   "embeddings": {
     "title": "మోడల్స్",

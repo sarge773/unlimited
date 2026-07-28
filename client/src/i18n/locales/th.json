@@ -506,7 +506,14 @@
     "errorPrefix": "ข้อผิดพลาด:",
     "systemPromptLabel": "พร้อมท์ระบบ",
     "systemPromptPlaceholder": "ไม่จำเป็น ส่งเป็นข้อความระบบก่อนการแชทของคุณ",
-    "errorTitle": "คำขอล้มเหลว"
+    "errorTitle": "คำขอล้มเหลว",
+    "attach": "แนบไฟล์",
+    "attachTooMany": "คุณแนบไฟล์ได้สูงสุด {count} ไฟล์ต่อหนึ่งข้อความ",
+    "attachTooLarge": "{name} มีขนาดใหญ่เกินไป ขีดจำกัดคือ {max}",
+    "attachUnsupported": "{name} ไม่รองรับ กรุณาแนบรูปภาพ (PNG, JPEG, WebP, GIF) หรือไฟล์ข้อความ (TXT, MD, CSV, JSON, LOG)",
+    "attachFailed": "ไม่สามารถอ่าน {name} ได้",
+    "noVisionBadge": "ไม่รับรูปภาพ",
+    "visionWarning": "{model} ไม่รองรับรูปภาพ เลือกโมเดลที่รองรับรูปภาพหรืออัตโนมัติ"
   },
   "embeddings": {
     "title": "โมเดล",

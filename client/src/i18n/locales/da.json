@@ -506,7 +506,14 @@
     "errorPrefix": "Fejl:",
     "systemPromptLabel": "Systemprompt",
     "systemPromptPlaceholder": "Valgfrit. Sendt som en systembesked før din chat.",
-    "errorTitle": "Anmodningen mislykkedes"
+    "errorTitle": "Anmodningen mislykkedes",
+    "attach": "Vedhæft filer",
+    "attachTooMany": "Du kan vedhæfte op til {count} filer pr. besked.",
+    "attachTooLarge": "{name} er for stor. Grænsen er {max}.",
+    "attachUnsupported": "{name} understøttes ikke. Vedhæft billeder (PNG, JPEG, WebP, GIF) eller tekstfiler (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Kunne ikke læse {name}.",
+    "noVisionBadge": "Ingen billeder",
+    "visionWarning": "{model} accepterer ikke billeder. Vælg en model med billedinput eller Auto."
   },
   "embeddings": {
     "title": "Modeller",

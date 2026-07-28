@@ -506,7 +506,14 @@
     "errorPrefix": "Asise:",
     "systemPromptLabel": "Ilana eto",
     "systemPromptPlaceholder": "iyan. Ti firanṣẹ bi ifiranṣẹ eto ṣaaju iwiregbe rẹ.",
-    "errorTitle": "Ibere kuna"
+    "errorTitle": "Ibere kuna",
+    "attach": "Somọ awọn faili",
+    "attachTooMany": "O le somọ to awọn faili {count} fun ifiranṣẹ kọọkan.",
+    "attachTooLarge": "{name} tobi ju. Ààlà ni {max}.",
+    "attachUnsupported": "A ko ṣe atilẹyin fun {name}. Somọ awọn aworan (PNG, JPEG, WebP, GIF) tabi awọn faili ọrọ (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "A ko le ka {name}.",
+    "noVisionBadge": "Ko si aworan",
+    "visionWarning": "{model} ko gba aworan. Yan awoṣe ti o gba aworan tabi Aifọwọyi."
   },
   "embeddings": {
     "title": "Awọn awoṣe",

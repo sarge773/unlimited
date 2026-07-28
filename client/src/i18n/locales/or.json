@@ -506,7 +506,14 @@
     "errorPrefix": "ତ୍ରୁଟି:",
     "systemPromptLabel": "ସିଷ୍ଟମ୍ ପ୍ରମ୍ପ୍ଟ",
     "systemPromptPlaceholder": "ଇଚ୍ଛାଧୀନ । ଆପଣଙ୍କ ଚାଟ୍ ପୂର୍ବରୁ ଏକ ସିଷ୍ଟମ୍ ସନ୍ଦେଶ ଭାବେ ପ୍ରେରିତ ହୋଇଛି।",
-    "errorTitle": "ଅନୁରୋଧ ବିଫଳ ହୋଇଛି"
+    "errorTitle": "ଅନୁରୋଧ ବିଫଳ ହୋଇଛି",
+    "attach": "ଫାଇଲଗୁଡିକ ସଂଲଗ୍ନ କରନ୍ତୁ",
+    "attachTooMany": "ପ୍ରତି ସନ୍ଦେଶରେ ଆପଣ ସର୍ବାଧିକ {count} ଫାଇଲ୍ ସଂଲଗ୍ନ କରିପାରିବେ।",
+    "attachTooLarge": "{name} ବହୁତ ବଡ଼। ସୀମା ହେଉଛି {max}।",
+    "attachUnsupported": "{name} ସମର୍ଥିତ ନୁହେଁ। ଚିତ୍ର (PNG, JPEG, WebP, GIF) କିମ୍ୱା ଟେକ୍ସଟ୍ ଫାଇଲ (TXT, MD, CSV, JSON, LOG) ସଂଲଗ୍ନ କରନ୍ତୁ।",
+    "attachFailed": "{name} ପଢ଼ି ହେଲା ନାହିଁ।",
+    "noVisionBadge": "ଚିତ୍ର ନାହିଁ",
+    "visionWarning": "{model} ଚିତ୍ର ଗ୍ରହଣ କରେ ନାହିଁ। ଫଟୋ ଇନପୁଟ୍ ସ୍ଵୀକାର କରୁଥିବା ମଡେଲ୍ କିମ୍ୱା ସ୍ଵତଃ ଚୟନ କରନ୍ତୁ।"
   },
   "embeddings": {
     "title": "ମଡେଲଗୁଡିକ",

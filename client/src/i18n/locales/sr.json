@@ -506,7 +506,14 @@
     "errorPrefix": "Грешка:",
     "systemPromptLabel": "Системски промпт",
     "systemPromptPlaceholder": "Опционо. Послато као системска порука пре вашег ћаскања.",
-    "errorTitle": "Захтев није успео"
+    "errorTitle": "Захтев није успео",
+    "attach": "Приложи датотеке",
+    "attachTooMany": "По поруци можете приложити највише {count} датотека.",
+    "attachTooLarge": "Датотека {name} је превелика. Ограничење је {max}.",
+    "attachUnsupported": "Датотека {name} није подржана. Приложите слике (PNG, JPEG, WebP, GIF) или текстуалне датотеке (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Није могуће прочитати датотеку {name}.",
+    "noVisionBadge": "Без слика",
+    "visionWarning": "Модел {model} не прихвата слике. Изаберите модел са визијом или Ауто."
   },
   "embeddings": {
     "title": "Модели",

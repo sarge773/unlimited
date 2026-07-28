@@ -506,7 +506,14 @@
     "errorPrefix": "錯誤：",
     "systemPromptLabel": "系統提示",
     "systemPromptPlaceholder": "可選的。在聊天前以系統訊息形式發送。",
-    "errorTitle": "申請失敗"
+    "errorTitle": "申請失敗",
+    "attach": "附加檔案",
+    "attachTooMany": "每則訊息最多可附加 {count} 個檔案。",
+    "attachTooLarge": "{name} 太大了。上限為 {max}。",
+    "attachUnsupported": "{name} 不受支援。請附加圖片（PNG、JPEG、WebP、GIF）或文字檔案（TXT、MD、CSV、JSON、LOG）。",
+    "attachFailed": "無法讀取 {name}。",
+    "noVisionBadge": "無圖片",
+    "visionWarning": "{model} 不接受圖片。請選擇支援影像輸入的模型或「自動」。"
   },
   "embeddings": {
     "title": "型號",

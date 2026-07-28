@@ -506,7 +506,14 @@
     "errorPrefix": "ਗਲਤੀ:",
     "systemPromptLabel": "ਸਿਸਟਮ ਪ੍ਰੋਂਪਟ",
     "systemPromptPlaceholder": "ਵਿਕਲਪਿਕ। ਤੁਹਾਡੀ ਗੱਲਬਾਤ ਤੋਂ ਪਹਿਲਾਂ ਇੱਕ ਸਿਸਟਮ ਸੁਨੇਹੇ ਵਜੋਂ ਭੇਜਿਆ ਗਿਆ।",
-    "errorTitle": "ਬੇਨਤੀ ਅਸਫਲ ਰਹੀ"
+    "errorTitle": "ਬੇਨਤੀ ਅਸਫਲ ਰਹੀ",
+    "attach": "ਫਾਈਲਾਂ ਨੱਥੀ ਕਰੋ",
+    "attachTooMany": "ਤੁਸੀਂ ਪ੍ਰਤੀ ਸੁਨੇਹਾ ਵੱਧ ਤੋਂ ਵੱਧ {count} ਫਾਈਲਾਂ ਨੱਥੀ ਕਰ ਸਕਦੇ ਹੋ।",
+    "attachTooLarge": "{name} ਬਹੁਤ ਵੱਡੀ ਹੈ। ਸੀਮਾ {max} ਹੈ।",
+    "attachUnsupported": "{name} ਸਮਰਥਿਤ ਨਹੀਂ ਹੈ। ਚਿੱਤਰ (PNG, JPEG, WebP, GIF) ਜਾਂ ਟੈਕਸਟ ਫਾਈਲਾਂ (TXT, MD, CSV, JSON, LOG) ਨੱਥੀ ਕਰੋ।",
+    "attachFailed": "{name} ਪੜ੍ਹਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।",
+    "noVisionBadge": "ਚਿੱਤਰ ਨਹੀਂ",
+    "visionWarning": "{model} ਚਿੱਤਰ ਸਵੀਕਾਰ ਨਹੀਂ ਕਰਦਾ। ਚਿੱਤਰ ਇੰਪੁੱਟ ਸਵੀਕਾਰ ਕਰਨ ਵਾਲਾ ਮਾਡਲ ਜਾਂ ਆਟੋ ਚੁਣੋ।"
   },
   "embeddings": {
     "title": "ਮਾਡਲ",

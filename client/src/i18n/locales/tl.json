@@ -506,7 +506,14 @@
     "errorPrefix": "Error:",
     "systemPromptLabel": "System prompt",
     "systemPromptPlaceholder": "Opsyonal. Ipinadala bilang system message bago ang iyong chat.",
-    "errorTitle": "Nabigo ang kahilingan"
+    "errorTitle": "Nabigo ang kahilingan",
+    "attach": "Maglakip ng mga file",
+    "attachTooMany": "Puwede kang maglakip ng hanggang {count} file kada mensahe.",
+    "attachTooLarge": "Masyadong malaki ang {name}. Ang limitasyon ay {max}.",
+    "attachUnsupported": "Hindi suportado ang {name}. Maglakip ng mga larawan (PNG, JPEG, WebP, GIF) o mga text file (TXT, MD, CSV, JSON, LOG).",
+    "attachFailed": "Hindi mabasa ang {name}.",
+    "noVisionBadge": "Walang larawan",
+    "visionWarning": "Hindi tumatanggap ng larawan ang {model}. Pumili ng modelong tumatanggap ng larawan o Auto."
   },
   "embeddings": {
     "title": "Mga Modelo",
