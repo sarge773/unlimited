@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "becsült megtakarított tokenek",
     "compressionPreview": "Élő előnézet",
     "compressionPreviewPlaceholder": "Illessze be a kérés JSON-jét vagy egyszerű szöveget",
-    "compressionRunPreview": "Előnézet futtatása"
+    "compressionRunPreview": "Előnézet futtatása",
+    "updatesTitle": "Frissítések",
+    "currentVersion": "Jelenlegi build:",
+    "updateAvailable": "Frissítés érhető el",
+    "changelog": "Mi változott",
+    "upToDate": "Naprakész",
+    "buildAhead": "Ez a build megelőzi a hivatalos main ágat.",
+    "buildDiverged": "Ez a build eltért a hivatalos main ágtól.",
+    "buildUnknown": "Ez az egyéni build nem hasonlítható össze a hivatalos main ággal.",
+    "notGitInstall": "Ez a telepítés nem tartalmaz commitinformációkat.",
+    "checkFailed": "Nem sikerült ellenőrizni a frissítéseket.",
+    "contactsGithub": "Az ellenőrzések manuálisak, és kapcsolatba lépnek a GitHubbal.",
+    "openReleases": "GitHub-kiadások megnyitása",
+    "restartAfterUpdate": "A build befejezése után indítsa újra a FreeLLMAPI-t."
   },
   "models": {
     "title": "Modellek",

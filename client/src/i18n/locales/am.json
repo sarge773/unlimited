@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "የተቆጠቡ ግምታዊ ማስመሰያዎች",
     "compressionPreview": "ቀጥታ ቅድመ-እይታ",
     "compressionPreviewPlaceholder": "የጥያቄ JSON ወይም ተራ ጽሑፍ ይለጥፉ",
-    "compressionRunPreview": "ቅድመ-እይታ አሂድ"
+    "compressionRunPreview": "ቅድመ-እይታ አሂድ",
+    "updatesTitle": "ዝማኔዎች",
+    "currentVersion": "የአሁኑ ግንባታ:",
+    "updateAvailable": "ዝማኔ አለ",
+    "changelog": "ምን ተለውጧል",
+    "upToDate": "ወቅታዊ ነው",
+    "buildAhead": "ይህ ግንባታ ከይፋዊው main ቀድሟል።",
+    "buildDiverged": "ይህ ግንባታ ከይፋዊው main ተለይቷል።",
+    "buildUnknown": "ይህ ብጁ ግንባታ ከይፋዊው main ጋር ሊነጻጸር አይችልም።",
+    "notGitInstall": "ይህ ጭነት የcommit መረጃን አያካትትም።",
+    "checkFailed": "ዝማኔዎችን መፈተሽ አልተቻለም።",
+    "contactsGithub": "ፍተሻዎች በእጅ የሚከናወኑ ሲሆን GitHubን ያገናኛሉ።",
+    "openReleases": "የGitHub ልቀቶችን ክፈት",
+    "restartAfterUpdate": "ግንባታው ከተጠናቀቀ በኋላ FreeLLMAPIን እንደገና ያስጀምሩ።"
   },
   "models": {
     "title": "ሞዴሎች",

@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "სავარაუდო დაზოგილი ტოკენები",
     "compressionPreview": "ცოცხალი გადახედვა",
     "compressionPreviewPlaceholder": "ჩასვით მოთხოვნის JSON ან უბრალო ტექსტი",
-    "compressionRunPreview": "გადახედვის გაშვება"
+    "compressionRunPreview": "გადახედვის გაშვება",
+    "updatesTitle": "განახლებები",
+    "currentVersion": "მიმდინარე ბილდი:",
+    "updateAvailable": "განახლება ხელმისაწვდომია",
+    "changelog": "რა შეიცვალა",
+    "upToDate": "განახლებულია",
+    "buildAhead": "ეს ბილდი ოფიციალურ main შტოს უსწრებს.",
+    "buildDiverged": "ეს ბილდი ოფიციალურ main შტოს ასცდა.",
+    "buildUnknown": "ამ მორგებული ბილდის შედარება ოფიციალურ main შტოსთან შეუძლებელია.",
+    "notGitInstall": "ეს ინსტალაცია კომიტების შესახებ ინფორმაციას არ შეიცავს.",
+    "checkFailed": "განახლებების შემოწმება ვერ მოხერხდა.",
+    "contactsGithub": "შემოწმება ხელით სრულდება და GitHub-ს უკავშირდება.",
+    "openReleases": "GitHub-ის რელიზების გახსნა",
+    "restartAfterUpdate": "ბილდის დასრულების შემდეგ გადატვირთეთ FreeLLMAPI."
   },
   "models": {
     "title": "მოდელები",

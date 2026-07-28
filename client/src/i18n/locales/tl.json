@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "tinatayang token na natipid",
     "compressionPreview": "Live preview",
     "compressionPreviewPlaceholder": "I-paste ang request JSON o plain text",
-    "compressionRunPreview": "Patakbuhin ang preview"
+    "compressionRunPreview": "Patakbuhin ang preview",
+    "updatesTitle": "Mga Update",
+    "currentVersion": "Kasalukuyang build:",
+    "updateAvailable": "May available na update",
+    "changelog": "Ano ang nagbago",
+    "upToDate": "Napapanahon",
+    "buildAhead": "Nauuna ang build na ito sa opisyal na main.",
+    "buildDiverged": "Lumihis ang build na ito sa opisyal na main.",
+    "buildUnknown": "Hindi maihahambing ang custom build na ito sa opisyal na main.",
+    "notGitInstall": "Walang impormasyon ng commit ang installation na ito.",
+    "checkFailed": "Hindi masuri kung may mga update.",
+    "contactsGithub": "Manu-mano ang mga pagsusuri at kumokonekta ang mga ito sa GitHub.",
+    "openReleases": "Buksan ang GitHub Releases",
+    "restartAfterUpdate": "I-restart ang FreeLLMAPI kapag natapos ang build."
   },
   "models": {
     "title": "Mga Modelo",

@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "tahmini jeton tasarrufu",
     "compressionPreview": "Canlı önizleme",
     "compressionPreviewPlaceholder": "İstek JSON'u veya düz metin yapıştırın",
-    "compressionRunPreview": "Önizlemeyi çalıştır"
+    "compressionRunPreview": "Önizlemeyi çalıştır",
+    "updatesTitle": "Güncellemeler",
+    "currentVersion": "Mevcut derleme:",
+    "updateAvailable": "Güncelleme mevcut",
+    "changelog": "Neler değişti",
+    "upToDate": "Güncel",
+    "buildAhead": "Bu derleme resmi main dalının ilerisinde.",
+    "buildDiverged": "Bu derleme resmi main dalından ayrışmış.",
+    "buildUnknown": "Bu özel derleme resmi main dalıyla karşılaştırılamıyor.",
+    "notGitInstall": "Bu kurulum commit bilgisi içermiyor.",
+    "checkFailed": "Güncellemeler denetlenemedi.",
+    "contactsGithub": "Denetimler elle yapılır ve GitHub ile iletişim kurar.",
+    "openReleases": "GitHub Sürümlerini Aç",
+    "restartAfterUpdate": "Derleme tamamlandıktan sonra FreeLLMAPI'yi yeniden başlatın."
   },
   "models": {
     "title": "Modeller",

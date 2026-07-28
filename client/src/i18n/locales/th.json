@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "โทเค็นที่ประหยัดได้โดยประมาณ",
     "compressionPreview": "ตัวอย่างสด",
     "compressionPreviewPlaceholder": "วาง JSON ของคำขอหรือข้อความธรรมดา",
-    "compressionRunPreview": "รันตัวอย่าง"
+    "compressionRunPreview": "รันตัวอย่าง",
+    "updatesTitle": "การอัปเดต",
+    "currentVersion": "บิลด์ปัจจุบัน:",
+    "updateAvailable": "มีการอัปเดต",
+    "changelog": "มีอะไรเปลี่ยนแปลง",
+    "upToDate": "เป็นเวอร์ชันล่าสุด",
+    "buildAhead": "บิลด์นี้ล้ำหน้า main อย่างเป็นทางการ",
+    "buildDiverged": "บิลด์นี้แยกออกจาก main อย่างเป็นทางการ",
+    "buildUnknown": "ไม่สามารถเปรียบเทียบบิลด์ที่ปรับแต่งนี้กับ main อย่างเป็นทางการได้",
+    "notGitInstall": "การติดตั้งนี้ไม่มีข้อมูล commit",
+    "checkFailed": "ไม่สามารถตรวจสอบการอัปเดตได้",
+    "contactsGithub": "การตรวจสอบเป็นแบบดำเนินการเองและมีการติดต่อ GitHub",
+    "openReleases": "เปิด GitHub Releases",
+    "restartAfterUpdate": "รีสตาร์ต FreeLLMAPI หลังจากบิลด์เสร็จสิ้น"
   },
   "models": {
     "title": "โมเดล",

@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "εκτιμώμενα tokens που εξοικονομήθηκαν",
     "compressionPreview": "Ζωντανή προεπισκόπηση",
     "compressionPreviewPlaceholder": "Επικολλήστε JSON αιτήματος ή απλό κείμενο",
-    "compressionRunPreview": "Εκτέλεση προεπισκόπησης"
+    "compressionRunPreview": "Εκτέλεση προεπισκόπησης",
+    "updatesTitle": "Ενημερώσεις",
+    "currentVersion": "Τρέχον build:",
+    "updateAvailable": "Διαθέσιμη ενημέρωση",
+    "changelog": "Τι άλλαξε",
+    "upToDate": "Ενημερωμένο",
+    "buildAhead": "Αυτό το build είναι μπροστά από το επίσημο main.",
+    "buildDiverged": "Αυτό το build έχει αποκλίνει από το επίσημο main.",
+    "buildUnknown": "Αυτό το προσαρμοσμένο build δεν μπορεί να συγκριθεί με το επίσημο main.",
+    "notGitInstall": "Αυτή η εγκατάσταση δεν περιλαμβάνει πληροφορίες commit.",
+    "checkFailed": "Δεν ήταν δυνατός ο έλεγχος για ενημερώσεις.",
+    "contactsGithub": "Οι έλεγχοι γίνονται χειροκίνητα και επικοινωνούν με το GitHub.",
+    "openReleases": "Άνοιγμα εκδόσεων GitHub",
+    "restartAfterUpdate": "Επανεκκινήστε το FreeLLMAPI μετά την ολοκλήρωση του build."
   },
   "models": {
     "title": "Μοντέλα",

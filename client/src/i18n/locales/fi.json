@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "arviolta säästetyt tokenit",
     "compressionPreview": "Live-esikatselu",
     "compressionPreviewPlaceholder": "Liitä pyynnön JSON tai pelkkä teksti",
-    "compressionRunPreview": "Suorita esikatselu"
+    "compressionRunPreview": "Suorita esikatselu",
+    "updatesTitle": "Päivitykset",
+    "currentVersion": "Nykyinen koontiversio:",
+    "updateAvailable": "Päivitys saatavilla",
+    "changelog": "Mikä muuttui",
+    "upToDate": "Ajan tasalla",
+    "buildAhead": "Tämä koontiversio on virallista main-haaraa edellä.",
+    "buildDiverged": "Tämä koontiversio on erkaantunut virallisesta main-haarasta.",
+    "buildUnknown": "Tätä mukautettua koontiversiota ei voi verrata viralliseen main-haaraan.",
+    "notGitInstall": "Tämä asennus ei sisällä commit-tietoja.",
+    "checkFailed": "Päivitysten tarkistaminen epäonnistui.",
+    "contactsGithub": "Tarkistukset tehdään manuaalisesti ja ne ottavat yhteyden GitHubiin.",
+    "openReleases": "Avaa GitHub-julkaisut",
+    "restartAfterUpdate": "Käynnistä FreeLLMAPI uudelleen koonnin valmistuttua."
   },
   "models": {
     "title": "Mallit",

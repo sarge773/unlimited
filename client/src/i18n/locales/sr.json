@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "процењени уштеђени токени",
     "compressionPreview": "Преглед уживо",
     "compressionPreviewPlaceholder": "Налепи JSON захтева или обичан текст",
-    "compressionRunPreview": "Покрени преглед"
+    "compressionRunPreview": "Покрени преглед",
+    "updatesTitle": "Ажурирања",
+    "currentVersion": "Тренутна верзија:",
+    "updateAvailable": "Доступно је ажурирање",
+    "changelog": "Шта је промењено",
+    "upToDate": "Ажурно",
+    "buildAhead": "Ова верзија је испред званичне гране main.",
+    "buildDiverged": "Ова верзија се разишла са званичном граном main.",
+    "buildUnknown": "Ова прилагођена верзија се не може упоредити са званичном граном main.",
+    "notGitInstall": "Ова инсталација не садржи информације о комиту.",
+    "checkFailed": "Провера ажурирања није успела.",
+    "contactsGithub": "Провере се покрећу ручно и повезују се са GitHub-ом.",
+    "openReleases": "Отвори GitHub издања",
+    "restartAfterUpdate": "Поново покрените FreeLLMAPI након завршетка израде."
   },
   "models": {
     "title": "Модели",

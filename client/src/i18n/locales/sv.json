@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "uppskattade tokens sparade",
     "compressionPreview": "Live-förhandsvisning",
     "compressionPreviewPlaceholder": "Klistra in förfrågnings-JSON eller vanlig text",
-    "compressionRunPreview": "Kör förhandsvisning"
+    "compressionRunPreview": "Kör förhandsvisning",
+    "updatesTitle": "Uppdateringar",
+    "currentVersion": "Aktuell version:",
+    "updateAvailable": "Uppdatering tillgänglig",
+    "changelog": "Vad har ändrats",
+    "upToDate": "Uppdaterad",
+    "buildAhead": "Den här versionen ligger före officiella main.",
+    "buildDiverged": "Den här versionen har avvikit från officiella main.",
+    "buildUnknown": "Den här anpassade versionen kan inte jämföras med officiella main.",
+    "notGitInstall": "Den här installationen innehåller ingen commit-information.",
+    "checkFailed": "Det gick inte att söka efter uppdateringar.",
+    "contactsGithub": "Kontroller görs manuellt och kontaktar GitHub.",
+    "openReleases": "Öppna GitHub Releases",
+    "restartAfterUpdate": "Starta om FreeLLMAPI när bygget är klart."
   },
   "models": {
     "title": "Modeller",

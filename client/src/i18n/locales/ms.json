@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "anggaran token dijimatkan",
     "compressionPreview": "Pratonton langsung",
     "compressionPreviewPlaceholder": "Tampal JSON permintaan atau teks biasa",
-    "compressionRunPreview": "Jalankan pratonton"
+    "compressionRunPreview": "Jalankan pratonton",
+    "updatesTitle": "Kemas kini",
+    "currentVersion": "Binaan semasa:",
+    "updateAvailable": "Kemas kini tersedia",
+    "changelog": "Perubahan",
+    "upToDate": "Sudah dikemas kini",
+    "buildAhead": "Binaan ini mendahului cabang main rasmi.",
+    "buildDiverged": "Binaan ini telah menyimpang daripada cabang main rasmi.",
+    "buildUnknown": "Binaan tersuai ini tidak dapat dibandingkan dengan cabang main rasmi.",
+    "notGitInstall": "Pemasangan ini tidak menyertakan maklumat komit.",
+    "checkFailed": "Tidak dapat menyemak kemas kini.",
+    "contactsGithub": "Semakan dijalankan secara manual dan menghubungi GitHub.",
+    "openReleases": "Buka Keluaran GitHub",
+    "restartAfterUpdate": "Mulakan semula FreeLLMAPI selepas binaan selesai."
   },
   "models": {
     "title": "Model",

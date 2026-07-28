@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "estimasi token dihemat",
     "compressionPreview": "Pratinjau langsung",
     "compressionPreviewPlaceholder": "Tempel JSON permintaan atau teks biasa",
-    "compressionRunPreview": "Jalankan pratinjau"
+    "compressionRunPreview": "Jalankan pratinjau",
+    "updatesTitle": "Pembaruan",
+    "currentVersion": "Build saat ini:",
+    "updateAvailable": "Pembaruan tersedia",
+    "changelog": "Yang berubah",
+    "upToDate": "Sudah terbaru",
+    "buildAhead": "Build ini lebih maju dari cabang main resmi.",
+    "buildDiverged": "Build ini telah menyimpang dari cabang main resmi.",
+    "buildUnknown": "Build khusus ini tidak dapat dibandingkan dengan cabang main resmi.",
+    "notGitInstall": "Instalasi ini tidak menyertakan informasi commit.",
+    "checkFailed": "Tidak dapat memeriksa pembaruan.",
+    "contactsGithub": "Pemeriksaan dilakukan secara manual dan menghubungi GitHub.",
+    "openReleases": "Buka Rilis GitHub",
+    "restartAfterUpdate": "Mulai ulang FreeLLMAPI setelah proses build selesai."
   },
   "models": {
     "title": "Model",

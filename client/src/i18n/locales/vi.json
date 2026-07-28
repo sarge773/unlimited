@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "mã thông báo ước tính đã tiết kiệm",
     "compressionPreview": "Xem trước trực tiếp",
     "compressionPreviewPlaceholder": "Dán JSON yêu cầu hoặc văn bản thuần",
-    "compressionRunPreview": "Chạy xem trước"
+    "compressionRunPreview": "Chạy xem trước",
+    "updatesTitle": "Bản cập nhật",
+    "currentVersion": "Bản dựng hiện tại:",
+    "updateAvailable": "Có bản cập nhật",
+    "changelog": "Có gì thay đổi",
+    "upToDate": "Đã cập nhật",
+    "buildAhead": "Bản dựng này đi trước nhánh main chính thức.",
+    "buildDiverged": "Bản dựng này đã phân kỳ khỏi nhánh main chính thức.",
+    "buildUnknown": "Không thể so sánh bản dựng tùy chỉnh này với nhánh main chính thức.",
+    "notGitInstall": "Bản cài đặt này không có thông tin commit.",
+    "checkFailed": "Không thể kiểm tra bản cập nhật.",
+    "contactsGithub": "Việc kiểm tra được thực hiện thủ công và có kết nối với GitHub.",
+    "openReleases": "Mở GitHub Releases",
+    "restartAfterUpdate": "Khởi động lại FreeLLMAPI sau khi hoàn tất bản dựng."
   },
   "models": {
     "title": "Người mẫu",

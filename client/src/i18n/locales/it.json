@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "token stimati risparmiati",
     "compressionPreview": "Anteprima live",
     "compressionPreviewPlaceholder": "Incolla il JSON della richiesta o testo semplice",
-    "compressionRunPreview": "Esegui anteprima"
+    "compressionRunPreview": "Esegui anteprima",
+    "updatesTitle": "Aggiornamenti",
+    "currentVersion": "Build corrente:",
+    "updateAvailable": "Aggiornamento disponibile",
+    "changelog": "Novità",
+    "upToDate": "Aggiornato",
+    "buildAhead": "Questa build è più avanti del ramo main ufficiale.",
+    "buildDiverged": "Questa build si è discostata dal ramo main ufficiale.",
+    "buildUnknown": "Questa build personalizzata non può essere confrontata con il ramo main ufficiale.",
+    "notGitInstall": "Questa installazione non include informazioni sui commit.",
+    "checkFailed": "Impossibile verificare la disponibilità di aggiornamenti.",
+    "contactsGithub": "I controlli sono manuali e contattano GitHub.",
+    "openReleases": "Apri le release di GitHub",
+    "restartAfterUpdate": "Riavvia FreeLLMAPI al termine della build."
   },
   "models": {
     "title": "Modelli",

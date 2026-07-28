@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "رموز مقدرة تم توفيرها",
     "compressionPreview": "معاينة مباشرة",
     "compressionPreviewPlaceholder": "الصق JSON الطلب أو نصًا عاديًا",
-    "compressionRunPreview": "تشغيل المعاينة"
+    "compressionRunPreview": "تشغيل المعاينة",
+    "updatesTitle": "التحديثات",
+    "currentVersion": "البنية الحالية:",
+    "updateAvailable": "يتوفر تحديث",
+    "changelog": "ما الذي تغيّر",
+    "upToDate": "محدّث",
+    "buildAhead": "هذه البنية متقدمة على الفرع main الرسمي.",
+    "buildDiverged": "تباعدت هذه البنية عن الفرع main الرسمي.",
+    "buildUnknown": "لا يمكن مقارنة هذه البنية المخصصة بالفرع main الرسمي.",
+    "notGitInstall": "لا يتضمن هذا التثبيت معلومات الالتزام.",
+    "checkFailed": "تعذر التحقق من وجود تحديثات.",
+    "contactsGithub": "تُجرى عمليات التحقق يدويًا وتتصل بـ GitHub.",
+    "openReleases": "فتح إصدارات GitHub",
+    "restartAfterUpdate": "أعد تشغيل FreeLLMAPI بعد اكتمال البنية."
   },
   "models": {
     "title": "نماذج",

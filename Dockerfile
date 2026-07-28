@@ -32,8 +32,12 @@ RUN npm prune --omit=dev
 FROM ${NODE_IMAGE} AS runtime
 WORKDIR /app
 
+ARG FREELLMAPI_COMMIT_SHA
+
 ENV NODE_ENV=production
 ENV PORT=3001
+ENV FREELLMAPI_COMMIT_SHA=${FREELLMAPI_COMMIT_SHA}
+ENV FREELLMAPI_INSTALL_METHOD=docker
 
 COPY --from=build --chown=node:node /app/package.json /app/package-lock.json ./
 COPY --from=build --chown=node:node /app/node_modules ./node_modules

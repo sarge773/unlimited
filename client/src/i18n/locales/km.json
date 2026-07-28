@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "តូខិនប៉ាន់ស្មានបានសន្សំ",
     "compressionPreview": "មើលជាមុនផ្ទាល់",
     "compressionPreviewPlaceholder": "បិទភ្ជាប់ JSON សំណើ ឬអត្ថបទធម្មតា",
-    "compressionRunPreview": "ដំណើរការមើលជាមុន"
+    "compressionRunPreview": "ដំណើរការមើលជាមុន",
+    "updatesTitle": "ការអាប់ដេត",
+    "currentVersion": "ប៊ីលបច្ចុប្បន្ន៖",
+    "updateAvailable": "មានការអាប់ដេត",
+    "changelog": "អ្វីដែលបានផ្លាស់ប្តូរ",
+    "upToDate": "ទាន់សម័យ",
+    "buildAhead": "ប៊ីលនេះនាំមុខសាខា main ផ្លូវការ។",
+    "buildDiverged": "ប៊ីលនេះបានបែកចេញពីសាខា main ផ្លូវការ។",
+    "buildUnknown": "មិនអាចប្រៀបធៀបប៊ីលផ្ទាល់ខ្លួននេះជាមួយសាខា main ផ្លូវការបានទេ។",
+    "notGitInstall": "ការដំឡើងនេះមិនមានព័ត៌មាន commit ទេ។",
+    "checkFailed": "មិនអាចពិនិត្យរកការអាប់ដេតបានទេ។",
+    "contactsGithub": "ការពិនិត្យធ្វើឡើងដោយដៃ និងភ្ជាប់ទៅ GitHub។",
+    "openReleases": "បើក GitHub Releases",
+    "restartAfterUpdate": "ចាប់ផ្តើម FreeLLMAPI ឡើងវិញ បន្ទាប់ពីការបង្កើតបានបញ្ចប់។"
   },
   "models": {
     "title": "ម៉ូដែល",

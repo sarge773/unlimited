@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, ChevronsUpDown, Gauge, Loader2, Monitor, Moon, Search, Sun, X } from 'lucide-react'
+import { AlertTriangle, Check, CheckCircle2, ChevronsUpDown, ExternalLink, Gauge, Loader2, Monitor, Moon, RefreshCw, Search, Sparkles, SquareTerminal, Sun, X } from 'lucide-react'
 import {
   Dialog,
   DialogClose,
@@ -377,6 +377,300 @@ function CompressionSettings({ active }: { active: boolean }) {
   )
 }
 
+type UpdateStatus = 'idle' | 'current' | 'available' | 'ahead' | 'diverged' | 'unknown' | 'unsupported'
+type CheckedUpdateStatus = Exclude<UpdateStatus, 'idle'>
+type Installation = 'source' | 'docker' | 'desktop' | 'unknown'
+
+interface UpdateStatusInfo {
+  status: UpdateStatus
+  installation: Installation
+  localSha: string | null
+  lastChecked: string | null
+}
+
+interface UpdateCheckInfo {
+  status: CheckedUpdateStatus
+  installation: Installation
+  localSha: string | null
+  checkedAt: string
+  remoteSha?: string
+  remoteDate?: string
+  remoteMessage?: string
+  changes?: Array<{
+    sha: string
+    message: string
+    date?: string
+  }>
+}
+
+function formatDateTime(value: string | null | undefined, locale: Locale) {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(date)
+  } catch {
+    return null
+  }
+}
+
+function UpdateChecker({ active }: { active: boolean }) {
+  const { locale, t } = useI18n()
+  const [statusInfo, setStatusInfo] = useState<UpdateStatusInfo | null>(null)
+  const [checkResult, setCheckResult] = useState<UpdateCheckInfo | null>(null)
+  const [loadingStatus, setLoadingStatus] = useState(true)
+  const [checking, setChecking] = useState(false)
+  const [error, setError] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [activity, setActivity] = useState<string[]>([])
+
+  useEffect(() => {
+    if (!active) return
+    let cancelled = false
+    apiFetch<UpdateStatusInfo>('/api/update/status')
+      .then(result => {
+        if (!cancelled) setStatusInfo(result)
+      })
+      .catch(() => {
+        if (!cancelled) setError(true)
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingStatus(false)
+      })
+    return () => { cancelled = true }
+  }, [active])
+
+  async function check() {
+    setChecking(true)
+    setError(false)
+    setCheckResult(null)
+    setActivity([
+      `${t('settings.currentVersion')} ${statusInfo?.localSha ?? '—'}`,
+      t('keys.checking'),
+    ])
+    try {
+      const result = await apiFetch<UpdateCheckInfo>('/api/update/check')
+      setCheckResult(result)
+      setStatusInfo({
+        status: result.status,
+        installation: result.installation,
+        localSha: result.localSha,
+        lastChecked: result.checkedAt,
+      })
+      const resultMessage = result.status === 'available'
+        ? t('settings.updateAvailable')
+        : result.status === 'current'
+          ? t('settings.upToDate')
+          : result.status === 'ahead'
+            ? t('settings.buildAhead')
+            : result.status === 'diverged'
+              ? t('settings.buildDiverged')
+              : result.status === 'unknown'
+                ? t('settings.buildUnknown')
+                : t('settings.notGitInstall')
+      setActivity(current => [current[0], resultMessage])
+    } catch {
+      setError(true)
+      setActivity(current => current.slice(0, 1))
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  function openChecker() {
+    setDialogOpen(true)
+    void check()
+  }
+
+  const info = checkResult
+  const lastChecked = formatDateTime(checkResult?.checkedAt, locale)
+  const remoteDate = formatDateTime(checkResult?.remoteDate, locale)
+  const statusMessage = info?.status === 'current'
+    ? t('settings.upToDate')
+    : info?.status === 'ahead'
+      ? t('settings.buildAhead')
+      : info?.status === 'diverged'
+        ? t('settings.buildDiverged')
+        : info?.status === 'unknown'
+          ? t('settings.buildUnknown')
+          : info?.status === 'unsupported'
+            ? t('settings.notGitInstall')
+            : null
+
+  return (
+    <section className="space-y-3 border-t pt-5">
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="space-y-0.5">
+          <h2 className="text-sm font-medium">{t('settings.updatesTitle')}</h2>
+          <p className="text-xs text-muted-foreground">
+            {t('settings.currentVersion')}{' '}
+            <code className="break-all font-mono">{info?.localSha ?? statusInfo?.localSha ?? '—'}</code>
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={openChecker}
+          disabled={loadingStatus}
+          className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors hover:bg-muted disabled:opacity-50"
+        >
+          <RefreshCw className="size-3.5" />
+          {t('premium.checkForUpdates')}
+        </button>
+      </div>
+
+      <p className="text-[11px] text-muted-foreground">{t('settings.contactsGithub')}</p>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogPopup maxWidth="max-w-xl" className="p-0">
+          <div className="flex items-start justify-between gap-4 border-b px-6 py-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <RefreshCw className={`size-4 ${checking ? 'animate-spin' : ''}`} />
+              </div>
+              <div className="min-w-0">
+                <DialogTitle>{t('settings.updatesTitle')}</DialogTitle>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  {t('settings.currentVersion')} <code className="font-mono">{statusInfo?.localSha ?? '—'}</code>
+                </p>
+              </div>
+            </div>
+            <DialogClose
+              aria-label={t('common.dismiss')}
+              className="-me-1 rounded-lg p-1 text-muted-foreground/70 transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <X className="size-4" />
+            </DialogClose>
+          </div>
+
+          <div aria-live="polite" className="space-y-4 px-6 py-5">
+            {activity.length > 0 && (
+              <div className="overflow-hidden rounded-xl border bg-zinc-950 text-zinc-300 shadow-inner dark:bg-black/40">
+                <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-[11px] text-zinc-400">
+                  <SquareTerminal className="size-3.5" />
+                  <span>{checking ? t('keys.checking') : t('settings.updatesTitle')}</span>
+                </div>
+                <div className="space-y-1.5 px-3 py-3 font-mono text-[11px] leading-relaxed">
+                  {activity.map((entry, index) => (
+                    <p key={`${index}-${entry}`} className="flex gap-2 break-words [overflow-wrap:anywhere]">
+                      <span className={index === activity.length - 1 && checking ? 'text-amber-400' : 'text-emerald-400'}>&gt;</span>
+                      <span>{entry}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {info?.status === 'available' && (
+              <div className="space-y-4">
+                <div className="flex gap-3 rounded-xl border border-primary/25 bg-primary/5 p-4">
+                  <Sparkles className="mt-0.5 size-5 shrink-0 text-primary" />
+                  <div className="min-w-0 space-y-1">
+                    <p className="text-sm font-medium">{t('settings.updateAvailable')}</p>
+                    {info.remoteMessage && (
+                      <p className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">{info.remoteMessage}</p>
+                    )}
+                    {(info.remoteSha || remoteDate) && (
+                      <p className="break-all font-mono text-[11px] text-muted-foreground">
+                        {[info.remoteSha, remoteDate].filter(Boolean).join(' · ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {info.changes && info.changes.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      <Check className="size-3.5" />
+                      {t('settings.changelog')}
+                    </h3>
+                    <ol className="max-h-52 divide-y overflow-y-auto rounded-xl border">
+                      {info.changes.map(change => {
+                        const changeDate = formatDateTime(change.date, locale)
+                        return (
+                          <li key={change.sha} className="flex gap-3 px-3 py-2.5">
+                            <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
+                            <div className="min-w-0">
+                              <p className="break-words text-xs [overflow-wrap:anywhere]">{change.message}</p>
+                              <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+                                {[change.sha, changeDate].filter(Boolean).join(' · ')}
+                              </p>
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ol>
+                  </div>
+                )}
+
+                {info.installation === 'docker' && (
+                  <div className="flex gap-2 rounded-xl border bg-muted/30 p-3">
+                    <SquareTerminal className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    <code className="whitespace-pre-wrap break-all font-mono text-[11px]">docker compose pull && docker compose up -d</code>
+                  </div>
+                )}
+                {info.installation === 'source' && (
+                  <div className="space-y-2">
+                    <div className="flex gap-2 rounded-xl border bg-muted/30 p-3">
+                      <SquareTerminal className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                      <code className="whitespace-pre-wrap break-all font-mono text-[11px]">git fetch https://github.com/tashfeenahmed/freellmapi.git main && git merge --ff-only FETCH_HEAD && npm ci && npm run build</code>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">{t('settings.restartAfterUpdate')}</p>
+                  </div>
+                )}
+                {(info.installation === 'desktop' || info.installation === 'unknown') && (
+                  <a
+                    href="https://github.com/tashfeenahmed/freellmapi/releases/latest"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium underline underline-offset-4"
+                  >
+                    {t('settings.openReleases')}
+                    <ExternalLink className="size-3" />
+                  </a>
+                )}
+              </div>
+            )}
+
+            {statusMessage && (
+              <div className={`flex gap-3 rounded-xl border p-4 ${info?.status === 'current' ? 'border-emerald-500/25 bg-emerald-500/5' : 'border-amber-500/25 bg-amber-500/5'}`}>
+                {info?.status === 'current'
+                  ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-500" />
+                  : <AlertTriangle className="mt-0.5 size-5 shrink-0 text-amber-500" />}
+                <p className="text-sm">{statusMessage}</p>
+              </div>
+            )}
+
+            {error && (
+              <div role="alert" className="flex gap-3 rounded-xl border border-destructive/25 bg-destructive/5 p-4">
+                <AlertTriangle className="mt-0.5 size-5 shrink-0 text-destructive" />
+                <p className="text-sm text-destructive">{t('settings.checkFailed')}</p>
+              </div>
+            )}
+
+            <div className="flex flex-col-reverse items-stretch justify-between gap-3 border-t pt-4 sm:flex-row sm:items-center">
+              <div className="space-y-0.5">
+                {lastChecked && <p className="text-[11px] text-muted-foreground">{t('premium.lastChecked', { when: lastChecked })}</p>}
+              </div>
+              <button
+                type="button"
+                onClick={() => void check()}
+                disabled={checking}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs transition-colors hover:bg-muted disabled:opacity-50"
+              >
+                <RefreshCw className={`size-3.5 ${checking ? 'animate-spin' : ''}`} />
+                {checking ? t('keys.checking') : t('premium.checkForUpdates')}
+              </button>
+            </div>
+          </div>
+        </DialogPopup>
+      </Dialog>
+    </section>
+  )
+}
+
 export function SettingsDialog({
   open,
   onOpenChange,
@@ -441,6 +735,8 @@ export function SettingsDialog({
               })}
             </div>
           </section>
+
+          <UpdateChecker active={open} />
 
           <CompressionSettings active={open} />
         </div>

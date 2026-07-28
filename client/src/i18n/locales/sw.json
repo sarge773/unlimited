@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "tokeni zilizokadiriwa kuokolewa",
     "compressionPreview": "Hakikisho la moja kwa moja",
     "compressionPreviewPlaceholder": "Bandika JSON ya ombi au maandishi wazi",
-    "compressionRunPreview": "Endesha hakikisho"
+    "compressionRunPreview": "Endesha hakikisho",
+    "updatesTitle": "Masasisho",
+    "currentVersion": "Toleo la sasa:",
+    "updateAvailable": "Sasisho linapatikana",
+    "changelog": "Kilichobadilika",
+    "upToDate": "Imesasishwa",
+    "buildAhead": "Toleo hili liko mbele ya tawi rasmi la main.",
+    "buildDiverged": "Toleo hili limejitenga na tawi rasmi la main.",
+    "buildUnknown": "Toleo hili maalum haliwezi kulinganishwa na tawi rasmi la main.",
+    "notGitInstall": "Usakinishaji huu hauna taarifa za commit.",
+    "checkFailed": "Imeshindikana kuangalia masasisho.",
+    "contactsGithub": "Ukaguzi hufanywa mwenyewe na huwasiliana na GitHub.",
+    "openReleases": "Fungua Matoleo ya GitHub",
+    "restartAfterUpdate": "Anzisha upya FreeLLMAPI baada ya ujenzi kukamilika."
   },
   "models": {
     "title": "Mifano",

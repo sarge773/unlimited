@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "geschat aantal bespaarde tokens",
     "compressionPreview": "Live voorbeeld",
     "compressionPreviewPlaceholder": "Plak verzoek-JSON of platte tekst",
-    "compressionRunPreview": "Voorbeeld uitvoeren"
+    "compressionRunPreview": "Voorbeeld uitvoeren",
+    "updatesTitle": "Updates",
+    "currentVersion": "Huidige build:",
+    "updateAvailable": "Update beschikbaar",
+    "changelog": "Wat is er veranderd",
+    "upToDate": "Up-to-date",
+    "buildAhead": "Deze build loopt voor op de officiële main-branch.",
+    "buildDiverged": "Deze build is afgeweken van de officiële main-branch.",
+    "buildUnknown": "Deze aangepaste build kan niet worden vergeleken met de officiële main-branch.",
+    "notGitInstall": "Deze installatie bevat geen commitinformatie.",
+    "checkFailed": "Kan niet controleren op updates.",
+    "contactsGithub": "Controles worden handmatig uitgevoerd en maken contact met GitHub.",
+    "openReleases": "GitHub Releases openen",
+    "restartAfterUpdate": "Start FreeLLMAPI opnieuw nadat de build is voltooid."
   },
   "models": {
     "title": "Modellen",

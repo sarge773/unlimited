@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "אומדן טוקנים שנחסכו",
     "compressionPreview": "תצוגה מקדימה חיה",
     "compressionPreviewPlaceholder": "הדבק JSON של בקשה או טקסט רגיל",
-    "compressionRunPreview": "הרץ תצוגה מקדימה"
+    "compressionRunPreview": "הרץ תצוגה מקדימה",
+    "updatesTitle": "עדכונים",
+    "currentVersion": "גרסה נוכחית:",
+    "updateAvailable": "עדכון זמין",
+    "changelog": "מה השתנה",
+    "upToDate": "מעודכן",
+    "buildAhead": "גרסה זו מקדימה את ענף main הרשמי.",
+    "buildDiverged": "גרסה זו התפצלה מענף main הרשמי.",
+    "buildUnknown": "לא ניתן להשוות גרסה מותאמת אישית זו לענף main הרשמי.",
+    "notGitInstall": "התקנה זו אינה כוללת מידע על קומיטים.",
+    "checkFailed": "לא ניתן היה לבדוק אם קיימים עדכונים.",
+    "contactsGithub": "הבדיקות מתבצעות ידנית ויוצרות קשר עם GitHub.",
+    "openReleases": "פתיחת מהדורות GitHub",
+    "restartAfterUpdate": "הפעל מחדש את FreeLLMAPI לאחר השלמת הבנייה."
   },
   "models": {
     "title": "דגמים",

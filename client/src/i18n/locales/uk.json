@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "орієнтовно збережено токенів",
     "compressionPreview": "Попередній перегляд наживо",
     "compressionPreviewPlaceholder": "Вставте JSON запиту або звичайний текст",
-    "compressionRunPreview": "Запустити перегляд"
+    "compressionRunPreview": "Запустити перегляд",
+    "updatesTitle": "Оновлення",
+    "currentVersion": "Поточна збірка:",
+    "updateAvailable": "Доступне оновлення",
+    "changelog": "Що змінилося",
+    "upToDate": "Актуальна версія",
+    "buildAhead": "Ця збірка випереджає офіційну гілку main.",
+    "buildDiverged": "Ця збірка розійшлася з офіційною гілкою main.",
+    "buildUnknown": "Цю користувацьку збірку неможливо порівняти з офіційною гілкою main.",
+    "notGitInstall": "Ця інсталяція не містить інформації про commit.",
+    "checkFailed": "Не вдалося перевірити наявність оновлень.",
+    "contactsGithub": "Перевірки запускаються вручну та звертаються до GitHub.",
+    "openReleases": "Відкрити релізи GitHub",
+    "restartAfterUpdate": "Перезапустіть FreeLLMAPI після завершення збірки."
   },
   "models": {
     "title": "Моделі",

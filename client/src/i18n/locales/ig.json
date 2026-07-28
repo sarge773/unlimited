@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "token atụmatụ echekwara",
     "compressionPreview": "Nlele ozugbo",
     "compressionPreviewPlaceholder": "Tinye JSON arịrịọ ma ọ bụ ederede nkịtị",
-    "compressionRunPreview": "Mee nlele"
+    "compressionRunPreview": "Mee nlele",
+    "updatesTitle": "Mmelite",
+    "currentVersion": "Build dị ugbu a:",
+    "updateAvailable": "Mmelite dị",
+    "changelog": "Ihe gbanwere",
+    "upToDate": "Ọ dị ọhụrụ",
+    "buildAhead": "Build a dị n'ihu alaka main nke iwu kwadoro.",
+    "buildDiverged": "Build a esiwo na alaka main nke iwu kwadoro kewapụ.",
+    "buildUnknown": "Enweghị ike iji build omenala a tụnyere alaka main nke iwu kwadoro.",
+    "notGitInstall": "Nwụnye a enweghị ozi commit.",
+    "checkFailed": "Enweghị ike ịlele mmelite.",
+    "contactsGithub": "A na-eji aka eme nyocha ndị a, ha na-akpọtụrụ GitHub.",
+    "openReleases": "Mepee GitHub Releases",
+    "restartAfterUpdate": "Malitegharịa FreeLLMAPI mgbe build ahụ gwụchara."
   },
   "models": {
     "title": "Ụdị",

@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "అంచనా టోకెన్లు ఆదా",
     "compressionPreview": "లైవ్ ప్రివ్యూ",
     "compressionPreviewPlaceholder": "అభ్యర్థన JSON లేదా సాదా టెక్స్ట్ అతికించండి",
-    "compressionRunPreview": "ప్రివ్యూ అమలు చేయండి"
+    "compressionRunPreview": "ప్రివ్యూ అమలు చేయండి",
+    "updatesTitle": "నవీకరణలు",
+    "currentVersion": "ప్రస్తుత బిల్డ్:",
+    "updateAvailable": "నవీకరణ అందుబాటులో ఉంది",
+    "changelog": "ఏమి మారింది",
+    "upToDate": "తాజా స్థితిలో ఉంది",
+    "buildAhead": "ఈ బిల్డ్ అధికారిక main కంటే ముందుంది.",
+    "buildDiverged": "ఈ బిల్డ్ అధికారిక main నుండి వేరుగా మారింది.",
+    "buildUnknown": "ఈ అనుకూల బిల్డ్‌ను అధికారిక mainతో పోల్చడం సాధ్యం కాదు.",
+    "notGitInstall": "ఈ ఇన్‌స్టాలేషన్‌లో commit సమాచారం లేదు.",
+    "checkFailed": "నవీకరణల కోసం తనిఖీ చేయడం సాధ్యం కాలేదు.",
+    "contactsGithub": "తనిఖీలు మాన్యువల్‌గా జరుగుతాయి మరియు GitHubను సంప్రదిస్తాయి.",
+    "openReleases": "GitHub విడుదలలను తెరవండి",
+    "restartAfterUpdate": "బిల్డ్ పూర్తయిన తర్వాత FreeLLMAPIని పునఃప్రారంభించండి."
   },
   "models": {
     "title": "మోడల్స్",

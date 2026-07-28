@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "qənaət edilən təxmini tokenlər",
     "compressionPreview": "Canlı önbaxış",
     "compressionPreviewPlaceholder": "Sorğu JSON və ya sadə mətn yapışdırın",
-    "compressionRunPreview": "Önbaxışı işə sal"
+    "compressionRunPreview": "Önbaxışı işə sal",
+    "updatesTitle": "Yeniləmələr",
+    "currentVersion": "Cari quruluş:",
+    "updateAvailable": "Yeniləmə mövcuddur",
+    "changelog": "Nələr dəyişib",
+    "upToDate": "Ən son versiyadır",
+    "buildAhead": "Bu quruluş rəsmi main budağından irəlidədir.",
+    "buildDiverged": "Bu quruluş rəsmi main budağından ayrılıb.",
+    "buildUnknown": "Bu xüsusi quruluşu rəsmi main budağı ilə müqayisə etmək mümkün deyil.",
+    "notGitInstall": "Bu quraşdırmada commit məlumatı yoxdur.",
+    "checkFailed": "Yeniləmələri yoxlamaq mümkün olmadı.",
+    "contactsGithub": "Yoxlamalar əl ilə başladılır və GitHub-a qoşulur.",
+    "openReleases": "GitHub buraxılışlarını aç",
+    "restartAfterUpdate": "Quruluş tamamlandıqdan sonra FreeLLMAPI-ni yenidən başladın."
   },
   "models": {
     "title": "Modellər",

@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "awọn àmi ti a fojú díwọ̀n ti a fipamọ",
     "compressionPreview": "Awotẹlẹ laaye",
     "compressionPreviewPlaceholder": "Lẹ JSON ibeere tabi ọrọ lasan",
-    "compressionRunPreview": "Ṣiṣe awotẹlẹ"
+    "compressionRunPreview": "Ṣiṣe awotẹlẹ",
+    "updatesTitle": "Àwọn ìmúdójúìwọ̀n",
+    "currentVersion": "Ẹ̀yà ìkọ́lé lọ́wọ́lọ́wọ́:",
+    "updateAvailable": "Ìmúdójúìwọ̀n wà",
+    "changelog": "Ohun tí ó yí padà",
+    "upToDate": "Ó ti mú dójú ìwọ̀n",
+    "buildAhead": "Ẹ̀yà ìkọ́lé yìí ti lọ síwájú main àṣẹ.",
+    "buildDiverged": "Ẹ̀yà ìkọ́lé yìí ti yà kúrò ní main àṣẹ.",
+    "buildUnknown": "A kò lè fi ẹ̀yà ìkọ́lé àkànṣe yìí wé main àṣẹ.",
+    "notGitInstall": "Fífìmọ́lẹ̀ yìí kò ní àlàyé commit.",
+    "checkFailed": "A kò lè ṣàyẹ̀wò àwọn ìmúdójúìwọ̀n.",
+    "contactsGithub": "Ọwọ́ ni a fi ń ṣe àwọn àyẹ̀wò, wọ́n sì ń kan sí GitHub.",
+    "openReleases": "Ṣí àwọn ìtújáde GitHub",
+    "restartAfterUpdate": "Tun FreeLLMAPI bẹ̀rẹ̀ lẹ́yìn tí ìkọ́lé bá parí."
   },
   "models": {
     "title": "Awọn awoṣe",

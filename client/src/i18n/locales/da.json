@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "estimerede tokens sparet",
     "compressionPreview": "Live-forhåndsvisning",
     "compressionPreviewPlaceholder": "Indsæt forespørgsels-JSON eller almindelig tekst",
-    "compressionRunPreview": "Kør forhåndsvisning"
+    "compressionRunPreview": "Kør forhåndsvisning",
+    "updatesTitle": "Opdateringer",
+    "currentVersion": "Nuværende build:",
+    "updateAvailable": "Opdatering tilgængelig",
+    "changelog": "Hvad er ændret",
+    "upToDate": "Opdateret",
+    "buildAhead": "Denne build er foran den officielle main-gren.",
+    "buildDiverged": "Denne build er divergeret fra den officielle main-gren.",
+    "buildUnknown": "Denne tilpassede build kan ikke sammenlignes med den officielle main-gren.",
+    "notGitInstall": "Denne installation indeholder ikke commit-oplysninger.",
+    "checkFailed": "Det var ikke muligt at søge efter opdateringer.",
+    "contactsGithub": "Tjek udføres manuelt og kontakter GitHub.",
+    "openReleases": "Åbn GitHub-udgivelser",
+    "restartAfterUpdate": "Genstart FreeLLMAPI, når buildet er færdigt."
   },
   "models": {
     "title": "Modeller",

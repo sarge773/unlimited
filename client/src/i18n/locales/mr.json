@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "अंदाजे टोकन बचत",
     "compressionPreview": "लाइव्ह पूर्वावलोकन",
     "compressionPreviewPlaceholder": "विनंतीचे JSON किंवा साधा मजकूर पेस्ट करा",
-    "compressionRunPreview": "पूर्वावलोकन चालवा"
+    "compressionRunPreview": "पूर्वावलोकन चालवा",
+    "updatesTitle": "अपडेट्स",
+    "currentVersion": "सध्याचा बिल्ड:",
+    "updateAvailable": "अपडेट उपलब्ध आहे",
+    "changelog": "काय बदलले",
+    "upToDate": "अद्ययावत",
+    "buildAhead": "हा बिल्ड अधिकृत main शाखेच्या पुढे आहे.",
+    "buildDiverged": "हा बिल्ड अधिकृत main शाखेपासून वेगळा झाला आहे.",
+    "buildUnknown": "या कस्टम बिल्डची अधिकृत main शाखेशी तुलना करता येत नाही.",
+    "notGitInstall": "या इंस्टॉलेशनमध्ये कमिटची माहिती समाविष्ट नाही.",
+    "checkFailed": "अपडेट्स तपासता आले नाहीत.",
+    "contactsGithub": "तपासणी स्वतः सुरू करावी लागते आणि ती GitHub शी संपर्क साधते.",
+    "openReleases": "GitHub रिलीजेस उघडा",
+    "restartAfterUpdate": "बिल्ड पूर्ण झाल्यानंतर FreeLLMAPI पुन्हा सुरू करा."
   },
   "models": {
     "title": "मॉडेल्स",

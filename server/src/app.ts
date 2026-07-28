@@ -25,6 +25,7 @@ import { mcpRouter } from './routes/mcp.js';
 import { geminiRouter } from './routes/gemini.js';
 import { ollamaRouter } from './routes/ollama.js';
 import { urlTokenRouter } from './routes/url-tokens.js';
+import { updateRouter } from './routes/update.js';
 import { requireAuth } from './middleware/requireAuth.js';
 import { createProxyRateLimiter } from './middleware/rateLimit.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -113,6 +114,7 @@ export function createApp(config?: Config) {
   app.use('/api/premium', requireAuth, premiumRouter);
   app.use('/api/cache', requireAuth, cacheRouter);
   app.use('/api/compression', requireAuth, compressionRouter);
+  app.use('/api/update', requireAuth, updateRouter);
 
   // Static, unauthenticated API reference: GET /v1/docs (viewer) and
   // GET /v1/openapi.json (spec). Mounted before the rate limiter so the docs

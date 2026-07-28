@@ -92,7 +92,20 @@
     "compressionEstimatedTokensSaved": "odhadem ušetřené žetony",
     "compressionPreview": "Živý náhled",
     "compressionPreviewPlaceholder": "Vložte JSON požadavku nebo prostý text",
-    "compressionRunPreview": "Spustit náhled"
+    "compressionRunPreview": "Spustit náhled",
+    "updatesTitle": "Aktualizace",
+    "currentVersion": "Aktuální sestavení:",
+    "updateAvailable": "Je dostupná aktualizace",
+    "changelog": "Co se změnilo",
+    "upToDate": "Vše je aktuální",
+    "buildAhead": "Toto sestavení je před oficiální větví main.",
+    "buildDiverged": "Toto sestavení se odchýlilo od oficiální větve main.",
+    "buildUnknown": "Toto vlastní sestavení nelze porovnat s oficiální větví main.",
+    "notGitInstall": "Tato instalace neobsahuje informace o commitu.",
+    "checkFailed": "Aktualizace se nepodařilo zkontrolovat.",
+    "contactsGithub": "Kontroly se spouštějí ručně a kontaktují GitHub.",
+    "openReleases": "Otevřít vydání na GitHubu",
+    "restartAfterUpdate": "Po dokončení sestavení restartujte FreeLLMAPI."
   },
   "models": {
     "title": "Modely",
