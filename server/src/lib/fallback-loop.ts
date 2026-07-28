@@ -44,9 +44,10 @@ import {
 } from './error-classify.js';
 import { sanitizeProviderErrorMessage, summarizeAttemptError } from './error-redaction.js';
 import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js';
+import { noteModelRetirementSignal } from '../services/model-retirement.js';
 import { getSetting } from '../db/index.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
-import { newRequestTrace, runWithRequestTrace, type AttemptOutcome, type RequestTrace } from './attempt-trace.js';
+import { getRequestTrace, newRequestTrace, runWithRequestTrace, type AttemptOutcome, type RequestTrace } from './attempt-trace.js';
 import { persistRequestAttempts } from './request-log.js';
 
 // Every surface caps failover hops at the same number.
@@ -185,6 +186,12 @@ export function recordRetryableFailure(route: RouteResult, err: any, state: Fall
   if (isModelNotFoundError(err) || isModelAccessForbiddenError(err) || isContextTooLargeError(err) || err?.skipModelForRequest === true) {
     state.skipModels.add(route.modelDbId);
   }
+  // A model-level 404/410 that says the model is GONE (not merely missing right
+  // now) outlives this request: persist it once the evidence is strong enough,
+  // or the retired model burns a fallback slot on every request forever (#634).
+  // The trace object identifies the request, so one request's failover across
+  // sibling keys counts as the single observation it is.
+  noteModelRetirementSignal(route, err, getRequestTrace());
   state.skipKeys.add(`${route.platform}:${route.modelId}:${route.keyId}`);
   if (err?.skipBench === true) return;
   const decision = cooldownDecisionForError(route, err);

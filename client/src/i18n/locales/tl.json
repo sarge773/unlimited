@@ -122,6 +122,7 @@
     "visionTitle": "Tumatanggap ng image input",
     "tools": "Mga Kasangkapan",
     "toolsTitle": "Naglalabas ng structured tool calls, kaya ito ay kwalipikado para sa mga tool-bearing request",
+    "retired": "Itinigil",
     "penalty": "−{value} penalty",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/buwan",

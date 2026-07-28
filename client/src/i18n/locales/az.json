@@ -122,6 +122,7 @@
     "visionTitle": "Şəkil girişini qəbul edir",
     "tools": "Alətlər",
     "toolsTitle": "Strukturlaşdırılmış alət çağırışları yayır, buna görə də alət daşıma sorğuları üçün uyğundur",
+    "retired": "Dayandırılıb",
     "penalty": "−{value} penalti",
     "obs": "{count}",
     "tokPerMonth": "{count} tok/mo",

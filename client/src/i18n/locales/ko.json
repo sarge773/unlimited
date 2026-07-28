@@ -122,6 +122,7 @@
     "visionTitle": "이미지 입력을 허용합니다",
     "tools": "도구",
     "toolsTitle": "구조화된 도구 호출을 내보내므로 도구 베어링 요청에 적합합니다.",
+    "retired": "지원 종료",
     "penalty": "−{value} 페널티",
     "obs": "{count} 관측",
     "tokPerMonth": "{count} 톡/월",

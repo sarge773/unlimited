@@ -122,6 +122,7 @@
     "visionTitle": "Rasm kiritishni qabul qiladi",
     "tools": "Asboblar",
     "toolsTitle": "Strukturaviy asboblar qo'ng'iroqlarini chiqaradi, shuning uchun u asboblar so'rovlari uchun javob beradi",
+    "retired": "To'xtatilgan",
     "penalty": "−{value} jarima",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/oy",

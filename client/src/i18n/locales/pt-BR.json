@@ -122,6 +122,7 @@
     "visionTitle": "Aceita imagens como entrada",
     "tools": "Ferramentas",
     "toolsTitle": "Emite chamadas de ferramentas estruturadas, por isso é elegível para solicitações com ferramentas",
+    "retired": "Descontinuado",
     "penalty": "penalidade de −{value}",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mês",

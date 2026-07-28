@@ -122,6 +122,7 @@
     "visionTitle": "امیج ان پٹ کو قبول کرتا ہے۔",
     "tools": "اوزار",
     "toolsTitle": "سٹرکچرڈ ٹول کالز کو خارج کرتا ہے، اس لیے یہ ٹول بیئرنگ کی درخواستوں کے لیے اہل ہے۔",
+    "retired": "بند",
     "penalty": "−{value} جرمانہ",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",

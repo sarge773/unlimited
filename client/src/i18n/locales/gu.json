@@ -122,6 +122,7 @@
     "visionTitle": "ઇમેજ ઇનપુટ સ્વીકારે છે",
     "tools": "સાધનો",
     "toolsTitle": "સ્ટ્રક્ચર્ડ ટૂલ કૉલ્સ બહાર કાઢે છે, તેથી તે ટૂલ-બેરિંગ વિનંતીઓ માટે પાત્ર છે",
+    "retired": "બંધ કરાયું",
     "penalty": "−{value} દંડ",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",

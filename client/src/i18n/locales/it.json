@@ -122,6 +122,7 @@
     "visionTitle": "Accetta input di immagini",
     "tools": "Strumenti",
     "toolsTitle": "Emette chiamate a strumenti strutturate, quindi è idoneo per richieste con strumenti",
+    "retired": "Ritirato",
     "penalty": "−{value} penalità",
     "obs": "{count} oss",
     "tokPerMonth": "{count} tok/mese",

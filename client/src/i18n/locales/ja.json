@@ -122,6 +122,7 @@
     "visionTitle": "画像入力を受け付ける",
     "tools": "ツール",
     "toolsTitle": "構造化されたツール呼び出しを発行するため、ツールを含むリクエストに適格です",
+    "retired": "提供終了",
     "penalty": "−{value}ペナルティ",
     "obs": "{count} オブス",
     "tokPerMonth": "{count} トク/月",

@@ -122,6 +122,7 @@
     "visionTitle": "Akceptuje wejście obrazu",
     "tools": "Narzędzia",
     "toolsTitle": "Emituje uporządkowane wywołania narzędzi, więc kwalifikuje się do żądań łożysk narzędziowych",
+    "retired": "Wycofany",
     "penalty": "−{value} kara",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mies",

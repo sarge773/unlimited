@@ -122,6 +122,7 @@
     "visionTitle": "Chấp nhận đầu vào hình ảnh",
     "tools": "Công cụ",
     "toolsTitle": "Phát ra các lệnh gọi công cụ có cấu trúc, do đó nó đủ điều kiện cho các yêu cầu mang công cụ",
+    "retired": "Ngừng cung cấp",
     "penalty": "−{value} phạt đền",
     "obs": "{count} quan sát",
     "tokPerMonth": "{count} tháng/tháng",

@@ -122,6 +122,7 @@
     "visionTitle": "የምስል ግቤትን ይቀበላል",
     "tools": "መሣሪያዎች",
     "toolsTitle": "የተዋቀሩ የመሳሪያ ጥሪዎችን ያወጣል፣ ስለዚህ ለመሳሪያ ተሸካሚ ጥያቄዎች ብቁ ነው",
+    "retired": "ተቋርጧል",
     "penalty": "- {value} ቅጣት",
     "obs": "{count} obs",
     "tokPerMonth": "{count} ቶክ / ሞ",

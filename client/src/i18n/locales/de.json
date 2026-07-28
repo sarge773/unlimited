@@ -122,6 +122,7 @@
     "visionTitle": "Akzeptiert Bildeingaben",
     "tools": "Werkzeuge",
     "toolsTitle": "Gibt strukturierte Werkzeugaufrufe aus und ist daher für werkzeugtragende Anforderungen geeignet",
+    "retired": "Eingestellt",
     "penalty": "−{value} Strafe",
     "obs": "{count} obs",
     "tokPerMonth": "{count} Tok/Mo",

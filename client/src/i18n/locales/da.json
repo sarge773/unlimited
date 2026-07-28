@@ -122,6 +122,7 @@
     "visionTitle": "Accepterer billedinput",
     "tools": "Værktøjer",
     "toolsTitle": "Udsender strukturerede værktøjskald, så den er berettiget til værktøjsbærende anmodninger",
+    "retired": "Udgået",
     "penalty": "−{value} straf",
     "obs": "{count} observationer",
     "tokPerMonth": "{count} tok/mo",

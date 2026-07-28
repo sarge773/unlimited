@@ -122,6 +122,7 @@
     "visionTitle": "接受影像輸入",
     "tools": "工具",
     "toolsTitle": "會發出結構化工具呼叫，因此有資格進行工具承載請求",
+    "retired": "已下線",
     "penalty": "−{value} 罰則",
     "obs": "{count}觀察",
     "tokPerMonth": "{count} tok/mo",

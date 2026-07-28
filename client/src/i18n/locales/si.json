@@ -122,6 +122,7 @@
     "visionTitle": "රූප ආදානය පිළිගනී",
     "tools": "මෙවලම්",
     "toolsTitle": "ව්‍යුහගත මෙවලම් ඇමතුම් නිකුත් කරයි, එබැවින් එය මෙවලම් දරණ ඉල්ලීම් සඳහා සුදුසුකම් ලබයි",
+    "retired": "නවතා ඇත",
     "penalty": "−{value} දඩුවම",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",

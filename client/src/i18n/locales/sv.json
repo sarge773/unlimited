@@ -122,6 +122,7 @@
     "visionTitle": "Accepterar bildindata",
     "tools": "Verktyg",
     "toolsTitle": "Skickar strukturerade verktygsanrop, så den är berättigad till verktygsbärande förfrågningar",
+    "retired": "Utgått",
     "penalty": "−{value} straff",
     "obs": "{count} observationer",
     "tokPerMonth": "{count} tok/mo",

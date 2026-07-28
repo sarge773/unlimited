@@ -122,6 +122,7 @@
     "visionTitle": "Görüntü girişini kabul eder",
     "tools": "Araçlar",
     "toolsTitle": "Yapılandırılmış araç çağrıları yayınlayarak araç taşıma isteklerine uygun hale gelir",
+    "retired": "Kaldırıldı",
     "penalty": "−{value} cezası",
     "obs": "{count} gözlem",
     "tokPerMonth": "{count} tok/ay",

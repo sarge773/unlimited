@@ -122,6 +122,7 @@
     "visionTitle": "يقبل إدخال الصورة",
     "tools": "أدوات",
     "toolsTitle": "يصدر استدعاءات أداة منظمة، لذا فهو مؤهل لطلبات حاملة الأداة",
+    "retired": "متوقف",
     "penalty": "−{value} عقوبة",
     "obs": "{count} ملاحظة",
     "tokPerMonth": "{count} توك/مو",

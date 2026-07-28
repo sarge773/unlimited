@@ -122,6 +122,7 @@
     "visionTitle": "Menerima input imej",
     "tools": "Alat",
     "toolsTitle": "Memancarkan panggilan alat berstruktur, jadi ia layak untuk permintaan yang membawa alat",
+    "retired": "Dihentikan",
     "penalty": "Penalti −{value}",
     "obs": "{count} obs",
     "tokPerMonth": "{count} Tok/Bulan",

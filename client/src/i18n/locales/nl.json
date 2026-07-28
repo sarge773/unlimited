@@ -122,6 +122,7 @@
     "visionTitle": "Accepteert beeldinvoer",
     "tools": "Gereedschappen",
     "toolsTitle": "Zendt gestructureerde tooloproepen uit, zodat het in aanmerking komt voor tool-bearing verzoeken",
+    "retired": "Uitgefaseerd",
     "penalty": "−{value} straf",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",

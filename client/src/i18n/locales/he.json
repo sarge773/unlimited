@@ -122,6 +122,7 @@
     "visionTitle": "מקבל קלט תמונה",
     "tools": "כלים",
     "toolsTitle": "משדר קריאות לכלים מובנים, ולכן הוא זכאי לבקשות עם כלים",
+    "retired": "הוסר",
     "penalty": "−{value} עונש",
     "obs": "{count} obs",
     "tokPerMonth": "{count} טוק/מו",

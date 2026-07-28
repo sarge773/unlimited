@@ -122,6 +122,7 @@
     "visionTitle": "Accepte les images en entrée",
     "tools": "Outils",
     "toolsTitle": "Émet des appels d'outils structurés, il est donc éligible aux requêtes avec outils",
+    "retired": "Retiré",
     "penalty": "pénalité de −{value}",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mois",

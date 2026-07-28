@@ -122,6 +122,7 @@
     "visionTitle": "Priima vaizdo įvestį",
     "tools": "Įrankiai",
     "toolsTitle": "Skleidžia struktūrizuotus įrankių kvietimus, todėl yra tinkamas įrankių nešimo užklausoms",
+    "retired": "Pašalintas",
     "penalty": "−{value} bauda",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",

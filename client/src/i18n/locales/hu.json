@@ -122,6 +122,7 @@
     "visionTitle": "Képbemenetet fogad",
     "tools": "Eszközök",
     "toolsTitle": "Strukturált eszközhívásokat bocsát ki, így jogosult szerszámtartó kérésekre",
+    "retired": "Kivonva",
     "penalty": "−{value} büntető",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",

@@ -122,6 +122,7 @@
     "visionTitle": "प्रतिमा इनपुट स्वीकारते",
     "tools": "साधने",
     "toolsTitle": "संरचित टूल कॉल सोडते, त्यामुळे ते टूल-बेअरिंग विनंत्यांना पात्र आहे",
+    "retired": "बंद",
     "penalty": "−{value} दंड",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",

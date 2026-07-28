@@ -122,6 +122,7 @@
     "visionTitle": "Prihvaća ulaz slike",
     "tools": "Alati",
     "toolsTitle": "Emitira strukturirane pozive alata, pa je prihvatljiv za zahtjeve s nosačem alata",
+    "retired": "Povučen",
     "penalty": "−{value} kazna",
     "obs": "{count} OBS",
     "tokPerMonth": "{count} tok/mo",

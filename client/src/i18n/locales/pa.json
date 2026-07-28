@@ -122,6 +122,7 @@
     "visionTitle": "ਚਿੱਤਰ ਇੰਪੁੱਟ ਸਵੀਕਾਰ ਕਰਦਾ ਹੈ",
     "tools": "ਸੰਦ",
     "toolsTitle": "ਸਟ੍ਰਕਚਰਡ ਟੂਲ ਕਾਲਾਂ ਨੂੰ ਛੱਡਦਾ ਹੈ, ਇਸਲਈ ਇਹ ਟੂਲ-ਬੇਅਰਿੰਗ ਬੇਨਤੀਆਂ ਲਈ ਯੋਗ ਹੈ",
+    "retired": "ਬੰਦ",
     "penalty": "−{value} ਜੁਰਮਾਨਾ",
     "obs": "{count} obs",
     "tokPerMonth": "{count} tok/mo",

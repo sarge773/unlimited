@@ -122,6 +122,7 @@
     "visionTitle": "Prijíma vstup obrazu",
     "tools": "Nástroje",
     "toolsTitle": "Vysiela štruktúrované volania nástroja, takže je oprávnený na požiadavky na ložisko nástroja",
+    "retired": "Vyradené",
     "penalty": "−{value} penalta",
     "obs": "{count} OBS",
     "tokPerMonth": "{count} tok/mo",

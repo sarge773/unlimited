@@ -122,6 +122,7 @@
     "visionTitle": "Godtar bildeinput",
     "tools": "Verktøy",
     "toolsTitle": "Sender ut strukturerte verktøykall, slik at den er kvalifisert for verktøybærende forespørsler",
+    "retired": "Utgått",
     "penalty": "−{value} straff",
     "obs": "{count} observasjoner",
     "tokPerMonth": "{count} tok/mo",

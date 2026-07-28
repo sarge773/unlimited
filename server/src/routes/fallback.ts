@@ -72,11 +72,14 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
            m.tpm_limit, m.tpd_limit, m.context_window,
            m.monthly_token_budget, m.supports_vision, m.supports_tools,
            m.key_id, ak.label AS key_label,
-           mo.overrides_json IS NOT NULL AS has_overrides
+           mo.overrides_json IS NOT NULL AS has_overrides,
+           ts.source AS tombstone_source, ts.reason AS tombstone_reason
     FROM profile_models pm
     JOIN models m ON m.id = pm.model_db_id
     LEFT JOIN api_keys ak ON ak.id = m.key_id
     LEFT JOIN model_overrides mo ON mo.platform = m.platform AND mo.model_id = m.model_id
+    LEFT JOIN catalog_model_tombstones ts
+      ON ts.kind = 'chat' AND ts.platform = m.platform AND ts.model_id = m.model_id
     WHERE pm.profile_id = ? AND m.enabled = 1
     ORDER BY pm.priority ASC
   `).all(activeProfileId) as any[];
@@ -89,11 +92,14 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
            m.tpm_limit, m.tpd_limit, m.context_window,
            m.monthly_token_budget, m.supports_vision, m.supports_tools,
            m.key_id, ak.label AS key_label,
-           mo.overrides_json IS NOT NULL AS has_overrides
+           mo.overrides_json IS NOT NULL AS has_overrides,
+           ts.source AS tombstone_source, ts.reason AS tombstone_reason
     FROM fallback_config fc
     JOIN models m ON m.id = fc.model_db_id
     LEFT JOIN api_keys ak ON ak.id = m.key_id
     LEFT JOIN model_overrides mo ON mo.platform = m.platform AND mo.model_id = m.model_id
+    LEFT JOIN catalog_model_tombstones ts
+      ON ts.kind = 'chat' AND ts.platform = m.platform AND ts.model_id = m.model_id
     WHERE m.enabled = 1
     ORDER BY fc.priority ASC
     `).all() as any[];
@@ -160,6 +166,12 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
       keyId: r.key_id ?? null,
       keyLabel: r.key_label ?? null,
       hasOverrides: Boolean(r.has_overrides),
+      // Why the switch is off: a model auto-disabled because the provider
+      // retired it upstream (410 / end of life, #634) is a different state from
+      // one the user turned off, and the dashboard says so. The reason is the
+      // provider's own (redacted) wording.
+      retiredUpstream: r.tombstone_source === 'upstream_eol',
+      retiredReason: r.tombstone_source === 'upstream_eol' ? (r.tombstone_reason ?? null) : null,
       keyCount: keyCountMap.get(r.platform) ?? 0,
     };
   }));

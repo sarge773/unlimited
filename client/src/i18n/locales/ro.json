@@ -122,6 +122,7 @@
     "visionTitle": "Acceptă intrarea de imagine",
     "tools": "Unelte",
     "toolsTitle": "Emite apeluri structurate pentru unelte, deci este eligibil pentru cereri cu rulante de unelte",
+    "retired": "Retras",
     "penalty": "−{value} penalizare",
     "obs": "{count} observații",
     "tokPerMonth": "{count} tok/mo",

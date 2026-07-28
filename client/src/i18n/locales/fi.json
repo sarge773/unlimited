@@ -122,6 +122,7 @@
     "visionTitle": "Hyväksyy kuvasyötteen",
     "tools": "Työkalut",
     "toolsTitle": "Lähettää rakenteellisia työkalukutsuja, joten se on kelpoinen työkalun kantamiseen liittyviin pyyntöihin",
+    "retired": "Poistettu",
     "penalty": "−{value} rangaistus",
     "obs": "{count} Obs",
     "tokPerMonth": "{count} tok/mo",
