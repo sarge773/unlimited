@@ -377,7 +377,7 @@ function CompressionSettings({ active }: { active: boolean }) {
   )
 }
 
-type UpdateStatus = 'idle' | 'current' | 'available' | 'ahead' | 'diverged' | 'unknown' | 'unsupported'
+type UpdateStatus = 'idle' | 'current' | 'available' | 'ahead' | 'diverged' | 'unknown' | 'unsupported' | 'disabled'
 type CheckedUpdateStatus = Exclude<UpdateStatus, 'idle'>
 type Installation = 'source' | 'docker' | 'desktop' | 'unknown'
 
@@ -503,7 +503,7 @@ function UpdateChecker({ active }: { active: boolean }) {
             ? t('settings.notGitInstall')
             : null
 
-  if (loadingStatus && !statusInfo) return null
+  if ((loadingStatus && !statusInfo) || statusInfo?.status === 'disabled') return null
 
   return (
     <section className="space-y-3 border-t pt-5">

@@ -11,7 +11,7 @@ const MAX_CHANGE_MESSAGE_LENGTH = 160;
 const MAX_ATOM_FEED_LENGTH = 1_000_000;
 
 type Installation = 'source' | 'docker' | 'desktop' | 'unknown';
-type CheckStatus = 'current' | 'available' | 'ahead' | 'diverged' | 'unknown' | 'unsupported';
+type CheckStatus = 'current' | 'available' | 'ahead' | 'diverged' | 'unknown' | 'unsupported' | 'disabled';
 type CompareStatus = (typeof COMPARE_STATUSES)[number];
 
 interface Identity {
@@ -76,7 +76,7 @@ function validDate(value: unknown): value is string {
   return typeof value === 'string' && value.length <= 64 && !Number.isNaN(Date.parse(value));
 }
 
-function mapCompareStatus(status: CompareStatus): Exclude<CheckStatus, 'unknown' | 'unsupported'> {
+function mapCompareStatus(status: CompareStatus): Exclude<CheckStatus, 'unknown' | 'unsupported' | 'disabled'> {
   switch (status) {
     case 'identical': return 'current';
     case 'ahead': return 'available';
@@ -242,15 +242,15 @@ function parseAtomFallback(
 
 export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
   const router = Router();
+  const env = options.env ?? process.env;
   const fetchImpl = options.fetch ?? ((input, init) => globalThis.fetch(input, init));
   const execFile = options.execFileSync ?? ((file, args, execOptions) => (
     nodeExecFileSync(file, args, execOptions)
   ));
   const now = options.now ?? Date.now;
   const logger = options.logger ?? console;
-  const githubToken = (options.env === undefined
-    ? process.env.GITHUB_TOKEN
-    : options.env.GITHUB_TOKEN)?.trim();
+  const updateCheckDisabled = env.FREELLMAPI_UPDATE_CHECK?.trim().toLowerCase() === 'off';
+  const githubToken = env.FREELLMAPI_UPDATE_GITHUB_TOKEN?.trim();
 
   let identity: Identity | undefined;
   let cache: CachedResult | null = null;
@@ -259,13 +259,9 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
   function resolveIdentity(): Identity {
     if (identity) return identity;
 
-    const environmentSha = validSha(options.env === undefined
-      ? process.env.FREELLMAPI_COMMIT_SHA
-      : options.env.FREELLMAPI_COMMIT_SHA);
-    const installMethod = options.env === undefined
-      ? process.env.FREELLMAPI_INSTALL_METHOD
-      : options.env.FREELLMAPI_INSTALL_METHOD;
-    if (environmentSha && (installMethod === 'docker' || installMethod === 'desktop')) {
+    const environmentSha = validSha(env.FREELLMAPI_COMMIT_SHA);
+    const installMethod = env.FREELLMAPI_INSTALL_METHOD;
+    if (installMethod === 'docker' || installMethod === 'desktop') {
       identity = { sha: environmentSha, installation: installMethod };
       return identity;
     }
@@ -364,6 +360,15 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
   }
 
   router.get('/check', async (_req: Request, res: Response) => {
+    if (updateCheckDisabled) {
+      return res.json({
+        status: 'disabled',
+        installation: 'unknown',
+        localSha: null,
+        checkedAt: new Date(now()).toISOString(),
+      } satisfies CheckResult);
+    }
+
     const currentIdentity = resolveIdentity();
     if (!currentIdentity.sha) {
       return res.json({
@@ -387,6 +392,15 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
   });
 
   router.get('/status', (_req: Request, res: Response) => {
+    if (updateCheckDisabled) {
+      return res.json({
+        status: 'disabled',
+        installation: 'unknown',
+        localSha: null,
+        lastChecked: null,
+      });
+    }
+
     const currentIdentity = resolveIdentity();
     res.json({
       status: currentIdentity.sha ? (cache?.result.status ?? 'idle') : 'unsupported',

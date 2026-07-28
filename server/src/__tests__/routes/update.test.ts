@@ -132,10 +132,10 @@ describe('Update API', () => {
       expect(execMock).not.toHaveBeenCalled();
     });
 
-    it('uses an optional GitHub token for authenticated rate limits', async () => {
+    it('uses an explicitly configured update-check token for authenticated rate limits', async () => {
       const fetchMock = vi.fn(async () => response(compareBody('identical')));
       const { app } = createTestApp({
-        env: { GITHUB_TOKEN: 'test-token' },
+        env: { FREELLMAPI_UPDATE_GITHUB_TOKEN: 'test-token' },
         fetch: fetchMock,
       });
 
@@ -144,6 +144,42 @@ describe('Update API', () => {
       expect(fetchMock).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
         headers: expect.objectContaining({ Authorization: 'Bearer test-token' }),
       }));
+    });
+
+    it('does not borrow an ambient GitHub token', async () => {
+      const fetchMock = vi.fn(async () => response(compareBody('identical')));
+      const { app } = createTestApp({
+        env: { GITHUB_TOKEN: 'ambient-token' },
+        fetch: fetchMock,
+      });
+
+      await httpGet(app, '/api/update/check');
+
+      const request = fetchMock.mock.calls[0][1];
+      expect(request?.headers).not.toHaveProperty('Authorization');
+    });
+
+    it('reports disabled without resolving Git identity or making a network request', async () => {
+      const fetchMock = vi.fn();
+      const execMock = vi.fn(() => `${LOCAL_SHA}\n`);
+      const { app, logger } = createTestApp({
+        env: { FREELLMAPI_UPDATE_CHECK: ' OFF ' },
+        fetch: fetchMock,
+        execFileSync: execMock,
+      });
+
+      const result = await httpGet(app, '/api/update/check');
+
+      expect(result.status).toBe(200);
+      expect(result.body).toEqual({
+        status: 'disabled',
+        installation: 'unknown',
+        localSha: null,
+        checkedAt: '2026-07-28T14:00:00.000Z',
+      });
+      expect(execMock).not.toHaveBeenCalled();
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(logger.error).not.toHaveBeenCalled();
     });
 
     it('falls back to the public Atom feed when the anonymous API limit is exhausted', async () => {
@@ -276,7 +312,7 @@ describe('Update API', () => {
     it('resolves Git identity lazily from the current working directory', async () => {
       const execMock = vi.fn(() => `${LOCAL_SHA}\n`);
       const { app } = createTestApp({
-        env: { FREELLMAPI_COMMIT_SHA: 'invalid', FREELLMAPI_INSTALL_METHOD: 'desktop' },
+        env: { FREELLMAPI_COMMIT_SHA: 'invalid' },
         execFileSync: execMock,
       });
       expect(execMock).not.toHaveBeenCalled();
@@ -319,6 +355,26 @@ describe('Update API', () => {
         localSha: null,
         checkedAt: '2026-07-28T14:00:00.000Z',
       });
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('preserves the install method for a self-built Docker image without Git metadata', async () => {
+      const fetchMock = vi.fn();
+      const execMock = vi.fn(() => `${LOCAL_SHA}\n`);
+      const { app } = createTestApp({
+        env: { FREELLMAPI_INSTALL_METHOD: 'docker' },
+        fetch: fetchMock,
+        execFileSync: execMock,
+      });
+
+      const result = await httpGet(app, '/api/update/check');
+
+      expect(result.body).toMatchObject({
+        status: 'unsupported',
+        installation: 'docker',
+        localSha: null,
+      });
+      expect(execMock).not.toHaveBeenCalled();
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
@@ -376,6 +432,25 @@ describe('Update API', () => {
   });
 
   describe('GET /api/update/status', () => {
+    it('reports disabled without resolving Git identity or making a network request', async () => {
+      const fetchMock = vi.fn();
+      const execMock = vi.fn(() => `${LOCAL_SHA}\n`);
+      const { app } = createTestApp({
+        env: { FREELLMAPI_UPDATE_CHECK: 'off' },
+        fetch: fetchMock,
+        execFileSync: execMock,
+      });
+
+      expect((await httpGet(app, '/api/update/status')).body).toEqual({
+        status: 'disabled',
+        installation: 'unknown',
+        localSha: null,
+        lastChecked: null,
+      });
+      expect(execMock).not.toHaveBeenCalled();
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
     it('returns idle before a supported installation has checked', async () => {
       const { app } = createTestApp();
 
