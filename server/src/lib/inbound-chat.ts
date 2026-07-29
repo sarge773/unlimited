@@ -17,7 +17,7 @@ import {
 import {
   getModelGroups,
   isUnifyEnabled,
-  resolveRequestedIdToMembers,
+  resolveRequestedIdForDispatch,
 } from '../services/model-groups.js';
 import {
   newFallbackState,
@@ -116,11 +116,12 @@ function resolvePin(model: string | undefined, messages: ChatMessage[], sessionI
   }
 
   const db = getDb();
-  const members = isUnifyEnabled()
-    ? resolveRequestedIdToMembers(requested, getModelGroups())
+  const resolved = isUnifyEnabled()
+    ? resolveRequestedIdForDispatch(requested, getModelGroups())
     : null;
+  const members = resolved?.memberDbIds ?? null;
   if (members?.length) {
-    const strictChain = resolveModelGroupCandidates(members);
+    const strictChain = resolveModelGroupCandidates(members, resolved!.demotedDbIds);
     if (strictChain.length === 0) {
       const err = new Error(`Model '${requested}' has no enabled provider with a usable key`) as Error & { status?: number; code?: string };
       err.status = 503;

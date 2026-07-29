@@ -182,6 +182,34 @@ export function memberOverrideKey(row: {
   return row.qualifiedModelId ?? `${row.platform}:${row.modelId}`
 }
 
+type OverrideRow = { platform: string; modelId: string; qualifiedModelId?: string | null }
+type SplitEntry = { member: string; groupKey?: string }
+
+/**
+ * Every persisted form that names this row: the qualified id written since #651,
+ * and the plain "platform:modelId" that overrides saved before it use. Matching
+ * both is what keeps an existing split undoable — the alternative, rewriting
+ * stored keys on read, is a silent data migration for a cosmetic gain.
+ */
+function overrideKeyAliases(row: OverrideRow): string[] {
+  const plain = `${row.platform}:${row.modelId}`
+  return row.qualifiedModelId && row.qualifiedModelId !== plain
+    ? [row.qualifiedModelId, plain]
+    : [plain]
+}
+
+/** Whether a persisted split names this row, in either form. */
+export function isMemberSplit(splits: readonly SplitEntry[], row: OverrideRow): boolean {
+  const aliases = overrideKeyAliases(row)
+  return splits.some(s => aliases.includes(s.member))
+}
+
+/** The splits list with this row's entry dropped, whichever form it was saved in. */
+export function splitsWithoutMember(splits: readonly SplitEntry[], row: OverrideRow): SplitEntry[] {
+  const aliases = overrideKeyAliases(row)
+  return splits.filter(s => !aliases.includes(s.member))
+}
+
 export function formatTokens(n: number): string {
   if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`

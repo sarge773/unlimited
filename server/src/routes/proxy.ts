@@ -26,7 +26,7 @@ import { samplingParamSchemaFields, pickSamplingParams, supportedParametersForPl
 import { enforceJsonContent } from '../lib/structured-output.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import { inferQuotaPoolKey, type QuotaObservationContext } from '../services/provider-quota.js';
-import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from '../services/model-groups.js';
+import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from '../services/model-groups.js';
 import { buildModelListing } from '../services/model-listing.js';
 import { compressRequest, formatCompressionHeader } from '../services/compression/pipeline.js';
 
@@ -820,9 +820,10 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
 
   if (!isAutoModel(requestedModel) && requestedModel) {
     const db = getDb();
-    const members = isUnifyEnabled() ? resolveRequestedIdToMembers(requestedModel, getModelGroups()) : null;
+    const resolved = isUnifyEnabled() ? resolveRequestedIdForDispatch(requestedModel, getModelGroups()) : null;
+    const members = resolved?.memberDbIds ?? null;
     if (members && members.length > 0) {
-      groupChain = resolveModelGroupCandidates(members);
+      groupChain = resolveModelGroupCandidates(members, resolved!.demotedDbIds);
       if (groupChain.length === 0) {
         const placeholders = members.map(() => '?').join(',');
         const anyEnabled = db.prepare(`SELECT 1 FROM models WHERE id IN (${placeholders}) AND enabled = 1 LIMIT 1`).get(...members);
@@ -1569,9 +1570,10 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
     // Unify ON: a requested id (canonical slug OR any provider's model_id) maps
     // to the whole logical-model group, and we route STRICTLY across only its
     // providers — failing over between them, never to a different model (#335).
-    const members = isUnifyEnabled() ? resolveRequestedIdToMembers(requestedModel, getModelGroups()) : null;
+    const resolved = isUnifyEnabled() ? resolveRequestedIdForDispatch(requestedModel, getModelGroups()) : null;
+    const members = resolved?.memberDbIds ?? null;
     if (members && members.length > 0) {
-      groupChain = resolveModelGroupCandidates(members);
+      groupChain = resolveModelGroupCandidates(members, resolved!.demotedDbIds);
       if (groupChain.length === 0) {
         // Distinguish a catalog-disabled model (404 model_not_found, OpenAI
         // semantics) from one whose providers are present but unusable

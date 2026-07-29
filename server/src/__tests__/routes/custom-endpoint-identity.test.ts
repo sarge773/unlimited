@@ -317,6 +317,28 @@ describe('per-endpoint identity for custom relay models (#651)', () => {
         .toEqual([a.id, b.id].sort());
     });
 
+    it('honours a split saved in the pre-#651 plain form', async () => {
+      // Upgrading must not orphan an existing override: the stored key is the
+      // unqualified member id, and nothing rewrites it on read.
+      await registerBothRelays(app);
+      const a = rowOn(RELAY_A);
+      const b = rowOn(RELAY_B);
+
+      setUnifyOverrides({ merges: [], splits: [{ member: `custom:${SHARED_MODEL}` }] });
+
+      const groups = getModelGroups();
+      // An unqualified key names BOTH relays, so they share one split group —
+      // exactly what it meant before #651, left alone rather than reinterpreted.
+      const groupOf = (id: number) => groups.find(g => g.members.some(m => m.model_db_id === id))!;
+      expect(groupOf(a.id).groupKey).toBe(groupOf(b.id).groupKey);
+      expect(groupOf(a.id).groupKey).toContain('__split__');
+      expect(groupOf(a.id).members.map(m => m.model_db_id).sort()).toEqual([a.id, b.id].sort());
+
+      // And the bare id still reaches both, so the split stays cosmetic.
+      expect(resolveRequestedIdToMembers(SHARED_MODEL, groups)?.sort())
+        .toEqual([a.id, b.id].sort());
+    });
+
     it('keeps a bare model id working — it spans both relays', async () => {
       await registerBothRelays(app);
       const groups = getModelGroups();

@@ -330,7 +330,8 @@ function resolveDeclaredModel(
     if (named.length === 0) {
       throw new Error(
         `${platform}/${modelId}: no custom endpoint matching '${endpoint}' serves this model` +
-        `${rows.length > 0 ? ` (known: ${rows.map(r => r.endpoint_scope || '(none)').join(', ')})` : ''}`,
+        `${rows.length > 0 ? ` (known: ${rows.map(r => r.endpoint_scope || '(none)').join(', ')})` : ''}. ` +
+        'A "models" entry edits a model that already exists — register it under "customProviders" first.',
       );
     }
     throw new Error(`${platform}/${modelId}: endpoint '${endpoint}' matches more than one endpoint`);

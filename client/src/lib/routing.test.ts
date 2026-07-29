@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { memberProviderLabel, memberEndpointTitle, memberOverrideKey, providerPinId } from './routing'
+import {
+  isMemberSplit,
+  memberEndpointTitle,
+  memberOverrideKey,
+  memberProviderLabel,
+  providerPinId,
+  splitsWithoutMember,
+} from './routing'
 
 // Per-endpoint identity must be INVISIBLE until two endpoints actually serve the
 // same model id (#651). The server sends `endpointScope` / `qualifiedModelId` on
@@ -118,5 +125,42 @@ describe('collision detection keys on (platform, model_id)', () => {
     const sameIdOnCatalog: R = { platform: 'groq', modelId: 'deepseek-v3.1', source: 'catalog' }
     expect(memberProviderLabel(soloRelay, [soloRelay, sameIdOnCatalog])).toBe('Custom')
     expect(providerPinId(soloRelay, [soloRelay, sameIdOnCatalog])).toBe('deepseek-v3.1')
+  })
+})
+
+// A split persisted BEFORE per-endpoint identity names the row in the plain
+// "platform:modelId" form. The override key is qualified now, so a naive
+// equality check stops recognising it: the row stays split with no control to
+// merge it back. Rewriting the stored key would be a silent data migration for
+// a cosmetic gain, so matching has to accept both forms instead.
+describe('pre-#651 split overrides stay undoable', () => {
+  const legacySplit = [{ member: 'custom:deepseek-v3.1' }]
+  const qualifiedSplit = [{ member: 'custom:deepseek-v3.1#relay-a.example.com-v1' }]
+
+  it('recognises a split stored in the plain form', () => {
+    expect(isMemberSplit(legacySplit, relayA)).toBe(true)
+  })
+
+  it('recognises one stored in the qualified form', () => {
+    expect(isMemberSplit(qualifiedSplit, relayA)).toBe(true)
+  })
+
+  it('removes the entry that is actually stored, whichever form it uses', () => {
+    expect(splitsWithoutMember(legacySplit, relayA)).toEqual([])
+    expect(splitsWithoutMember(qualifiedSplit, relayA)).toEqual([])
+  })
+
+  it('does not treat a sibling relay as split by the other one\'s entry', () => {
+    expect(isMemberSplit(qualifiedSplit, relayB)).toBe(false)
+    expect(splitsWithoutMember(qualifiedSplit, relayB)).toEqual(qualifiedSplit)
+  })
+
+  it('still matches a plain entry on a row that has no endpoint at all', () => {
+    const legacyRow = { platform: 'custom', modelId: 'legacy', source: 'custom' as const }
+    expect(isMemberSplit([{ member: 'custom:legacy' }], legacyRow)).toBe(true)
+  })
+
+  it('leaves catalog rows on the plain form only', () => {
+    expect(isMemberSplit([{ member: 'groq:llama-3.3-70b' }], catalog)).toBe(true)
   })
 })

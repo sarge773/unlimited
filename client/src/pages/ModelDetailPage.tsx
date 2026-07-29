@@ -16,10 +16,12 @@ import { ModelsTabs } from '@/components/models-tabs'
 import { ModelTableHead, RowContent } from '@/components/model-table'
 import {
   groupQuotaBadge,
+  isMemberSplit,
   memberEndpointTitle,
   memberOverrideKey,
   memberProviderLabel,
   providerPinId,
+  splitsWithoutMember,
   type FallbackEntry,
   type RoutingData,
   type Row,
@@ -119,27 +121,26 @@ export default function ModelDetailPage() {
   })
 
   const splits = unify?.overrides.splits ?? []
-  // Names ONE row. An unqualified "platform:modelId" matches every relay that
-  // serves the id, so splitting one relay's card used to move both (#651).
-  const memberKey = (m: Row) => memberOverrideKey(m)
-  // The split control for one provider row: offer "keep separate" while the
-  // model is merged with siblings, and "merge back" on a copy that was split
-  // out (it lives on its own page then, so the undo must live there too).
+  // New splits are written against ONE row: an unqualified "platform:modelId"
+  // matches every relay that serves the id, so splitting one relay's card used
+  // to move both (#651). Reading accepts the plain form too, so a split saved
+  // before that is still recognised — and still undoable.
   function splitActionFor(m: Row, memberCount: number): SplitAction | undefined {
     if (!unify) return undefined
-    const isSplit = splits.some(s => s.member === memberKey(m))
-    if (isSplit) {
+    // Checked before the member-count guard on purpose: a split row is usually
+    // ALONE in its group, and that is exactly the row that needs the undo.
+    if (isMemberSplit(splits, m)) {
       return {
         kind: 'undo',
         pending: splitMutation.isPending,
-        onClick: () => splitMutation.mutate(splits.filter(s => s.member !== memberKey(m))),
+        onClick: () => splitMutation.mutate(splitsWithoutMember(splits, m)),
       }
     }
     if (memberCount < 2) return undefined
     return {
       kind: 'split',
       pending: splitMutation.isPending,
-      onClick: () => splitMutation.mutate([...splits, { member: memberKey(m) }]),
+      onClick: () => splitMutation.mutate([...splits, { member: memberOverrideKey(m) }]),
     }
   }
 

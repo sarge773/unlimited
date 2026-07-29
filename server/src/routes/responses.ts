@@ -11,7 +11,7 @@ import type {
 } from '@freellmapi/shared/types.js';
 import { routeRequest, hasEnabledToolsModel, resolveStickyPreference, routingReserveTokens, resolveModelGroupCandidates, type RouteResult, type ChainRow } from '../services/router.js';
 import { getDb, getUnifiedApiKey } from '../db/index.js';
-import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from '../services/model-groups.js';
+import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from '../services/model-groups.js';
 import { contentToString } from '../lib/content.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
 import { rescueInlineToolCalls, startsWithDialectMarker, couldBecomeDialectMarker, containsDialectMarker } from '../lib/tool-call-rescue.js';
@@ -424,9 +424,10 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
     preferredModel = resolveStickyPreference(getStickyModel(messages, sessionIdHeader));
   } else {
     const db = getDb();
-    const members = isUnifyEnabled() ? resolveRequestedIdToMembers(requestedModelLabel, getModelGroups()) : null;
+    const resolved = isUnifyEnabled() ? resolveRequestedIdForDispatch(requestedModelLabel, getModelGroups()) : null;
+    const members = resolved?.memberDbIds ?? null;
     if (members && members.length > 0) {
-      groupChain = resolveModelGroupCandidates(members);
+      groupChain = resolveModelGroupCandidates(members, resolved!.demotedDbIds);
       if (groupChain.length === 0) {
         const placeholders = members.map(() => '?').join(',');
         const anyEnabled = db.prepare(`SELECT 1 FROM models WHERE id IN (${placeholders}) AND enabled = 1 LIMIT 1`).get(...members);

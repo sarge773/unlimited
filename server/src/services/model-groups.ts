@@ -58,11 +58,27 @@ export interface GroupableRow {
   endpoint_scope?: string;
 }
 
+/**
+ * How a resolved member was reached: by its own model_id (or a group the
+ * operator built), versus only through a group's auto-derived slug.
+ */
+export type MatchTier = 'literal' | 'slug';
+
+export interface TieredMember {
+  modelDbId: number;
+  tier: MatchTier;
+}
+
 export interface ModelGroup {
   groupKey: string;        // normalized display name — the grouping identity
   canonicalId: string;     // stable slug advertised on /v1/models
   groupLabel: string;      // human label = representative member's stripped name
   members: GroupableRow[]; // all rows in the group (any enabled state)
+  // True when an operator override (a merge or an explicit group key) put this
+  // group together, rather than the catalog's display names doing it by
+  // accident. A slug match on a name the user asserted themselves is a
+  // first-class answer; one on an auto-derived slug is only a fallback.
+  userDefined: boolean;
 }
 
 // ── Settings accessors ───────────────────────────────────────────────────────
@@ -154,6 +170,11 @@ export function qualifiedMemberId(row: GroupableRow): string | null {
 // (forces a singleton/explicit key); then a merge redirects to its target;
 // otherwise the normalized display name.
 function tokenForRow(row: GroupableRow, ov: UnifyOverrides): string {
+  return tokenSourceForRow(row, ov).token;
+}
+
+/** The grouping token plus whether an operator override chose it. */
+function tokenSourceForRow(row: GroupableRow, ov: UnifyOverrides): { token: string; userDefined: boolean } {
   const mid = memberId(row);
   // A qualified id names ONE relay's copy, so an override written against it
   // must only move that copy. Plain member ids keep matching as before, which is
@@ -162,11 +183,17 @@ function tokenForRow(row: GroupableRow, ov: UnifyOverrides): string {
   const names = (candidate: string) => candidate === mid || (qid !== null && candidate === qid);
 
   const split = ov.splits.find(s => names(s.member));
-  if (split) return split.groupKey ? normalizeGroupKey(split.groupKey) : `__split__:${split.member}`;
+  if (split) {
+    return split.groupKey
+      ? { token: normalizeGroupKey(split.groupKey), userDefined: true }
+      : { token: `__split__:${split.member}`, userDefined: true };
+  }
 
   const base = normalizeGroupKey(row.display_name);
   const merge = ov.merges.find(mg => mg.keys.some(k => names(k) || normalizeGroupKey(k) === base));
-  return merge ? normalizeGroupKey(merge.into) : base;
+  return merge
+    ? { token: normalizeGroupKey(merge.into), userDefined: true }
+    : { token: base, userDefined: false };
 }
 
 // Assign a unique canonicalId to each group. Deterministic: groups sorted by
@@ -190,13 +217,17 @@ function assignCanonicalIds(groups: ModelGroup[]): void {
 export function groupRows(rows: GroupableRow[], ov: UnifyOverrides): ModelGroup[] {
   const map = new Map<string, ModelGroup>();
   for (const row of rows) {
-    const key = tokenForRow(row, ov);
+    const { token: key, userDefined } = tokenSourceForRow(row, ov);
     let g = map.get(key);
     if (!g) {
-      g = { groupKey: key, canonicalId: '', groupLabel: stripProviderSuffix(row.display_name), members: [] };
+      g = {
+        groupKey: key, canonicalId: '', groupLabel: stripProviderSuffix(row.display_name),
+        members: [], userDefined: false,
+      };
       map.set(key, g);
     }
     g.members.push(row);
+    g.userDefined ||= userDefined;
   }
 
   // Representative label = the best (lowest intelligence_rank) member, tiebroken
@@ -236,7 +267,7 @@ export function groupRows(rows: GroupableRow[], ov: UnifyOverrides): ModelGroup[
  *
  * Member order here is incidental — the router re-orders by the active strategy.
  */
-export function resolveRequestedIdToMembers(requested: string, groups: ModelGroup[]): number[] | null {
+export function resolveRequestedIdToTieredMembers(requested: string, groups: ModelGroup[]): TieredMember[] | null {
   if (!requested) return null;
 
   const sepAt = requested.lastIndexOf(ENDPOINT_ID_SEPARATOR);
@@ -247,7 +278,7 @@ export function resolveRequestedIdToMembers(requested: string, groups: ModelGrou
       for (const m of g.members) {
         if (memberId(m) !== base) continue;
         if (m.endpoint_scope && endpointRefMatches(endpointRef, m.endpoint_scope)) {
-          return [m.model_db_id];
+          return [{ modelDbId: m.model_db_id, tier: 'literal' }];
         }
       }
     }
@@ -257,24 +288,75 @@ export function resolveRequestedIdToMembers(requested: string, groups: ModelGrou
   // model_id that itself contains a colon (e.g. Ollama's "gpt-oss:120b") never
   // collides because platforms aren't model-name prefixes.
   const exact = groups.flatMap(g => g.members.filter(m => memberId(m) === requested));
-  if (exact.length > 0) return exact.map(m => m.model_db_id);
+  if (exact.length > 0) {
+    return exact.map(m => ({ modelDbId: m.model_db_id, tier: 'literal' as MatchTier }));
+  }
 
-  // Canonical slug and bare model id resolve TOGETHER, as a union. Keeping them
-  // as separate early-returns let a slug shadow the id: rename one relay's copy
-  // and its group's slug is no longer 'deepseek-v3.1', while the untouched
-  // relay's group still slugs to exactly that — so the bare id matched one
-  // group by slug, returned early, and the renamed relay became unreachable.
-  const matched: number[] = [];
+  // Canonical slug and bare model id resolve TOGETHER, as an ORDERED union.
+  //
+  // Keeping them as separate early-returns let a slug shadow the id: rename one
+  // relay's copy and its group's slug is no longer 'deepseek-v3.1', while the
+  // untouched relay's group still slugs to exactly that — so the bare id matched
+  // one group by slug, returned early, and the renamed relay became unreachable.
+  //
+  // But the two matches are not equally intended. A canonicalId is a SLUG of a
+  // display name, so it can coincide with an unrelated model's literal id (the
+  // shipped catalog has one: Cloudflare's "Gemma 4 26B-A4B it" slugs to
+  // `gemma-4-26b-a4b-it`, Google's literal model_id in another group). A request
+  // written literally must therefore try the literal model FIRST; a coincidental
+  // slug sibling is a fallback that may serve only once the real one is
+  // exhausted. Groups the operator built by hand rank with the literal matches —
+  // they asserted that name themselves.
+  const literal: TieredMember[] = [];
+  const slugOnly: TieredMember[] = [];
   const seen = new Set<number>();
   for (const g of groups) {
-    if (g.canonicalId !== requested && !g.members.some(m => m.model_id === requested)) continue;
+    const byMember = g.members.some(m => m.model_id === requested);
+    if (!byMember && g.canonicalId !== requested) continue;
+    const bucket = byMember || g.userDefined ? literal : slugOnly;
+    const tier: MatchTier = bucket === literal ? 'literal' : 'slug';
     for (const m of g.members) {
       if (seen.has(m.model_db_id)) continue;
       seen.add(m.model_db_id);
-      matched.push(m.model_db_id);
+      bucket.push({ modelDbId: m.model_db_id, tier });
     }
   }
+  const matched = [...literal, ...slugOnly];
   return matched.length > 0 ? matched : null;
+}
+
+/**
+ * The same resolution, flattened to db ids in tier order. Callers that dispatch
+ * a request should prefer the tiered form and pass `demotedMemberIds()` to the
+ * router, so a fallback match cannot outrank a literal one on score alone.
+ */
+export function resolveRequestedIdToMembers(requested: string, groups: ModelGroup[]): number[] | null {
+  return resolveRequestedIdToTieredMembers(requested, groups)?.map(m => m.modelDbId) ?? null;
+}
+
+/** The subset of a tiered resolution that was reached only through a slug. */
+export function demotedMemberIds(members: readonly TieredMember[]): Set<number> {
+  return new Set(members.filter(m => m.tier === 'slug').map(m => m.modelDbId));
+}
+
+export interface DispatchMembers {
+  /** Every member, in tier order. */
+  memberDbIds: number[];
+  /** Those of them that are fallbacks — hand this to resolveModelGroupCandidates. */
+  demotedDbIds: Set<number>;
+}
+
+/**
+ * One-call resolution for the request path: the member ids to route over plus
+ * the ones that must not outrank a literal match on score (#651).
+ */
+export function resolveRequestedIdForDispatch(
+  requested: string,
+  groups: ModelGroup[],
+): DispatchMembers | null {
+  const tiered = resolveRequestedIdToTieredMembers(requested, groups);
+  if (!tiered) return null;
+  return { memberDbIds: tiered.map(m => m.modelDbId), demotedDbIds: demotedMemberIds(tiered) };
 }
 
 // ── DB convenience ───────────────────────────────────────────────────────────
@@ -288,6 +370,7 @@ export function getModelGroups(): ModelGroup[] {
     SELECT m.id as model_db_id, m.platform, m.model_id, m.display_name, m.intelligence_rank,
            m.endpoint_scope
     FROM models m
+    ORDER BY m.id
   `).all() as GroupableRow[];
   return groupRows(rows, getUnifyOverrides());
 }

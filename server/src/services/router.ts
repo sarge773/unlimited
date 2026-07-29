@@ -23,7 +23,7 @@ import { TIMEOUT_ERROR_MARKERS } from '../lib/error-classify.js';
 import { modelsWithOverriddenField } from './model-state.js';
 import { parseBudget } from '../lib/budget.js';
 import { platformDropsResponseFormat } from '../lib/sampling-params.js';
-import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from './model-groups.js';
+import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from './model-groups.js';
 import { getActiveProfileId } from './profile-models.js';
 import { customEndpointKeyIds } from './custom-endpoint.js';
 import { modelStatsKey, endpointScopeForBaseUrl } from '../lib/endpoint-scope.js';
@@ -144,6 +144,15 @@ export interface ChainRow {
   // each hold a row for the same model_id, and everything scored or rate-limited
   // per model has to tell them apart (#651).
   endpoint_scope: string;
+  /**
+   * Ordering TIER, ahead of score. 0 (the default, and what every other chain
+   * builder produces) is a normal candidate. A higher number is a fallback that
+   * may only serve once every lower tier is exhausted, however good its live
+   * numbers are — currently set only for a member reached through a group's
+   * auto-derived slug rather than the model id the client actually wrote, where
+   * answering on score alone would be a silent substitution (#651).
+   */
+  match_tier?: number;
 }
 
 export interface RouteResult {
@@ -678,12 +687,16 @@ function scoreChainEntry(
  * request. Priority mode is deterministic either way.
  */
 function orderChain(chain: ChainRow[], strategy: RoutingStrategy, sampled = true): ChainRow[] {
+  // Tier first, always: it is the one ordering input that score must not be able
+  // to override (see ChainRow.match_tier). Zero for every chain built anywhere
+  // else, so this is a no-op outside slug-fallback resolution.
+  const tier = (e: ChainRow) => e.match_tier ?? 0;
   const weights = weightsFor(strategy);
   if (!weights) {
     // Legacy priority mode: base priority + 429 penalty, ascending.
     return chain
       .map(e => ({ e, eff: e.priority + getPenalty(e.model_db_id) }))
-      .sort((a, b) => a.eff - b.eff || a.e.priority - b.e.priority)
+      .sort((a, b) => tier(a.e) - tier(b.e) || a.eff - b.eff || a.e.priority - b.e.priority)
       .map(x => x.e);
   }
 
@@ -694,8 +707,9 @@ function orderChain(chain: ChainRow[], strategy: RoutingStrategy, sampled = true
 
   return chain
     .map(e => ({ e, s: scoreChainEntry(e, weights, intelMin, intelMax, sampled, keyCounts).score }))
-    // Higher score first; manual priority breaks ties so the chain still matters.
-    .sort((a, b) => b.s - a.s || a.e.priority - b.e.priority)
+    // Higher score first WITHIN a tier; manual priority breaks ties so the chain
+    // still matters.
+    .sort((a, b) => tier(a.e) - tier(b.e) || b.s - a.s || a.e.priority - b.e.priority)
     .map(x => x.e);
 }
 
@@ -1111,7 +1125,17 @@ export function routePinnedModel(modelDbId: number, estimatedTokens = 1000, skip
  * preferred-model injection in routeRequest would unshift an off-group model and
  * the pin would no longer be strict (it could answer with a different model).
  */
-export function resolveModelGroupCandidates(memberDbIds: number[]): ChainRow[] {
+export function resolveModelGroupCandidates(
+  memberDbIds: number[],
+  /**
+   * Members that were reached only through a group's auto-derived slug, not the
+   * id the client wrote (#651). They stay in the chain — resolution must never
+   * shrink — but as a strictly lower tier, so they can serve only once every
+   * literal match is exhausted. Omit it and every row is an equal candidate,
+   * which is what every other caller wants.
+   */
+  demotedDbIds?: ReadonlySet<number>,
+): ChainRow[] {
   const db = getDb();
   const strategy = getRoutingStrategy();
   if (strategy !== 'priority') refreshStatsCache(db);
@@ -1145,7 +1169,9 @@ export function resolveModelGroupCandidates(memberDbIds: number[]): ChainRow[] {
   const rows: ChainRow[] = [];
   for (const id of memberDbIds) {
     const row = (activeProfileId == null ? selectMember.get(id) : selectMember.get(activeProfileId, id)) as ChainRow | undefined;
-    if (row) rows.push(row);
+    if (!row) continue;
+    row.match_tier = demotedDbIds?.has(id) ? 1 : 0;
+    rows.push(row);
   }
   return orderChain(rows, strategy);
 }
@@ -1269,9 +1295,9 @@ export function resolveFusionCandidate(modelId: string): FusionCandidate | null 
   // saved fusion configs that use canonical ids keep working. Exact model_id
   // match above always wins first, so OFF mode and legacy configs are untouched.
   if (isUnifyEnabled()) {
-    const members = resolveRequestedIdToMembers(modelId, getModelGroups());
-    if (members && members.length > 0) {
-      const top = resolveModelGroupCandidates(members)[0];
+    const resolved = resolveRequestedIdForDispatch(modelId, getModelGroups());
+    if (resolved && resolved.memberDbIds.length > 0) {
+      const top = resolveModelGroupCandidates(resolved.memberDbIds, resolved.demotedDbIds)[0];
       if (top) {
         return {
           modelDbId: top.model_db_id,
