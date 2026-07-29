@@ -76,6 +76,14 @@ function childTablesOfModels(db: Db): string[] {
 
 function rebuildModels(db: Db, extraColumns: string, copiedColumns: string, unique: string): void {
   const children = childTablesOfModels(db);
+  // AUTOINCREMENT's high-water mark. DROP TABLE takes the sqlite_sequence row
+  // with it, and copying rows back only pushes the counter to the highest id
+  // PRESENT — so a table whose top rows were deleted (catalog sync prunes
+  // models routinely) would start handing out ids it has already used. Stale
+  // fallback_config / profile_models rows pointing at a deleted model would
+  // then silently adopt an unrelated new one.
+  const seqRow = db.prepare("SELECT seq FROM sqlite_sequence WHERE name = 'models'")
+    .get() as { seq: number } | undefined;
   for (const child of children) {
     db.exec(`CREATE TEMP TABLE "_endpoint_identity_${child}" AS SELECT * FROM "${child}"`);
     db.exec(`DELETE FROM "${child}"`);
@@ -90,6 +98,17 @@ function rebuildModels(db: Db, extraColumns: string, copiedColumns: string, uniq
     DROP TABLE models;
     ALTER TABLE models_endpoint_identity RENAME TO models;
   `);
+
+  if (seqRow) {
+    // sqlite_sequence has no unique index, so no upsert: update the row the
+    // rename carried over, or re-create it if the table was empty.
+    const restored = db.prepare("UPDATE sqlite_sequence SET seq = ? WHERE name = 'models' AND seq < ?")
+      .run(seqRow.seq, seqRow.seq);
+    if (restored.changes === 0
+      && !db.prepare("SELECT 1 FROM sqlite_sequence WHERE name = 'models'").get()) {
+      db.prepare("INSERT INTO sqlite_sequence (name, seq) VALUES ('models', ?)").run(seqRow.seq);
+    }
+  }
 
   for (const child of children) {
     db.exec(`INSERT INTO "${child}" SELECT * FROM "_endpoint_identity_${child}"`);

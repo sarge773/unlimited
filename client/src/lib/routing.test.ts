@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { memberProviderLabel, memberEndpointTitle, providerPinId } from './routing'
+import { memberProviderLabel, memberEndpointTitle, memberOverrideKey, providerPinId } from './routing'
 
 // Per-endpoint identity must be INVISIBLE until two endpoints actually serve the
 // same model id (#651). The server sends `endpointScope` / `qualifiedModelId` on
@@ -10,6 +10,7 @@ import { memberProviderLabel, memberEndpointTitle, providerPinId } from './routi
 type R = {
   platform: string; modelId: string; source?: 'catalog' | 'custom'
   keyLabel?: string | null; endpointScope?: string | null; qualifiedModelId?: string | null
+  displayName?: string
 }
 
 const soloRelay: R = {
@@ -72,5 +73,50 @@ describe('two endpoints serving one model id', () => {
     expect(memberProviderLabel(soloOnA, siblings)).toBe('Relay A')
     expect(memberEndpointTitle(soloOnA, siblings)).toBeUndefined()
     expect(providerPinId(soloOnA, siblings)).toBe('qwen-3')
+  })
+})
+
+
+// Display name is presentation, never identity (#651). Renaming one relay's copy
+// moves it into a different display-name group, but the two rows still share
+// (platform, model_id) — so the disambiguation must key on that pair and nothing
+// else, and the split/merge override must name ONE relay's row.
+describe('two endpoints whose copies were renamed apart', () => {
+  const renamedA: R = { ...relayA, displayName: 'DeepSeek via A' }
+  const all = [renamedA, relayB]
+
+  it('still labels each with its endpoint', () => {
+    expect(memberProviderLabel(renamedA, all)).toBe('Relay A · relay-a.example.com/v1')
+    expect(memberProviderLabel(relayB, all)).toBe('Relay B · relay-b.example.com/v1')
+  })
+
+  it('still hands out the qualified id to copy', () => {
+    expect(providerPinId(renamedA, all)).toBe('custom:deepseek-v3.1#relay-a.example.com-v1')
+    expect(providerPinId(relayB, all)).toBe('custom:deepseek-v3.1#relay-b.example.com-v1')
+  })
+
+  it('still reveals the endpoint on hover', () => {
+    expect(memberEndpointTitle(renamedA, all)).toBe('https://relay-a.example.com/v1')
+  })
+})
+
+describe('split / merge override key', () => {
+  it('names one relay\'s row, not every custom row with that model id', () => {
+    expect(memberOverrideKey(relayA)).toBe('custom:deepseek-v3.1#relay-a.example.com-v1')
+    expect(memberOverrideKey(relayB)).toBe('custom:deepseek-v3.1#relay-b.example.com-v1')
+    expect(memberOverrideKey(relayA)).not.toBe(memberOverrideKey(relayB))
+  })
+
+  it('keeps the plain member id for rows with no endpoint of their own', () => {
+    expect(memberOverrideKey(catalog)).toBe('groq:llama-3.3-70b')
+    expect(memberOverrideKey({ platform: 'custom', modelId: 'legacy' })).toBe('custom:legacy')
+  })
+})
+
+describe('collision detection keys on (platform, model_id)', () => {
+  it('ignores a same-id row on a different platform', () => {
+    const sameIdOnCatalog: R = { platform: 'groq', modelId: 'deepseek-v3.1', source: 'catalog' }
+    expect(memberProviderLabel(soloRelay, [soloRelay, sameIdOnCatalog])).toBe('Custom')
+    expect(providerPinId(soloRelay, [soloRelay, sameIdOnCatalog])).toBe('deepseek-v3.1')
   })
 })

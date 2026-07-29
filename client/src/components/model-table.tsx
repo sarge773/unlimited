@@ -11,6 +11,7 @@ import {
   formatContext,
   groupMaxContext,
   groupQuotaBadge,
+  memberEndpointTitle,
   memberProviderLabel,
   providerLabel,
   type ModelGroupRow,
@@ -230,11 +231,15 @@ export const dragDots = (
 // The collapsed header row for a logical-model group: name, provider count,
 // union vision/tools badges, the best member's axis bars + score, and a single
 // switch that enables/disables every provider in the group.
-export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup }: {
+export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup, allRows }: {
   group: ModelGroupRow
   rank: number
   dragHandle?: ReactNode
   onToggleGroup: (memberIds: number[], enabled: boolean) => void
+  // Every configured row, for endpoint disambiguation. Two relays serving one
+  // model id land in different display groups the moment one copy is renamed,
+  // so the group's own members are not a complete sibling set (#651).
+  allRows?: readonly Row[]
 }) {
   const { t } = useI18n()
   const anyEnabled = group.members.some(m => m.enabled)
@@ -247,9 +252,10 @@ export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup }: {
   // its range spans every member. The score cell keeps the best member's score
   // (that is what routing would pick) but labels it "best of N" with the
   // per-provider breakdown in a tooltip.
+  const siblings = allRows ?? group.members
   const measured = group.members.filter(m => (m.totalRequests ?? 0) > 0)
   const scoreBreakdown = group.members
-    .map(m => `${memberProviderLabel(m, group.members)} ${m.score !== undefined ? m.score.toFixed(3) : '–'}`)
+    .map(m => `${memberProviderLabel(m, siblings)} ${m.score !== undefined ? m.score.toFixed(3) : '–'}`)
     .join(' · ')
   const vision = group.members.some(m => m.supportsVision)
   const tools = group.members.some(m => m.supportsTools)
@@ -269,8 +275,8 @@ export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup }: {
           <Link to={`/models/chat/${detailId}`} aria-label={t('models.viewProviders')} onClick={e => e.stopPropagation()} className="flex items-center gap-2 flex-wrap text-left min-w-0">
             <span className="font-medium text-sm">{group.label}</span>
             {solo
-              ? <span className="text-xs text-muted-foreground">{memberProviderLabel(group.members[0], group.members)}</span>
-              : <Tooltip text={t('models.servedBy', { providers: group.members.map(m => memberProviderLabel(m, group.members)).join(', ') })}>
+              ? <span className="text-xs text-muted-foreground" title={memberEndpointTitle(group.members[0], siblings)}>{memberProviderLabel(group.members[0], siblings)}</span>
+              : <Tooltip text={t('models.servedBy', { providers: group.members.map(m => memberProviderLabel(m, siblings)).join(', ') })}>
                   <span className="text-[10px] rounded-full px-1.5 py-0.5 bg-muted text-muted-foreground">{t('models.providerCount', { count: group.members.length })}</span>
                 </Tooltip>}
             {quota && (
@@ -324,10 +330,11 @@ export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup }: {
   )
 }
 
-export function SortableGroupRow({ group, rank, onToggleGroup }: {
+export function SortableGroupRow({ group, rank, onToggleGroup, allRows }: {
   group: ModelGroupRow
   rank: number
   onToggleGroup: (memberIds: number[], enabled: boolean) => void
+  allRows?: readonly Row[]
 }) {
   const { t } = useI18n()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: `grp:${group.key}` })
@@ -352,7 +359,7 @@ export function SortableGroupRow({ group, rank, onToggleGroup }: {
       onClick={() => navigate(`/models/chat/${detailId}`)}
       className={`group/row border-b last:border-0 bg-card cursor-pointer transition-colors hover:[&>td]:bg-muted/50 [&>td:first-child]:rounded-l-lg [&>td:last-child]:rounded-r-lg ${isDragging ? 'opacity-50' : ''} ${anyEnabled ? '' : 'opacity-50'}`}
     >
-      <GroupHeaderCells group={group} rank={rank} dragHandle={handle} onToggleGroup={onToggleGroup} />
+      <GroupHeaderCells group={group} rank={rank} dragHandle={handle} onToggleGroup={onToggleGroup} allRows={allRows} />
     </tr>
   )
 }

@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import type { Express } from 'express';
 import { createApp } from '../../app.js';
 import { initDb, getDb } from '../../db/index.js';
-import { routePinnedModel, refreshStatsCache, getRoutingScores, writeObservedSpeedRanks, resetSpeedRankWriteback } from '../../services/router.js';
+import { routePinnedModel, routeRequest, resolveModelGroupCandidates, refreshStatsCache, getRoutingScores, writeObservedSpeedRanks, resetSpeedRankWriteback } from '../../services/router.js';
 import { setCooldown, isOnCooldown, clearCooldownsForKey } from '../../services/ratelimit.js';
-import { getModelGroups, resolveRequestedIdToMembers } from '../../services/model-groups.js';
+import { getModelGroups, resolveRequestedIdToMembers, setUnifyOverrides } from '../../services/model-groups.js';
 import { noteModelRetirementSignal, resetModelRetirementObservations } from '../../services/model-retirement.js';
 import { endpointHandle, qualifiedModelMemberId } from '../../lib/endpoint-scope.js';
 import { buildModelListing } from '../../services/model-listing.js';
@@ -251,6 +251,70 @@ describe('per-endpoint identity for custom relay models (#651)', () => {
       expect(resolveRequestedIdToMembers(`custom:${SHARED_MODEL}#${RELAY_B}`, groups)).toEqual([b.id]);
       // An endpoint that doesn't serve it is not a match.
       expect(resolveRequestedIdToMembers(`custom:${SHARED_MODEL}#nope.example.com`, groups)).toBeNull();
+    });
+
+    it('keeps a bare model id reaching BOTH relays after one is renamed', async () => {
+      // Display name is presentation, not identity. Renaming relay A's copy
+      // moves it into a different display-name group — that must not make it
+      // (or its sibling) unreachable by the bare id every client already uses.
+      await registerBothRelays(app);
+      await post(app, '/api/keys/custom', {
+        baseUrl: RELAY_A, models: [{ model: SHARED_MODEL, displayName: 'DeepSeek via A' }],
+      });
+      const a = rowOn(RELAY_A);
+      const b = rowOn(RELAY_B);
+
+      const groups = getModelGroups();
+      // Precondition: the rename really did split them across groups.
+      expect(new Set(groups.filter(g => g.members.some(m => m.model_id === SHARED_MODEL))
+        .map(g => g.groupKey)).size).toBe(2);
+
+      expect(resolveRequestedIdToMembers(SHARED_MODEL, groups)?.sort())
+        .toEqual([a.id, b.id].sort());
+      // And the platform-qualified form still reaches both too.
+      expect(resolveRequestedIdToMembers(`custom:${SHARED_MODEL}`, groups)?.sort())
+        .toEqual([a.id, b.id].sort());
+    });
+
+    it('routes a bare id to the renamed relay when the other one is cooled down', async () => {
+      // The failover a bare id is supposed to give you, across a display-name
+      // boundary: relay B is benched, so the request has to land on relay A.
+      await registerBothRelays(app);
+      await post(app, '/api/keys/custom', {
+        baseUrl: RELAY_A, models: [{ model: SHARED_MODEL, displayName: 'DeepSeek via A' }],
+      });
+      const a = rowOn(RELAY_A);
+      const b = rowOn(RELAY_B);
+
+      setCooldown('custom', SHARED_MODEL, b.key_id!, 60_000);
+      try {
+        const ids = resolveRequestedIdToMembers(SHARED_MODEL, getModelGroups())!;
+        const route = routeRequest(1000, undefined, undefined, false, false, undefined,
+          resolveModelGroupCandidates(ids));
+        expect(route.modelDbId).toBe(a.id);
+        route.release?.();
+      } finally {
+        clearCooldownsForKey(b.key_id!);
+      }
+    });
+
+    it('splits only the named relay when a split override uses its qualified id', async () => {
+      await registerBothRelays(app);
+      const a = rowOn(RELAY_A);
+      const b = rowOn(RELAY_B);
+      const qualifiedA = qualifiedModelMemberId('custom', SHARED_MODEL, RELAY_A)!;
+
+      setUnifyOverrides({ merges: [], splits: [{ member: qualifiedA }] });
+
+      const groups = getModelGroups();
+      const groupOf = (id: number) => groups.find(g => g.members.some(m => m.model_db_id === id))!;
+      expect(groupOf(a.id).groupKey).not.toBe(groupOf(b.id).groupKey);
+      expect(groupOf(a.id).members.map(m => m.model_db_id)).toEqual([a.id]);
+      expect(groupOf(b.id).members.map(m => m.model_db_id)).toEqual([b.id]);
+
+      // Splitting for display still must not shrink what the bare id reaches.
+      expect(resolveRequestedIdToMembers(SHARED_MODEL, groups)?.sort())
+        .toEqual([a.id, b.id].sort());
     });
 
     it('keeps a bare model id working — it spans both relays', async () => {

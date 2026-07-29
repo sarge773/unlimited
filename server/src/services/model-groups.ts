@@ -218,24 +218,26 @@ export function groupRows(rows: GroupableRow[], ov: UnifyOverrides): ModelGroup[
  * Resolve a requested model id to the db ids of its group members, or null.
  *
  * The ladder, most specific first:
- *   1. the canonical group slug → the whole group;
- *   2. "custom:model_id#endpoint" → exactly that relay's copy (#651) — the only
+ *   1. "custom:model_id#endpoint" → exactly that relay's copy (#651) — the only
  *      form that can separate two endpoints offering the same model id. The
  *      endpoint part accepts the short handle or the endpoint URL itself;
- *   3. "platform:model_id" → that platform's copies. Normally exactly one row,
+ *   2. "platform:model_id" → that platform's copies. Normally exactly one row,
  *      so this is unchanged (#580: naming the platform means "this provider's
  *      copy", no failover to the rest of the group). Two relays sharing a model
  *      id are both 'custom', so this names both and the router picks the better
  *      one — nothing an existing setup can notice, and no error to hit;
- *   4. a bare `model_id` → the whole group (back-compat).
+ *   3. a canonical group slug OR a bare `model_id` → the union of every group
+ *      that answers to it. Display name is presentation, not identity: it may
+ *      EXPAND what a bare id reaches (that is the unify feature — one name,
+ *      several providers) but it must never SHRINK it. Renaming one relay's
+ *      copy, or splitting it out for display, moves it to its own group;
+ *      stopping at the first match would strand the other relay, unreachable by
+ *      the id every client already has (#651).
  *
  * Member order here is incidental — the router re-orders by the active strategy.
  */
 export function resolveRequestedIdToMembers(requested: string, groups: ModelGroup[]): number[] | null {
   if (!requested) return null;
-
-  const byCanonical = groups.find(g => g.canonicalId === requested);
-  if (byCanonical) return byCanonical.members.map(m => m.model_db_id);
 
   const sepAt = requested.lastIndexOf(ENDPOINT_ID_SEPARATOR);
   if (sepAt > 0) {
@@ -257,12 +259,22 @@ export function resolveRequestedIdToMembers(requested: string, groups: ModelGrou
   const exact = groups.flatMap(g => g.members.filter(m => memberId(m) === requested));
   if (exact.length > 0) return exact.map(m => m.model_db_id);
 
+  // Canonical slug and bare model id resolve TOGETHER, as a union. Keeping them
+  // as separate early-returns let a slug shadow the id: rename one relay's copy
+  // and its group's slug is no longer 'deepseek-v3.1', while the untouched
+  // relay's group still slugs to exactly that — so the bare id matched one
+  // group by slug, returned early, and the renamed relay became unreachable.
+  const matched: number[] = [];
+  const seen = new Set<number>();
   for (const g of groups) {
-    if (g.members.some(m => m.model_id === requested)) {
-      return g.members.map(m => m.model_db_id);
+    if (g.canonicalId !== requested && !g.members.some(m => m.model_id === requested)) continue;
+    for (const m of g.members) {
+      if (seen.has(m.model_db_id)) continue;
+      seen.add(m.model_db_id);
+      matched.push(m.model_db_id);
     }
   }
-  return null;
+  return matched.length > 0 ? matched : null;
 }
 
 // ── DB convenience ───────────────────────────────────────────────────────────

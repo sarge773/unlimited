@@ -149,6 +149,19 @@ instead of duplicated.
 }
 ```
 
+If two custom endpoints serve the same model id, add `"endpoint"` to a `models`
+or `fallback` entry to say which one you mean — the endpoint's URL, or the short
+handle the dashboard shows next to it. Without it, an entry that matches more
+than one endpoint is rejected rather than applied to an arbitrary one:
+
+```json
+{
+  "models": [
+    { "platform": "custom", "modelId": "deepseek-v3.1", "endpoint": "https://relay-b.example.com/v1", "enabled": false }
+  ]
+}
+```
+
 ## Docker image & operations
 
 FreeLLMAPI publishes a single production image that contains the Express server and the built React dashboard:

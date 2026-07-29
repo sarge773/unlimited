@@ -16,8 +16,9 @@ import { ModelsTabs } from '@/components/models-tabs'
 import { ModelTableHead, RowContent } from '@/components/model-table'
 import {
   groupQuotaBadge,
-  memberProviderLabel,
   memberEndpointTitle,
+  memberOverrideKey,
+  memberProviderLabel,
   providerPinId,
   type FallbackEntry,
   type RoutingData,
@@ -118,7 +119,9 @@ export default function ModelDetailPage() {
   })
 
   const splits = unify?.overrides.splits ?? []
-  const memberKey = (m: Row) => `${m.platform}:${m.modelId}`
+  // Names ONE row. An unqualified "platform:modelId" matches every relay that
+  // serves the id, so splitting one relay's card used to move both (#651).
+  const memberKey = (m: Row) => memberOverrideKey(m)
   // The split control for one provider row: offer "keep separate" while the
   // model is merged with siblings, and "merge back" on a copy that was split
   // out (it lives on its own page then, so the undo must live there too).
@@ -149,6 +152,11 @@ export default function ModelDetailPage() {
     .filter(e => e.keyCount > 0 && (e.canonicalId ?? e.modelId) === canonicalId)
     .map(e => ({ ...(scoreById.get(e.modelDbId) ?? {}), ...e }))
     .sort((a, b) => (isManual ? a.priority - b.priority : (b.score ?? 0) - (a.score ?? 0)))
+  // Endpoint disambiguation keys on (platform, model_id) across EVERY configured
+  // row — a relay whose copy was renamed sits in a DIFFERENT display group, so
+  // `members` is not a complete sibling set and scoping to it would hide the
+  // endpoint exactly when two relays collide (#651).
+  const siblings: Row[] = entries as Row[]
 
   function handleToggle(modelDbId: number, enabled: boolean) {
     saveMutation.mutate(entries.map(e => ({
@@ -210,7 +218,7 @@ export default function ModelDetailPage() {
                 <tbody>
                   {members.map((m, i) => (
                     <tr key={m.modelDbId} className={`border-b last:border-0 ${m.enabled ? '' : 'opacity-50'}`}>
-                      <RowContent row={m} rank={i + 1} draggable={false} onToggle={handleToggle} providerName={memberProviderLabel(m, members)} providerTitle={memberEndpointTitle(m, members)} />
+                      <RowContent row={m} rank={i + 1} draggable={false} onToggle={handleToggle} providerName={memberProviderLabel(m, siblings)} providerTitle={memberEndpointTitle(m, siblings)} />
                     </tr>
                   ))}
                 </tbody>
@@ -227,8 +235,8 @@ export default function ModelDetailPage() {
                   <ProviderSettingsRow
                     key={m.modelDbId}
                     model={m}
-                    endpointLabel={memberProviderLabel(m, members)}
-                    endpointTitle={memberEndpointTitle(m, members)}
+                    endpointLabel={memberProviderLabel(m, siblings)}
+                    endpointTitle={memberEndpointTitle(m, siblings)}
                     saving={modelPatchMutation.isPending && modelPatchMutation.variables?.modelDbId === m.modelDbId}
                     deleting={modelDeleteMutation.isPending && modelDeleteMutation.variables === m.modelDbId}
                     onSave={(patch) => modelPatchMutation.mutate({ modelDbId: m.modelDbId, patch })}
@@ -246,12 +254,12 @@ export default function ModelDetailPage() {
               <div className="space-y-1.5">
                 {members.map(m => (
                   <div key={m.modelDbId} className="flex items-center gap-2 text-xs">
-                    <span className="w-28 max-w-[16rem] shrink-0 basis-auto truncate text-muted-foreground sm:w-auto sm:min-w-28" title={memberEndpointTitle(m, members)}>
-                      {memberProviderLabel(m, members)}
+                    <span className="w-28 max-w-[16rem] shrink-0 basis-auto truncate text-muted-foreground sm:w-auto sm:min-w-28" title={memberEndpointTitle(m, siblings)}>
+                      {memberProviderLabel(m, siblings)}
                     </span>
-                    <code className="min-w-0 flex-1 truncate font-mono text-[11px]">{providerPinId(m, members)}</code>
+                    <code className="min-w-0 flex-1 truncate font-mono text-[11px]">{providerPinId(m, siblings)}</code>
                     <Tooltip text={t('models.copyModelName')}>
-                      <CopyButton text={providerPinId(m, members)} label={t('models.copyModelName')} className="border-0 bg-transparent" />
+                      <CopyButton text={providerPinId(m, siblings)} label={t('models.copyModelName')} className="border-0 bg-transparent" />
                     </Tooltip>
                   </div>
                 ))}

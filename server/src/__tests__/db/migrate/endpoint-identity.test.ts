@@ -153,6 +153,43 @@ describe('custom model endpoint identity migration', () => {
     }
   });
 
+  it('keeps the AUTOINCREMENT high-water mark so deleted ids are never reused', async () => {
+    const db = await seededLegacyDb();
+    try {
+      await runMigrations(db, 'up');
+
+      // Catalog sync prunes models routinely, so the highest ids are often gone
+      // while the counter still remembers them. A rebuild that lets the counter
+      // fall back to MAX(id) would re-issue those ids, and a stale
+      // fallback_config / profile_models row would silently adopt a new model.
+      const top = (db.prepare('SELECT MAX(id) AS m FROM models').get() as { m: number }).m;
+      db.prepare('DELETE FROM profile_models WHERE model_db_id > ?').run(top - 3);
+      db.prepare('DELETE FROM fallback_config WHERE model_db_id > ?').run(top - 3);
+      db.prepare('DELETE FROM models WHERE id > ?').run(top - 3);
+      const seqBefore = (db.prepare("SELECT seq FROM sqlite_sequence WHERE name = 'models'")
+        .get() as { seq: number }).seq;
+      expect(seqBefore).toBeGreaterThan(
+        (db.prepare('SELECT MAX(id) AS m FROM models').get() as { m: number }).m,
+      );
+
+      // Exercise the rebuild itself, with no other migration able to nudge the
+      // counter back up.
+      endpointIdentityDown(db);
+      endpointIdentityUp(db);
+
+      expect((db.prepare("SELECT seq FROM sqlite_sequence WHERE name = 'models'")
+        .get() as { seq: number }).seq).toBe(seqBefore);
+      const inserted = db.prepare(`
+        INSERT INTO models (platform, model_id, display_name, intelligence_rank, speed_rank, enabled)
+        VALUES ('custom', 'fresh-model', 'Fresh', 50, 50, 1) RETURNING id
+      `).get() as { id: number };
+      expect(inserted.id).toBeGreaterThan(seqBefore - 1);
+      expect(inserted.id).toBeGreaterThan(top);
+    } finally {
+      db.close();
+    }
+  });
+
   it('is idempotent across a down/up round trip and refuses to drop duplicates', async () => {
     const db = await seededLegacyDb();
     try {

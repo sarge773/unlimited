@@ -117,11 +117,28 @@ export function memberProviderLabel<T extends {
 }>(row: T, siblings: readonly T[]): string {
   const base = providerLabel(row)
   if (row.source !== 'custom' || !row.endpointScope) return base
-  const endpoints = new Set(siblings
-    .filter(s => s.modelId === row.modelId && s.source === 'custom' && !!s.endpointScope)
-    .map(s => s.endpointScope))
-  if (endpoints.size < 2) return base
+  if (!hasEndpointCollision(row, siblings)) return base
   return `${base} · ${endpointShortLabel(row.endpointScope)}`
+}
+
+/**
+ * Whether another row shares this row's (platform, model_id) from a DIFFERENT
+ * endpoint. Deliberately keyed on that pair alone: display name is presentation
+ * (renaming one relay's copy moves it to another group but changes nothing about
+ * identity), and a same-id row on another platform is already told apart by its
+ * platform. Callers must pass EVERY configured row, not one display group's
+ * members, or a renamed sibling goes unseen and the endpoint is hidden exactly
+ * when it is needed (#651).
+ */
+function hasEndpointCollision<T extends {
+  platform: string; modelId: string; source?: 'catalog' | 'custom'; endpointScope?: string | null
+}>(row: T, siblings: readonly T[]): boolean {
+  if (row.source !== 'custom' || !row.endpointScope) return false
+  const endpoints = new Set(siblings
+    .filter(s => s.platform === row.platform && s.modelId === row.modelId
+      && s.source === 'custom' && !!s.endpointScope)
+    .map(s => s.endpointScope))
+  return endpoints.size > 1
 }
 
 /**
@@ -145,14 +162,24 @@ export function memberEndpointTitle<T extends {
  * the endpoint-qualified id the server computed names one of them.
  */
 export function providerPinId<T extends {
-  modelId: string; source?: 'catalog' | 'custom'
+  platform: string; modelId: string; source?: 'catalog' | 'custom'
   endpointScope?: string | null; qualifiedModelId?: string | null
 }>(row: T, siblings: readonly T[]): string {
   if (!row.qualifiedModelId) return row.modelId
-  const endpoints = new Set(siblings
-    .filter(s => s.modelId === row.modelId && s.source === 'custom' && !!s.endpointScope)
-    .map(s => s.endpointScope))
-  return endpoints.size > 1 ? row.qualifiedModelId : row.modelId
+  return hasEndpointCollision(row, siblings) ? row.qualifiedModelId : row.modelId
+}
+
+/**
+ * The member id a unify split/merge override should be written against. Unlike
+ * the ids shown to users, this is ALWAYS the qualified form for a row that has
+ * an endpoint: an override is persisted state, so it has to keep naming the same
+ * row even after the sibling that caused the collision is removed. The server
+ * matches the plain member id too, so overrides written before #651 still apply.
+ */
+export function memberOverrideKey(row: {
+  platform: string; modelId: string; qualifiedModelId?: string | null
+}): string {
+  return row.qualifiedModelId ?? `${row.platform}:${row.modelId}`
 }
 
 export function formatTokens(n: number): string {
