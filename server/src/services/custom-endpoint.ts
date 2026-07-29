@@ -69,18 +69,28 @@ function insertKey(db: Db, baseUrl: string, secret: string, label: string | unde
  *  - a key already on record  → update that row (label / re-enable)
  *  - a new key, placeholder-only endpoint → replace the placeholder in place
  *  - a new key, endpoint already has one → INSERT a second credential (#619)
+ *
+ * `pinnedKeyId` lets a caller that already knows WHICH credential of the pool
+ * it is acting for name it — the bulk registration of discovered models (#488)
+ * comes back holding the key row the user fetched the list with. It only
+ * applies when that row really serves this base_url and no new secret was
+ * submitted; a new secret still goes through the rules above.
  */
 export function resolveCustomEndpointKey(
   db: Db,
   baseUrl: string,
   providedKey: string | undefined,
   label: string | undefined,
+  pinnedKeyId?: number,
 ): ResolvedEndpointKey {
   const rows = endpointKeyRows(db, baseUrl);
   const stored = rows.map(row => ({ row, secret: plaintextOf(row) }));
 
   if (!providedKey) {
-    const first = stored[0];
+    const pinned = pinnedKeyId === undefined
+      ? undefined
+      : stored.find(s => s.row.id === pinnedKeyId);
+    const first = pinned ?? stored[0];
     if (!first) return insertKey(db, baseUrl, NO_KEY, label);
     touch(db, first.row.id, label);
     return { keyId: first.row.id, storedKey: first.secret ?? NO_KEY, created: false };
