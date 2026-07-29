@@ -16,7 +16,8 @@ import { ModelsTabs } from '@/components/models-tabs'
 import { ModelTableHead, RowContent } from '@/components/model-table'
 import {
   groupQuotaBadge,
-  providerLabel,
+  memberProviderLabel,
+  providerPinId,
   type FallbackEntry,
   type RoutingData,
   type Row,
@@ -208,7 +209,7 @@ export default function ModelDetailPage() {
                 <tbody>
                   {members.map((m, i) => (
                     <tr key={m.modelDbId} className={`border-b last:border-0 ${m.enabled ? '' : 'opacity-50'}`}>
-                      <RowContent row={m} rank={i + 1} draggable={false} onToggle={handleToggle} />
+                      <RowContent row={m} rank={i + 1} draggable={false} onToggle={handleToggle} providerName={memberProviderLabel(m, members)} />
                     </tr>
                   ))}
                 </tbody>
@@ -225,6 +226,7 @@ export default function ModelDetailPage() {
                   <ProviderSettingsRow
                     key={m.modelDbId}
                     model={m}
+                    endpointLabel={memberProviderLabel(m, members)}
                     saving={modelPatchMutation.isPending && modelPatchMutation.variables?.modelDbId === m.modelDbId}
                     deleting={modelDeleteMutation.isPending && modelDeleteMutation.variables === m.modelDbId}
                     onSave={(patch) => modelPatchMutation.mutate({ modelDbId: m.modelDbId, patch })}
@@ -242,10 +244,12 @@ export default function ModelDetailPage() {
               <div className="space-y-1.5">
                 {members.map(m => (
                   <div key={m.modelDbId} className="flex items-center gap-2 text-xs">
-                    <span className="w-28 shrink-0 text-muted-foreground">{providerLabel(m)}</span>
-                    <code className="min-w-0 flex-1 truncate font-mono text-[11px]">{m.modelId}</code>
+                    <span className="w-28 max-w-[16rem] shrink-0 basis-auto truncate text-muted-foreground sm:w-auto sm:min-w-28" title={m.endpointScope ?? undefined}>
+                      {memberProviderLabel(m, members)}
+                    </span>
+                    <code className="min-w-0 flex-1 truncate font-mono text-[11px]">{providerPinId(m, members)}</code>
                     <Tooltip text={t('models.copyModelName')}>
-                      <CopyButton text={m.modelId} label={t('models.copyModelName')} className="border-0 bg-transparent" />
+                      <CopyButton text={providerPinId(m, members)} label={t('models.copyModelName')} className="border-0 bg-transparent" />
                     </Tooltip>
                   </div>
                 ))}
@@ -269,6 +273,7 @@ export default function ModelDetailPage() {
 
 function ProviderSettingsRow({
   model,
+  endpointLabel,
   saving,
   deleting,
   onSave,
@@ -276,6 +281,9 @@ function ProviderSettingsRow({
   splitAction,
 }: {
   model: Row
+  // Which provider this card is for. Carries the endpoint too, but only when
+  // two custom endpoints serve the same model id (#651).
+  endpointLabel: string
   saving: boolean
   deleting: boolean
   onSave: (patch: ModelSettingsPatch) => void
@@ -315,7 +323,7 @@ function ProviderSettingsRow({
   return (
     <div className="rounded-xl border bg-background/60 p-3">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium">{providerLabel(model)}</span>
+        <span className="text-xs font-medium" title={model.endpointScope ?? undefined}>{endpointLabel}</span>
         <code className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">{model.modelId}</code>
         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{sourceLabel}</span>
         {model.hasOverrides && (

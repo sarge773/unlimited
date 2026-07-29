@@ -15,6 +15,11 @@
  */
 import { z } from 'zod';
 import { getDb, getSetting, setSetting } from '../db/index.js';
+import {
+  ENDPOINT_ID_SEPARATOR,
+  endpointRefMatches,
+  qualifiedModelMemberId,
+} from '../lib/endpoint-scope.js';
 
 // ── Settings keys ────────────────────────────────────────────────────────────
 export const UNIFY_ENABLED_KEY = 'unify_models_enabled';
@@ -48,6 +53,9 @@ export interface GroupableRow {
   model_id: string;
   display_name: string;
   intelligence_rank?: number;
+  // Which custom endpoint this row belongs to; '' (or absent) for every catalog
+  // platform and for legacy un-scoped custom rows (#651).
+  endpoint_scope?: string;
 }
 
 export interface ModelGroup {
@@ -133,17 +141,31 @@ function memberId(row: GroupableRow): string {
   return `${row.platform}:${row.model_id}`;
 }
 
+/**
+ * The endpoint-qualified member id, or null when the row needs no qualifier.
+ * Only custom rows that actually carry an endpoint scope have one, which is why
+ * an install with a single relay never sees a qualified id anywhere (#651).
+ */
+export function qualifiedMemberId(row: GroupableRow): string | null {
+  return qualifiedModelMemberId(row.platform, row.model_id, row.endpoint_scope);
+}
+
 // The grouping token for a row, after applying overrides. Split wins first
 // (forces a singleton/explicit key); then a merge redirects to its target;
 // otherwise the normalized display name.
 function tokenForRow(row: GroupableRow, ov: UnifyOverrides): string {
   const mid = memberId(row);
+  // A qualified id names ONE relay's copy, so an override written against it
+  // must only move that copy. Plain member ids keep matching as before, which is
+  // what makes existing overrides survive untouched.
+  const qid = qualifiedMemberId(row);
+  const names = (candidate: string) => candidate === mid || (qid !== null && candidate === qid);
 
-  const split = ov.splits.find(s => s.member === mid);
-  if (split) return split.groupKey ? normalizeGroupKey(split.groupKey) : `__split__:${mid}`;
+  const split = ov.splits.find(s => names(s.member));
+  if (split) return split.groupKey ? normalizeGroupKey(split.groupKey) : `__split__:${split.member}`;
 
   const base = normalizeGroupKey(row.display_name);
-  const merge = ov.merges.find(mg => mg.keys.some(k => k === mid || normalizeGroupKey(k) === base));
+  const merge = ov.merges.find(mg => mg.keys.some(k => names(k) || normalizeGroupKey(k) === base));
   return merge ? normalizeGroupKey(merge.into) : base;
 }
 
@@ -194,13 +216,20 @@ export function groupRows(rows: GroupableRow[], ov: UnifyOverrides): ModelGroup[
 
 /**
  * Resolve a requested model id to the db ids of its group members, or null.
- * Accepts the canonical slug OR any member's `model_id` (back-compat: an old
- * per-provider id resolves to the whole group), OR the fully-qualified
- * "platform:model_id" member id — which HARD-PINS to only that member (#580):
- * spelling out the platform is an explicit "this provider's copy" request, so
- * it must not fail over to (or share scores with) the rest of the group.
- * Member order here is incidental — the router re-orders by the active
- * strategy.
+ *
+ * The ladder, most specific first:
+ *   1. the canonical group slug → the whole group;
+ *   2. "custom:model_id#endpoint" → exactly that relay's copy (#651) — the only
+ *      form that can separate two endpoints offering the same model id. The
+ *      endpoint part accepts the short handle or the endpoint URL itself;
+ *   3. "platform:model_id" → that platform's copies. Normally exactly one row,
+ *      so this is unchanged (#580: naming the platform means "this provider's
+ *      copy", no failover to the rest of the group). Two relays sharing a model
+ *      id are both 'custom', so this names both and the router picks the better
+ *      one — nothing an existing setup can notice, and no error to hit;
+ *   4. a bare `model_id` → the whole group (back-compat).
+ *
+ * Member order here is incidental — the router re-orders by the active strategy.
  */
 export function resolveRequestedIdToMembers(requested: string, groups: ModelGroup[]): number[] | null {
   if (!requested) return null;
@@ -208,13 +237,25 @@ export function resolveRequestedIdToMembers(requested: string, groups: ModelGrou
   const byCanonical = groups.find(g => g.canonicalId === requested);
   if (byCanonical) return byCanonical.members.map(m => m.model_db_id);
 
-  // Exact "platform:model_id" → just that member. Checked before the bare
-  // model_id scan; a bare model_id that itself contains a colon (e.g. Ollama's
-  // "gpt-oss:120b") never collides because platforms aren't model-name prefixes.
-  for (const g of groups) {
-    const exact = g.members.find(m => memberId(m) === requested);
-    if (exact) return [exact.model_db_id];
+  const sepAt = requested.lastIndexOf(ENDPOINT_ID_SEPARATOR);
+  if (sepAt > 0) {
+    const base = requested.slice(0, sepAt);
+    const endpointRef = requested.slice(sepAt + 1);
+    for (const g of groups) {
+      for (const m of g.members) {
+        if (memberId(m) !== base) continue;
+        if (m.endpoint_scope && endpointRefMatches(endpointRef, m.endpoint_scope)) {
+          return [m.model_db_id];
+        }
+      }
+    }
   }
+
+  // Exact "platform:model_id". Checked before the bare model_id scan; a bare
+  // model_id that itself contains a colon (e.g. Ollama's "gpt-oss:120b") never
+  // collides because platforms aren't model-name prefixes.
+  const exact = groups.flatMap(g => g.members.filter(m => memberId(m) === requested));
+  if (exact.length > 0) return exact.map(m => m.model_db_id);
 
   for (const g of groups) {
     if (g.members.some(m => m.model_id === requested)) {
@@ -232,7 +273,8 @@ export function resolveRequestedIdToMembers(requested: string, groups: ModelGrou
 export function getModelGroups(): ModelGroup[] {
   const db = getDb();
   const rows = db.prepare(`
-    SELECT m.id as model_db_id, m.platform, m.model_id, m.display_name, m.intelligence_rank
+    SELECT m.id as model_db_id, m.platform, m.model_id, m.display_name, m.intelligence_rank,
+           m.endpoint_scope
     FROM models m
   `).all() as GroupableRow[];
   return groupRows(rows, getUnifyOverrides());

@@ -13,6 +13,7 @@ import { parseBudget } from '../lib/budget.js';
 import { getModelGroups } from '../services/model-groups.js';
 import { getPenaltyInspector } from '../services/penalty-inspector.js';
 import { getActiveProfileId } from '../services/profile-models.js';
+import { qualifiedModelMemberId } from '../lib/endpoint-scope.js';
 import { overriddenFieldNames } from '../services/model-state.js';
 
 export const fallbackRouter = Router();
@@ -72,7 +73,7 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
            m.speed_rank, m.size_label, m.rpm_limit, m.rpd_limit,
            m.tpm_limit, m.tpd_limit, m.context_window,
            m.monthly_token_budget, m.supports_vision, m.supports_tools,
-           m.key_id, ak.label AS key_label,
+           m.key_id, m.endpoint_scope, ak.label AS key_label,
            mo.overrides_json IS NOT NULL AS has_overrides,
            mo.overrides_json,
            ts.source AS tombstone_source, ts.reason AS tombstone_reason
@@ -93,7 +94,7 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
            m.speed_rank, m.size_label, m.rpm_limit, m.rpd_limit,
            m.tpm_limit, m.tpd_limit, m.context_window,
            m.monthly_token_budget, m.supports_vision, m.supports_tools,
-           m.key_id, ak.label AS key_label,
+           m.key_id, m.endpoint_scope, ak.label AS key_label,
            mo.overrides_json IS NOT NULL AS has_overrides,
            mo.overrides_json,
            ts.source AS tombstone_source, ts.reason AS tombstone_reason
@@ -168,6 +169,11 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
       source: r.platform === 'custom' || r.key_id != null ? 'custom' : 'catalog',
       keyId: r.key_id ?? null,
       keyLabel: r.key_label ?? null,
+      // Which relay endpoint a custom row belongs to, and the id that names it
+      // unambiguously (#651). Both null for catalog models and for a lone
+      // custom endpoint, so nothing new shows up in a single-endpoint install.
+      endpointScope: r.endpoint_scope || null,
+      qualifiedModelId: qualifiedModelMemberId(r.platform, r.model_id, r.endpoint_scope),
       hasOverrides: Boolean(r.has_overrides),
       // Which fields the local override actually replaces, so the model page
       // can mark the individual inputs it edits (#551).

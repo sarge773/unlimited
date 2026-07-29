@@ -31,6 +31,12 @@ export interface FallbackEntry {
   source?: 'catalog' | 'custom'
   keyId?: number | null
   keyLabel?: string | null
+  // Which custom endpoint this row belongs to (its base URL), and the model id
+  // that names this endpoint's copy on its own. Both null for catalog models
+  // and for custom rows with no endpoint on record, so a single-endpoint
+  // install has nothing extra to render (#651).
+  endpointScope?: string | null
+  qualifiedModelId?: string | null
   hasOverrides?: boolean
   // Which fields a local override replaces, so the model page can mark the
   // individual inputs that no longer show the catalog default (#551).
@@ -86,6 +92,50 @@ export interface TokenUsageData {
 export function providerLabel(row: { platform: string; source?: 'catalog' | 'custom'; keyLabel?: string | null }): string {
   if (row.source === 'custom' && row.keyLabel && row.keyLabel.trim()) return row.keyLabel
   return row.platform
+}
+
+// Two custom endpoints can now each serve the same model id (#651). Short
+// host-ish form of an endpoint URL, used only to tell those two apart.
+export function endpointShortLabel(scope: string): string {
+  return scope.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '').replace(/\/+$/, '')
+}
+
+/**
+ * The provider label for one row of a group, disambiguated ONLY when it has to
+ * be: another row in the same group serves the same model id from a DIFFERENT
+ * endpoint. Then the endpoint's URL is appended, because that — not the key
+ * label, which defaults to a generic "Custom" and is not required to be unique
+ * — is what actually tells the two relays apart. Every catalog model, and every
+ * install with a single custom endpoint, gets exactly the label it got before,
+ * so there is nothing new to notice until a real collision exists.
+ */
+export function memberProviderLabel<T extends {
+  platform: string; modelId: string; source?: 'catalog' | 'custom'
+  keyLabel?: string | null; endpointScope?: string | null
+}>(row: T, siblings: readonly T[]): string {
+  const base = providerLabel(row)
+  if (row.source !== 'custom' || !row.endpointScope) return base
+  const endpoints = new Set(siblings
+    .filter(s => s.modelId === row.modelId && s.source === 'custom' && !!s.endpointScope)
+    .map(s => s.endpointScope))
+  if (endpoints.size < 2) return base
+  return `${base} · ${endpointShortLabel(row.endpointScope)}`
+}
+
+/**
+ * The id to send when you want THIS provider's copy. The bare model id, as
+ * always — except when two custom endpoints in the group serve it, where only
+ * the endpoint-qualified id the server computed names one of them.
+ */
+export function providerPinId<T extends {
+  modelId: string; source?: 'catalog' | 'custom'
+  endpointScope?: string | null; qualifiedModelId?: string | null
+}>(row: T, siblings: readonly T[]): string {
+  if (!row.qualifiedModelId) return row.modelId
+  const endpoints = new Set(siblings
+    .filter(s => s.modelId === row.modelId && s.source === 'custom' && !!s.endpointScope)
+    .map(s => s.endpointScope))
+  return endpoints.size > 1 ? row.qualifiedModelId : row.modelId
 }
 
 export function formatTokens(n: number): string {

@@ -7,6 +7,7 @@ import { resolveProvider } from '../providers/index.js';
 import { setCustomWeights, setRoutingStrategy } from './router.js';
 import { ensureModelInProfiles } from './profile-models.js';
 import { customModelSeed } from './custom-model-seed.js';
+import { endpointScopeForBaseUrl } from '../lib/endpoint-scope.js';
 import {
   clearCatalogModelTombstone,
   isCatalogManagedModel,
@@ -230,6 +231,10 @@ function registerCustomProvider(db: Db, input: z.infer<typeof customProviderSche
   // undeclared rank means "unknown", not "worst". An explicitly declared rank
   // always wins.
   const seed = customModelSeed(db);
+  // Model identity is per endpoint (#651): declaring the same model id under a
+  // second base_url adds a row for that endpoint instead of stealing the first
+  // one's.
+  const endpointScope = endpointScopeForBaseUrl(input.baseUrl);
   let registered = 0;
   for (const entry of input.models) {
     const model = normalizeModelEntry(entry);
@@ -237,9 +242,9 @@ function registerCustomProvider(db: Db, input: z.infer<typeof customProviderSche
       INSERT INTO models
         (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
          rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window,
-         enabled, supports_vision, supports_tools, key_id, source)
-      VALUES ('custom', ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, ?, ?, 1, ?, ?, ?, 'user')
-      ON CONFLICT(platform, model_id)
+         enabled, supports_vision, supports_tools, key_id, source, endpoint_scope)
+      VALUES ('custom', ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, ?, ?, 1, ?, ?, ?, 'user', ?)
+      ON CONFLICT(platform, model_id, endpoint_scope)
       DO UPDATE SET
         display_name = excluded.display_name,
         intelligence_rank = excluded.intelligence_rank,
@@ -262,8 +267,11 @@ function registerCustomProvider(db: Db, input: z.infer<typeof customProviderSche
       model.supportsVision ? 1 : 0,
       model.supportsTools ? 1 : 0,
       keyId,
+      endpointScope,
     );
-    const row = db.prepare("SELECT id FROM models WHERE platform = 'custom' AND model_id = ?").get(model.modelId) as { id: number };
+    const row = db.prepare(
+      "SELECT id FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
+    ).get(model.modelId, endpointScope) as { id: number };
     ensureFallbackRow(db, row.id, model.fallbackEnabled !== false);
     registered++;
   }

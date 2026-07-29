@@ -26,6 +26,7 @@ import { platformDropsResponseFormat } from '../lib/sampling-params.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdToMembers } from './model-groups.js';
 import { getActiveProfileId } from './profile-models.js';
 import { customEndpointKeyIds } from './custom-endpoint.js';
+import { modelStatsKey, endpointScopeForBaseUrl } from '../lib/endpoint-scope.js';
 import type { BaseProvider } from '../providers/base.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import type { Db } from '../db/types.js';
@@ -139,6 +140,10 @@ export interface ChainRow {
   // Custom models bind to the api_keys row carrying their endpoint (#212);
   // NULL for built-in platforms.
   key_id: number | null;
+  // The endpoint this row belongs to ('' for catalog platforms). Two relays can
+  // each hold a row for the same model_id, and everything scored or rate-limited
+  // per model has to tell them apart (#651).
+  endpoint_scope: string;
 }
 
 export interface RouteResult {
@@ -149,6 +154,12 @@ export interface RouteResult {
   keyId: number;
   platform: string;
   displayName: string;
+  /**
+   * The custom endpoint this route belongs to, '' for catalog platforms (#651).
+   * Carried on the route so the failure path can attribute a retirement signal
+   * to ONE relay instead of every relay serving the same model id.
+   */
+  endpointScope: string;
   // Daily limits for this model, so a 429 handler can tell a genuine daily
   // exhaustion (escalate the cooldown) from a transient per-minute spike.
   rpdLimit: number | null;
@@ -368,6 +379,9 @@ interface KeyStats {
   avgTtfbMs: number | null;
 }
 
+// Keyed by modelStatsKey(): "platform:model_id" for catalog models, and
+// "custom:model_id@base_url" for a relay model that carries an endpoint scope
+// (#651). A single-endpoint install produces the same keys it always did.
 let statsCache: Map<string, ModelStats> | null = null;
 let keyStatsCache: Map<string, KeyStats> | null = null; // "platform:model_id:key_id"
 let statsCacheTime = 0;
@@ -385,6 +399,13 @@ function decayWeight(ageDays: number): number {
 const IS_TIMEOUT_SQL = `(status != 'success' AND (${
   TIMEOUT_ERROR_MARKERS.map(m => `LOWER(COALESCE(error, '')) LIKE '%${m}%'`).join(' OR ')
 }))`;
+
+/** api_keys.id → endpoint scope, for every custom credential on record (#651). */
+function customEndpointScopes(db: Db): Map<number, string> {
+  const rows = db.prepare("SELECT id, base_url FROM api_keys WHERE platform = 'custom'")
+    .all() as { id: number; base_url: string | null }[];
+  return new Map(rows.map(r => [r.id, endpointScopeForBaseUrl(r.base_url)]));
+}
 
 export function refreshStatsCache(db: Db, force = false): void {
   if (!force && statsCache && Date.now() - statsCacheTime < CACHE_TTL_MS) return;
@@ -434,10 +455,19 @@ export function refreshStatsCache(db: Db, force = false): void {
     a.wTtfbCnt += w * (b.succ_ttfb_cnt + b.timeouts);
     a.wTimeouts += w * b.timeouts;
   };
+  // Which endpoint each custom credential belongs to, so a request logged
+  // against relay A's key lands in relay A's bucket and nowhere else (#651).
+  // `requests` has always recorded key_id, so pre-migration history splits
+  // correctly too; rows whose key is gone (or that never had one) fall into the
+  // un-scoped bucket, which only un-scoped rows read.
+  const scopeByKeyId = customEndpointScopes(db);
+  const scopeOf = (platform: string, keyId: number | null): string =>
+    platform === 'custom' && keyId != null ? (scopeByKeyId.get(keyId) ?? '') : '';
+
   const acc = new Map<string, Acc>();
   const keyAcc = new Map<string, Acc>();
   for (const b of buckets) {
-    const key = `${b.platform}:${b.model_id}`;
+    const key = modelStatsKey(b.platform, b.model_id, scopeOf(b.platform, b.key_id));
     const w = decayWeight(b.age_days);
     let a = acc.get(key);
     if (!a) acc.set(key, a = emptyAcc());
@@ -452,13 +482,17 @@ export function refreshStatsCache(db: Db, force = false): void {
 
   // Calendar-month token usage per model, for the headroom guardrail.
   const usageRows = db.prepare(`
-    SELECT platform, model_id, COALESCE(SUM(input_tokens + output_tokens), 0) AS used
+    SELECT platform, model_id, key_id, COALESCE(SUM(input_tokens + output_tokens), 0) AS used
     FROM requests
     WHERE created_at >= datetime('now', 'start of month')
       AND request_type = 'chat'
-    GROUP BY platform, model_id
-  `).all() as Array<{ platform: string; model_id: string; used: number }>;
-  const usageMap = new Map(usageRows.map(r => [`${r.platform}:${r.model_id}`, r.used]));
+    GROUP BY platform, model_id, key_id
+  `).all() as Array<{ platform: string; model_id: string; key_id: number | null; used: number }>;
+  const usageMap = new Map<string, number>();
+  for (const r of usageRows) {
+    const key = modelStatsKey(r.platform, r.model_id, scopeOf(r.platform, r.key_id));
+    usageMap.set(key, (usageMap.get(key) ?? 0) + r.used);
+  }
 
   const next = new Map<string, ModelStats>();
   for (const [key, a] of acc) {
@@ -544,16 +578,19 @@ export function writeObservedSpeedRanks(db: Db): number {
   if (!statsCache || statsCache.size === 0) return 0;
 
   const pinned = modelsWithOverriddenField(db, 'speedRank');
-  const rows = db.prepare('SELECT id, platform, model_id, speed_rank FROM models')
-    .all() as { id: number; platform: string; model_id: string; speed_rank: number }[];
+  const rows = db.prepare('SELECT id, platform, model_id, speed_rank, endpoint_scope FROM models')
+    .all() as { id: number; platform: string; model_id: string; speed_rank: number; endpoint_scope: string }[];
 
   const update = db.prepare('UPDATE models SET speed_rank = ? WHERE id = ?');
   let written = 0;
   const tx = db.transaction(() => {
     for (const row of rows) {
-      const key = `${row.platform}:${row.model_id}`;
-      if (pinned.has(key)) continue;
-      const stats = statsCache!.get(key);
+      // Overrides are keyed (platform, model_id) — they only exist for
+      // catalog-managed rows, which are never endpoint-scoped — while the
+      // measured stats are per endpoint, so each relay's copy gets its own
+      // observed rank instead of one shared number (#651).
+      if (pinned.has(`${row.platform}:${row.model_id}`)) continue;
+      const stats = statsCache!.get(modelStatsKey(row.platform, row.model_id, row.endpoint_scope));
       if (!stats || stats.speedSamples < SPEED_RANK_MIN_SAMPLES) continue;
       const rank = observedSpeedRank(speedScore(stats.tokPerSec, stats.avgTtfbMs));
       if (rank === row.speed_rank) continue;
@@ -599,7 +636,7 @@ function scoreChainEntry(
   sampled: boolean,
   keyCounts: Map<string, number>,
 ): ScoredEntry {
-  const stats = statsCache?.get(`${entry.platform}:${entry.model_id}`);
+  const stats = statsCache?.get(modelStatsKey(entry.platform, entry.model_id, entry.endpoint_scope));
   const successes = stats?.successes ?? 0;
   const failures = stats?.failures ?? 0;
 
@@ -699,7 +736,7 @@ function getActiveChain(db: Db): ChainRow[] {
              m.platform, m.model_id, m.display_name, m.intelligence_rank,
              m.size_label, m.monthly_token_budget,
              m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
-             m.supports_tools, m.context_window, m.key_id
+             m.supports_tools, m.context_window, m.key_id, m.endpoint_scope
       FROM profile_models pm
       JOIN models m ON m.id = pm.model_db_id AND m.enabled = 1
       WHERE pm.profile_id = ?
@@ -714,7 +751,7 @@ function getActiveChain(db: Db): ChainRow[] {
            m.platform, m.model_id, m.display_name, m.intelligence_rank,
            m.size_label, m.monthly_token_budget,
            m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
-           m.supports_tools, m.context_window, m.key_id
+           m.supports_tools, m.context_window, m.key_id, m.endpoint_scope
     FROM fallback_config fc
     JOIN models m ON m.id = fc.model_db_id AND m.enabled = 1
     ORDER BY fc.priority ASC
@@ -730,7 +767,7 @@ function getChainByProfileName(db: Db, name: string): ChainRow[] | null {
            m.platform, m.model_id, m.display_name, m.intelligence_rank,
            m.size_label, m.monthly_token_budget,
            m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
-           m.supports_tools, m.context_window, m.key_id
+           m.supports_tools, m.context_window, m.key_id, m.endpoint_scope
     FROM profile_models pm
     JOIN models m ON m.id = pm.model_db_id AND m.enabled = 1
     WHERE pm.profile_id = ?
@@ -752,7 +789,7 @@ function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
            m.platform, m.model_id, m.display_name, m.intelligence_rank,
            m.size_label, m.monthly_token_budget,
            m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
-           m.supports_tools, m.context_window, m.key_id
+           m.supports_tools, m.context_window, m.key_id, m.endpoint_scope
     FROM models m
     LEFT JOIN fallback_config fc ON fc.model_db_id = m.id
     ${profileId != null ? 'LEFT JOIN profile_models pm ON pm.profile_id = ? AND pm.model_db_id = m.id' : ''}
@@ -832,7 +869,7 @@ const KEY_SCORE_WEIGHTS = { reliability: 0.75, speed: 0.25 };
  */
 function orderKeysByScore(entry: ChainRow, keys: KeyRow[]): KeyRow[] | null {
   if (keys.length < 2 || !keyStatsCache) return null;
-  const prefix = `${entry.platform}:${entry.model_id}:`;
+  const prefix = `${modelStatsKey(entry.platform, entry.model_id, entry.endpoint_scope)}:`;
   if (!keys.some(k => keyStatsCache!.has(prefix + k.id))) return null;
 
   return keys
@@ -894,7 +931,9 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
   // 60s-TTL aggregate the model-level bandit uses (refresh is a no-op when
   // fresh, and cheap when not). With no data at all, keep the legacy rotation.
   refreshStatsCache(db);
-  const rrKey = `${entry.platform}:${entry.model_id}`;
+  // Scoped so two relays offering the same model id don't share one rotation
+  // cursor over the platform's key list (#651).
+  const rrKey = modelStatsKey(entry.platform, entry.model_id, entry.endpoint_scope);
   let idx = roundRobinIndex.get(rrKey) ?? 0;
   const ranked = orderKeysByScore(entry, keys);
 
@@ -956,6 +995,7 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
       keyId: key.id,
       platform: entry.platform,
       displayName: entry.display_name,
+      endpointScope: entry.endpoint_scope ?? '',
       rpdLimit: limits.rpd,
       tpdLimit: limits.tpd,
       release: () => releaseLease(leaseId),
@@ -1035,7 +1075,7 @@ function getModelChainRow(db: Db, modelDbId: number): ChainRow | undefined {
            m.platform, m.model_id, m.display_name, m.intelligence_rank,
            m.size_label, m.monthly_token_budget,
            m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
-           m.supports_tools, m.context_window, m.key_id
+           m.supports_tools, m.context_window, m.key_id, m.endpoint_scope
     FROM models m
     WHERE m.id = ? AND m.enabled = 1
   `).get(modelDbId) as ChainRow | undefined;
@@ -1084,7 +1124,7 @@ export function resolveModelGroupCandidates(memberDbIds: number[]): ChainRow[] {
              m.platform, m.model_id, m.display_name, m.intelligence_rank,
              m.size_label, m.monthly_token_budget,
              m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
-             m.supports_tools, m.context_window, m.key_id
+             m.supports_tools, m.context_window, m.key_id, m.endpoint_scope
       FROM models m
       LEFT JOIN fallback_config fc ON fc.model_db_id = m.id
       WHERE m.id = ? AND m.enabled = 1
@@ -1095,7 +1135,7 @@ export function resolveModelGroupCandidates(memberDbIds: number[]): ChainRow[] {
              m.platform, m.model_id, m.display_name, m.intelligence_rank,
              m.size_label, m.monthly_token_budget,
              m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
-             m.supports_tools, m.context_window, m.key_id
+             m.supports_tools, m.context_window, m.key_id, m.endpoint_scope
       FROM models m
       LEFT JOIN profile_models pm ON pm.profile_id = ? AND pm.model_db_id = m.id
       LEFT JOIN fallback_config fc ON fc.model_db_id = m.id
@@ -1275,7 +1315,7 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
                m.platform, m.model_id, m.display_name, m.intelligence_rank,
                m.size_label, m.monthly_token_budget,
                m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
-               m.supports_tools, m.context_window, m.key_id
+               m.supports_tools, m.context_window, m.key_id, m.endpoint_scope
         FROM models m
         WHERE m.id = ? AND m.enabled = 1
       `).get(preferredModelDbId) as ChainRow | undefined;
@@ -1386,7 +1426,7 @@ export function getRoutingScores(): { strategy: RoutingStrategy; weights: Routin
 
   const scores: RoutingScore[] = chain.map(entry => {
     const scored = scoreChainEntry(entry, weights, intelMin, intelMax, false, keyCounts);
-    const stats = statsCache?.get(`${entry.platform}:${entry.model_id}`);
+    const stats = statsCache?.get(modelStatsKey(entry.platform, entry.model_id, entry.endpoint_scope));
     return {
       modelDbId: entry.model_db_id,
       platform: entry.platform,
