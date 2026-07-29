@@ -127,6 +127,7 @@ export function RowContent({
   dragHandle,
   onToggle,
   providerName,
+  providerTitle,
 }: {
   row: Row
   rank: number
@@ -136,6 +137,10 @@ export function RowContent({
   // Overrides the provider label — the model page passes an endpoint-qualified
   // one when two custom endpoints serve this same model id (#651).
   providerName?: string
+  // Hover text for that label, supplied ONLY when the caller actually had to
+  // disambiguate. Never derived from row.endpointScope here: every custom row
+  // carries a scope, so doing so would leak the base URL of a lone endpoint.
+  providerTitle?: string
 }) {
   const { t } = useI18n()
   const guard = (row.headroom ?? 1) * (row.rateLimit ?? 1)
@@ -148,7 +153,7 @@ export function RowContent({
       <td className="py-2 pr-3 align-middle">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-medium text-sm">{row.displayName}</span>
-          <span className="text-xs text-muted-foreground" title={row.endpointScope ?? undefined}>
+          <span className="text-xs text-muted-foreground" title={providerTitle}>
             {providerName ?? providerLabel(row)}
           </span>
           {row.supportsVision && (

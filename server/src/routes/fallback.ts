@@ -170,8 +170,11 @@ fallbackRouter.get('/', (_req: Request, res: Response) => {
       keyId: r.key_id ?? null,
       keyLabel: r.key_label ?? null,
       // Which relay endpoint a custom row belongs to, and the id that names it
-      // unambiguously (#651). Both null for catalog models and for a lone
-      // custom endpoint, so nothing new shows up in a single-endpoint install.
+      // unambiguously (#651). Null for catalog models only — every custom row
+      // bound to an endpoint carries both, including a lone one. Deciding when
+      // they are worth showing is the client's job (see memberProviderLabel /
+      // providerPinId / memberEndpointTitle): it reveals them only where two
+      // endpoints actually serve the same model id.
       endpointScope: r.endpoint_scope || null,
       qualifiedModelId: qualifiedModelMemberId(r.platform, r.model_id, r.endpoint_scope),
       hasOverrides: Boolean(r.has_overrides),

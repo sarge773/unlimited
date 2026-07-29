@@ -32,9 +32,11 @@ export interface FallbackEntry {
   keyId?: number | null
   keyLabel?: string | null
   // Which custom endpoint this row belongs to (its base URL), and the model id
-  // that names this endpoint's copy on its own. Both null for catalog models
-  // and for custom rows with no endpoint on record, so a single-endpoint
-  // install has nothing extra to render (#651).
+  // that names this endpoint's copy on its own. Null for catalog models only:
+  // EVERY custom row bound to an endpoint carries both, including the single
+  // relay of a one-endpoint install. Neither may be rendered directly —
+  // go through memberProviderLabel / providerPinId / memberEndpointTitle, which
+  // reveal them only once two endpoints actually collide (#651).
   endpointScope?: string | null
   qualifiedModelId?: string | null
   hasOverrides?: boolean
@@ -120,6 +122,21 @@ export function memberProviderLabel<T extends {
     .map(s => s.endpointScope))
   if (endpoints.size < 2) return base
   return `${base} · ${endpointShortLabel(row.endpointScope)}`
+}
+
+/**
+ * The full endpoint URL to reveal on hover, or undefined when there is nothing
+ * to disambiguate. Gated on the SAME collision test as the visible label rather
+ * than on `endpointScope` alone — every custom row carries a scope, so gating on
+ * the field itself would pop a tooltip with the user's own base URL on a
+ * single-endpoint install, which is exactly what #651 must not do.
+ */
+export function memberEndpointTitle<T extends {
+  platform: string; modelId: string; source?: 'catalog' | 'custom'
+  keyLabel?: string | null; endpointScope?: string | null
+}>(row: T, siblings: readonly T[]): string | undefined {
+  if (memberProviderLabel(row, siblings) === providerLabel(row)) return undefined
+  return row.endpointScope ?? undefined
 }
 
 /**
