@@ -774,11 +774,39 @@ function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
 export function resolveRoutingChain(modelString: string | undefined): ResolvedChain {
   const db = getDb();
 
-  if (!modelString || modelString.toLowerCase() === 'auto') {
-    return { chain: getActiveChain(db), strategyKey: 'auto' };
+  const lower = (modelString || '').toLowerCase();
+  
+  if (!lower || lower === 'auto') {
+    // Force 'auto' to use the balanced strategy globally
+    const chain = getChainByGlobalSort(db, 'balanced');
+    if (chain.length === 0) {
+      const err = new Error(`No enabled models available for auto routing.`) as any;
+      err.status = 400;
+      throw err;
+    }
+    return { chain, strategyKey: 'auto:balanced' };
   }
 
-  const lower = modelString.toLowerCase();
+  if (lower === 'auto-intelligent') {
+    const chain = getChainByGlobalSort(db, 'smart');
+    if (chain.length === 0) {
+      const err = new Error(`No enabled models available for auto-intelligent routing.`) as any;
+      err.status = 400;
+      throw err;
+    }
+    return { chain, strategyKey: 'auto:smart' };
+  }
+
+  if (lower === 'auto-fast') {
+    const chain = getChainByGlobalSort(db, 'fast');
+    if (chain.length === 0) {
+      const err = new Error(`No enabled models available for auto-fast routing.`) as any;
+      err.status = 400;
+      throw err;
+    }
+    return { chain, strategyKey: 'auto:fast' };
+  }
+
   if (!lower.startsWith('auto:')) {
     return { chain: getActiveChain(db), strategyKey: 'auto' };
   }
@@ -1369,9 +1397,9 @@ export interface RoutingScore {
   totalRequests: number; // decay-weighted observations
 }
 
-export function getRoutingScores(): { strategy: RoutingStrategy; weights: RoutingWeights | null; customWeights: RoutingWeights; scores: RoutingScore[] } {
+export function getRoutingScores(previewStrategy?: RoutingStrategy): { strategy: RoutingStrategy; weights: RoutingWeights | null; customWeights: RoutingWeights; scores: RoutingScore[] } {
   const db = getDb();
-  const strategy = getRoutingStrategy();
+  const strategy = previewStrategy ?? getRoutingStrategy();
   refreshStatsCache(db);
 
   const chain = getActiveChain(db);

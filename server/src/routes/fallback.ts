@@ -20,8 +20,9 @@ export const fallbackRouter = Router();
 // ── Bandit routing strategy ─────────────────────────────────────────────────
 // GET  /routing → active strategy, preset weights, and the per-model score
 //                 breakdown (reliability / speed / intelligence + guardrails).
-fallbackRouter.get('/routing', (_req: Request, res: Response) => {
-  res.json(getRoutingScores());
+fallbackRouter.get('/routing', (req: Request, res: Response) => {
+  const strategy = (req.query.preview_strategy as any) || undefined;
+  res.json(getRoutingScores(strategy));
 });
 
 fallbackRouter.get('/penalty-inspector', (_req: Request, res: Response) => {

@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { Boxes, Search, X } from 'lucide-react'
+import { Boxes, Loader2, Search, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useI18n } from '@/i18n'
 import { apiFetch } from '@/lib/api'
@@ -91,9 +91,11 @@ export default function FallbackPage() {
     queryFn: () => apiFetch('/api/fallback/token-usage'),
   })
 
-  const { data: routing } = useQuery<RoutingData>({
-    queryKey: ['fallback', 'routing'],
-    queryFn: () => apiFetch('/api/fallback/routing'),
+  const [previewStrategy, setPreviewStrategy] = useState<RoutingStrategy>('balanced')
+
+  const { data: routing, isFetching: isRoutingFetching } = useQuery<RoutingData>({
+    queryKey: ['fallback', 'routing', previewStrategy],
+    queryFn: () => apiFetch(`/api/fallback/routing?preview_strategy=${previewStrategy}`),
     refetchInterval: 15_000,
   })
 
@@ -112,7 +114,7 @@ export default function FallbackPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fallback', 'routing'] }),
   })
 
-  const strategy: RoutingStrategy = routing?.strategy ?? 'balanced'
+  const strategy: RoutingStrategy = previewStrategy
   const isManual = strategy === 'priority'
 
   // Merge fallback metadata with live scores, keyed by model.
@@ -253,8 +255,7 @@ export default function FallbackPage() {
             {STRATEGIES.map(s => (
               <Tooltip key={s.key} text={t(`strategies.${s.tKey}Blurb`)}>
                 <button
-                  disabled={strategyMutation.isPending}
-                  onClick={() => strategyMutation.mutate({ strategy: s.key })}
+                  onClick={() => setPreviewStrategy(s.key)}
                   className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
                     s.key === strategy
                       ? 'bg-foreground text-background font-medium'
@@ -262,6 +263,7 @@ export default function FallbackPage() {
                   }`}
                 >
                   {t(`strategies.${s.tKey}`)}
+                  {s.key === strategy && isRoutingFetching && <Loader2 className="ml-2 inline size-3 animate-spin opacity-50" />}
                 </button>
               </Tooltip>
             ))}

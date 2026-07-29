@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FieldError } from '@/components/ui/field-error'
-import type { Platform } from '../../../../shared/types'
+import type { Platform, ApiKey } from '../../../../shared/types'
 import { useI18n } from '@/i18n'
 import { toast } from '@/lib/toast'
 import { GetKeyLink, PLATFORMS } from './shared'
@@ -23,6 +23,11 @@ export function AddKeyForm({ onSuccess }: { onSuccess: () => void }) {
   const [accountId, setAccountId] = useState('')
   const [label, setLabel] = useState('')
   const [addAttempted, setAddAttempted] = useState(false)
+
+  const { data: keys = [] } = useQuery<ApiKey[]>({
+    queryKey: ['keys'],
+    queryFn: () => apiFetch('/api/keys'),
+  })
 
   const addKey = useMutation({
     meta: { silenceToast: true },
@@ -72,9 +77,24 @@ export function AddKeyForm({ onSuccess }: { onSuccess: () => void }) {
               <SelectValue placeholder={t('keys.selectPlatform')} />
             </SelectTrigger>
             <SelectContent>
-              {PLATFORMS.map(p => (
-                <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-              ))}
+              {PLATFORMS.map(p => {
+                const hasKeys = keys.some(k => k.platform === p.value)
+                return (
+                  <SelectItem key={p.value} value={p.value}>
+                    <span className="flex items-center gap-2">
+                      {hasKeys ? (
+                        <span 
+                          className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]" 
+                          title="You have keys for this provider"
+                        />
+                      ) : (
+                        <span className="size-1.5" />
+                      )}
+                      <span>{p.label}</span>
+                    </span>
+                  </SelectItem>
+                )
+              })}
             </SelectContent>
           </Select>
           {addAttempted && <FieldError error={platformError} />}
