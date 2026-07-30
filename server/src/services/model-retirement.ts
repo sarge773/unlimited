@@ -17,6 +17,7 @@ import { getDb } from '../db/index.js';
 import { modelRetirementSignal } from '../lib/error-classify.js';
 import { summarizeAttemptError } from '../lib/error-redaction.js';
 import { isCatalogManagedModel, retireCatalogModelUpstream } from './model-state.js';
+import { modelStatsKey } from '../lib/endpoint-scope.js';
 
 /** How many DISTINCT requests must report a 'probable' signal before acting. */
 export const RETIREMENT_CONFIRMATIONS_REQUIRED = 2;
@@ -46,6 +47,13 @@ export interface RetirementRoute {
   modelDbId: number;
   platform: string;
   modelId: string;
+  /**
+   * The endpoint this route belongs to, for custom relays (#651). Two relays
+   * can serve the same model id; a 410 from one says nothing about the other,
+   * so their corroboration counters must not share a bucket. Absent/'' for
+   * catalog platforms, which keeps their key exactly what it always was.
+   */
+  endpointScope?: string;
 }
 
 /**
@@ -62,7 +70,7 @@ export function noteModelRetirementSignal(
   const confidence = modelRetirementSignal(err);
   if (!confidence) return false;
 
-  const key = `${route.platform}:${route.modelId}`;
+  const key = modelStatsKey(route.platform, route.modelId, route.endpointScope);
   if (confidence === 'probable' && !confirmObservation(key, requestToken)) return false;
 
   const reason = summarizeAttemptError((err as { message?: unknown })?.message);

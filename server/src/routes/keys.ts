@@ -13,6 +13,7 @@ import { getActiveCooldownsForKeys, clearCooldownsForKey } from '../services/rat
 import { resolveCustomEndpointKey, customEndpointKeyIds, siblingEndpointKeyId } from '../services/custom-endpoint.js';
 import { customModelSeed } from '../services/custom-model-seed.js';
 import { discoverEndpointModels, ModelDiscoveryError } from '../services/model-discovery.js';
+import { endpointScopeForBaseUrl, normalizeBaseUrl } from '../lib/endpoint-scope.js';
 
 export const keysRouter = Router();
 
@@ -500,8 +501,6 @@ const customProviderSchema = z.object({
   { message: 'baseUrl or keyId is required' },
 );
 
-const normalizeBaseUrl = (raw: string) => raw.trim().replace(/\/+$/, '');
-
 interface CustomEndpointRef {
   baseUrl: string;
   /** The api_keys row this endpoint is already stored under, or null when the
@@ -701,6 +700,8 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
       db, baseUrl, providedKey, label, endpoint.keyId ?? undefined,
     );
     const endpointKeyIds = customEndpointKeyIds(db, keyId);
+    // The identity discriminator for every row registered in this call (#651).
+    const endpointScope = endpointScopeForBaseUrl(baseUrl);
     // Unknown ≠ worst: seed the routing ranks at the catalog median so a new
     // custom model is explored instead of buried at intelligence 0 (#488).
     const seed = customModelSeed(db);
@@ -709,15 +710,17 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
     for (const { modelId, displayName, supportsTools, supportsVision } of entries) {
       // Register each model bound to THIS endpoint's key. Custom models carry no
       // rate limits and sort last in the intelligence preset (size_label tier).
-      // Re-registering an existing model id re-binds it to the submitted
-      // ENDPOINT (model ids are unique per platform, so one id can't live on two
-      // endpoints at once) — but a model already on this endpoint keeps the key
-      // it has, so adding a second credential doesn't silently re-bind it (#619).
+      // Identity is per endpoint (#651): the same model id on a DIFFERENT relay
+      // is a separate row with its own enabled flag, ranks and stats, instead of
+      // silently rebinding the other endpoint's row as it used to. A model
+      // already on THIS endpoint keeps the key it has, so adding a second
+      // credential doesn't re-bind it (#619).
       // Capability flags: an unset flag binds NULL so COALESCE picks the insert
       // default (tools 1, vision 0) on a new row and preserves the existing
       // value on re-registration. (#470)
-      const bound = db.prepare("SELECT key_id FROM models WHERE platform = 'custom' AND model_id = ?")
-        .get(modelId) as { key_id: number | null } | undefined;
+      const bound = db.prepare(
+        "SELECT key_id FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
+      ).get(modelId, endpointScope) as { key_id: number | null } | undefined;
       const created = bound === undefined;
       const bindKeyId = bound?.key_id != null && endpointKeyIds.has(bound.key_id) ? bound.key_id : keyId;
       const toolsParam = supportsTools === undefined ? null : (supportsTools ? 1 : 0);
@@ -729,11 +732,11 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
         INSERT INTO models
           (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
            rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window, enabled, key_id,
-           supports_tools, supports_vision, source)
+           supports_tools, supports_vision, source, endpoint_scope)
         VALUES ('custom', @modelId, @displayName, @intelligenceRank, @speedRank, @sizeLabel,
            NULL, NULL, NULL, NULL, '', NULL, 1, @keyId,
-           COALESCE(@tools, 1), COALESCE(@vision, 0), 'user')
-        ON CONFLICT(platform, model_id)
+           COALESCE(@tools, 1), COALESCE(@vision, 0), 'user', @endpointScope)
+        ON CONFLICT(platform, model_id, endpoint_scope)
         DO UPDATE SET
           display_name = excluded.display_name,
           key_id = excluded.key_id,
@@ -743,9 +746,12 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
       `).run({
         modelId, displayName, keyId: bindKeyId, tools: toolsParam, vision: visionParam,
         intelligenceRank: seed.intelligenceRank, speedRank: seed.speedRank, sizeLabel: seed.sizeLabel,
+        endpointScope,
       });
 
-      const modelRow = db.prepare("SELECT id, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ?").get(modelId) as { id: number; supports_tools: number; supports_vision: number };
+      const modelRow = db.prepare(
+        "SELECT id, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
+      ).get(modelId, endpointScope) as { id: number; supports_tools: number; supports_vision: number };
 
       // Append to the fallback chain if not already present.
       const inChain = db.prepare('SELECT 1 FROM fallback_config WHERE model_db_id = ?').get(modelRow.id);

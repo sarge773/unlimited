@@ -13,6 +13,7 @@ import {
 } from '../services/model-state.js';
 import { pruneUnavailableSavedFusionConfig } from '../services/fusion.js';
 import { getActiveProfileId } from '../services/profile-models.js';
+import { qualifiedModelMemberId } from '../lib/endpoint-scope.js';
 
 export const modelsRouter = Router();
 
@@ -257,6 +258,10 @@ modelsRouter.get('/', (_req: Request, res: Response) => {
     source: m.source === 'user' ? 'custom' : 'catalog',
     keyId: m.key_id ?? null,
     keyLabel: m.key_label ?? null,
+    // Endpoint identity for custom rows (#651); null for catalog models and for
+    // custom rows that carry no endpoint scope.
+    endpointScope: m.endpoint_scope || null,
+    qualifiedModelId: qualifiedModelMemberId(m.platform, m.model_id, m.endpoint_scope),
     hasOverrides: Boolean(m.has_overrides),
     overrideFields: overriddenFieldNames(m.overrides_json),
     hasProvider: hasProvider(m.platform),

@@ -188,7 +188,7 @@ Anything that can target an OpenAI-compatible base URL works: set it to `http://
 The fastest setup is generated from the models available on your live server:
 
 ```bash
-npx freellmapi setup-claude --url http://localhost:3001
+npx freellmapi setup-claude --url http://localhost:3001 --api-key <unified-key>
 ```
 
 Every generator supports `--dry-run`, creates a timestamped backup before changing an existing file, and merges into the user's configuration. Launchers keep credentials out of config files entirely: `npx freellmapi launch` for Claude Code and `npx freellmapi launch-codex` for Codex.
@@ -419,6 +419,7 @@ Contributors very welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev lo
 <a href="https://github.com/qq97693453"><img src="https://images.weserv.nl/?url=github.com/qq97693453.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@qq97693453" /></a>
 <a href="https://github.com/emv33"><img src="https://images.weserv.nl/?url=github.com/emv33.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@emv33" /></a>
 <a href="https://github.com/ousamabenyounes"><img src="https://images.weserv.nl/?url=github.com/ousamabenyounes.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@ousamabenyounes" /></a>
+<a href="https://github.com/yfdyh000"><img src="https://images.weserv.nl/?url=github.com/yfdyh000.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@yfdyh000" /></a>
 
 ## Disclaimer
 

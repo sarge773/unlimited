@@ -16,7 +16,12 @@ import { ModelsTabs } from '@/components/models-tabs'
 import { ModelTableHead, RowContent } from '@/components/model-table'
 import {
   groupQuotaBadge,
-  providerLabel,
+  isMemberSplit,
+  memberEndpointTitle,
+  memberOverrideKey,
+  memberProviderLabel,
+  providerPinId,
+  splitsWithoutMember,
   type FallbackEntry,
   type RoutingData,
   type Row,
@@ -116,25 +121,26 @@ export default function ModelDetailPage() {
   })
 
   const splits = unify?.overrides.splits ?? []
-  const memberKey = (m: Row) => `${m.platform}:${m.modelId}`
-  // The split control for one provider row: offer "keep separate" while the
-  // model is merged with siblings, and "merge back" on a copy that was split
-  // out (it lives on its own page then, so the undo must live there too).
+  // New splits are written against ONE row: an unqualified "platform:modelId"
+  // matches every relay that serves the id, so splitting one relay's card used
+  // to move both (#651). Reading accepts the plain form too, so a split saved
+  // before that is still recognised — and still undoable.
   function splitActionFor(m: Row, memberCount: number): SplitAction | undefined {
     if (!unify) return undefined
-    const isSplit = splits.some(s => s.member === memberKey(m))
-    if (isSplit) {
+    // Checked before the member-count guard on purpose: a split row is usually
+    // ALONE in its group, and that is exactly the row that needs the undo.
+    if (isMemberSplit(splits, m)) {
       return {
         kind: 'undo',
         pending: splitMutation.isPending,
-        onClick: () => splitMutation.mutate(splits.filter(s => s.member !== memberKey(m))),
+        onClick: () => splitMutation.mutate(splitsWithoutMember(splits, m)),
       }
     }
     if (memberCount < 2) return undefined
     return {
       kind: 'split',
       pending: splitMutation.isPending,
-      onClick: () => splitMutation.mutate([...splits, { member: memberKey(m) }]),
+      onClick: () => splitMutation.mutate([...splits, { member: memberOverrideKey(m) }]),
     }
   }
 
@@ -147,6 +153,11 @@ export default function ModelDetailPage() {
     .filter(e => e.keyCount > 0 && (e.canonicalId ?? e.modelId) === canonicalId)
     .map(e => ({ ...(scoreById.get(e.modelDbId) ?? {}), ...e }))
     .sort((a, b) => (isManual ? a.priority - b.priority : (b.score ?? 0) - (a.score ?? 0)))
+  // Endpoint disambiguation keys on (platform, model_id) across EVERY configured
+  // row — a relay whose copy was renamed sits in a DIFFERENT display group, so
+  // `members` is not a complete sibling set and scoping to it would hide the
+  // endpoint exactly when two relays collide (#651).
+  const siblings: Row[] = entries as Row[]
 
   function handleToggle(modelDbId: number, enabled: boolean) {
     saveMutation.mutate(entries.map(e => ({
@@ -208,7 +219,7 @@ export default function ModelDetailPage() {
                 <tbody>
                   {members.map((m, i) => (
                     <tr key={m.modelDbId} className={`border-b last:border-0 ${m.enabled ? '' : 'opacity-50'}`}>
-                      <RowContent row={m} rank={i + 1} draggable={false} onToggle={handleToggle} />
+                      <RowContent row={m} rank={i + 1} draggable={false} onToggle={handleToggle} providerName={memberProviderLabel(m, siblings)} providerTitle={memberEndpointTitle(m, siblings)} />
                     </tr>
                   ))}
                 </tbody>
@@ -225,6 +236,8 @@ export default function ModelDetailPage() {
                   <ProviderSettingsRow
                     key={m.modelDbId}
                     model={m}
+                    endpointLabel={memberProviderLabel(m, siblings)}
+                    endpointTitle={memberEndpointTitle(m, siblings)}
                     saving={modelPatchMutation.isPending && modelPatchMutation.variables?.modelDbId === m.modelDbId}
                     deleting={modelDeleteMutation.isPending && modelDeleteMutation.variables === m.modelDbId}
                     onSave={(patch) => modelPatchMutation.mutate({ modelDbId: m.modelDbId, patch })}
@@ -242,10 +255,12 @@ export default function ModelDetailPage() {
               <div className="space-y-1.5">
                 {members.map(m => (
                   <div key={m.modelDbId} className="flex items-center gap-2 text-xs">
-                    <span className="w-28 shrink-0 text-muted-foreground">{providerLabel(m)}</span>
-                    <code className="min-w-0 flex-1 truncate font-mono text-[11px]">{m.modelId}</code>
+                    <span className="w-28 max-w-[16rem] shrink-0 basis-auto truncate text-muted-foreground sm:w-auto sm:min-w-28" title={memberEndpointTitle(m, siblings)}>
+                      {memberProviderLabel(m, siblings)}
+                    </span>
+                    <code className="min-w-0 flex-1 truncate font-mono text-[11px]">{providerPinId(m, siblings)}</code>
                     <Tooltip text={t('models.copyModelName')}>
-                      <CopyButton text={m.modelId} label={t('models.copyModelName')} className="border-0 bg-transparent" />
+                      <CopyButton text={providerPinId(m, siblings)} label={t('models.copyModelName')} className="border-0 bg-transparent" />
                     </Tooltip>
                   </div>
                 ))}
@@ -269,6 +284,8 @@ export default function ModelDetailPage() {
 
 function ProviderSettingsRow({
   model,
+  endpointLabel,
+  endpointTitle,
   saving,
   deleting,
   onSave,
@@ -276,6 +293,11 @@ function ProviderSettingsRow({
   splitAction,
 }: {
   model: Row
+  // Which provider this card is for. Carries the endpoint too, but only when
+  // two custom endpoints serve the same model id (#651).
+  endpointLabel: string
+  // Hover text for that label, set only when there was a collision to resolve.
+  endpointTitle?: string
   saving: boolean
   deleting: boolean
   onSave: (patch: ModelSettingsPatch) => void
@@ -315,7 +337,7 @@ function ProviderSettingsRow({
   return (
     <div className="rounded-xl border bg-background/60 p-3">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium">{providerLabel(model)}</span>
+        <span className="text-xs font-medium" title={endpointTitle}>{endpointLabel}</span>
         <code className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">{model.modelId}</code>
         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{sourceLabel}</span>
         {model.hasOverrides && (
