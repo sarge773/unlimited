@@ -1,0 +1,108 @@
+name: CLI release
+
+# Publishes the `freellmapi` CLI to npm. Closes #671 — the README and
+# docs/clients.md have always documented `npx freellmapi setup-claude`, but the
+# package was never pushed to the registry, so every one of those commands died
+# with npm E404.
+#
+# Triggers:
+#   - push to main touching cli/**   publish when cli/package.json's version is
+#                                    not on the registry yet; no-op otherwise
+#   - workflow_dispatch              manual run (used for the very first publish)
+#
+# The version guard makes this idempotent: ordinary cli/src changes re-run the
+# job, see the version already published, and skip. To ship a new version, bump
+# `version` in cli/package.json in the PR that changes the code.
+#
+# Requires the NPM_TOKEN secret (npm automation token with publish rights).
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cli/**'
+      - '.github/workflows/cli-release.yml'
+
+permissions:
+  contents: read
+  id-token: write # npm provenance
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Resolve version
+        id: version
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./cli/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # `npm view` exits non-zero for an unpublished name/version; an empty
+          # result is the signal to publish, not an error.
+          PUBLISHED=$(npm view "freellmapi@$VERSION" version 2>/dev/null || true)
+          if [ -n "$PUBLISHED" ]; then
+            echo "freellmapi@$VERSION is already on the registry — nothing to do."
+            echo "should-publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "freellmapi@$VERSION is not published yet."
+            echo "should-publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify the token is configured
+        if: steps.version.outputs.should-publish == 'true'
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "::error::NPM_TOKEN is not set. Add an npm automation token with publish rights as a repository secret."
+            exit 1
+          fi
+
+      # `npm publish` runs cli's prepublishOnly (build + test) as a safety net.
+      # Building here as well keeps a broken tsc from reaching the publish step.
+      - name: Build and test the CLI
+        if: steps.version.outputs.should-publish == 'true'
+        run: |
+          npm run build -w cli
+          npm run test -w cli
+
+      - name: Smoke-test the packed tarball
+        if: steps.version.outputs.should-publish == 'true'
+        run: |
+          set -euo pipefail
+          # Install what subscribers will actually download — catches a `files`
+          # array that omits a runtime import, which `npm test` cannot see.
+          TARBALL=$(cd cli && npm pack --silent --pack-destination "$RUNNER_TEMP")
+          WORKDIR="$RUNNER_TEMP/smoke"
+          mkdir -p "$WORKDIR" && cd "$WORKDIR"
+          npm init -y >/dev/null
+          npm install "$RUNNER_TEMP/$TARBALL" >/dev/null
+          npx freellmapi --help
+          npx freellmapi list >/dev/null
+
+      - name: Publish
+        if: steps.version.outputs.should-publish == 'true'
+        run: npm publish --provenance --access public -w cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.version.outputs.should-publish }}" = "true" ]; then
+            echo "Published freellmapi@${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "freellmapi@${{ steps.version.outputs.version }} was already published — skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi

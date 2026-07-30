@@ -188,7 +188,7 @@ Anything that can target an OpenAI-compatible base URL works: set it to `http://
 The fastest setup is generated from the models available on your live server:
 
 ```bash
-npx freellmapi setup-claude --url http://localhost:3001
+npx freellmapi setup-claude --url http://localhost:3001 --api-key <unified-key>
 ```
 
 Every generator supports `--dry-run`, creates a timestamped backup before changing an existing file, and merges into the user's configuration. Launchers keep credentials out of config files entirely: `npx freellmapi launch` for Claude Code and `npx freellmapi launch-codex` for Codex.
