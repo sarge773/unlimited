@@ -15,6 +15,9 @@ name: CLI release
 # `version` in cli/package.json in the PR that changes the code.
 #
 # Requires the NPM_TOKEN secret (npm automation token with publish rights).
+# Until it is set, an automatic run warns and skips instead of failing, so
+# merging this workflow does not redden main. A manual run still fails loudly —
+# asking for a publish and silently getting none would be worse.
 
 on:
   workflow_dispatch:
@@ -61,26 +64,37 @@ jobs:
             echo "should-publish=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Verify the token is configured
+      - name: Check for the publish token
+        id: token
         if: steps.version.outputs.should-publish == 'true'
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -z "${NPM_TOKEN:-}" ]; then
+          set -euo pipefail
+          if [ -n "${NPM_TOKEN:-}" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "present=false" >> "$GITHUB_OUTPUT"
+          # A manual run is an explicit request to publish, so a missing token
+          # is a real error. An automatic push just means the secret isn't set
+          # up yet — warn and skip rather than redden main.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "::error::NPM_TOKEN is not set. Add an npm automation token with publish rights as a repository secret."
             exit 1
           fi
+          echo "::warning::NPM_TOKEN is not set — skipping publish. Add the secret, then run this workflow manually."
 
       # `npm publish` runs cli's prepublishOnly (build + test) as a safety net.
       # Building here as well keeps a broken tsc from reaching the publish step.
       - name: Build and test the CLI
-        if: steps.version.outputs.should-publish == 'true'
+        if: steps.version.outputs.should-publish == 'true' && steps.token.outputs.present == 'true'
         run: |
           npm run build -w cli
           npm run test -w cli
 
       - name: Smoke-test the packed tarball
-        if: steps.version.outputs.should-publish == 'true'
+        if: steps.version.outputs.should-publish == 'true' && steps.token.outputs.present == 'true'
         run: |
           set -euo pipefail
           # Install what subscribers will actually download — catches a `files`
@@ -94,15 +108,21 @@ jobs:
           npx freellmapi list >/dev/null
 
       - name: Publish
-        if: steps.version.outputs.should-publish == 'true'
+        if: steps.version.outputs.should-publish == 'true' && steps.token.outputs.present == 'true'
         run: npm publish --provenance --access public -w cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Summary
+        if: always()
         run: |
-          if [ "${{ steps.version.outputs.should-publish }}" = "true" ]; then
-            echo "Published freellmapi@${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          V="${{ steps.version.outputs.version }}"
+          if [ "${{ steps.version.outputs.should-publish }}" != "true" ]; then
+            echo "freellmapi@$V is already on the registry — skipped." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ steps.token.outputs.present }}" != "true" ]; then
+            echo "freellmapi@$V is unpublished, but NPM_TOKEN is not set — skipped." >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Add an npm automation token as the NPM_TOKEN repository secret, then run this workflow manually." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "freellmapi@${{ steps.version.outputs.version }} was already published — skipped." >> "$GITHUB_STEP_SUMMARY"
+            echo "Published freellmapi@$V" >> "$GITHUB_STEP_SUMMARY"
           fi
