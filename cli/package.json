@@ -25,7 +25,7 @@
   ],
   "type": "module",
   "bin": {
-    "freellmapi": "./dist/index.js"
+    "freellmapi": "dist/index.js"
   },
   "exports": {
     ".": "./dist/index.js",
