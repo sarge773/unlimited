@@ -8,16 +8,29 @@ name: CLI release
 # Triggers:
 #   - push to main touching cli/**   publish when cli/package.json's version is
 #                                    not on the registry yet; no-op otherwise
-#   - workflow_dispatch              manual run (used for the very first publish)
+#   - workflow_dispatch              manual run
 #
 # The version guard makes this idempotent: ordinary cli/src changes re-run the
 # job, see the version already published, and skip. To ship a new version, bump
 # `version` in cli/package.json in the PR that changes the code.
 #
-# Requires the NPM_TOKEN secret (npm automation token with publish rights).
-# Until it is set, an automatic run warns and skips instead of failing, so
-# merging this workflow does not redden main. A manual run still fails loudly —
-# asking for a publish and silently getting none would be worse.
+# Auth is npm trusted publishing (OIDC) — no NPM_TOKEN, no long-lived secret.
+# npm revoked all classic tokens in December 2025, and granular tokens with
+# "bypass 2FA" are being wound down through 2026 (they lose direct publish
+# around January 2027), so a token-based workflow would have been born
+# deprecated. OIDC mints a short-lived credential per job instead, and npm
+# attaches provenance automatically.
+#
+# One-time setup on npmjs.com (Package settings → Trusted Publisher):
+#   Organization or user: tashfeenahmed
+#   Repository:           freellmapi
+#   Workflow filename:    cli-release.yml
+# Trusted publishing cannot bootstrap a package that does not exist yet — npm
+# has no package settings page to configure until the first version is up — so
+# 0.3.0 was published manually. Every version after it goes through here.
+#
+# Requires npm >= 11.5.1 and Node >= 22.14.0 for OIDC, hence Node 24 below
+# (still inside the repo's engines range of >=20.18 <25).
 
 on:
   workflow_dispatch:
@@ -29,7 +42,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write # npm provenance
+  id-token: write # OIDC credential for trusted publishing
 
 jobs:
   publish:
@@ -40,7 +53,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
@@ -64,37 +77,16 @@ jobs:
             echo "should-publish=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Check for the publish token
-        id: token
-        if: steps.version.outputs.should-publish == 'true'
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -n "${NPM_TOKEN:-}" ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "present=false" >> "$GITHUB_OUTPUT"
-          # A manual run is an explicit request to publish, so a missing token
-          # is a real error. An automatic push just means the secret isn't set
-          # up yet — warn and skip rather than redden main.
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "::error::NPM_TOKEN is not set. Add an npm automation token with publish rights as a repository secret."
-            exit 1
-          fi
-          echo "::warning::NPM_TOKEN is not set — skipping publish. Add the secret, then run this workflow manually."
-
       # `npm publish` runs cli's prepublishOnly (build + test) as a safety net.
       # Building here as well keeps a broken tsc from reaching the publish step.
       - name: Build and test the CLI
-        if: steps.version.outputs.should-publish == 'true' && steps.token.outputs.present == 'true'
+        if: steps.version.outputs.should-publish == 'true'
         run: |
           npm run build -w cli
           npm run test -w cli
 
       - name: Smoke-test the packed tarball
-        if: steps.version.outputs.should-publish == 'true' && steps.token.outputs.present == 'true'
+        if: steps.version.outputs.should-publish == 'true'
         run: |
           set -euo pipefail
           # Install what subscribers will actually download — catches a `files`
@@ -107,22 +99,18 @@ jobs:
           npx freellmapi --help
           npx freellmapi list >/dev/null
 
+      # No NODE_AUTH_TOKEN: the OIDC credential comes from id-token: write.
+      # Provenance is attached automatically under trusted publishing.
       - name: Publish
-        if: steps.version.outputs.should-publish == 'true' && steps.token.outputs.present == 'true'
-        run: npm publish --provenance --access public -w cli
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: steps.version.outputs.should-publish == 'true'
+        run: npm publish --access public -w cli
 
       - name: Summary
         if: always()
         run: |
           V="${{ steps.version.outputs.version }}"
-          if [ "${{ steps.version.outputs.should-publish }}" != "true" ]; then
-            echo "freellmapi@$V is already on the registry — skipped." >> "$GITHUB_STEP_SUMMARY"
-          elif [ "${{ steps.token.outputs.present }}" != "true" ]; then
-            echo "freellmapi@$V is unpublished, but NPM_TOKEN is not set — skipped." >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "Add an npm automation token as the NPM_TOKEN repository secret, then run this workflow manually." >> "$GITHUB_STEP_SUMMARY"
-          else
+          if [ "${{ steps.version.outputs.should-publish }}" = "true" ]; then
             echo "Published freellmapi@$V" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "freellmapi@$V is already on the registry — skipped." >> "$GITHUB_STEP_SUMMARY"
           fi
