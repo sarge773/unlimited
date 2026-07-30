@@ -420,6 +420,7 @@ Contributors very welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev lo
 <a href="https://github.com/emv33"><img src="https://images.weserv.nl/?url=github.com/emv33.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@emv33" /></a>
 <a href="https://github.com/ousamabenyounes"><img src="https://images.weserv.nl/?url=github.com/ousamabenyounes.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@ousamabenyounes" /></a>
 <a href="https://github.com/yfdyh000"><img src="https://images.weserv.nl/?url=github.com/yfdyh000.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@yfdyh000" /></a>
+<a href="https://github.com/s-uryansh"><img src="https://images.weserv.nl/?url=github.com/s-uryansh.png&w=60&h=60&fit=cover&mask=circle" width="60" alt="@s-uryansh" /></a>
 
 ## Disclaimer
 
