@@ -34,9 +34,9 @@ reference product, or a real ambiguity in the current wording.
 | Coding | 编程 | Not 编码, which reads as "encoding". |
 | Export | 导出 | Not 出口, which is the shipping sense. |
 | Request size | 请求大小 | Not 请求数据量, which reads as an aggregate across many requests. |
-| Request body | 请求正文 | 请求体 is also in use. Either is fine, this file is consistent on 请求正文. |
+| Request body | 请求正文 | What Google Cloud and Cloudflare use in their own Chinese docs. 请求体 is commoner in speech and is not wrong, but use 请求正文 here. |
 | Revoke | 撤销 | Not 废除, which is closer to repealing a law. |
-| Playground | 试验台 | Not 试玩台. 试玩 suggests a game demo. |
+| Playground | 试验台 | It is a bench for testing models. Not 试玩台, where 试玩 suggests a game demo. |
 | Balance (the custom preset) | 权衡 | The numeric sliders themselves are 权重. |
 
 The strategy presets are comparative, so they keep 最: 最快, 最稳定, 最智能.
