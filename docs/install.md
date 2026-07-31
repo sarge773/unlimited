@@ -1,3 +1,5 @@
+**English** · [简体中文](i18n/zh-CN/docs/install.md)
+
 # Install & deploy
 
 [← Back to README](../README.md) · [Documentation index](README.md)
