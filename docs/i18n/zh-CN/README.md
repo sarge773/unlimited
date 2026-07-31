@@ -1,5 +1,3 @@
-[English](../../../README.md) · **简体中文**
-
 <div align="center">
 
 # FreeLLMAPI
@@ -16,6 +14,8 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tashfeenahmed/freellmapi)
 
 **[freellmapi.co](https://freellmapi.co/?utm_source=github&utm_medium=readme&utm_campaign=repository&utm_content=readme_top)** · 浏览完整目录：251 个模型系列，358 个免费端点
+
+[English](../../../README.md) · **简体中文**
 
 ![FreeLLMAPI 仪表盘 —— 带每月词元额度的模型页](../../../repo-assets/github-hero.png)
 
