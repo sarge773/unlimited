@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "मर्यादा नको असल्यास रिकामे ठेवा.",
     "usageThisMonth": "या महिन्याचा वापर",
-    "usageEmpty": "या महिन्यात अद्याप विनंत्या नाहीत."
+    "usageEmpty": "या महिन्यात अद्याप विनंत्या नाहीत.",
+    "usageRequestsMonth": "या महिन्यात {count} विनंत्या"
   },
   "strategies": {
     "title": "राउटिंग धोरण",

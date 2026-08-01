@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "ਕੋਈ ਹੱਦ ਨਾ ਰੱਖਣ ਲਈ ਖਾਲੀ ਛੱਡੋ।",
     "usageThisMonth": "ਇਸ ਮਹੀਨੇ ਦੀ ਵਰਤੋਂ",
-    "usageEmpty": "ਇਸ ਮਹੀਨੇ ਹਾਲੇ ਕੋਈ ਬੇਨਤੀ ਨਹੀਂ।"
+    "usageEmpty": "ਇਸ ਮਹੀਨੇ ਹਾਲੇ ਕੋਈ ਬੇਨਤੀ ਨਹੀਂ।",
+    "usageRequestsMonth": "ਇਸ ਮਹੀਨੇ {count} ਬੇਨਤੀਆਂ"
   },
   "strategies": {
     "title": "ਰੂਟਿੰਗ ਰਣਨੀਤੀ",

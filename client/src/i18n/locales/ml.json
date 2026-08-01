@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "പരിധി വേണ്ടെങ്കിൽ ശൂന്യമായി വിടുക.",
     "usageThisMonth": "ഈ മാസത്തെ ഉപയോഗം",
-    "usageEmpty": "ഈ മാസം ഇതുവരെ അഭ്യർത്ഥനകളില്ല."
+    "usageEmpty": "ഈ മാസം ഇതുവരെ അഭ്യർത്ഥനകളില്ല.",
+    "usageRequestsMonth": "ഈ മാസം {count} അഭ്യർത്ഥനകൾ"
   },
   "strategies": {
     "title": "റൂട്ടിംഗ് തന്ത്രം",

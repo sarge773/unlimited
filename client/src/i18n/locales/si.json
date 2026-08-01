@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "සීමාවක් නොමැති නම් හිස්ව තබන්න.",
     "usageThisMonth": "මෙම මාසයේ භාවිතය",
-    "usageEmpty": "මෙම මාසයේ තවම ඉල්ලීම් නැත."
+    "usageEmpty": "මෙම මාසයේ තවම ඉල්ලීම් නැත.",
+    "usageRequestsMonth": "මෙම මාසයේ ඉල්ලීම් {count}"
   },
   "strategies": {
     "title": "මාර්ගගත කිරීමේ උපාය",

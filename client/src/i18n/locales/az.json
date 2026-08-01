@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Limit olmaması üçün boş buraxın.",
     "usageThisMonth": "Bu ayın istifadəsi",
-    "usageEmpty": "Bu ay hələ sorğu yoxdur."
+    "usageEmpty": "Bu ay hələ sorğu yoxdur.",
+    "usageRequestsMonth": "bu ay {count} sorğu"
   },
   "strategies": {
     "title": "Marşrut strategiyası",

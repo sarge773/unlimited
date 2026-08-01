@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Lăsați gol pentru nicio limită.",
     "usageThisMonth": "Utilizare luna aceasta",
-    "usageEmpty": "Nicio cerere luna aceasta."
+    "usageEmpty": "Nicio cerere luna aceasta.",
+    "usageRequestsMonth": "{count} cereri luna aceasta"
   },
   "strategies": {
     "title": "Strategia de rutare",

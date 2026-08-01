@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "کوئی حد نہ رکھنے کے لیے خالی چھوڑیں۔",
     "usageThisMonth": "اس مہینے کا استعمال",
-    "usageEmpty": "اس مہینے ابھی کوئی درخواست نہیں۔"
+    "usageEmpty": "اس مہینے ابھی کوئی درخواست نہیں۔",
+    "usageRequestsMonth": "اس مہینے {count} درخواستیں"
   },
   "strategies": {
     "title": "روٹنگ کی حکمت عملی",

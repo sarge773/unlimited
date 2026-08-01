@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "ទុកឱ្យទទេ ដើម្បីគ្មានដែនកំណត់។",
     "usageThisMonth": "ការប្រើប្រាស់ខែនេះ",
-    "usageEmpty": "មិនទាន់មានសំណើនៅខែនេះទេ។"
+    "usageEmpty": "មិនទាន់មានសំណើនៅខែនេះទេ។",
+    "usageRequestsMonth": "ខែនេះ {count} សំណើ"
   },
   "strategies": {
     "title": "យុទ្ធសាស្ត្រផ្លូវបញ្ជូន",

@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Ponechte prázdné pro žádný limit.",
     "usageThisMonth": "Spotřeba tento měsíc",
-    "usageEmpty": "Tento měsíc zatím žádné požadavky."
+    "usageEmpty": "Tento měsíc zatím žádné požadavky.",
+    "usageRequestsMonth": "{count} pož. tento měsíc"
   },
   "strategies": {
     "title": "Strategie směrování",

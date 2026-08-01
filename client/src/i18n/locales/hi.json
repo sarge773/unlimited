@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "कोई सीमा न रखने के लिए खाली छोड़ें।",
     "usageThisMonth": "इस महीने का उपयोग",
-    "usageEmpty": "इस महीने अभी कोई अनुरोध नहीं।"
+    "usageEmpty": "इस महीने अभी कोई अनुरोध नहीं।",
+    "usageRequestsMonth": "इस महीने {count} अनुरोध"
   },
   "strategies": {
     "title": "रूटिंग रणनीति",

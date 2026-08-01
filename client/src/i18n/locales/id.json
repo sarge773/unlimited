@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Kosongkan untuk tanpa batas.",
     "usageThisMonth": "Penggunaan bulan ini",
-    "usageEmpty": "Belum ada permintaan bulan ini."
+    "usageEmpty": "Belum ada permintaan bulan ini.",
+    "usageRequestsMonth": "{count} permintaan bulan ini"
   },
   "strategies": {
     "title": "Strategi perutean",

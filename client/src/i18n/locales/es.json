@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Déjalo en blanco para no aplicar límite.",
     "usageThisMonth": "Uso de este mes",
-    "usageEmpty": "Aún no hay solicitudes este mes."
+    "usageEmpty": "Aún no hay solicitudes este mes.",
+    "usageRequestsMonth": "{count} sol. este mes"
   },
   "strategies": {
     "title": "Estrategia de enrutamiento",

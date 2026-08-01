@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Оставете празно за без ограничение.",
     "usageThisMonth": "Потребление този месец",
-    "usageEmpty": "Няма заявки този месец."
+    "usageEmpty": "Няма заявки този месец.",
+    "usageRequestsMonth": "{count} заявки този месец"
   },
   "strategies": {
     "title": "Стратегия за маршрутизиране",

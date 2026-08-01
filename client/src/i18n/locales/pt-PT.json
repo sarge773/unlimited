@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Deixe em branco para não ter limite.",
     "usageThisMonth": "Utilização este mês",
-    "usageEmpty": "Ainda não há pedidos este mês."
+    "usageEmpty": "Ainda não há pedidos este mês.",
+    "usageRequestsMonth": "{count} ped. este mês"
   },
   "strategies": {
     "title": "Estratégia de encaminhamento",

@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Laissez vide pour aucune limite.",
     "usageThisMonth": "Utilisation ce mois-ci",
-    "usageEmpty": "Aucune requête ce mois-ci pour l'instant."
+    "usageEmpty": "Aucune requête ce mois-ci pour l'instant.",
+    "usageRequestsMonth": "{count} req. ce mois-ci"
   },
   "strategies": {
     "title": "Stratégie de routage",

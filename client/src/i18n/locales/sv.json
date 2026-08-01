@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Lämna tomt för ingen gräns.",
     "usageThisMonth": "Användning denna månad",
-    "usageEmpty": "Inga förfrågningar denna månad än."
+    "usageEmpty": "Inga förfrågningar denna månad än.",
+    "usageRequestsMonth": "{count} förfr. denna månad"
   },
   "strategies": {
     "title": "Routingstrategi",

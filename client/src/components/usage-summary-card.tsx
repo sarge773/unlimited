@@ -43,13 +43,15 @@ export function UsageSummaryCard({
       <div className="flex items-baseline justify-between gap-3 mb-3">
         <h2 className="text-sm font-medium">{t('models.usageThisMonth')}</h2>
         <span className="text-xs text-muted-foreground tabular-nums">
-          <span className="text-foreground font-medium">{fmt(total)}</span> {t('models.used')}
+          {unit === 'tokens'
+            ? t('embeddings.usageMonth', { count: fmt(total) })
+            : t('models.usageRequestsMonth', { count: total })}
           <span className="mx-1.5">·</span>
           {t('embeddings.usageToday', { count: requestsToday })}
         </span>
       </div>
 
-      {total > 0 ? (
+      {total > 0 && (
         <div className="flex h-2.5 rounded-full overflow-hidden bg-muted">
           {spent.map((r, i) => (
             <div
@@ -62,8 +64,6 @@ export function UsageSummaryCard({
             />
           ))}
         </div>
-      ) : (
-        <div className="h-2.5 rounded-full bg-muted" />
       )}
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-1.5 text-xs tabular-nums">

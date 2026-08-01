@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Jätä tyhjäksi, jos ei rajaa.",
     "usageThisMonth": "Tämän kuun käyttö",
-    "usageEmpty": "Ei vielä pyyntöjä tässä kuussa."
+    "usageEmpty": "Ei vielä pyyntöjä tässä kuussa.",
+    "usageRequestsMonth": "{count} pyyntöä tässä kuussa"
   },
   "strategies": {
     "title": "Reititysstrategia",

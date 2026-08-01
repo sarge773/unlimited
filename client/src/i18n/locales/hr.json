@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Ostavite prazno za bez ograničenja.",
     "usageThisMonth": "Potrošnja ovog mjeseca",
-    "usageEmpty": "Ovog mjeseca još nema zahtjeva."
+    "usageEmpty": "Ovog mjeseca još nema zahtjeva.",
+    "usageRequestsMonth": "{count} zaht. ovog mjeseca"
   },
   "strategies": {
     "title": "Strategija usmjeravanja",

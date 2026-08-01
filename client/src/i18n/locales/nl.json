@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Laat leeg voor geen limiet.",
     "usageThisMonth": "Gebruik deze maand",
-    "usageEmpty": "Nog geen verzoeken deze maand."
+    "usageEmpty": "Nog geen verzoeken deze maand.",
+    "usageRequestsMonth": "{count} verz. deze maand"
   },
   "strategies": {
     "title": "Routingstrategie",

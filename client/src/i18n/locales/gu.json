@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "કોઈ મર્યાદા ન રાખવા ખાલી છોડો.",
     "usageThisMonth": "આ મહિનાનો વપરાશ",
-    "usageEmpty": "આ મહિને હજી કોઈ વિનંતી નથી."
+    "usageEmpty": "આ મહિને હજી કોઈ વિનંતી નથી.",
+    "usageRequestsMonth": "આ મહિને {count} વિનંતી"
   },
   "strategies": {
     "title": "રૂટીંગ વ્યૂહરચના",

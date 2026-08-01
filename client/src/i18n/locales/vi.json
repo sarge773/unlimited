@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Để trống nếu không giới hạn.",
     "usageThisMonth": "Mức dùng tháng này",
-    "usageEmpty": "Chưa có yêu cầu nào trong tháng này."
+    "usageEmpty": "Chưa có yêu cầu nào trong tháng này.",
+    "usageRequestsMonth": "{count} yêu cầu tháng này"
   },
   "strategies": {
     "title": "Chiến lược định tuyến",

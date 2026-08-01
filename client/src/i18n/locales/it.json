@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Lascia vuoto per nessun limite.",
     "usageThisMonth": "Utilizzo di questo mese",
-    "usageEmpty": "Nessuna richiesta questo mese."
+    "usageEmpty": "Nessuna richiesta questo mese.",
+    "usageRequestsMonth": "{count} rich. questo mese"
   },
   "strategies": {
     "title": "Strategia di routing",

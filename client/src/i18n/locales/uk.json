@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Залиште порожнім, щоб не було обмеження.",
     "usageThisMonth": "Витрати цього місяця",
-    "usageEmpty": "Цього місяця ще немає запитів."
+    "usageEmpty": "Цього місяця ще немає запитів.",
+    "usageRequestsMonth": "{count} запитів цього місяця"
   },
   "strategies": {
     "title": "Стратегія маршрутизації",

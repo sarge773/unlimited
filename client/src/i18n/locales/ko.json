@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "제한 없음으로 두려면 비워 두세요.",
     "usageThisMonth": "이번 달 사용량",
-    "usageEmpty": "이번 달에는 아직 요청이 없습니다."
+    "usageEmpty": "이번 달에는 아직 요청이 없습니다.",
+    "usageRequestsMonth": "이번 달 {count}건"
   },
   "strategies": {
     "title": "라우팅 전략",

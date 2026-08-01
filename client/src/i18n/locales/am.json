@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "ገደብ እንዳይኖር ባዶ ይተዉት።",
     "usageThisMonth": "የዚህ ወር አጠቃቀም",
-    "usageEmpty": "በዚህ ወር ገና ጥያቄዎች የሉም።"
+    "usageEmpty": "በዚህ ወር ገና ጥያቄዎች የሉም።",
+    "usageRequestsMonth": "በዚህ ወር {count} ጥያቄዎች"
   },
   "strategies": {
     "title": "የማዞሪያ ስትራቴጂ",

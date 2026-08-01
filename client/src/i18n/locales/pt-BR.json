@@ -221,7 +221,8 @@
     "limitTpd": "TPD",
     "limitHint": "Deixe em branco para não ter limite.",
     "usageThisMonth": "Uso neste mês",
-    "usageEmpty": "Ainda não há solicitações neste mês."
+    "usageEmpty": "Ainda não há solicitações neste mês.",
+    "usageRequestsMonth": "{count} sol. neste mês"
   },
   "strategies": {
     "title": "Estratégia de roteamento",
