@@ -4,11 +4,17 @@ import { z } from 'zod';
 import multer from 'multer';
 import path from 'path';
 import { getDb } from '../db/index.js';
-import { resolveProvider } from '../providers/index.js';
+import { resolveProvider, getAllProviders } from '../providers/index.js';
 import { encrypt, decrypt, maskKey } from '../lib/crypto.js';
 import { parseKeysFromFile, stripJsoncComments, stripTrailingCommas } from '../lib/key-parser.js';
 import { assessProviderUrl } from '../lib/url-guard.js';
+import { verifyCredentials } from '../services/auth.js';
 import { ensureModelInProfiles } from '../services/profile-models.js';
+import { getActiveCooldownsForKeys, clearCooldownsForKey } from '../services/ratelimit.js';
+import { resolveCustomEndpointKey, customEndpointKeyIds, siblingEndpointKeyId } from '../services/custom-endpoint.js';
+import { customModelSeed } from '../services/custom-model-seed.js';
+import { discoverEndpointModels, ModelDiscoveryError } from '../services/model-discovery.js';
+import { endpointScopeForBaseUrl, normalizeBaseUrl } from '../lib/endpoint-scope.js';
 
 export const keysRouter = Router();
 
@@ -20,7 +26,7 @@ const PLATFORMS = [
   'google', 'groq', 'cerebras', 'nvidia', 'mistral',
   'openrouter', 'github', 'cohere', 'cloudflare', 'zhipu', 'ollama',
   'kilo', 'pollinations', 'llm7', 'huggingface', 'opencode', 'ovh', 'agnes', 'reka', 'siliconflow',
-  'routeway', 'bazaarlink', 'ainative', 'aion', 'requesty', 'navy', 'nara', 'sealion', 'aihorde', 'custom',
+  'routeway', 'bazaarlink', 'ainative', 'aion', 'requesty', 'navy', 'nara', 'sealion', 'modelscope', 'aihorde', 'custom',
 ] as const;
 
 const ALLOWED_IMPORT_EXTENSIONS = new Set(['.env', '.json', '.jsonc', '.md', '.txt', '.csv']);
@@ -145,6 +151,50 @@ function noModelsNotice(platform: string): string | undefined {
   );
 }
 
+// Provider checklist (#543): every registered provider with whether the user
+// has added at least one key yet, so the dashboard can show what's still
+// missing without enumerating the whole list by hand. `custom` is excluded —
+// it's a per-key user-defined placeholder, not a fixed free-tier provider to
+// "check off".
+keysRouter.get('/providers', (_req: Request, res: Response) => {
+  const db = getDb();
+  const countRows = db.prepare(`
+    SELECT
+      platform,
+      COUNT(*) AS total_keys,
+      SUM(CASE WHEN enabled = 1 THEN 1 ELSE 0 END) AS enabled_keys
+    FROM api_keys
+    GROUP BY platform
+  `).all() as Array<{ platform: string; total_keys: number; enabled_keys: number }>;
+  const countsByPlatform = new Map(countRows.map(r => [r.platform, r]));
+
+  const providers = getAllProviders()
+    .filter(p => p.platform !== 'custom')
+    .map(p => {
+      const counts = countsByPlatform.get(p.platform);
+      const keyCount = counts?.total_keys ?? 0;
+      return {
+        platform: p.platform,
+        name: p.name,
+        keyless: p.keyless,
+        configured: keyCount > 0,
+        keyCount,
+        enabledKeyCount: counts?.enabled_keys ?? 0,
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const configured = providers.filter(p => p.configured).length;
+  res.json({
+    providers,
+    summary: {
+      total: providers.length,
+      configured,
+      unconfigured: providers.length - configured,
+    },
+  });
+});
+
 // List all keys (masked)
 keysRouter.get('/', (_req: Request, res: Response) => {
   const db = getDb();
@@ -167,11 +217,20 @@ keysRouter.get('/', (_req: Request, res: Response) => {
        WHERE platform = 'custom' AND key_id IS NOT NULL
     `).all() as any[],
   ];
-  const modelsByKeyId = new Map<number, any[]>();
+  // Models are grouped by ENDPOINT, not by key row: an endpoint can hold
+  // several credentials (#619) while each model binds to just one of them, and
+  // every one of those keys serves the endpoint's whole model list.
+  const endpointOfKey = new Map<number, string>();
+  for (const row of rows) {
+    if (row.platform === 'custom' && row.base_url) endpointOfKey.set(Number(row.id), row.base_url);
+  }
+  const endpointOf = (keyId: number) => endpointOfKey.get(keyId) ?? `key:${keyId}`;
+
+  const modelsByEndpoint = new Map<string, any[]>();
   for (const m of customModels) {
     const keyId = Number(m.key_id);
     if (!Number.isInteger(keyId)) continue;
-    const list = modelsByKeyId.get(keyId) ?? [];
+    const list = modelsByEndpoint.get(endpointOf(keyId)) ?? [];
     list.push({
       id: m.id,
       kind: m.kind,
@@ -179,15 +238,19 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       displayName: m.display_name,
       family: m.family ?? null,
     });
-    modelsByKeyId.set(keyId, list);
+    modelsByEndpoint.set(endpointOf(keyId), list);
   }
-  for (const list of modelsByKeyId.values()) {
+  for (const list of modelsByEndpoint.values()) {
     list.sort((a, b) => {
       const ka = ['chat', 'embedding', 'image', 'audio'].indexOf(a.kind);
       const kb = ['chat', 'embedding', 'image', 'audio'].indexOf(b.kind);
       return (ka - kb) || String(a.displayName).localeCompare(String(b.displayName));
     });
   }
+
+  // A cooling-down key reads as healthy and enabled while the router skips it,
+  // so surface the cooldowns that explain the idleness. (#P0-7)
+  const cooldownsByKeyId = getActiveCooldownsForKeys(rows.map(row => Number(row.id)));
 
   const keys = rows.map(row => {
     let maskedKey = '****';
@@ -197,6 +260,7 @@ keysRouter.get('/', (_req: Request, res: Response) => {
     } catch {
       maskedKey = '[decrypt failed]';
     }
+    const cooldowns = cooldownsByKeyId.get(Number(row.id)) ?? [];
     return {
       id: row.id,
       platform: row.platform,
@@ -208,17 +272,51 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       keyless: resolveProvider(row.platform)?.keyless === true,
       createdAt: row.created_at,
       lastCheckedAt: row.last_checked_at,
-      models: row.platform === 'custom' ? (modelsByKeyId.get(row.id) ?? []) : undefined,
+      lastHealthError: row.last_health_error ?? null,
+      models: row.platform === 'custom' ? (modelsByEndpoint.get(endpointOf(Number(row.id))) ?? []) : undefined,
+      cooldowns: cooldowns.map(c => ({
+        modelId: c.modelId,
+        expiresAtMs: c.expiresAtMs,
+        remainingMs: c.remainingMs,
+      })),
     };
   });
 
   res.json(keys);
 });
 
+// Clear every active cooldown for one key. An escalated cooldown can bench a key
+// for up to 24h from a single bad window; once the operator has fixed the cause
+// there is otherwise no way back short of restarting and waiting it out.
+keysRouter.delete('/:id/cooldowns', (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ error: 'Invalid key id' });
+    return;
+  }
+
+  const db = getDb();
+  const exists = db.prepare('SELECT 1 FROM api_keys WHERE id = ?').get(id);
+  if (!exists) {
+    res.status(404).json({ error: 'Key not found' });
+    return;
+  }
+
+  const cleared = clearCooldownsForKey(id);
+  res.json({ cleared });
+});
+
 // Export keys — returns plaintext keys in the requested format.
 // GET /api/keys/export?format=json|env|csv&healthy=true
 // The response is the raw file download (Content-Type varies by format).
+// Password re-verification via x-reauth-password header is required.
 keysRouter.get('/export', (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const password = req.headers['x-reauth-password'] as string | undefined;
+  if (!password || !verifyCredentials(user.email, password)) {
+    res.status(403).json({ error: { message: 'Password verification required to export keys', type: 'authentication_error' } });
+    return;
+  }
   const db = getDb();
   const format = (req.query.format as string) ?? 'json';
   const healthyOnly = req.query.healthy === 'true';
@@ -387,8 +485,13 @@ const modelEntrySchema = z.union([
     supportsVision: z.boolean().optional(),
   }),
 ]);
+// `baseUrl` and `keyId` are both optional but at least one is required: the
+// bulk registration that follows model discovery (#488) already holds the
+// api_keys row it fetched the list with, and naming that row keeps the new
+// models on the same credential of the endpoint's pool (#619/#640).
 const customProviderSchema = z.object({
-  baseUrl: z.string().url('baseUrl must be a valid URL'),
+  baseUrl: z.string().url('baseUrl must be a valid URL').optional(),
+  keyId: z.number().int().positive().optional(),
   model: z.string().optional(),
   models: z.array(modelEntrySchema).optional(),
   displayName: z.string().optional(),
@@ -401,7 +504,146 @@ const customProviderSchema = z.object({
 }).refine(
   d => (d.model && d.model.trim().length > 0) || (d.models && d.models.length > 0),
   { message: 'model or models is required' },
+).refine(
+  d => d.baseUrl !== undefined || d.keyId !== undefined,
+  { message: 'baseUrl or keyId is required' },
 );
+
+interface CustomEndpointRef {
+  baseUrl: string;
+  /** The api_keys row this endpoint is already stored under, or null when the
+   *  endpoint has never been registered. */
+  keyId: number | null;
+  /** Plaintext of that row's credential, when there is one. */
+  storedKey: string | null;
+}
+
+/**
+ * Turn a `{ keyId?, baseUrl? }` reference into the endpoint it names. A keyId
+ * is the stronger reference (it identifies one credential of the pool); a bare
+ * baseUrl falls back to the endpoint's first stored key, which is how the rest
+ * of the custom-endpoint machinery addresses an endpoint. Throws a
+ * `{ status, message }` for a reference that names nothing usable.
+ */
+function resolveEndpointRef(ref: { keyId?: number; baseUrl?: string }): CustomEndpointRef {
+  const db = getDb();
+  const requestedBaseUrl = ref.baseUrl === undefined ? undefined : normalizeBaseUrl(ref.baseUrl);
+
+  if (ref.keyId !== undefined) {
+    const row = db.prepare('SELECT id, platform, base_url, encrypted_key, iv, auth_tag FROM api_keys WHERE id = ?')
+      .get(ref.keyId) as { id: number; platform: string; base_url: string | null; encrypted_key: string; iv: string; auth_tag: string } | undefined;
+    if (!row || row.platform !== 'custom' || !row.base_url) {
+      throw Object.assign(new Error('keyId does not name a custom endpoint'), { status: 400 });
+    }
+    if (requestedBaseUrl !== undefined && requestedBaseUrl !== row.base_url) {
+      throw Object.assign(new Error('baseUrl does not match the endpoint keyId belongs to'), { status: 400 });
+    }
+    let storedKey: string | null = null;
+    try {
+      storedKey = decrypt(row.encrypted_key, row.iv, row.auth_tag);
+    } catch { /* an undecryptable row still names the endpoint */ }
+    return { baseUrl: row.base_url, keyId: row.id, storedKey };
+  }
+
+  if (!requestedBaseUrl) {
+    throw Object.assign(new Error('baseUrl or keyId is required'), { status: 400 });
+  }
+
+  // Any key of this base_url serves the whole endpoint (#619), so the first one
+  // is as good a representative as any.
+  const rows = db.prepare(`
+    SELECT id, encrypted_key, iv, auth_tag FROM api_keys
+     WHERE platform = 'custom' AND base_url = ? ORDER BY id
+  `).all(requestedBaseUrl) as Array<{ id: number; encrypted_key: string; iv: string; auth_tag: string }>;
+  for (const row of rows) {
+    try {
+      return { baseUrl: requestedBaseUrl, keyId: row.id, storedKey: decrypt(row.encrypted_key, row.iv, row.auth_tag) };
+    } catch { /* try the next credential */ }
+  }
+  return { baseUrl: requestedBaseUrl, keyId: rows[0]?.id ?? null, storedKey: null };
+}
+
+// SSRF guard (#440): a base_url is the one user-controlled outbound target.
+// Cloud metadata / link-local addresses are rejected outright; private ranges
+// too when FREEAPI_BLOCK_PRIVATE_PROVIDER_URLS is set. Re-checked at request
+// time in proxyFetch for URLs already in the DB.
+async function rejectUnsafeBaseUrl(baseUrl: string, res: Response): Promise<boolean> {
+  const verdict = await assessProviderUrl(baseUrl);
+  if (verdict.allowed) return false;
+  res.status(400).json({ error: { message: `baseUrl rejected: ${verdict.reason}` } });
+  return true;
+}
+
+// Ask a configured custom endpoint what models it currently serves (#488).
+// Relays add and drop models weekly, so re-typing the ids by hand goes stale
+// immediately. This reads ONLY the operator's own base_url with the operator's
+// own key — it never reads or refreshes the published provider catalog. Nothing
+// is written: the picked ids come back through POST /custom to be registered.
+const discoverModelsSchema = z.object({
+  baseUrl: z.string().url('baseUrl must be a valid URL').optional(),
+  keyId: z.number().int().positive().optional(),
+  // Lets the Keys page fetch a list for an endpoint the user is still typing in,
+  // before it has been saved. Falls back to the endpoint's stored credential.
+  apiKey: z.string().optional(),
+}).refine(
+  d => d.baseUrl !== undefined || d.keyId !== undefined,
+  { message: 'baseUrl or keyId is required' },
+);
+
+keysRouter.post('/custom/discover-models', async (req: Request, res: Response) => {
+  const parsed = discoverModelsSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: { message: parsed.error.errors.map(e => e.message).join(', ') } });
+    return;
+  }
+
+  let endpoint: CustomEndpointRef;
+  try {
+    endpoint = resolveEndpointRef(parsed.data);
+  } catch (err: any) {
+    res.status(err.status ?? 400).json({ error: { message: err.message } });
+    return;
+  }
+
+  if (await rejectUnsafeBaseUrl(endpoint.baseUrl, res)) return;
+
+  // A submitted key wins (the user may be rotating it); otherwise use what the
+  // endpoint already has. Local servers with auth off keep the 'no-key'
+  // sentinel, which the bearer header carries harmlessly.
+  const apiKey = parsed.data.apiKey?.trim() || endpoint.storedKey || 'no-key';
+
+  try {
+    const discovered = await discoverEndpointModels(endpoint.baseUrl, apiKey);
+
+    // "Already registered" means bound to THIS endpoint — any key of the pool
+    // counts, since they all serve the same model list (#619).
+    const db = getDb();
+    const registeredIds = new Set<string>();
+    if (endpoint.keyId != null) {
+      const poolIds = [...customEndpointKeyIds(db, endpoint.keyId)];
+      const placeholders = poolIds.map(() => '?').join(', ');
+      const rows = db.prepare(
+        `SELECT model_id FROM models WHERE platform = 'custom' AND key_id IN (${placeholders})`,
+      ).all(...poolIds) as { model_id: string }[];
+      for (const row of rows) registeredIds.add(row.model_id);
+    }
+
+    const models = discovered.map(m => ({ ...m, registered: registeredIds.has(m.id) }));
+    res.json({
+      baseUrl: endpoint.baseUrl,
+      keyId: endpoint.keyId,
+      models,
+      total: models.length,
+      registeredCount: models.filter(m => m.registered).length,
+    });
+  } catch (err: any) {
+    if (err instanceof ModelDiscoveryError) {
+      res.status(err.status).json({ error: { message: err.message } });
+      return;
+    }
+    res.status(502).json({ error: { message: `Model discovery failed: ${err?.message ?? 'unknown error'}` } });
+  }
+});
 
 keysRouter.post('/custom', async (req: Request, res: Response) => {
   const parsed = customProviderSchema.safeParse(req.body);
@@ -410,17 +652,17 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
     return;
   }
 
-  const baseUrl = parsed.data.baseUrl.trim().replace(/\/+$/, '');
-
-  // SSRF guard (#440): a base_url is the one user-controlled outbound target.
-  // Cloud metadata / link-local addresses are rejected outright; private
-  // ranges too when FREEAPI_BLOCK_PRIVATE_PROVIDER_URLS is set. Re-checked
-  // at request time in proxyFetch for URLs already in the DB.
-  const verdict = await assessProviderUrl(baseUrl);
-  if (!verdict.allowed) {
-    res.status(400).json({ error: { message: `baseUrl rejected: ${verdict.reason}` } });
+  let endpoint: CustomEndpointRef;
+  try {
+    endpoint = resolveEndpointRef(parsed.data);
+  } catch (err: any) {
+    res.status(err.status ?? 400).json({ error: { message: err.message } });
     return;
   }
+  const baseUrl = endpoint.baseUrl;
+
+  if (await rejectUnsafeBaseUrl(baseUrl, res)) return;
+
   // Local servers often need no key; keep a sentinel so there's always a bearer.
   const providedKey = parsed.data.apiKey?.trim() || undefined;
   const label = parsed.data.label?.trim() || undefined;
@@ -457,69 +699,67 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
 
   const db = getDb();
   const upsert = db.transaction(() => {
-    // One 'custom' key row PER ENDPOINT (matched on base_url). Re-submitting
-    // the same endpoint updates its key/label; a new base_url gets its own
-// row instead of clobbering the previous provider. (#212) Re-submitting with a
-// blank key preserves the stored key; only a provided key updates credentials.
-    const existing = db.prepare("SELECT id, encrypted_key, iv, auth_tag FROM api_keys WHERE platform = 'custom' AND base_url = ? LIMIT 1")
-      .get(baseUrl) as { id: number; encrypted_key: string; iv: string; auth_tag: string } | undefined;
-    let keyId: number;
-    let storedKeyForMask = providedKey ?? 'no-key';
-    if (existing) {
-      keyId = existing.id;
-      if (providedKey) {
-        const { encrypted, iv, authTag } = encrypt(providedKey);
-        db.prepare("UPDATE api_keys SET label = COALESCE(?, label), encrypted_key = ?, iv = ?, auth_tag = ?, status = 'unknown', enabled = 1 WHERE id = ?")
-          .run(label ?? null, encrypted, iv, authTag, existing.id);
-        storedKeyForMask = providedKey;
-      } else {
-        try {
-          storedKeyForMask = decrypt(existing.encrypted_key, existing.iv, existing.auth_tag);
-        } catch {
-          storedKeyForMask = 'no-key';
-        }
-        db.prepare("UPDATE api_keys SET label = COALESCE(?, label), status = 'unknown', enabled = 1 WHERE id = ?")
-          .run(label ?? null, existing.id);
-      }
-    } else {
-      const keyToStore = providedKey ?? 'no-key';
-      const { encrypted, iv, authTag } = encrypt(keyToStore);
-      const r = db.prepare(`
-        INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled, base_url)
-        VALUES ('custom', ?, ?, ?, ?, 'unknown', 1, ?)
-      `).run(label ?? 'Custom', encrypted, iv, authTag, baseUrl);
-      keyId = Number(r.lastInsertRowid);
-      storedKeyForMask = keyToStore;
-    }
+    // Key rows are matched on (base_url, secret): a new secret for a known
+    // endpoint is a SECOND credential for it, not a replacement (#619), and a
+    // new base_url is a separate provider (#212). Re-submitting with a blank
+    // key preserves the stored one. A submitted keyId pins WHICH credential of
+    // the pool the new models bind to (#488 bulk registration).
+    const { keyId, storedKey: storedKeyForMask } = resolveCustomEndpointKey(
+      db, baseUrl, providedKey, label, endpoint.keyId ?? undefined,
+    );
+    const endpointKeyIds = customEndpointKeyIds(db, keyId);
+    // The identity discriminator for every row registered in this call (#651).
+    const endpointScope = endpointScopeForBaseUrl(baseUrl);
+    // Unknown ≠ worst: seed the routing ranks at the catalog median so a new
+    // custom model is explored instead of buried at intelligence 0 (#488).
+    const seed = customModelSeed(db);
 
-    const registered: { modelDbId: number; model: string; displayName: string; supportsTools: boolean; supportsVision: boolean }[] = [];
+    const registered: { modelDbId: number; model: string; displayName: string; supportsTools: boolean; supportsVision: boolean; created: boolean }[] = [];
     for (const { modelId, displayName, supportsTools, supportsVision } of entries) {
       // Register each model bound to THIS endpoint's key. Custom models carry no
       // rate limits and sort last in the intelligence preset (size_label tier).
-      // Re-registering an existing model id re-binds it (model ids are unique
-      // per platform, so one id can't live on two endpoints at once).
+      // Identity is per endpoint (#651): the same model id on a DIFFERENT relay
+      // is a separate row with its own enabled flag, ranks and stats, instead of
+      // silently rebinding the other endpoint's row as it used to. A model
+      // already on THIS endpoint keeps the key it has, so adding a second
+      // credential doesn't re-bind it (#619).
       // Capability flags: an unset flag binds NULL so COALESCE picks the insert
       // default (tools 1, vision 0) on a new row and preserves the existing
       // value on re-registration. (#470)
+      const bound = db.prepare(
+        "SELECT key_id FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
+      ).get(modelId, endpointScope) as { key_id: number | null } | undefined;
+      const created = bound === undefined;
+      const bindKeyId = bound?.key_id != null && endpointKeyIds.has(bound.key_id) ? bound.key_id : keyId;
       const toolsParam = supportsTools === undefined ? null : (supportsTools ? 1 : 0);
       const visionParam = supportsVision === undefined ? null : (supportsVision ? 1 : 0);
+      // The seed applies on INSERT only: DO UPDATE deliberately leaves the rank
+      // columns alone so re-registering a model (or bulk-adding alongside it)
+      // never rewrites ranks the operator has since tuned by hand.
       db.prepare(`
         INSERT INTO models
           (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
            rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window, enabled, key_id,
-           supports_tools, supports_vision)
-        VALUES ('custom', @modelId, @displayName, 50, 50, 'Custom', NULL, NULL, NULL, NULL, '', NULL, 1, @keyId,
-           COALESCE(@tools, 1), COALESCE(@vision, 0))
-        ON CONFLICT(platform, model_id)
+           supports_tools, supports_vision, source, endpoint_scope)
+        VALUES ('custom', @modelId, @displayName, @intelligenceRank, @speedRank, @sizeLabel,
+           NULL, NULL, NULL, NULL, '', NULL, 1, @keyId,
+           COALESCE(@tools, 1), COALESCE(@vision, 0), 'user', @endpointScope)
+        ON CONFLICT(platform, model_id, endpoint_scope)
         DO UPDATE SET
           display_name = excluded.display_name,
           key_id = excluded.key_id,
           enabled = 1,
           supports_tools = COALESCE(@tools, supports_tools),
           supports_vision = COALESCE(@vision, supports_vision)
-      `).run({ modelId, displayName, keyId, tools: toolsParam, vision: visionParam });
+      `).run({
+        modelId, displayName, keyId: bindKeyId, tools: toolsParam, vision: visionParam,
+        intelligenceRank: seed.intelligenceRank, speedRank: seed.speedRank, sizeLabel: seed.sizeLabel,
+        endpointScope,
+      });
 
-      const modelRow = db.prepare("SELECT id, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ?").get(modelId) as { id: number; supports_tools: number; supports_vision: number };
+      const modelRow = db.prepare(
+        "SELECT id, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
+      ).get(modelId, endpointScope) as { id: number; supports_tools: number; supports_vision: number };
 
       // Append to the fallback chain if not already present.
       const inChain = db.prepare('SELECT 1 FROM fallback_config WHERE model_db_id = ?').get(modelRow.id);
@@ -535,6 +775,7 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
         displayName,
         supportsTools: modelRow.supports_tools === 1,
         supportsVision: modelRow.supports_vision === 1,
+        created,
       });
     }
 
@@ -556,6 +797,10 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
     supportsTools: first.supportsTools,
     supportsVision: first.supportsVision,
     models: registered,
+    // Bulk registration (#488) needs to tell the user what actually changed:
+    // picking a whole discovered list re-submits ids that are already there.
+    created: registered.filter(m => m.created).length,
+    alreadyRegistered: registered.filter(m => !m.created).length,
     maskedKey: maskKey(storedKeyForMask),
   });
 });
@@ -721,13 +966,24 @@ keysRouter.delete('/:id', (req: Request, res: Response) => {
   }
 
   const db = getDb();
-  const row = db.prepare('SELECT platform FROM api_keys WHERE id = ?').get(id) as { platform: string } | undefined;
+  const row = db.prepare('SELECT platform, base_url FROM api_keys WHERE id = ?').get(id) as { platform: string; base_url: string | null } | undefined;
   if (!row) {
     res.status(404).json({ error: { message: 'Key not found' } });
     return;
   }
+  // Another credential for the SAME endpoint keeps it alive — the models move
+  // over to it instead of being cascaded away with this key (#619).
+  const sibling = row.platform === 'custom' ? siblingEndpointKeyId(db, id, row.base_url) : null;
 
   const remove = db.transaction(() => {
+    if (sibling != null) {
+      for (const table of ['models', 'embedding_models', 'media_models']) {
+        db.prepare(`UPDATE ${table} SET key_id = ? WHERE platform = 'custom' AND key_id = ?`).run(sibling, id);
+      }
+      db.prepare('DELETE FROM api_keys WHERE id = ?').run(id);
+      return;
+    }
+
     db.prepare('DELETE FROM api_keys WHERE id = ?').run(id);
     // Custom models exist only because POST /custom registered them alongside
     // their endpoint key (#117) — they can't route without it. Cascade away
