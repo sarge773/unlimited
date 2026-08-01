@@ -311,7 +311,9 @@ print("Routed via:", resp.headers.get("x-routed-via"))
 
 `npm install && npm run dev` 就能起来：服务在 :3001，仪表盘在 :5173，两边都有热更新。PR 应当包含测试、保持现有测试套件通过（`npm test`），并遵循仓库里已有的 `.editorconfig` 和 tsconfig 默认配置。数据库迁移流程和完整的贡献者循环见 [CONTRIBUTING.md](../../../CONTRIBUTING.md)。
 
-贡献者名单在 [英文 README](../../../README.md#contributors)。
+### 贡献者
+
+约 90 位贡献者的头像墙维护在[英文 README](../../../README.md#contributors) 里。它几乎每次合并都会变动，所以只保留一份，不在各语言版本中重复。
 
 ## 免责声明
 

@@ -58,8 +58,9 @@ that someone will trust and act on.
   `repo-assets/x.png` becomes `../../../repo-assets/x.png` and `docs/api.md`
   becomes `../../api.md`. Broken image links are the most common mistake here.
 - **Do not copy the contributor avatar list.** It changes with nearly every merge
-  and nobody wants to update it in six languages. Link to the English README
-  instead.
+  and nobody wants to update it in six languages. Keep the heading so the
+  section structure still matches one-to-one, and link out to the English
+  README from under it.
 - **Keep the numbers in sync or leave them out.** Provider counts and token
   totals move. If you are not going to update them, write around them.
 - **Match the dashboard.** If a term appears in the UI, use whatever the locale's
