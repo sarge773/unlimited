@@ -5,6 +5,7 @@ export interface PreviewKey {
   keyValue: string;
   detectedPlatform: string | null;
   prefix: string;
+  baseUrl?: string;
   isDuplicate?: boolean;
 }
 
@@ -12,6 +13,7 @@ export interface ImportKey {
   keyName: string;
   keyValue: string;
   platform: string;
+  baseUrl?: string;
 }
 
 export interface PreviewResponse {

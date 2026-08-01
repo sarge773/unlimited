@@ -2,6 +2,9 @@ export interface ParsedKey {
   rawKey: string;
   prefix: string;
   platform: string | null;
+  /** Upstream endpoint for custom OpenAI-compatible keys (#687). Carried so an
+   *  export → import round-trip restores the custom endpoint, not just the key. */
+  baseUrl?: string;
 }
 
 export interface ParseResult {
@@ -261,7 +264,12 @@ export function parseExportJson(content: string): ParseResult | null {
       const prefix = platform
         ? (Object.entries(PREFIX_MAP).find(([, v]) => v === platform)?.[0] ?? `${platform.toUpperCase()}_`)
         : '';
-      result.keys.push({ rawKey: `${label}=${keyValue}`, prefix, platform });
+      result.keys.push({
+        rawKey: `${label}=${keyValue}`,
+        prefix,
+        platform,
+        baseUrl: typeof row.baseUrl === 'string' && row.baseUrl.trim() ? row.baseUrl : undefined,
+      });
     }
     return result;
   }
@@ -270,31 +278,34 @@ export function parseExportJson(content: string): ParseResult | null {
 }
 
 /**
- * Parse CSV format: platform,key,label (with optional header row).
+ * Parse CSV format: platform,key,label[,base_url] (with optional header row).
+ * The optional 4th column carries the endpoint for custom OpenAI-compatible
+ * keys, so a CSV export → import round-trip restores the full custom provider.
  */
-export function parseCsv(content: string): Array<{ key: string; value: string }> {
+export function parseCsv(content: string): Array<{ key: string; value: string; baseUrl?: string }> {
   const lines = content.split('\n').filter(l => l.trim());
   if (lines.length === 0) return [];
 
-  const result: Array<{ key: string; value: string }> = [];
+  const result: Array<{ key: string; value: string; baseUrl?: string }> = [];
 
   // Skip header row if it looks like a CSV header
   const startIdx = lines[0]!.toLowerCase().startsWith('platform,') ? 1 : 0;
 
   for (let i = startIdx; i < lines.length; i++) {
     const line = lines[i]!;
-    // Simple CSV parsing: split on comma, strip quotes
-    const match = line.match(/^"?([^"]*?)"?,"?([^"]*?)"?(?:,"?([^"]*?)"?)?$/);
+    // Simple CSV parsing: split on comma, strip quotes. 4th field (base_url) optional.
+    const match = line.match(/^"?([^"]*?)"?,"?([^"]*?)"?(?:,"?([^"]*?)"?)?(?:,"?([^"]*?)"?)?$/);
     if (!match) continue;
 
     const platform = (match[1] ?? '').trim();
     const key = (match[2] ?? '').trim();
     const label = (match[3] ?? '').trim() || platform;
+    const baseUrl = (match[4] ?? '').trim() || undefined;
 
     if (!key || !platform) continue;
 
     const envKey = `${platform.toUpperCase()}_KEY`;
-    result.push({ key: envKey, value: key });
+    result.push({ key: envKey, value: key, baseUrl });
   }
 
   return result;
@@ -382,16 +393,46 @@ export function looksLikeApiKey(value: string): boolean {
   return /[a-z]/i.test(value);
 }
 
-function toParsedKeys(pairs: Array<{ key: string; value: string }>): ParseResult {
+function toParsedKeys(pairs: Array<{ key: string; value: string; baseUrl?: string }>): ParseResult {
   const keys: ParsedKey[] = [];
   const skipped: string[] = [];
 
+  // .env custom-key pairing (#687): a CUSTOM_KEY_<suffix> line may be
+  // accompanied by a CUSTOM_BASE_URL_<suffix> line carrying the endpoint.
+  // Collect the URLs first so a key appearing before its URL still pairs up.
+  const customBaseUrls = new Map<string, string>();
   for (const { key, value } of pairs) {
+    const match = key.match(/^CUSTOM_BASE_URL(?:_(\d+))?$/);
+    if (match) customBaseUrls.set(match[1] ?? '0', value);
+  }
+
+  for (const { key, value, baseUrl } of pairs) {
+    // CUSTOM_BASE_URL_<suffix> lines are endpoint metadata, not keys — they
+    // were collected above and attached to their CUSTOM_KEY partner below.
+    if (/^CUSTOM_BASE_URL(?:_\d+)?$/.test(key)) continue;
+
+    // CSV 4th column / export JSON already attach the endpoint directly.
+    if (baseUrl) {
+      keys.push({ rawKey: `${key}=${value}`, prefix: 'CUSTOM_', platform: 'custom', baseUrl });
+      continue;
+    }
     const prefix = extractPrefix(key);
     const platform = detectPlatform(prefix);
 
     if (platform) {
       keys.push({ rawKey: `${key}=${value}`, prefix, platform });
+      continue;
+    }
+
+    // .env convention: CUSTOM_KEY_<suffix> pairs with CUSTOM_BASE_URL_<suffix>.
+    const customMatch = key.match(/^CUSTOM_KEY(?:_(\d+))?$/);
+    if (customMatch && customBaseUrls.has(customMatch[1] ?? '0')) {
+      keys.push({
+        rawKey: `${key}=${value}`,
+        prefix: 'CUSTOM_',
+        platform: 'custom',
+        baseUrl: customBaseUrls.get(customMatch[1] ?? '0'),
+      });
       continue;
     }
 

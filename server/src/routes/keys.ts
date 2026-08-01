@@ -63,6 +63,9 @@ const importKeySchema = z.object({
   keyName: z.string().optional(),
   keyValue: z.string().min(1),
   platform: z.enum(PLATFORMS),
+  // Upstream URL for custom endpoints, carried from an export file so the
+  // round-trip restores the provider (#687).
+  baseUrl: z.string().optional(),
 });
 
 function handleUploadError(err: any, res: Response, next: NextFunction): boolean {
@@ -122,6 +125,23 @@ function insertImportedKey(platform: (typeof PLATFORMS)[number], keyName: string
     INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled)
     VALUES (?, ?, ?, ?, ?, 'unknown', 1)
   `).run(platform, keyName, encrypted, iv, authTag);
+}
+
+// A custom (OpenAI-compatible) endpoint key imported from an export file needs
+// its base_url — without it the row is a dead placeholder that can't route
+// (#687). The export now carries the URL in every format, so an export → import
+// round-trip restores the endpoint; models for it are re-registered through the
+// normal custom-provider flow (discover/register) as the export carries no
+// model list.
+function insertImportedCustomKey(baseUrl: string, keyName: string, keyValue: string) {
+  const db = getDb();
+  const normalized = normalizeBaseUrl(baseUrl);
+  const keyToStore = keyValue.trim() || 'no-key';
+  const { encrypted, iv, authTag } = encrypt(keyToStore);
+  db.prepare(`
+    INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled, base_url)
+    VALUES ('custom', ?, ?, ?, ?, 'unknown', 1, ?)
+  `).run(keyName, encrypted, iv, authTag, normalized);
 }
 
 // Count enabled catalog models for a platform. Used to warn when a key is
@@ -328,7 +348,10 @@ keysRouter.get('/export', (req: Request, res: Response) => {
 
   const rows = db.prepare(`SELECT * FROM api_keys ${whereClause} ORDER BY platform, created_at ASC`).all() as any[];
 
-  // Decrypt and filter — only export keys with a real value
+  // Decrypt and filter — only export keys with a real value. Custom endpoints
+  // are exempt: their base_url is the essential part, and a local auth-less
+  // server stores the 'no-key' sentinel, which would otherwise drop the whole
+  // endpoint from the export (#687).
   const decryptedKeys = rows
     .map(row => {
       let key = '';
@@ -345,6 +368,7 @@ keysRouter.get('/export', (req: Request, res: Response) => {
       };
     })
     .filter(k => {
+      if (k.platform === 'custom') return true;
       const v = k.key.trim();
       return v.length > 0 && v !== 'no-key';
     });
@@ -355,11 +379,24 @@ keysRouter.get('/export', (req: Request, res: Response) => {
   }
 
   if (format === 'env') {
-    // .env format: GOOGLE_KEY=xxx\nGROQ_KEY=yyy
-    const lines = decryptedKeys.map(k => {
+    // .env format: GOOGLE_KEY=xxx\nGROQ_KEY=yyy. Custom endpoints pair a
+    // numbered CUSTOM_KEY_<n> with its CUSTOM_BASE_URL_<n> so re-import knows
+    // which upstream each key belongs to (#687).
+    const lines: string[] = [];
+    let customIndex = 0;
+    for (const k of decryptedKeys) {
+      if (k.platform === 'custom') {
+        customIndex += 1;
+        const vars = [
+          `CUSTOM_BASE_URL_${customIndex}=${k.baseUrl ?? ''}`,
+          `CUSTOM_KEY_${customIndex}=${k.key}`,
+        ];
+        lines.push(k.label ? `# ${k.label}\n${vars.join('\n')}` : vars.join('\n'));
+        continue;
+      }
       const envKey = `${k.platform.toUpperCase()}_KEY=${k.key}`;
-      return k.label ? `# ${k.label}\n${envKey}` : envKey;
-    });
+      lines.push(k.label ? `# ${k.label}\n${envKey}` : envKey);
+    }
     const content = lines.join('\n\n') + '\n';
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="freellmapi-keys.env"');
@@ -368,7 +405,9 @@ keysRouter.get('/export', (req: Request, res: Response) => {
   }
 
   if (format === 'csv') {
-    // CSV format: platform,key,label
+    // CSV format: platform,key,label[,base_url] — base_url is the 4th column,
+    // populated only for custom endpoints so the round-trip keeps the upstream
+    // URL (#687).
     const escCsv = (v: string) => `"${v.replace(/"/g, '""')}"`;
     // CSV formula-injection guard: a spreadsheet treats a cell that starts with
     // =, +, -, @, tab or CR as a live formula, so a label like `=HYPERLINK(...)`
@@ -377,9 +416,9 @@ keysRouter.get('/export', (req: Request, res: Response) => {
     // (labels); the key value must round-trip verbatim for re-import, and the
     // platform is one of our own fixed enum values.
     const neutralize = (v: string) => (/^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
-    const header = 'platform,key,label';
+    const header = 'platform,key,label,base_url';
     const lines = decryptedKeys.map(k =>
-      [escCsv(k.platform), escCsv(k.key), escCsv(neutralize(k.label))].join(',')
+      [escCsv(k.platform), escCsv(k.key), escCsv(neutralize(k.label)), escCsv(k.baseUrl ?? '')].join(',')
     );
     const content = [header, ...lines].join('\n') + '\n';
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -827,8 +866,23 @@ keysRouter.post('/import', (req: Request, res: Response, next: NextFunction) => 
           continue;
         }
         const platformParse = z.enum(PLATFORMS).safeParse(parsedKey.platform);
-        if (!platformParse.success || platformParse.data === 'custom') {
+        if (!platformParse.success) {
           skipped.push(keyName);
+          continue;
+        }
+        // Custom endpoints round-trip only when the export carried the upstream
+        // URL (#687); without it the row would be a dead placeholder.
+        if (platformParse.data === 'custom') {
+          if (!parsedKey.baseUrl) {
+            skipped.push(`${keyName}: custom key has no base URL`);
+            continue;
+          }
+          try {
+            insertImportedCustomKey(parsedKey.baseUrl, keyName, keyValue);
+            imported.push({ keyName, platform: 'custom' });
+          } catch (insertErr) {
+            errors.push({ key: keyName, error: (insertErr as Error).message });
+          }
           continue;
         }
         if (!keyValue.trim()) {
@@ -893,6 +947,7 @@ keysRouter.post('/preview', (req: Request, res: Response, next: NextFunction) =>
             keyValue,
             detectedPlatform: parsedKey.platform,
             prefix: parsedKey.prefix,
+            baseUrl: parsedKey.baseUrl,
             isDuplicate,
           });
         }
@@ -929,8 +984,20 @@ keysRouter.post('/import-selected', (req: Request, res: Response) => {
 
   for (const key of parsed.data.keys) {
     const keyName = key.keyName?.trim() || key.platform;
+    // Custom endpoints round-trip only when the import carries the upstream URL
+    // (#687); the preview flow passes it through from the parsed export file.
     if (key.platform === 'custom') {
-      errors.push({ key: keyName, error: 'Custom providers must be added with a base URL' });
+      if (!key.baseUrl) {
+        errors.push({ key: keyName, error: 'Custom providers must be added with a base URL' });
+        continue;
+      }
+      try {
+        insertImportedCustomKey(key.baseUrl, keyName, key.keyValue);
+        imported++;
+        existingKeys.add(key.keyValue.trim());
+      } catch (err) {
+        errors.push({ key: keyName, error: (err as Error).message });
+      }
       continue;
     }
 

@@ -111,6 +111,27 @@ describe('key parser', () => {
     expect(result!.skipped).toHaveLength(0);
   });
 
+  it('carries baseUrl through export JSON parsing (#687)', () => {
+    const exportJson = JSON.stringify({
+      version: 1,
+      exportedAt: '2026-07-06T12:00:00Z',
+      source: 'freellmapi',
+      keys: [
+        { platform: 'custom', key: 'sk-relay-123', label: 'My Relay', baseUrl: 'https://relay.example.com/v1' },
+      ],
+    });
+    const result = parseExportJson(exportJson);
+    expect(result).not.toBeNull();
+    expect(result!.keys).toEqual([
+      {
+        rawKey: 'My Relay=sk-relay-123',
+        prefix: 'CUSTOM_',
+        platform: 'custom',
+        baseUrl: 'https://relay.example.com/v1',
+      },
+    ]);
+  });
+
   it('returns null for non-export JSON', () => {
     expect(parseExportJson('{"foo":"bar"}')).toBeNull();
     expect(parseExportJson('[1,2,3]')).toBeNull();
@@ -123,6 +144,36 @@ describe('key parser', () => {
       { key: 'GOOGLE_KEY', value: 'AIza-test' },
       { key: 'GROQ_KEY', value: 'gsk-test' },
     ]);
+  });
+
+  it('parses the optional base_url column in CSV (#687)', () => {
+    const csv = 'platform,key,label,base_url\n"custom","sk-relay-123","My Relay","https://relay.example.com/v1"\n';
+    expect(parseCsv(csv)).toEqual([
+      { key: 'CUSTOM_KEY', value: 'sk-relay-123', baseUrl: 'https://relay.example.com/v1' },
+    ]);
+    const result = parseKeysFromFile(csv, 'freellmapi-keys.csv');
+    expect(result.keys).toEqual([
+      {
+        rawKey: 'CUSTOM_KEY=sk-relay-123',
+        prefix: 'CUSTOM_',
+        platform: 'custom',
+        baseUrl: 'https://relay.example.com/v1',
+      },
+    ]);
+  });
+
+  it('pairs CUSTOM_KEY with its CUSTOM_BASE_URL in .env files (#687)', () => {
+    const env = 'CUSTOM_BASE_URL_1=https://relay.example.com/v1\nCUSTOM_KEY_1=sk-relay-123\n';
+    const result = parseKeysFromFile(env, 'freellmapi-keys.env');
+    expect(result.keys).toEqual([
+      {
+        rawKey: 'CUSTOM_KEY_1=sk-relay-123',
+        prefix: 'CUSTOM_',
+        platform: 'custom',
+        baseUrl: 'https://relay.example.com/v1',
+      },
+    ]);
+    expect(result.skipped).toEqual([]);
   });
 
   it('parses CSV format without header', () => {

@@ -85,6 +85,7 @@ export function ImportKeysSection({ onImported }: { onImported?: () => void } = 
       keyName: row.keyName,
       keyValue: row.keyValue,
       platform: row.platform,
+      baseUrl: row.baseUrl,
     }))
 
   function updateRow(index: number, patch: Partial<ImportRow>) {
