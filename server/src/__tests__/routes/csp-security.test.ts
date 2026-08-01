@@ -3,10 +3,10 @@ import type { Express } from 'express';
 import { createApp } from '../../app.js';
 import { initDb } from '../../db/index.js';
 
-async function getHeaders(app: Express, path: string): Promise<Headers> {
+async function getHeaders(app: Express, path: string, headers?: Record<string, string>): Promise<Headers> {
   const server = app.listen(0);
   const addr = server.address() as any;
-  const res = await fetch(`http://127.0.0.1:${addr.port}${path}`);
+  const res = await fetch(`http://127.0.0.1:${addr.port}${path}`, { headers });
   server.close();
   return res.headers;
 }
@@ -47,5 +47,17 @@ describe('CSP security headers', () => {
   it('does not set HSTS (local-only proxy)', async () => {
     const headers = await getHeaders(app, '/api/ping');
     expect(headers.get('strict-transport-security')).toBeNull();
+  });
+
+  it('omits upgrade-insecure-requests on plain HTTP (#682)', async () => {
+    const headers = await getHeaders(app, '/api/ping');
+    const csp = headers.get('content-security-policy')!;
+    expect(csp).not.toContain('upgrade-insecure-requests');
+  });
+
+  it('adds upgrade-insecure-requests when the request arrives over HTTPS (X-Forwarded-Proto) (#682)', async () => {
+    const headers = await getHeaders(app, '/api/ping', { 'x-forwarded-proto': 'https' });
+    const csp = headers.get('content-security-policy')!;
+    expect(csp).toContain('upgrade-insecure-requests');
   });
 });

@@ -70,6 +70,12 @@ export function createApp(config?: Config) {
   // are hashed by the Vite/React build, so 'self' works in production. Inline
   // styles from React hydration need 'unsafe-inline'. HSTS stays off because
   // this is a single-user local proxy served over HTTP (see README).
+  //
+  // upgrade-insecure-requests is DISABLED here on purpose (#682): helmet ships
+  // it in the default directives, but it tells the browser to fetch every
+  // subresource over HTTPS, which blanks the dashboard on plain-HTTP LAN
+  // installs (HOST_BIND=0.0.0.0, no TLS terminator). The middleware below
+  // re-adds it only for requests that already arrived over HTTPS.
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
@@ -81,10 +87,25 @@ export function createApp(config?: Config) {
         fontSrc: ["'self'"],
         formAction: ["'self'"],
         baseUri: ["'self'"],
+        upgradeInsecureRequests: null,
       },
     },
     hsts: false,
   }));
+  // #682: emit upgrade-insecure-requests only for HTTPS-originated requests
+  // (direct TLS, or X-Forwarded-Proto: https behind a reverse proxy). Trusting
+  // the header here is harmless — the worst a spoofed value can do is make the
+  // caller's own browser demand HTTPS for that one response.
+  app.use((req, res, next) => {
+    const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
+    if (isHttps) {
+      const csp = res.getHeader('content-security-policy');
+      if (typeof csp === 'string' && !csp.includes('upgrade-insecure-requests')) {
+        res.setHeader('content-security-policy', `${csp}; upgrade-insecure-requests`);
+      }
+    }
+    next();
+  });
   app.use(cors({
     origin(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
       callback(null, !origin || allowedCorsOrigins.has(origin));
