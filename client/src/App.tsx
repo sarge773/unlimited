@@ -322,7 +322,9 @@ function Navbar() {
         </div>
       </header>
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-      <ChangeCredentialsModal mode={credentialsMode} onClose={() => setCredentialsMode(null)} />
+      {credentialsMode && (
+        <ChangeCredentialsModal mode={credentialsMode} onClose={() => setCredentialsMode(null)} />
+      )}
     </>
   )
 }
