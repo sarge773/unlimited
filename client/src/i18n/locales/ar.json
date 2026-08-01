@@ -133,8 +133,6 @@
     "embeddingsTab": "التضمين",
     "imageTab": "صورة",
     "audioTab": "الصوت",
-    "imageTitle": "نماذج الصور",
-    "audioTitle": "نماذج صوتية",
     "imageDesc": "نماذج توليد النص إلى الصورة.",
     "audioDesc": "نماذج تحويل النص إلى كلام ومن الكلام إلى نص.",
     "mediaHint": "توليد عبر",

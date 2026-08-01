@@ -133,8 +133,6 @@
     "embeddingsTab": "Vkladania",
     "imageTab": "Obrázok",
     "audioTab": "Zvuk",
-    "imageTitle": "Obrazové modely",
-    "audioTitle": "Audio modely",
     "imageDesc": "Modely generovania textu na obraz.",
     "audioDesc": "Modely prevodu textu na reč a prevodu reči na text.",
     "mediaHint": "Generovať cez",

@@ -133,8 +133,6 @@
     "embeddingsTab": "جاسازی ها",
     "imageTab": "تصویر",
     "audioTab": "صوتی",
-    "imageTitle": "مدل های تصویری",
-    "audioTitle": "مدل های صوتی",
     "imageDesc": "مدل های تولید متن به تصویر",
     "audioDesc": "مدل های تبدیل متن به گفتار و گفتار به متن.",
     "mediaHint": "ایجاد از طریق",

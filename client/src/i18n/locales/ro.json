@@ -133,8 +133,6 @@
     "embeddingsTab": "Încorporații",
     "imageTab": "Imagine",
     "audioTab": "Audio",
-    "imageTitle": "Modele de imagine",
-    "audioTitle": "Modele audio",
     "imageDesc": "Modele de generare text-to-image.",
     "audioDesc": "Modele text-to-speech și speech-to-text.",
     "mediaHint": "Generează prin",

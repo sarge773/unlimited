@@ -133,8 +133,6 @@
     "embeddingsTab": "O'rnatishlar",
     "imageTab": "Rasm",
     "audioTab": "Audio",
-    "imageTitle": "Tasvir modellari",
-    "audioTitle": "Audio modellar",
     "imageDesc": "Matnni tasvirga yaratish modellari.",
     "audioDesc": "Matndan nutqqa va nutqdan matnga modellar.",
     "mediaHint": "orqali yaratish",

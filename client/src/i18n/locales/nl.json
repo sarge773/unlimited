@@ -133,8 +133,6 @@
     "embeddingsTab": "Embeddings",
     "imageTab": "Afbeelding",
     "audioTab": "Audio",
-    "imageTitle": "Beeldmodellen",
-    "audioTitle": "Audiomodellen",
     "imageDesc": "Tekst-naar-beeld generatiemodellen.",
     "audioDesc": "Tekst-naar-spraak en spraak-naar-tekst modellen.",
     "mediaHint": "Genereer via",

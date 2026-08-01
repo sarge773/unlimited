@@ -133,8 +133,6 @@
     "embeddingsTab": "הטבעות",
     "imageTab": "תמונה",
     "audioTab": "אודיו",
-    "imageTitle": "מודלים של תמונות",
-    "audioTitle": "דגמי אודיו",
     "imageDesc": "מודלים ליצירת טקסט לתמונה.",
     "audioDesc": "מודלים של טקסט לדיבור ודיבור לטקסט.",
     "mediaHint": "יצור דרך",

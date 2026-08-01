@@ -133,8 +133,6 @@
     "embeddingsTab": "Ugradnja",
     "imageTab": "Slika",
     "audioTab": "Audio",
-    "imageTitle": "Modeli slika",
-    "audioTitle": "Audio modeli",
     "imageDesc": "Modeli generiranja teksta u sliku.",
     "audioDesc": "Modeli pretvaranja teksta u govor i govora u tekst.",
     "mediaHint": "Generirajte putem",

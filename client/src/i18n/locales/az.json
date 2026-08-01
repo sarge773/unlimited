@@ -133,8 +133,6 @@
     "embeddingsTab": "Yerləşdirmələr",
     "imageTab": "Şəkil",
     "audioTab": "Audio",
-    "imageTitle": "Şəkil modelləri",
-    "audioTitle": "Audio modellər",
     "imageDesc": "Mətn-şəkildən görüntüyə generasiya modelləri.",
     "audioDesc": "Mətn-çıxış və nitq-mətn modelləri.",
     "mediaHint": "Generasiya vasitəsilə",

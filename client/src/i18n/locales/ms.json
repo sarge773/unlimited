@@ -133,8 +133,6 @@
     "embeddingsTab": "Penyisipan",
     "imageTab": "Imej",
     "audioTab": "Audio",
-    "imageTitle": "Model imej",
-    "audioTitle": "Model audio",
     "imageDesc": "Model penjanaan teks-ke-imej.",
     "audioDesc": "Model teks-ke-ucapan dan pertuturan-ke-teks.",
     "mediaHint": "Jana melalui",

@@ -133,8 +133,6 @@
     "embeddingsTab": "Beágyazások",
     "imageTab": "Kép",
     "audioTab": "Hang",
-    "imageTitle": "Képmodellek",
-    "audioTitle": "Hangmodellek",
     "imageDesc": "Szövegből képre generáló modellek.",
     "audioDesc": "Szöveg-beszéd és beszéd-szöveg modellek.",
     "mediaHint": "Generálj",

@@ -133,8 +133,6 @@
     "embeddingsTab": "Gömmeler",
     "imageTab": "Resim",
     "audioTab": "Ses",
-    "imageTitle": "Resim modelleri",
-    "audioTitle": "Ses modelleri",
     "imageDesc": "Metinden görüntüye üretim modelleri.",
     "audioDesc": "Metinden konuşmaya ve konuşmayı metne dönüştürme modelleri.",
     "mediaHint": "Şununla oluştur:",

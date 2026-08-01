@@ -133,8 +133,6 @@
     "embeddingsTab": "Indlejringer",
     "imageTab": "Billede",
     "audioTab": "Lyd",
-    "imageTitle": "Billedmodeller",
-    "audioTitle": "Lydmodeller",
     "imageDesc": "Modeller til generering af tekst til billede.",
     "audioDesc": "Tekst-til-tale og tale-til-tekst-modeller.",
     "mediaHint": "Generer via",

@@ -133,8 +133,6 @@
     "embeddingsTab": "埋め込み",
     "imageTab": "画像",
     "audioTab": "オーディオ",
-    "imageTitle": "画像モデル",
-    "audioTitle": "オーディオモデル",
     "imageDesc": "テキストから画像への生成モデル。",
     "audioDesc": "テキスト読み上げモデルと音声読み上げモデル。",
     "mediaHint": "経由で生成",

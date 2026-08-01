@@ -133,8 +133,6 @@
     "embeddingsTab": "Mga Embedding",
     "imageTab": "Larawan",
     "audioTab": "Audio",
-    "imageTitle": "Mga modelo ng imahe",
-    "audioTitle": "Mga Audio Model",
     "imageDesc": "Mga modelo ng pagbuo ng teksto-sa-larawan.",
     "audioDesc": "Mga modelo ng text-to-speech at speech-to-text.",
     "mediaHint": "Mag-generate sa pamamagitan ng",

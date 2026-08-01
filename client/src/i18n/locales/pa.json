@@ -133,8 +133,6 @@
     "embeddingsTab": "ਏਮਬੈਡਿੰਗਸ",
     "imageTab": "ਚਿੱਤਰ",
     "audioTab": "ਆਡੀਓ",
-    "imageTitle": "ਚਿੱਤਰ ਮਾਡਲ",
-    "audioTitle": "ਆਡੀਓ ਮਾਡਲ",
     "imageDesc": "ਟੈਕਸਟ ਤੋਂ ਚਿੱਤਰ ਬਣਾਉਣ ਵਾਲੇ ਮਾਡਲ।",
     "audioDesc": "ਟੈਕਸਟ-ਟੂ-ਸਪੀਚ ਅਤੇ ਸਪੀਚ-ਟੂ-ਟੈਕਸਟ ਮਾਡਲ।",
     "mediaHint": "ਰਾਹੀਂ ਤਿਆਰ ਕਰੋ",

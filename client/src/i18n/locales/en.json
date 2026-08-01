@@ -133,8 +133,6 @@
     "embeddingsTab": "Embeddings",
     "imageTab": "Image",
     "audioTab": "Audio",
-    "imageTitle": "Image models",
-    "audioTitle": "Audio models",
     "imageDesc": "Text-to-image generation models.",
     "audioDesc": "Text-to-speech and speech-to-text models.",
     "mediaHint": "Generate via",

@@ -166,7 +166,9 @@ export function MediaModelsView({ modality }: { modality: 'image' | 'audio' }) {
   const models = data?.models ?? []
   const groups = groupMedia(models.filter(m => m.modality === modality))
   const sttGroups = groupMedia(models.filter(m => m.modality === 'transcription'))
-  const title = modality === 'image' ? t('models.imageTitle') : t('models.audioTitle')
+  // Every models tab shares one title; the tab bar above says which set you are
+  // looking at, so repeating "Image"/"Audio" here just competed with it.
+  const title = t('models.title')
   const description = modality === 'image' ? t('models.imageDesc') : t('models.audioDesc')
   const endpoint = modality === 'image' ? '/v1/images/generations' : '/v1/audio/speech'
 

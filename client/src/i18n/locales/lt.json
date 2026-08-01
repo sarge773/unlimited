@@ -133,8 +133,6 @@
     "embeddingsTab": "Įterpimai",
     "imageTab": "Vaizdas",
     "audioTab": "Garsas",
-    "imageTitle": "Vaizdų modeliai",
-    "audioTitle": "Garso modeliai",
     "imageDesc": "Teksto į vaizdą generavimo modeliai.",
     "audioDesc": "Teksto į kalbą ir kalbos į tekstą modeliai.",
     "mediaHint": "Generuoti per",

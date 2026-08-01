@@ -133,8 +133,6 @@
     "embeddingsTab": "Upotukset",
     "imageTab": "Kuva",
     "audioTab": "Ääni",
-    "imageTitle": "Kuvamallit",
-    "audioTitle": "Äänimallit",
     "imageDesc": "Tekstistä kuvaksi -generointimallit.",
     "audioDesc": "Tekstistä puheeksi -mallit ja puheesta tekstiksi -mallit.",
     "mediaHint": "Generoi",

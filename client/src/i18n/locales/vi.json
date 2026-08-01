@@ -133,8 +133,6 @@
     "embeddingsTab": "Nhúng",
     "imageTab": "Hình ảnh",
     "audioTab": "Âm thanh",
-    "imageTitle": "Mô hình hình ảnh",
-    "audioTitle": "Mô hình âm thanh",
     "imageDesc": "Các mô hình tạo văn bản thành hình ảnh.",
     "audioDesc": "Mô hình chuyển văn bản thành giọng nói và chuyển lời nói thành văn bản.",
     "mediaHint": "Tạo thông qua",

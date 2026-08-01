@@ -133,8 +133,6 @@
     "embeddingsTab": "임베딩",
     "imageTab": "이미지",
     "audioTab": "오디오",
-    "imageTitle": "이미지 모델",
-    "audioTitle": "오디오 모델",
     "imageDesc": "Text-to-image generation models.",
     "audioDesc": "Text-to-speech and speech-to-text models.",
     "mediaHint": "다음을 통해 생성",

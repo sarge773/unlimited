@@ -133,8 +133,6 @@
     "embeddingsTab": "एंबेडिंग",
     "imageTab": "छवि",
     "audioTab": "ऑडियो",
-    "imageTitle": "छवि मॉडल",
-    "audioTitle": "ऑडियो मॉडल",
     "imageDesc": "टेक्स्ट-टू-इमेज जनरेशन मॉडल।",
     "audioDesc": "पाठ-से-वाक् और वाक्-से-पाठ मॉडल।",
     "mediaHint": "के माध्यम से उत्पन्न करें",
