@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "La stå tomt for ingen grense."
+    "limitHint": "La stå tomt for ingen grense.",
+    "usageThisMonth": "Bruk denne måneden",
+    "usageEmpty": "Ingen forespørsler denne måneden ennå."
   },
   "strategies": {
     "title": "Routingstrategi",

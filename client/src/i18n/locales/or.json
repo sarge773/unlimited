@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "କୌଣସି ସୀମା ନ ରଖିବାକୁ ଖାଲି ଛାଡ଼ନ୍ତୁ।"
+    "limitHint": "କୌଣସି ସୀମା ନ ରଖିବାକୁ ଖାଲି ଛାଡ଼ନ୍ତୁ।",
+    "usageThisMonth": "ଏହି ମାସର ବ୍ୟବହାର",
+    "usageEmpty": "ଏହି ମାସରେ ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅନୁରୋଧ ନାହିଁ।"
   },
   "strategies": {
     "title": "ରାଉଟିଂ ରଣନୀତି",

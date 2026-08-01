@@ -42,6 +42,59 @@ mediaRouter.get('/', (_req: Request, res: Response) => {
   });
 });
 
+// Per-model usage for one modality: requests today and this calendar month,
+// from the tagged request log. Image and audio calls are billed per image or
+// per character, not per token, so `requests` is the honest unit here and no
+// token counts are reported. As with embeddings there is no budget
+// denominator — `media_models` only carries a free-text `quota_label`
+// ("Shared 10k neurons/day", "MP3 output - multilingual", which is not even a
+// quota) — so the summary shows spend and the label verbatim.
+mediaRouter.get('/usage', (req: Request, res: Response) => {
+  const parsed = z.enum(['image', 'audio']).safeParse(req.query.modality);
+  if (!parsed.success) {
+    res.status(400).json({ error: { message: 'modality must be image or audio' } });
+    return;
+  }
+  const modality = parsed.data;
+  const db = getDb();
+
+  const rows = db.prepare(`
+    SELECT mm.id, mm.platform, mm.model_id, mm.display_name, mm.quota_label,
+           COALESCE(SUM(CASE WHEN r.created_at >= datetime('now', 'start of day') THEN 1 ELSE 0 END), 0) AS requests_today,
+           COALESCE(SUM(CASE WHEN r.created_at >= datetime('now', 'start of month') THEN 1 ELSE 0 END), 0) AS requests_month
+    FROM media_models mm
+    LEFT JOIN requests r
+      ON r.request_type = ?
+     AND r.status = 'success'
+     AND r.platform = mm.platform
+     AND r.model_id = mm.model_id
+     AND r.created_at >= datetime('now', 'start of month')
+    WHERE mm.modality = ? AND mm.enabled = 1
+    GROUP BY mm.id
+    ORDER BY mm.priority ASC
+  `).all(modality, modality) as {
+    id: number; platform: string; model_id: string; display_name: string;
+    quota_label: string | null; requests_today: number; requests_month: number;
+  }[];
+
+  const models = rows.map(r => ({
+    id: r.id,
+    platform: r.platform,
+    modelId: r.model_id,
+    displayName: r.display_name,
+    quotaLabel: r.quota_label,
+    requestsToday: r.requests_today,
+    requestsMonth: r.requests_month,
+  }));
+
+  res.json({
+    modality,
+    models,
+    totalRequestsToday: models.reduce((s, m) => s + m.requestsToday, 0),
+    totalRequestsMonth: models.reduce((s, m) => s + m.requestsMonth, 0),
+  });
+});
+
 const customMediaSchema = z.object({
   baseUrl: z.string().url('baseUrl must be a valid URL'),
   model: z.string().min(1),

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Biarkan kosong untuk tiada had."
+    "limitHint": "Biarkan kosong untuk tiada had.",
+    "usageThisMonth": "Penggunaan bulan ini",
+    "usageEmpty": "Tiada permintaan lagi bulan ini."
   },
   "strategies": {
     "title": "Strategi penghalaan",

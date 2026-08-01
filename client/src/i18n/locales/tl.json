@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Iwanang blangko para walang limitasyon."
+    "limitHint": "Iwanang blangko para walang limitasyon.",
+    "usageThisMonth": "Paggamit ngayong buwan",
+    "usageEmpty": "Wala pang mga kahilingan ngayong buwan."
   },
   "strategies": {
     "title": "Estratehiya sa Pag-ruta",

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "සීමාවක් නොමැති නම් හිස්ව තබන්න."
+    "limitHint": "සීමාවක් නොමැති නම් හිස්ව තබන්න.",
+    "usageThisMonth": "මෙම මාසයේ භාවිතය",
+    "usageEmpty": "මෙම මාසයේ තවම ඉල්ලීම් නැත."
   },
   "strategies": {
     "title": "මාර්ගගත කිරීමේ උපාය",

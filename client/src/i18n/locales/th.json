@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "เว้นว่างไว้หากไม่จำกัด"
+    "limitHint": "เว้นว่างไว้หากไม่จำกัด",
+    "usageThisMonth": "การใช้งานเดือนนี้",
+    "usageEmpty": "ยังไม่มีคำขอในเดือนนี้"
   },
   "strategies": {
     "title": "กลยุทธ์การกำหนดเส้นทาง",

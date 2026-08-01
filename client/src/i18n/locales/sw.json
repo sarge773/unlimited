@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Acha wazi ili kusiwe na kikomo."
+    "limitHint": "Acha wazi ili kusiwe na kikomo.",
+    "usageThisMonth": "Matumizi ya mwezi huu",
+    "usageEmpty": "Bado hakuna maombi mwezi huu."
   },
   "strategies": {
     "title": "Mkakati wa uelekezaji",

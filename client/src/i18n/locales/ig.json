@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Hapụ ya efu ka enweghị oke."
+    "limitHint": "Hapụ ya efu ka enweghị oke.",
+    "usageThisMonth": "Ojiji ọnwa a",
+    "usageEmpty": "Enweghị arịrịọ ọ bụla ọnwa a."
   },
   "strategies": {
     "title": "Atụmatụ ụzọ",

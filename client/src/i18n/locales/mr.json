@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "मर्यादा नको असल्यास रिकामे ठेवा."
+    "limitHint": "मर्यादा नको असल्यास रिकामे ठेवा.",
+    "usageThisMonth": "या महिन्याचा वापर",
+    "usageEmpty": "या महिन्यात अद्याप विनंत्या नाहीत."
   },
   "strategies": {
     "title": "राउटिंग धोरण",

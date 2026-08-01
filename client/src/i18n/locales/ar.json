@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "اتركه فارغًا لعدم وجود حد."
+    "limitHint": "اتركه فارغًا لعدم وجود حد.",
+    "usageThisMonth": "الاستخدام هذا الشهر",
+    "usageEmpty": "لا توجد طلبات هذا الشهر بعد."
   },
   "strategies": {
     "title": "استراتيجية التوجيه",

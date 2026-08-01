@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "ገደብ እንዳይኖር ባዶ ይተዉት።"
+    "limitHint": "ገደብ እንዳይኖር ባዶ ይተዉት።",
+    "usageThisMonth": "የዚህ ወር አጠቃቀም",
+    "usageEmpty": "በዚህ ወር ገና ጥያቄዎች የሉም።"
   },
   "strategies": {
     "title": "የማዞሪያ ስትራቴጂ",

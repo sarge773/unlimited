@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Pozostaw puste, aby nie było limitu."
+    "limitHint": "Pozostaw puste, aby nie było limitu.",
+    "usageThisMonth": "Zużycie w tym miesiącu",
+    "usageEmpty": "Brak żądań w tym miesiącu."
   },
   "strategies": {
     "title": "Strategia routingu",

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "کوئی حد نہ رکھنے کے لیے خالی چھوڑیں۔"
+    "limitHint": "کوئی حد نہ رکھنے کے لیے خالی چھوڑیں۔",
+    "usageThisMonth": "اس مہینے کا استعمال",
+    "usageEmpty": "اس مہینے ابھی کوئی درخواست نہیں۔"
   },
   "strategies": {
     "title": "روٹنگ کی حکمت عملی",

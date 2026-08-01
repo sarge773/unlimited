@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Ponechte prázdné pro žádný limit."
+    "limitHint": "Ponechte prázdné pro žádný limit.",
+    "usageThisMonth": "Spotřeba tento měsíc",
+    "usageEmpty": "Tento měsíc zatím žádné požadavky."
   },
   "strategies": {
     "title": "Strategie směrování",

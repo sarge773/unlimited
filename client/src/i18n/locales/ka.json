@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "დატოვეთ ცარიელი ლიმიტის გარეშე."
+    "limitHint": "დატოვეთ ცარიელი ლიმიტის გარეშე.",
+    "usageThisMonth": "ამ თვის მოხმარება",
+    "usageEmpty": "ამ თვეში ჯერ მოთხოვნები არ არის."
   },
   "strategies": {
     "title": "მარშრუტიზაციის სტრატეგია",

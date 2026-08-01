@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "പരിധി വേണ്ടെങ്കിൽ ശൂന്യമായി വിടുക."
+    "limitHint": "പരിധി വേണ്ടെങ്കിൽ ശൂന്യമായി വിടുക.",
+    "usageThisMonth": "ഈ മാസത്തെ ഉപയോഗം",
+    "usageEmpty": "ഈ മാസം ഇതുവരെ അഭ്യർത്ഥനകളില്ല."
   },
   "strategies": {
     "title": "റൂട്ടിംഗ് തന്ത്രം",

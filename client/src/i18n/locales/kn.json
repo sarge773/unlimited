@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "ಮಿತಿ ಬೇಡವಾದರೆ ಖಾಲಿ ಬಿಡಿ."
+    "limitHint": "ಮಿತಿ ಬೇಡವಾದರೆ ಖಾಲಿ ಬಿಡಿ.",
+    "usageThisMonth": "ಈ ತಿಂಗಳ ಬಳಕೆ",
+    "usageEmpty": "ಈ ತಿಂಗಳು ಇನ್ನೂ ವಿನಂತಿಗಳಿಲ್ಲ."
   },
   "strategies": {
     "title": "ರೂಟಿಂಗ್ ತಂತ್ರ",

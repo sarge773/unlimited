@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "برای بدون محدودیت خالی بگذارید."
+    "limitHint": "برای بدون محدودیت خالی بگذارید.",
+    "usageThisMonth": "مصرف این ماه",
+    "usageEmpty": "هنوز درخواستی در این ماه نیست."
   },
   "strategies": {
     "title": "استراتژی مسیریابی",

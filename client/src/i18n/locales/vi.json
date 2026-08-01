@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Để trống nếu không giới hạn."
+    "limitHint": "Để trống nếu không giới hạn.",
+    "usageThisMonth": "Mức dùng tháng này",
+    "usageEmpty": "Chưa có yêu cầu nào trong tháng này."
   },
   "strategies": {
     "title": "Chiến lược định tuyến",

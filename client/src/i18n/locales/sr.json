@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Оставите празно за без ограничења."
+    "limitHint": "Оставите празно за без ограничења.",
+    "usageThisMonth": "Потрошња овог месеца",
+    "usageEmpty": "Овог месеца још нема захтева."
   },
   "strategies": {
     "title": "Стратегија рутирања",

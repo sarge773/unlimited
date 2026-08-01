@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Αφήστε το κενό για κανένα όριο."
+    "limitHint": "Αφήστε το κενό για κανένα όριο.",
+    "usageThisMonth": "Χρήση αυτόν τον μήνα",
+    "usageEmpty": "Δεν υπάρχουν αιτήματα αυτόν τον μήνα."
   },
   "strategies": {
     "title": "Στρατηγική δρομολόγησης",

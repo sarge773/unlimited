@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Lämna tomt för ingen gräns."
+    "limitHint": "Lämna tomt för ingen gräns.",
+    "usageThisMonth": "Användning denna månad",
+    "usageEmpty": "Inga förfrågningar denna månad än."
   },
   "strategies": {
     "title": "Routingstrategi",

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "કોઈ મર્યાદા ન રાખવા ખાલી છોડો."
+    "limitHint": "કોઈ મર્યાદા ન રાખવા ખાલી છોડો.",
+    "usageThisMonth": "આ મહિનાનો વપરાશ",
+    "usageEmpty": "આ મહિને હજી કોઈ વિનંતી નથી."
   },
   "strategies": {
     "title": "રૂટીંગ વ્યૂહરચના",

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Bar shi fanko domin babu iyaka."
+    "limitHint": "Bar shi fanko domin babu iyaka.",
+    "usageThisMonth": "Amfani na wannan wata",
+    "usageEmpty": "Babu buƙatu tukuna wannan wata."
   },
   "strategies": {
     "title": "Dabarar hanya",

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "ទុកឱ្យទទេ ដើម្បីគ្មានដែនកំណត់។"
+    "limitHint": "ទុកឱ្យទទេ ដើម្បីគ្មានដែនកំណត់។",
+    "usageThisMonth": "ការប្រើប្រាស់ខែនេះ",
+    "usageEmpty": "មិនទាន់មានសំណើនៅខែនេះទេ។"
   },
   "strategies": {
     "title": "យុទ្ធសាស្ត្រផ្លូវបញ្ជូន",

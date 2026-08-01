@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "పరిమితి వద్దనుకుంటే ఖాళీగా వదిలేయండి."
+    "limitHint": "పరిమితి వద్దనుకుంటే ఖాళీగా వదిలేయండి.",
+    "usageThisMonth": "ఈ నెల వినియోగం",
+    "usageEmpty": "ఈ నెలలో ఇంకా అభ్యర్థనలు లేవు."
   },
   "strategies": {
     "title": "రూటింగ్ వ్యూహం",

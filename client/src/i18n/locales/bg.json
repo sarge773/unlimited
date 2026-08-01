@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Оставете празно за без ограничение."
+    "limitHint": "Оставете празно за без ограничение.",
+    "usageThisMonth": "Потребление този месец",
+    "usageEmpty": "Няма заявки този месец."
   },
   "strategies": {
     "title": "Стратегия за маршрутизиране",

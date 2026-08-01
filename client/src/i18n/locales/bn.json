@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "কোনো সীমা না রাখতে ফাঁকা রাখুন।"
+    "limitHint": "কোনো সীমা না রাখতে ফাঁকা রাখুন।",
+    "usageThisMonth": "এই মাসের ব্যবহার",
+    "usageEmpty": "এই মাসে এখনও কোনো অনুরোধ নেই।"
   },
   "strategies": {
     "title": "রাউটিং কৌশল",

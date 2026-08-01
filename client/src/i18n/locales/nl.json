@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Laat leeg voor geen limiet."
+    "limitHint": "Laat leeg voor geen limiet.",
+    "usageThisMonth": "Gebruik deze maand",
+    "usageEmpty": "Nog geen verzoeken deze maand."
   },
   "strategies": {
     "title": "Routingstrategie",

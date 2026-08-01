@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Hagyja üresen, ha nincs korlát."
+    "limitHint": "Hagyja üresen, ha nincs korlát.",
+    "usageThisMonth": "Havi felhasználás",
+    "usageEmpty": "Ebben a hónapban még nincs kérés."
   },
   "strategies": {
     "title": "Útvonaltervezési stratégia",

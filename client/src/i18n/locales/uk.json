@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Залиште порожнім, щоб не було обмеження."
+    "limitHint": "Залиште порожнім, щоб не було обмеження.",
+    "usageThisMonth": "Витрати цього місяця",
+    "usageEmpty": "Цього місяця ще немає запитів."
   },
   "strategies": {
     "title": "Стратегія маршрутизації",

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Laissez vide pour aucune limite."
+    "limitHint": "Laissez vide pour aucune limite.",
+    "usageThisMonth": "Utilisation ce mois-ci",
+    "usageEmpty": "Aucune requête ce mois-ci pour l'instant."
   },
   "strategies": {
     "title": "Stratégie de routage",

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Deixe em branco para não ter limite."
+    "limitHint": "Deixe em branco para não ter limite.",
+    "usageThisMonth": "Uso neste mês",
+    "usageEmpty": "Ainda não há solicitações neste mês."
   },
   "strategies": {
     "title": "Estratégia de roteamento",

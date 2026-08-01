@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Sınır olmaması için boş bırakın."
+    "limitHint": "Sınır olmaması için boş bırakın.",
+    "usageThisMonth": "Bu ayki kullanım",
+    "usageEmpty": "Bu ay henüz istek yok."
   },
   "strategies": {
     "title": "Yönlendirme stratejisi",

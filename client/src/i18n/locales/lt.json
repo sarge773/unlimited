@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Palikite tuščią, jei nėra ribos."
+    "limitHint": "Palikite tuščią, jei nėra ribos.",
+    "usageThisMonth": "Šio mėnesio naudojimas",
+    "usageEmpty": "Šį mėnesį užklausų dar nėra."
   },
   "strategies": {
     "title": "Maršrutizavimo strategija",

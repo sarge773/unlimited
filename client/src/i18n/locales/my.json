@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "ကန့်သတ်ချက်မလိုပါက ကွက်လပ်ထားပါ။"
+    "limitHint": "ကန့်သတ်ချက်မလိုပါက ကွက်လပ်ထားပါ။",
+    "usageThisMonth": "ဤလအသုံးပြုမှု",
+    "usageEmpty": "ဤလတွင် တောင်းဆိုမှု မရှိသေးပါ။"
   },
   "strategies": {
     "title": "လမ်းကြောင်းသတ်မှတ်မှု မဟာဗျူဟာ",

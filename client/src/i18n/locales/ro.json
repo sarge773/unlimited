@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Lăsați gol pentru nicio limită."
+    "limitHint": "Lăsați gol pentru nicio limită.",
+    "usageThisMonth": "Utilizare luna aceasta",
+    "usageEmpty": "Nicio cerere luna aceasta."
   },
   "strategies": {
     "title": "Strategia de rutare",

@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Ponechajte prázdne pre žiadny limit."
+    "limitHint": "Ponechajte prázdne pre žiadny limit.",
+    "usageThisMonth": "Spotreba tento mesiac",
+    "usageEmpty": "Tento mesiac zatiaľ žiadne požiadavky."
   },
   "strategies": {
     "title": "Stratégia smerovania",

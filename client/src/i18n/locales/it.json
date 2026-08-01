@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Lascia vuoto per nessun limite."
+    "limitHint": "Lascia vuoto per nessun limite.",
+    "usageThisMonth": "Utilizzo di questo mese",
+    "usageEmpty": "Nessuna richiesta questo mese."
   },
   "strategies": {
     "title": "Strategia di routing",

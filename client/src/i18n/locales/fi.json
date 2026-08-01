@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Jätä tyhjäksi, jos ei rajaa."
+    "limitHint": "Jätä tyhjäksi, jos ei rajaa.",
+    "usageThisMonth": "Tämän kuun käyttö",
+    "usageEmpty": "Ei vielä pyyntöjä tässä kuussa."
   },
   "strategies": {
     "title": "Reititysstrategia",

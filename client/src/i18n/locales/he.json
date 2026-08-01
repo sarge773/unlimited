@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "השאירו ריק כדי לא להגביל."
+    "limitHint": "השאירו ריק כדי לא להגביל.",
+    "usageThisMonth": "שימוש החודש",
+    "usageEmpty": "אין עדיין בקשות החודש."
   },
   "strategies": {
     "title": "אסטרטגיית ניתוב",

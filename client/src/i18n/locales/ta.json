@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "வரம்பு வேண்டாம் எனில் காலியாக விடவும்."
+    "limitHint": "வரம்பு வேண்டாம் எனில் காலியாக விடவும்.",
+    "usageThisMonth": "இந்த மாத பயன்பாடு",
+    "usageEmpty": "இந்த மாதம் இதுவரை கோரிக்கைகள் இல்லை."
   },
   "strategies": {
     "title": "ரூட்டிங் உத்தி",

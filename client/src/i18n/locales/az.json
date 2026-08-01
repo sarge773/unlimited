@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Limit olmaması üçün boş buraxın."
+    "limitHint": "Limit olmaması üçün boş buraxın.",
+    "usageThisMonth": "Bu ayın istifadəsi",
+    "usageEmpty": "Bu ay hələ sorğu yoxdur."
   },
   "strategies": {
     "title": "Marşrut strategiyası",

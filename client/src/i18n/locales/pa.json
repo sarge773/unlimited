@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "ਕੋਈ ਹੱਦ ਨਾ ਰੱਖਣ ਲਈ ਖਾਲੀ ਛੱਡੋ।"
+    "limitHint": "ਕੋਈ ਹੱਦ ਨਾ ਰੱਖਣ ਲਈ ਖਾਲੀ ਛੱਡੋ।",
+    "usageThisMonth": "ਇਸ ਮਹੀਨੇ ਦੀ ਵਰਤੋਂ",
+    "usageEmpty": "ਇਸ ਮਹੀਨੇ ਹਾਲੇ ਕੋਈ ਬੇਨਤੀ ਨਹੀਂ।"
   },
   "strategies": {
     "title": "ਰੂਟਿੰਗ ਰਣਨੀਤੀ",

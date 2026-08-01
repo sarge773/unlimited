@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "制限なしにするには空欄にします。"
+    "limitHint": "制限なしにするには空欄にします。",
+    "usageThisMonth": "今月の使用量",
+    "usageEmpty": "今月はまだリクエストがありません。"
   },
   "strategies": {
     "title": "ルーティング戦略",

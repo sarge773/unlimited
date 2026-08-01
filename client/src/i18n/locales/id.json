@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Kosongkan untuk tanpa batas."
+    "limitHint": "Kosongkan untuk tanpa batas.",
+    "usageThisMonth": "Penggunaan bulan ini",
+    "usageEmpty": "Belum ada permintaan bulan ini."
   },
   "strategies": {
     "title": "Strategi perutean",

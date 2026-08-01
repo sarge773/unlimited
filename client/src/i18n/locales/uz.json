@@ -219,7 +219,9 @@
     "limitRpd": "RPD",
     "limitTpm": "TPM",
     "limitTpd": "TPD",
-    "limitHint": "Cheklov boʻlmasligi uchun boʻsh qoldiring."
+    "limitHint": "Cheklov boʻlmasligi uchun boʻsh qoldiring.",
+    "usageThisMonth": "Shu oydagi foydalanish",
+    "usageEmpty": "Bu oyda hali so'rovlar yo'q."
   },
   "strategies": {
     "title": "Marshrut strategiyasi",
