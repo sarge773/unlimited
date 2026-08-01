@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Palikite tuščią, jei nėra ribos.",
-    "usageThisMonth": "Šio mėnesio naudojimas",
+    "usageThisMonth": "Mėnesio naudojimas",
     "usageEmpty": "Šį mėnesį užklausų dar nėra.",
     "usageRequestsMonth": "{count} užkl. šį mėnesį"
   },

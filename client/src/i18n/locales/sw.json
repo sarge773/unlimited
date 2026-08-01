@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Acha wazi ili kusiwe na kikomo.",
-    "usageThisMonth": "Matumizi ya mwezi huu",
+    "usageThisMonth": "Matumizi ya kila mwezi",
     "usageEmpty": "Bado hakuna maombi mwezi huu.",
     "usageRequestsMonth": "maombi {count} mwezi huu"
   },

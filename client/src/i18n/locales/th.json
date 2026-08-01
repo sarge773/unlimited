@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "เว้นว่างไว้หากไม่จำกัด",
-    "usageThisMonth": "การใช้งานเดือนนี้",
+    "usageThisMonth": "การใช้งานรายเดือน",
     "usageEmpty": "ยังไม่มีคำขอในเดือนนี้",
     "usageRequestsMonth": "เดือนนี้ {count} คำขอ"
   },

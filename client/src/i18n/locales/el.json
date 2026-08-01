@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Αφήστε το κενό για κανένα όριο.",
-    "usageThisMonth": "Χρήση αυτόν τον μήνα",
+    "usageThisMonth": "Μηνιαία χρήση",
     "usageEmpty": "Δεν υπάρχουν αιτήματα αυτόν τον μήνα.",
     "usageRequestsMonth": "{count} αιτήματα αυτόν τον μήνα"
   },

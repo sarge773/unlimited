@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Bar shi fanko domin babu iyaka.",
-    "usageThisMonth": "Amfani na wannan wata",
+    "usageThisMonth": "Amfani na wata-wata",
     "usageEmpty": "Babu buƙatu tukuna wannan wata.",
     "usageRequestsMonth": "buƙatu {count} wannan wata"
   },

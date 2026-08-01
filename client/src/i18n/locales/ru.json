@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Оставьте пустым, чтобы не было ограничения.",
-    "usageThisMonth": "Расход за этот месяц",
+    "usageThisMonth": "Расход за месяц",
     "usageEmpty": "В этом месяце запросов пока нет.",
     "usageRequestsMonth": "{count} запр. за месяц"
   },

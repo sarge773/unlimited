@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Залиште порожнім, щоб не було обмеження.",
-    "usageThisMonth": "Витрати цього місяця",
+    "usageThisMonth": "Місячні витрати",
     "usageEmpty": "Цього місяця ще немає запитів.",
     "usageRequestsMonth": "{count} запитів цього місяця"
   },

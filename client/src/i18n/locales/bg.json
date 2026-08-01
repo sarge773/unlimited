@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Оставете празно за без ограничение.",
-    "usageThisMonth": "Потребление този месец",
+    "usageThisMonth": "Месечно потребление",
     "usageEmpty": "Няма заявки този месец.",
     "usageRequestsMonth": "{count} заявки този месец"
   },

@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "କୌଣସି ସୀମା ନ ରଖିବାକୁ ଖାଲି ଛାଡ଼ନ୍ତୁ।",
-    "usageThisMonth": "ଏହି ମାସର ବ୍ୟବହାର",
+    "usageThisMonth": "ମାସିକ ବ୍ୟବହାର",
     "usageEmpty": "ଏହି ମାସରେ ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅନୁରୋଧ ନାହିଁ।",
     "usageRequestsMonth": "ଏହି ମାସରେ {count} ଅନୁରୋଧ"
   },

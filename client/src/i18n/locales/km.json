@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "ទុកឱ្យទទេ ដើម្បីគ្មានដែនកំណត់។",
-    "usageThisMonth": "ការប្រើប្រាស់ខែនេះ",
+    "usageThisMonth": "ការប្រើប្រាស់ប្រចាំខែ",
     "usageEmpty": "មិនទាន់មានសំណើនៅខែនេះទេ។",
     "usageRequestsMonth": "ខែនេះ {count} សំណើ"
   },

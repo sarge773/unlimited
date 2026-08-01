@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Lăsați gol pentru nicio limită.",
-    "usageThisMonth": "Utilizare luna aceasta",
+    "usageThisMonth": "Utilizare lunară",
     "usageEmpty": "Nicio cerere luna aceasta.",
     "usageRequestsMonth": "{count} cereri luna aceasta"
   },

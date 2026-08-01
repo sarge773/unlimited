@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Jätä tyhjäksi, jos ei rajaa.",
-    "usageThisMonth": "Tämän kuun käyttö",
+    "usageThisMonth": "Kuukausikäyttö",
     "usageEmpty": "Ei vielä pyyntöjä tässä kuussa.",
     "usageRequestsMonth": "{count} pyyntöä tässä kuussa"
   },

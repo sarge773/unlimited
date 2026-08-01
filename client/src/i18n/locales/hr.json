@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Ostavite prazno za bez ograničenja.",
-    "usageThisMonth": "Potrošnja ovog mjeseca",
+    "usageThisMonth": "Mjesečna potrošnja",
     "usageEmpty": "Ovog mjeseca još nema zahtjeva.",
     "usageRequestsMonth": "{count} zaht. ovog mjeseca"
   },

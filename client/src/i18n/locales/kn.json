@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "ಮಿತಿ ಬೇಡವಾದರೆ ಖಾಲಿ ಬಿಡಿ.",
-    "usageThisMonth": "ಈ ತಿಂಗಳ ಬಳಕೆ",
+    "usageThisMonth": "ಮಾಸಿಕ ಬಳಕೆ",
     "usageEmpty": "ಈ ತಿಂಗಳು ಇನ್ನೂ ವಿನಂತಿಗಳಿಲ್ಲ.",
     "usageRequestsMonth": "ಈ ತಿಂಗಳು {count} ವಿನಂತಿಗಳು"
   },

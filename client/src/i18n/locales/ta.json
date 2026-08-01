@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "வரம்பு வேண்டாம் எனில் காலியாக விடவும்.",
-    "usageThisMonth": "இந்த மாத பயன்பாடு",
+    "usageThisMonth": "மாதாந்திர பயன்பாடு",
     "usageEmpty": "இந்த மாதம் இதுவரை கோரிக்கைகள் இல்லை.",
     "usageRequestsMonth": "இந்த மாதம் {count} கோரிக்கை"
   },

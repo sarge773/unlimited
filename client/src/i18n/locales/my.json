@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "ကန့်သတ်ချက်မလိုပါက ကွက်လပ်ထားပါ။",
-    "usageThisMonth": "ဤလအသုံးပြုမှု",
+    "usageThisMonth": "လစဉ်အသုံးပြုမှု",
     "usageEmpty": "ဤလတွင် တောင်းဆိုမှု မရှိသေးပါ။",
     "usageRequestsMonth": "ဤလတွင် တောင်းဆိုမှု {count} ခု"
   },

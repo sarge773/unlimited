@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Laat leeg voor geen limiet.",
-    "usageThisMonth": "Gebruik deze maand",
+    "usageThisMonth": "Maandelijks gebruik",
     "usageEmpty": "Nog geen verzoeken deze maand.",
     "usageRequestsMonth": "{count} verz. deze maand"
   },

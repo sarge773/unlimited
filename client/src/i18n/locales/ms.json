@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Biarkan kosong untuk tiada had.",
-    "usageThisMonth": "Penggunaan bulan ini",
+    "usageThisMonth": "Penggunaan bulanan",
     "usageEmpty": "Tiada permintaan lagi bulan ini.",
     "usageRequestsMonth": "{count} permintaan bulan ini"
   },

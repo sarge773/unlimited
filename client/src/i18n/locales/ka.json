@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "დატოვეთ ცარიელი ლიმიტის გარეშე.",
-    "usageThisMonth": "ამ თვის მოხმარება",
+    "usageThisMonth": "თვიური მოხმარება",
     "usageEmpty": "ამ თვეში ჯერ მოთხოვნები არ არის.",
     "usageRequestsMonth": "{count} მოთხოვნა ამ თვეში"
   },

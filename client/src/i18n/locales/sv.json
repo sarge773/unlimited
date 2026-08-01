@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Lämna tomt för ingen gräns.",
-    "usageThisMonth": "Användning denna månad",
+    "usageThisMonth": "Månatlig användning",
     "usageEmpty": "Inga förfrågningar denna månad än.",
     "usageRequestsMonth": "{count} förfr. denna månad"
   },

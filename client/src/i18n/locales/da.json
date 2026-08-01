@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Lad stå tomt for ingen grænse.",
-    "usageThisMonth": "Forbrug denne måned",
+    "usageThisMonth": "Månedligt forbrug",
     "usageEmpty": "Ingen anmodninger denne måned endnu.",
     "usageRequestsMonth": "{count} anmodn. denne måned"
   },

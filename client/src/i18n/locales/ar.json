@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "اتركه فارغًا لعدم وجود حد.",
-    "usageThisMonth": "الاستخدام هذا الشهر",
+    "usageThisMonth": "الاستخدام الشهري",
     "usageEmpty": "لا توجد طلبات هذا الشهر بعد.",
     "usageRequestsMonth": "{count} طلب هذا الشهر"
   },

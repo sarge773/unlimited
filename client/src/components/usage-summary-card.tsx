@@ -51,7 +51,10 @@ export function UsageSummaryCard({
         </span>
       </div>
 
-      {total > 0 && (
+      {/* The track always renders. Hiding it at zero made the whole card read as
+          missing on tabs with no traffic yet, which is exactly when a reader is
+          checking whether the feature is there at all. */}
+      {total > 0 ? (
         <div className="flex h-2.5 rounded-full overflow-hidden bg-muted">
           {spent.map((r, i) => (
             <div
@@ -64,6 +67,8 @@ export function UsageSummaryCard({
             />
           ))}
         </div>
+      ) : (
+        <div className="h-2.5 rounded-full bg-muted" />
       )}
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-1.5 text-xs tabular-nums">

@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "કોઈ મર્યાદા ન રાખવા ખાલી છોડો.",
-    "usageThisMonth": "આ મહિનાનો વપરાશ",
+    "usageThisMonth": "માસિક વપરાશ",
     "usageEmpty": "આ મહિને હજી કોઈ વિનંતી નથી.",
     "usageRequestsMonth": "આ મહિને {count} વિનંતી"
   },

@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Iwanang blangko para walang limitasyon.",
-    "usageThisMonth": "Paggamit ngayong buwan",
+    "usageThisMonth": "Buwanang paggamit",
     "usageEmpty": "Wala pang mga kahilingan ngayong buwan.",
     "usageRequestsMonth": "{count} kahilingan ngayong buwan"
   },

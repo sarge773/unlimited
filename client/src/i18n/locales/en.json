@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Leave blank for no limit.",
-    "usageThisMonth": "Usage this month",
+    "usageThisMonth": "Monthly usage",
     "usageEmpty": "No requests yet this month.",
     "usageRequestsMonth": "{count} req this month"
   },

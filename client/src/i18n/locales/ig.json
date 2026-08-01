@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Hapụ ya efu ka enweghị oke.",
-    "usageThisMonth": "Ojiji ọnwa a",
+    "usageThisMonth": "Ojiji kwa ọnwa",
     "usageEmpty": "Enweghị arịrịọ ọ bụla ọnwa a.",
     "usageRequestsMonth": "arịrịọ {count} ọnwa a"
   },

@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "制限なしにするには空欄にします。",
-    "usageThisMonth": "今月の使用量",
+    "usageThisMonth": "月間使用量",
     "usageEmpty": "今月はまだリクエストがありません。",
     "usageRequestsMonth": "今月 {count} 件"
   },

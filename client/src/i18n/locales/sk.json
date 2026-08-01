@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Ponechajte prázdne pre žiadny limit.",
-    "usageThisMonth": "Spotreba tento mesiac",
+    "usageThisMonth": "Mesačná spotreba",
     "usageEmpty": "Tento mesiac zatiaľ žiadne požiadavky.",
     "usageRequestsMonth": "{count} pož. tento mesiac"
   },

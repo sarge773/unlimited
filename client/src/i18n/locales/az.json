@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "Limit olmaması üçün boş buraxın.",
-    "usageThisMonth": "Bu ayın istifadəsi",
+    "usageThisMonth": "Aylıq istifadə",
     "usageEmpty": "Bu ay hələ sorğu yoxdur.",
     "usageRequestsMonth": "bu ay {count} sorğu"
   },

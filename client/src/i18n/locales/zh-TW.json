@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "留空表示不限制。",
-    "usageThisMonth": "本月用量",
+    "usageThisMonth": "每月用量",
     "usageEmpty": "本月尚無請求。",
     "usageRequestsMonth": "本月 {count} 次請求"
   },

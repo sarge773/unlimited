@@ -218,7 +218,7 @@
     "limitTpm": "TPM",
     "limitTpd": "TPD",
     "limitHint": "പരിധി വേണ്ടെങ്കിൽ ശൂന്യമായി വിടുക.",
-    "usageThisMonth": "ഈ മാസത്തെ ഉപയോഗം",
+    "usageThisMonth": "പ്രതിമാസ ഉപയോഗം",
     "usageEmpty": "ഈ മാസം ഇതുവരെ അഭ്യർത്ഥനകളില്ല.",
     "usageRequestsMonth": "ഈ മാസം {count} അഭ്യർത്ഥനകൾ"
   },
