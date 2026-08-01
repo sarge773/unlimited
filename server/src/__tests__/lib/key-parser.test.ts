@@ -120,15 +120,29 @@ describe('key parser', () => {
   it('parses CSV format with header', () => {
     const csv = 'platform,key,label\n"google","AIza-test","Google Key"\n"groq","gsk-test","Groq Key"\n';
     expect(parseCsv(csv)).toEqual([
-      { key: 'GOOGLE_KEY', value: 'AIza-test' },
-      { key: 'GROQ_KEY', value: 'gsk-test' },
+      { key: 'GOOGLE_KEY', value: 'AIza-test', platform: 'google' },
+      { key: 'GROQ_KEY', value: 'gsk-test', platform: 'groq' },
     ]);
   });
 
   it('parses CSV format without header', () => {
     const csv = 'google,AIza-test,Google Key\n';
     expect(parseCsv(csv)).toEqual([
-      { key: 'GOOGLE_KEY', value: 'AIza-test' },
+      { key: 'GOOGLE_KEY', value: 'AIza-test', platform: 'google' },
+    ]);
+  });
+
+  it('parses CSV format with custom base_url column (#687)', () => {
+    const csv = 'platform,key,label,base_url\n"custom","sk-test","My Ollama","http://localhost:11434/v1"\n';
+    expect(parseCsv(csv)).toEqual([
+      { key: 'My Ollama', value: 'sk-test', platform: 'custom', baseUrl: 'http://localhost:11434/v1' },
+    ]);
+  });
+
+  it('parses keyless custom CSV row (#687)', () => {
+    const csv = 'platform,key,label,base_url\n"custom","","Local LM Studio","http://192.168.1.10:1234/v1"\n';
+    expect(parseCsv(csv)).toEqual([
+      { key: 'Local LM Studio', value: 'no-key', platform: 'custom', baseUrl: 'http://192.168.1.10:1234/v1' },
     ]);
   });
 

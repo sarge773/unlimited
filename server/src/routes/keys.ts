@@ -328,7 +328,12 @@ keysRouter.get('/export', (req: Request, res: Response) => {
 
   const rows = db.prepare(`SELECT * FROM api_keys ${whereClause} ORDER BY platform, created_at ASC`).all() as any[];
 
-  // Decrypt and filter — only export keys with a real value
+  // Decrypt every row. Custom providers (#117/#212/#619/#640) are stored as
+  // their own api_keys rows with platform='custom' and a per-endpoint base_url;
+  // a keyless custom endpoint (local Ollama / LM Studio) stores the 'no-key'
+  // sentinel just like a keyless catalog provider, so the filter below keeps
+  // any custom row that has a base_url — otherwise the export silently drops
+  // every custom endpoint and the "Will export N keys" counter lies (#687).
   const decryptedKeys = rows
     .map(row => {
       let key = '';
@@ -337,15 +342,19 @@ keysRouter.get('/export', (req: Request, res: Response) => {
       } catch {
         key = '';
       }
+      const isCustom = row.platform === 'custom';
       return {
         platform: row.platform,
         key,
         label: row.label || '',
-        baseUrl: row.base_url || undefined,
+        baseUrl: isCustom ? (row.base_url || undefined) : undefined,
       };
     })
     .filter(k => {
       const v = k.key.trim();
+      // A custom endpoint is exportable as long as it has a base_url, even
+      // when the upstream is keyless (key === 'no-key' or empty).
+      if (k.platform === 'custom') return !!k.baseUrl;
       return v.length > 0 && v !== 'no-key';
     });
 
@@ -356,9 +365,19 @@ keysRouter.get('/export', (req: Request, res: Response) => {
 
   if (format === 'env') {
     // .env format: GOOGLE_KEY=xxx\nGROQ_KEY=yyy
+    // Custom endpoints also emit CUSTOM_BASE_URL so the pair round-trips
+    // through re-import; a keyless endpoint omits the *_KEY line.
     const lines = decryptedKeys.map(k => {
-      const envKey = `${k.platform.toUpperCase()}_KEY=${k.key}`;
-      return k.label ? `# ${k.label}\n${envKey}` : envKey;
+      const parts: string[] = [];
+      if (k.label) parts.push(`# ${k.label}`);
+      if (k.platform === 'custom') {
+        if (k.baseUrl) parts.push(`CUSTOM_BASE_URL=${k.baseUrl}`);
+        const v = k.key.trim();
+        if (v && v !== 'no-key') parts.push(`CUSTOM_KEY=${v}`);
+      } else {
+        parts.push(`${k.platform.toUpperCase()}_KEY=${k.key}`);
+      }
+      return parts.join('\n');
     });
     const content = lines.join('\n\n') + '\n';
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -368,7 +387,7 @@ keysRouter.get('/export', (req: Request, res: Response) => {
   }
 
   if (format === 'csv') {
-    // CSV format: platform,key,label
+    // CSV format: platform,key,label,base_url
     const escCsv = (v: string) => `"${v.replace(/"/g, '""')}"`;
     // CSV formula-injection guard: a spreadsheet treats a cell that starts with
     // =, +, -, @, tab or CR as a live formula, so a label like `=HYPERLINK(...)`
@@ -377,9 +396,14 @@ keysRouter.get('/export', (req: Request, res: Response) => {
     // (labels); the key value must round-trip verbatim for re-import, and the
     // platform is one of our own fixed enum values.
     const neutralize = (v: string) => (/^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
-    const header = 'platform,key,label';
+    const header = 'platform,key,label,base_url';
     const lines = decryptedKeys.map(k =>
-      [escCsv(k.platform), escCsv(k.key), escCsv(neutralize(k.label))].join(',')
+      [
+        escCsv(k.platform),
+        escCsv(k.key),
+        escCsv(neutralize(k.label)),
+        escCsv(k.baseUrl ?? ''),
+      ].join(',')
     );
     const content = [header, ...lines].join('\n') + '\n';
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -388,12 +412,22 @@ keysRouter.get('/export', (req: Request, res: Response) => {
     return;
   }
 
-  // Default: JSON format (round-trip safe — can be imported directly)
+  // Default: JSON format (round-trip safe — can be imported directly).
+  // Omit baseUrl for non-custom rows so the export stays compact; custom
+  // rows always carry it so re-import can rebuild the endpoint.
   const jsonExport = {
     version: 1,
     exportedAt: new Date().toISOString(),
     source: 'freellmapi',
-    keys: decryptedKeys,
+    keys: decryptedKeys.map(k => {
+      const entry: Record<string, string> = {
+        platform: k.platform,
+        key: k.key,
+        label: k.label,
+      };
+      if (k.platform === 'custom' && k.baseUrl) entry.baseUrl = k.baseUrl;
+      return entry;
+    }),
   };
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Content-Disposition', 'attachment; filename="freellmapi-keys.json"');
@@ -827,10 +861,39 @@ keysRouter.post('/import', (req: Request, res: Response, next: NextFunction) => 
           continue;
         }
         const platformParse = z.enum(PLATFORMS).safeParse(parsedKey.platform);
-        if (!platformParse.success || platformParse.data === 'custom') {
+        if (!platformParse.success) {
           skipped.push(keyName);
           continue;
         }
+
+        // Custom endpoints (#687) round-trip through baseUrl; they can't use
+        // insertImportedKey (which rejects 'custom') because their key row
+        // needs base_url too. Register the credential via the same resolver
+        // POST /custom uses, minus model binding — the user can run discovery
+        // afterwards to repopulate the model list.
+        if (platformParse.data === 'custom') {
+          const baseUrl = parsedKey.baseUrl;
+          if (!baseUrl) {
+            skipped.push(`${keyName}: custom entry missing baseUrl`);
+            continue;
+          }
+          try {
+            const db = getDb();
+            const trimmedKey = keyValue.trim();
+            const resolved = resolveCustomEndpointKey(
+              db,
+              baseUrl,
+              trimmedKey && trimmedKey !== 'no-key' ? trimmedKey : undefined,
+              keyName || undefined,
+            );
+            imported.push({ keyName: keyName || baseUrl, platform: 'custom' });
+            void resolved;
+          } catch (importErr) {
+            errors.push({ key: keyName, error: (importErr as Error).message });
+          }
+          continue;
+        }
+
         if (!keyValue.trim()) {
           errors.push({ key: keyName, error: 'keyValue must be at least 1 character' });
           continue;

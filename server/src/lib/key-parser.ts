@@ -2,6 +2,11 @@ export interface ParsedKey {
   rawKey: string;
   prefix: string;
   platform: string | null;
+  /**
+   * Present for custom-provider entries that carry their endpoint URL. The
+   * import path uses it to rebuild the custom endpoint (#687).
+   */
+  baseUrl?: string;
 }
 
 export interface ParseResult {
@@ -79,12 +84,15 @@ export function detectPlatform(prefix: string): string | null {
   return PREFIX_MAP[prefix] ?? null;
 }
 
-export function parseDotEnv(content: string): Array<{ key: string; value: string }> {
+export function parseDotEnv(content: string): Array<{ key: string; value: string; platform?: string; baseUrl?: string }> {
   let text = content;
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
   text = text.replace(/\r\n/g, '\n');
 
-  const result = new Map<string, string>();
+  // First pass: collect raw key=value pairs (preserving order) so a later
+  // CUSTOM_KEY can be matched back to the CUSTOM_BASE_URL it belongs with.
+  const raw = new Map<string, string>();
+  const order: string[] = [];
   for (let line of text.split('\n')) {
     line = line.trim();
     if (!line || line.startsWith('#')) continue;
@@ -109,10 +117,38 @@ export function parseDotEnv(content: string): Array<{ key: string; value: string
       value = value.trimEnd();
     }
 
-    result.set(key, value);
+    if (!raw.has(key)) order.push(key);
+    raw.set(key, value);
   }
 
-  return Array.from(result.entries()).map(([key, value]) => ({ key, value }));
+  const result: Array<{ key: string; value: string; platform?: string; baseUrl?: string }> = [];
+  const consumedBaseUrls = new Set<string>();
+
+  // Second pass: emit catalog keys verbatim, and pair CUSTOM_BASE_URL with the
+  // CUSTOM_KEY that follows it (the export writes them as a single block).
+  for (const key of order) {
+    const value = raw.get(key)!;
+
+    if (key === 'CUSTOM_BASE_URL') {
+      const baseUrl = value.trim();
+      if (!baseUrl) continue;
+      // Find the matching CUSTOM_KEY (only one per export block by design).
+      const customKey = raw.get('CUSTOM_KEY');
+      const keyValue = (customKey ?? '').trim() || 'no-key';
+      result.push({ key: 'CUSTOM', value: keyValue, platform: 'custom', baseUrl });
+      consumedBaseUrls.add(baseUrl);
+      continue;
+    }
+
+    if (key === 'CUSTOM_KEY') {
+      // Already consumed by the CUSTOM_BASE_URL entry above.
+      continue;
+    }
+
+    result.push({ key, value });
+  }
+
+  return result;
 }
 
 export function stripJsoncComments(text: string): string {
@@ -252,6 +288,28 @@ export function parseExportJson(content: string): ParseResult | null {
       const platform = typeof row.platform === 'string' ? row.platform : null;
       const keyValue = typeof row.key === 'string' ? row.key : '';
       const label = typeof row.label === 'string' ? row.label : platform ?? 'imported';
+      // Custom endpoints (#687) round-trip their base_url; a keyless custom
+      // endpoint is still importable as long as base_url is present.
+      const baseUrl = typeof row.baseUrl === 'string' && row.baseUrl.trim()
+        ? row.baseUrl.trim()
+        : undefined;
+
+      if (platform === 'custom') {
+        if (!baseUrl) {
+          result.skipped.push(`${label}: custom entry missing baseUrl`);
+          continue;
+        }
+        // A keyless endpoint stores the 'no-key' sentinel on export; keep the
+        // raw value (which may be '') so the import path can distinguish.
+        const rawValue = keyValue.trim() || 'no-key';
+        result.keys.push({
+          rawKey: `${label}=${rawValue}`,
+          prefix: 'CUSTOM_',
+          platform: 'custom',
+          baseUrl,
+        });
+        continue;
+      }
 
       if (!keyValue.trim()) {
         result.skipped.push(`${label}: empty key value`);
@@ -270,13 +328,13 @@ export function parseExportJson(content: string): ParseResult | null {
 }
 
 /**
- * Parse CSV format: platform,key,label (with optional header row).
+ * Parse CSV format: platform,key,label(,base_url)? (with optional header row).
  */
-export function parseCsv(content: string): Array<{ key: string; value: string }> {
+export function parseCsv(content: string): Array<{ key: string; value: string; platform?: string; baseUrl?: string }> {
   const lines = content.split('\n').filter(l => l.trim());
   if (lines.length === 0) return [];
 
-  const result: Array<{ key: string; value: string }> = [];
+  const result: Array<{ key: string; value: string; platform?: string; baseUrl?: string }> = [];
 
   // Skip header row if it looks like a CSV header
   const startIdx = lines[0]!.toLowerCase().startsWith('platform,') ? 1 : 0;
@@ -284,17 +342,26 @@ export function parseCsv(content: string): Array<{ key: string; value: string }>
   for (let i = startIdx; i < lines.length; i++) {
     const line = lines[i]!;
     // Simple CSV parsing: split on comma, strip quotes
-    const match = line.match(/^"?([^"]*?)"?,"?([^"]*?)"?(?:,"?([^"]*?)"?)?$/);
+    const match = line.match(/^"?([^"]*?)"?,"?([^"]*?)"?(?:,"?([^"]*?)"?)?(?:,"?([^"]*?)"?)?$/);
     if (!match) continue;
 
     const platform = (match[1] ?? '').trim();
     const key = (match[2] ?? '').trim();
     const label = (match[3] ?? '').trim() || platform;
+    const baseUrl = (match[4] ?? '').trim() || undefined;
 
-    if (!key || !platform) continue;
+    if (!platform) continue;
+    // Custom rows are valid with an empty key (keyless endpoint) as long as
+    // they carry a base_url; everything else still needs a non-empty key.
+    if (platform === 'custom') {
+      if (!baseUrl) continue;
+      result.push({ key: label, value: key || 'no-key', platform, baseUrl });
+      continue;
+    }
+    if (!key) continue;
 
     const envKey = `${platform.toUpperCase()}_KEY`;
-    result.push({ key: envKey, value: key });
+    result.push({ key: envKey, value: key, platform });
   }
 
   return result;
@@ -382,11 +449,28 @@ export function looksLikeApiKey(value: string): boolean {
   return /[a-z]/i.test(value);
 }
 
-function toParsedKeys(pairs: Array<{ key: string; value: string }>): ParseResult {
+function toParsedKeys(pairs: Array<{ key: string; value: string; platform?: string; baseUrl?: string }>): ParseResult {
   const keys: ParsedKey[] = [];
   const skipped: string[] = [];
 
-  for (const { key, value } of pairs) {
+  for (const { key, value, platform: explicitPlatform, baseUrl } of pairs) {
+    // Custom entries come from parseCsv with their baseUrl already attached
+    // and platform='custom' set explicitly. toParsedKeys otherwise infers
+    // platform from the env-var prefix, which doesn't exist for custom rows.
+    if (explicitPlatform === 'custom') {
+      if (!baseUrl) {
+        skipped.push(`${key}: custom entry missing baseUrl`);
+        continue;
+      }
+      keys.push({
+        rawKey: `${key}=${value || 'no-key'}`,
+        prefix: 'CUSTOM_',
+        platform: 'custom',
+        baseUrl,
+      });
+      continue;
+    }
+
     const prefix = extractPrefix(key);
     const platform = detectPlatform(prefix);
 
