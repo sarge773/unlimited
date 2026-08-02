@@ -45,6 +45,12 @@ const DEFAULT_DASHBOARD_ORIGINS = [
   'http://[::1]:5173',
 ];
 
+// SHA-256 of the inline theme/direction bootstrap in client/index.html, which
+// must run before first paint. Kept as a literal so the CSP header stays a
+// constant string; csp-inline-bootstrap.test.ts recomputes it from the real
+// index.html (source and build) and fails if the two ever drift apart.
+export const INLINE_BOOTSTRAP_SHA = "'sha256-4Mz/yZAENQGlTAAeE1WqXruXCripvlvl0s+Q9S1VS4A='";
+
 // A build asset is safe to cache forever+immutable when its URL is
 // content-addressed. Vite parks every hashed chunk (JS, CSS, fonts, images)
 // under assets/, so that directory is the reliable signal; the -<hash>.<ext>
@@ -81,7 +87,13 @@ export function createApp(config?: Config) {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
+        // index.html carries one inline <script>: the theme/direction bootstrap
+        // that has to run before first paint, or every dark-mode user gets a
+        // white flash. 'self' alone blocks it on every install, HTTPS included,
+        // so it is allowed by hash — nothing else inline is. INLINE_BOOTSTRAP_SHA
+        // is asserted against the real index.html in csp-inline-bootstrap.test.ts,
+        // so editing that script fails the suite instead of silently breaking it.
+        scriptSrc: ["'self'", INLINE_BOOTSTRAP_SHA],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:"],
         connectSrc: ["'self'"],

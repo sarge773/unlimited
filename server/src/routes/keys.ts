@@ -63,6 +63,9 @@ const importKeySchema = z.object({
   keyName: z.string().optional(),
   keyValue: z.string().min(1),
   platform: z.enum(PLATFORMS),
+  // A custom row names an ENDPOINT, so it only means something with the URL
+  // the export file carried alongside it (#687).
+  baseUrl: z.string().optional(),
 });
 
 function handleUploadError(err: any, res: Response, next: NextFunction): boolean {
@@ -1027,7 +1030,7 @@ keysRouter.post('/preview', (req: Request, res: Response, next: NextFunction) =>
         return;
       }
 
-      const keys: Array<{ keyName: string; keyValue: string; detectedPlatform: string | null; prefix: string; isDuplicate: boolean }> = [];
+      const keys: Array<{ keyName: string; keyValue: string; detectedPlatform: string | null; prefix: string; baseUrl?: string; isDuplicate: boolean }> = [];
       const skipped: string[] = [];
 
       // Build a set of existing decrypted key values for duplicate detection
@@ -1053,6 +1056,10 @@ keysRouter.post('/preview', (req: Request, res: Response, next: NextFunction) =>
             keyValue,
             detectedPlatform: parsedKey.platform,
             prefix: parsedKey.prefix,
+            // Without this the dialog can show a custom row but never restore
+            // it — the endpoint it belongs to would be lost between the two
+            // calls the dashboard actually makes (#687).
+            ...(parsedKey.baseUrl ? { baseUrl: parsedKey.baseUrl } : {}),
             isDuplicate,
           });
         }
@@ -1066,7 +1073,7 @@ keysRouter.post('/preview', (req: Request, res: Response, next: NextFunction) =>
   });
 });
 
-keysRouter.post('/import-selected', (req: Request, res: Response) => {
+keysRouter.post('/import-selected', async (req: Request, res: Response) => {
   const parsed = z.object({ keys: z.array(importKeySchema).max(100) }).safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: { message: parsed.error.errors.map(e => e.message).join(', ') } });
@@ -1087,10 +1094,45 @@ keysRouter.post('/import-selected', (req: Request, res: Response) => {
     } catch { /* skip undecryptable rows */ }
   }
 
+  // One SSRF verdict per endpoint, not per key — same reasoning as /import: a
+  // pooled endpoint brings several keys to one URL and each check costs a DNS
+  // lookup.
+  const urlVerdicts = new Map<string, { allowed: boolean; reason?: string }>();
+
   for (const key of parsed.data.keys) {
     const keyName = key.keyName?.trim() || key.platform;
+    // This is the route the dashboard actually uses (preview → import-selected),
+    // so a custom endpoint could not be restored from its own export file until
+    // it handled one — /import alone was never reachable from the UI (#687).
     if (key.platform === 'custom') {
-      errors.push({ key: keyName, error: 'Custom providers must be added with a base URL' });
+      if (!key.baseUrl) {
+        errors.push({ key: keyName, error: 'Custom providers must be added with a base URL' });
+        continue;
+      }
+      const baseUrl = normalizeBaseUrl(key.baseUrl);
+      // An import file can name a cloud metadata address just as easily as the
+      // manual add form can (#440), so it gets the same guard.
+      let verdict = urlVerdicts.get(baseUrl);
+      if (!verdict) {
+        verdict = await assessProviderUrl(baseUrl);
+        urlVerdicts.set(baseUrl, verdict);
+      }
+      if (!verdict.allowed) {
+        errors.push({ key: keyName, error: `baseUrl rejected: ${verdict.reason}` });
+        continue;
+      }
+      try {
+        // 'no-key' is the auth-less-local-server placeholder, not a secret —
+        // hand it over as "no key submitted" so the resolver stores the
+        // sentinel once instead of encrypting the literal string. Going
+        // through the resolver (not a raw INSERT) keeps endpoint pooling
+        // intact, so re-importing does not duplicate the row (#619).
+        const secret = key.keyValue.trim() === 'no-key' ? undefined : key.keyValue.trim() || undefined;
+        resolveCustomEndpointKey(db, baseUrl, secret, keyName);
+        imported++;
+      } catch (err) {
+        errors.push({ key: keyName, error: (err as Error).message });
+      }
       continue;
     }
 

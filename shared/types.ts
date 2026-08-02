@@ -5,6 +5,8 @@ export interface PreviewKey {
   keyValue: string;
   detectedPlatform: string | null;
   prefix: string;
+  /** Custom endpoints only: the upstream URL the export file carried (#687). */
+  baseUrl?: string;
   isDuplicate?: boolean;
 }
 
@@ -12,6 +14,7 @@ export interface ImportKey {
   keyName: string;
   keyValue: string;
   platform: string;
+  baseUrl?: string;
 }
 
 export interface PreviewResponse {
