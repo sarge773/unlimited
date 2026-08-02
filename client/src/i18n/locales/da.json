@@ -325,6 +325,7 @@
     "selectPlatform": "Vælg en udbyder",
     "addKey": "Tilføj nøgle",
     "keyAdded": "Nøgle tilføjet",
+    "endpointKeysShareModels": "Nøgler til det samme endpoint deler dets modeller.",
     "export": "Eksport",
     "exportAll": "Alle nøgler",
     "exportHealthy": "Kun sundt",

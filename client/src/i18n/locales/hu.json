@@ -325,6 +325,7 @@
     "selectPlatform": "Válassz szolgáltatót",
     "addKey": "Add hozzá kulcsot",
     "keyAdded": "Kulcs hozzáadva",
+    "endpointKeysShareModels": "Ugyanazon végpont kulcsai közösen használják annak modelljeit.",
     "export": "Export",
     "exportAll": "Minden kulcs",
     "exportHealthy": "Csak egészségesnek",

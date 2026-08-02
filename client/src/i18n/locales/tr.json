@@ -325,6 +325,7 @@
     "selectPlatform": "Bir sağlayıcı seçin",
     "addKey": "Anahtar ekle",
     "keyAdded": "Anahtar eklendi",
+    "endpointKeysShareModels": "Aynı uç noktanın anahtarları onun modellerini paylaşır.",
     "export": "İhracat",
     "exportAll": "Tüm tuşlar",
     "exportHealthy": "Yalnızca sağlıklı",

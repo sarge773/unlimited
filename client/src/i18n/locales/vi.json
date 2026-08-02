@@ -325,6 +325,7 @@
     "selectPlatform": "Chọn nhà cung cấp",
     "addKey": "Thêm khóa",
     "keyAdded": "Đã thêm khóa",
+    "endpointKeysShareModels": "Các khóa của cùng một endpoint dùng chung các mô hình của nó.",
     "export": "Xuất khẩu",
     "exportAll": "Tất cả các phím",
     "exportHealthy": "Chỉ khỏe mạnh",

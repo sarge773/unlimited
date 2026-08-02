@@ -325,6 +325,7 @@
     "selectPlatform": "בחר ספק",
     "addKey": "הוספת מפתח",
     "keyAdded": "מפתח נוסף",
+    "endpointKeysShareModels": "מפתחות של אותה נקודת קצה משתפים את המודלים שלה.",
     "export": "יצוא",
     "exportAll": "כל המפתחות",
     "exportHealthy": "בריא בלבד",

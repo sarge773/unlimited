@@ -325,6 +325,7 @@
     "selectPlatform": "Pumili ng provider",
     "addKey": "Add key",
     "keyAdded": "Idinagdag ang susi",
+    "endpointKeysShareModels": "Ang mga susi ng parehong endpoint ay nagbabahagi ng mga modelo nito.",
     "export": "Pag-export",
     "exportAll": "Lahat ng susi",
     "exportHealthy": "Malusog lamang",

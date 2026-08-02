@@ -325,6 +325,7 @@
     "selectPlatform": "Odaberite pružatelja usluga",
     "addKey": "Dodaj ključ",
     "keyAdded": "Ključ dodan",
+    "endpointKeysShareModels": "Ključevi iste krajnje točke dijele njezine modele.",
     "export": "Izvoz",
     "exportAll": "Sve tipke",
     "exportHealthy": "Samo za zdravlje",

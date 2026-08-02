@@ -193,4 +193,106 @@ describe('multiple keys per custom endpoint (#619)', () => {
     expect(secrets(other)).toEqual(['shared-secret']);
     expect(routePinnedModel(chatModel('other-model')!.id)!.provider).toMatchObject({ baseUrl: other });
   });
+
+  // #702: every route into POST /custom demanded a model alongside the key, so
+  // an endpoint whose models were all registered had no way left to take a
+  // second credential. The reporter got past it by registering a throwaway
+  // model id and deleting it afterwards, which silently took the new key too.
+  describe('adding a key without naming a model (#702)', () => {
+    const modelSettings = (modelId: string) => getDb().prepare(
+      "SELECT key_id, enabled, display_name, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ?",
+    ).get(modelId) as { key_id: number; enabled: number; display_name: string; supports_tools: number; supports_vision: number };
+
+    it('adds a second credential to an endpoint that is fully registered', async () => {
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-model', apiKey: 'first-secret' });
+
+      const res = await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, apiKey: 'second-secret', label: 'Relay B' });
+
+      expect(res.status).toBe(201);
+      expect((res.body as any).models).toEqual([]);
+      expect(secrets()).toEqual(['first-secret', 'second-secret']);
+      expect(customKeys()[1]!.label).toBe('Relay B');
+    });
+
+    it('leaves the models of the endpoint exactly as they were', async () => {
+      await post(app, '/api/keys/custom', {
+        baseUrl: ENDPOINT, model: 'relay-model', apiKey: 'first-secret', supportsTools: true, supportsVision: true,
+      });
+      const before = modelSettings('relay-model');
+      // Whatever the operator tuned afterwards has to survive the key add: going
+      // through the model form instead resets all of this.
+      getDb().prepare("UPDATE models SET enabled = 0, display_name = 'Tuned name' WHERE platform = 'custom' AND model_id = 'relay-model'").run();
+
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, apiKey: 'second-secret' });
+
+      expect(modelSettings('relay-model')).toEqual({
+        key_id: before.key_id,
+        enabled: 0,
+        display_name: 'Tuned name',
+        supports_tools: 1,
+        supports_vision: 1,
+      });
+    });
+
+    it('puts the new credential straight into the rotation pool', async () => {
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-model', apiKey: 'first-secret' });
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, apiKey: 'second-secret' });
+
+      const modelDbId = chatModel('relay-model')!.id;
+      const usedSecrets = new Set<string>();
+      for (let i = 0; i < 6; i++) {
+        const route = routePinnedModel(modelDbId);
+        usedSecrets.add(route!.apiKey);
+        route!.release?.();
+      }
+
+      expect([...usedSecrets].sort()).toEqual(['first-secret', 'second-secret']);
+    });
+
+    it('upgrades a keyless endpoint in place rather than adding a row', async () => {
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-model' });
+
+      const res = await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, apiKey: 'first-secret' });
+
+      // 'no-key' is a placeholder, not a credential, so nothing is lost.
+      expect(res.status).toBe(200);
+      expect(secrets()).toEqual(['first-secret']);
+    });
+
+    it('rejects a secret the endpoint already holds', async () => {
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-model', apiKey: 'first-secret' });
+
+      const res = await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, apiKey: 'first-secret' });
+
+      expect(res.status).toBe(409);
+      expect(secrets()).toEqual(['first-secret']);
+    });
+
+    it('still requires a model for an endpoint that does not exist yet', async () => {
+      const res = await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, apiKey: 'first-secret' });
+
+      expect(res.status).toBe(400);
+      expect(customKeys()).toHaveLength(0);
+    });
+
+    it('still requires a model when no key is submitted either', async () => {
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-model', apiKey: 'first-secret' });
+
+      const res = await post(app, '/api/keys/custom', { baseUrl: ENDPOINT });
+
+      expect(res.status).toBe(400);
+      expect((res.body as any).error.message).toBe('model or models is required');
+    });
+
+    it('keeps a spare key when the model it arrived with is deleted', async () => {
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-model', apiKey: 'first-secret' });
+      await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'placeholder', apiKey: 'second-secret' });
+      expect(secrets()).toEqual(['first-secret', 'second-secret']);
+
+      expect((await del(app, `/api/models/custom/${chatModel('placeholder')!.id}`)).status).toBe(200);
+
+      // The endpoint still serves relay-model, so neither key is dead weight.
+      expect(secrets()).toEqual(['first-secret', 'second-secret']);
+    });
+  });
 });

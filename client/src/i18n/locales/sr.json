@@ -325,6 +325,7 @@
     "selectPlatform": "Изаберите провајдера",
     "addKey": "Додај кључ",
     "keyAdded": "Кључ је додат",
+    "endpointKeysShareModels": "Кључеви исте крајње тачке деле њене моделе.",
     "export": "Извоз",
     "exportAll": "Сви кључеви",
     "exportHealthy": "Само здраво",

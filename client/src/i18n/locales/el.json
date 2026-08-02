@@ -325,6 +325,7 @@
     "selectPlatform": "Επιλέξτε έναν πάροχο",
     "addKey": "Προσθήκη κλειδιού",
     "keyAdded": "Προστέθηκε κλειδί",
+    "endpointKeysShareModels": "Τα κλειδιά του ίδιου endpoint μοιράζονται τα μοντέλα του.",
     "export": "Εξαγωγή",
     "exportAll": "Όλα τα κλειδιά",
     "exportHealthy": "Μόνο υγιεινά",

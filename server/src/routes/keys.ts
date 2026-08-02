@@ -11,7 +11,7 @@ import { assessProviderUrl } from '../lib/url-guard.js';
 import { verifyCredentials } from '../services/auth.js';
 import { ensureModelInProfiles } from '../services/profile-models.js';
 import { getActiveCooldownsForKeys, clearCooldownsForKey } from '../services/ratelimit.js';
-import { resolveCustomEndpointKey, customEndpointKeyIds, siblingEndpointKeyId } from '../services/custom-endpoint.js';
+import { resolveCustomEndpointKey, customEndpointKeyIds, siblingEndpointKeyId, endpointHasCredential } from '../services/custom-endpoint.js';
 import { customModelSeed } from '../services/custom-model-seed.js';
 import { discoverEndpointModels, ModelDiscoveryError } from '../services/model-discovery.js';
 import { endpointScopeForBaseUrl, normalizeBaseUrl } from '../lib/endpoint-scope.js';
@@ -502,12 +502,14 @@ const customProviderSchema = z.object({
   supportsTools: z.boolean().optional(),
   supportsVision: z.boolean().optional(),
 }).refine(
-  d => (d.model && d.model.trim().length > 0) || (d.models && d.models.length > 0),
-  { message: 'model or models is required' },
-).refine(
   d => d.baseUrl !== undefined || d.keyId !== undefined,
   { message: 'baseUrl or keyId is required' },
 );
+// Naming no model at all is the credential-only add: a second key for an
+// endpoint already registered (#702). It needs the endpoint to exist and a key
+// to actually add, so those two checks live in the handler where the DB is in
+// reach; a submit that is neither that nor a registration still gets the old
+// 'model or models is required'.
 
 interface CustomEndpointRef {
   baseUrl: string;
@@ -692,12 +694,40 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
     else addEntry(m.model, m.displayName, m.supportsTools, m.supportsVision);
   }
 
+  const db = getDb();
+
+  // Credential-only add (#702): a relay hands out one key per plan, and pooling
+  // them is the point of #619, but every route into this handler used to demand
+  // a model alongside the key. On an endpoint whose models are all registered
+  // there was nothing left to name, so operators invented a throwaway model id
+  // to get past the check, and deleting it afterwards took the new key with it.
   if (entries.length === 0) {
-    res.status(400).json({ error: { message: 'model or models is required' } });
+    if (!providedKey) {
+      res.status(400).json({ error: { message: 'model or models is required' } });
+      return;
+    }
+    if (endpoint.keyId === null) {
+      res.status(400).json({ error: { message: 'model or models is required to register a new endpoint' } });
+      return;
+    }
+    if (endpointHasCredential(db, baseUrl, providedKey)) {
+      res.status(409).json({ error: { message: 'this endpoint already has that key' } });
+      return;
+    }
+    const added = resolveCustomEndpointKey(db, baseUrl, providedKey, label, endpoint.keyId);
+    res.status(added.created ? 201 : 200).json({
+      success: true,
+      keyId: added.keyId,
+      platform: 'custom',
+      baseUrl,
+      models: [],
+      created: 0,
+      alreadyRegistered: 0,
+      maskedKey: maskKey(added.storedKey),
+    });
     return;
   }
 
-  const db = getDb();
   const upsert = db.transaction(() => {
     // Key rows are matched on (base_url, secret): a new secret for a known
     // endpoint is a SECOND credential for it, not a replacement (#619), and a

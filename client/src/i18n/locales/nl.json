@@ -325,6 +325,7 @@
     "selectPlatform": "Selecteer een aanbieder",
     "addKey": "Voeg sleutel toe",
     "keyAdded": "Sleutel toegevoegd",
+    "endpointKeysShareModels": "Sleutels voor hetzelfde endpoint delen de modellen ervan.",
     "export": "Export",
     "exportAll": "Alle sleutels",
     "exportHealthy": "Alleen gezond",

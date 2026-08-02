@@ -325,6 +325,7 @@
     "selectPlatform": "Valitse palveluntarjoaja",
     "addKey": "Lisää avain",
     "keyAdded": "Avain lisätty",
+    "endpointKeysShareModels": "Saman päätepisteen avaimet jakavat sen mallit.",
     "export": "Vienti",
     "exportAll": "Kaikki avaimet",
     "exportHealthy": "Vain terveellisiä",

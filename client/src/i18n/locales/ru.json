@@ -325,6 +325,7 @@
     "selectPlatform": "Выберите провайдера",
     "addKey": "Добавить ключ",
     "keyAdded": "Ключ добавлен",
+    "endpointKeysShareModels": "Ключи одной точки доступа используют одни и те же модели.",
     "export": "Экспорт",
     "exportAll": "Все ключи",
     "exportHealthy": "Только здоровый",

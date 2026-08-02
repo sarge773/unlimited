@@ -325,6 +325,7 @@
     "selectPlatform": "Виберіть провайдера",
     "addKey": "Додати ключ",
     "keyAdded": "Ключ додано",
+    "endpointKeysShareModels": "Ключі однієї кінцевої точки спільно використовують її моделі.",
     "export": "Експорт",
     "exportAll": "Всі ключі",
     "exportHealthy": "Тільки здорові",

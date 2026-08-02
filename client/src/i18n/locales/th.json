@@ -325,6 +325,7 @@
     "selectPlatform": "เลือกผู้ให้บริการ",
     "addKey": "เพิ่มรหัส",
     "keyAdded": "เพิ่มคีย์แล้ว",
+    "endpointKeysShareModels": "คีย์ของเอนด์พอยต์เดียวกันใช้โมเดลร่วมกัน",
     "export": "ส่งออก",
     "exportAll": "กุญแจทั้งหมด",
     "exportHealthy": "ดีต่อสุขภาพเท่านั้น",

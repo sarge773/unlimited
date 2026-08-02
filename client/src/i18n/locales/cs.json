@@ -325,6 +325,7 @@
     "selectPlatform": "Vyberte poskytovatele",
     "addKey": "Přidat klíč",
     "keyAdded": "Klíč přidán",
+    "endpointKeysShareModels": "Klíče stejného endpointu sdílejí jeho modely.",
     "export": "Export",
     "exportAll": "Všechny tóniny",
     "exportHealthy": "Pouze zdravé",

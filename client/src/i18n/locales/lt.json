@@ -325,6 +325,7 @@
     "selectPlatform": "Pasirinkite paslaugų teikėją",
     "addKey": "Pridėti klavišą",
     "keyAdded": "Pridėtas raktas",
+    "endpointKeysShareModels": "To paties galinio taško raktai dalijasi jo modeliais.",
     "export": "Eksportas",
     "exportAll": "Visi raktai",
     "exportHealthy": "Tik sveiki",

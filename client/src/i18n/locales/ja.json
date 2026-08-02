@@ -325,6 +325,7 @@
     "selectPlatform": "プロバイダーを選択してください",
     "addKey": "キーを追加",
     "keyAdded": "キーが追加されました",
+    "endpointKeysShareModels": "同じエンドポイントのキーはそのモデルを共有します。",
     "export": "エクスポート",
     "exportAll": "すべてのキー",
     "exportHealthy": "健康のみ",

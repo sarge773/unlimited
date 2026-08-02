@@ -32,6 +32,7 @@ import {
 } from './shared'
 import type { HealthData } from './shared'
 import { DiscoverModelsDialog } from './discover-models-dialog'
+import { AddEndpointKeyDialog } from './add-endpoint-key-dialog'
 
 type StatusFilter = 'all' | 'healthy' | 'issues' | 'disabled'
 
@@ -52,6 +53,10 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
   // Custom endpoint whose model list is being fetched (#488) — relays change
   // what they serve constantly, so this is a repeat action, not a one-off.
   const [discoverKeyId, setDiscoverKeyId] = useState<number | null>(null)
+  // Custom endpoint taking another credential (#702). Keyed by base URL, since
+  // a key joins the pool of an endpoint rather than of the row it was opened
+  // from, and every key of that endpoint offers the same action.
+  const [addKeyBaseUrl, setAddKeyBaseUrl] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
 
   const { data: keys = [], isLoading } = useQuery<ApiKey[]>({
@@ -418,16 +423,28 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                                 </Button>
                               )}
                               {k.platform === 'custom' && k.baseUrl && (
-                                <Tooltip text={t('keys.discoverModels')}>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon-xs"
-                                    onClick={() => setDiscoverKeyId(k.id)}
-                                    aria-label={t('keys.discoverModels')}
-                                  >
-                                    <ListPlus className="size-3" />
-                                  </Button>
-                                </Tooltip>
+                                <>
+                                  <Tooltip text={t('keys.addKey')}>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => setAddKeyBaseUrl(k.baseUrl!)}
+                                      aria-label={t('keys.addKey')}
+                                    >
+                                      <KeyRound className="size-3" />
+                                    </Button>
+                                  </Tooltip>
+                                  <Tooltip text={t('keys.discoverModels')}>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => setDiscoverKeyId(k.id)}
+                                      aria-label={t('keys.discoverModels')}
+                                    >
+                                      <ListPlus className="size-3" />
+                                    </Button>
+                                  </Tooltip>
+                                </>
                               )}
                               <Tooltip text={t('keys.checkNow')}>
                                 <Button
@@ -508,6 +525,14 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
           open
           onOpenChange={(open) => { if (!open) setDiscoverKeyId(null) }}
           endpoint={{ keyId: discoverKeyId }}
+        />
+      )}
+
+      {addKeyBaseUrl !== null && (
+        <AddEndpointKeyDialog
+          open
+          onOpenChange={(open) => { if (!open) setAddKeyBaseUrl(null) }}
+          baseUrl={addKeyBaseUrl}
         />
       )}
     </div>

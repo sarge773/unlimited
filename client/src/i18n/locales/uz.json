@@ -325,6 +325,7 @@
     "selectPlatform": "Provayderni tanlang",
     "addKey": "Kalit qo'shing",
     "keyAdded": "Kalit qo'shildi",
+    "endpointKeysShareModels": "Bir xil endpoint kalitlari uning modellarini baham ko'radi.",
     "export": "Eksport",
     "exportAll": "Barcha kalitlar",
     "exportHealthy": "Faqat sog'lom",

@@ -325,6 +325,7 @@
     "selectPlatform": "একটি প্রদানকারী নির্বাচন করুন",
     "addKey": "কী যোগ করুন",
     "keyAdded": "কী যোগ করা হয়েছে",
+    "endpointKeysShareModels": "একই এন্ডপয়েন্টের কীগুলি একই মডেল ভাগ করে।",
     "export": "রপ্তানি",
     "exportAll": "সব কী",
     "exportHealthy": "শুধুমাত্র স্বাস্থ্যকর",

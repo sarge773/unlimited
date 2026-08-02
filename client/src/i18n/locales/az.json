@@ -325,6 +325,7 @@
     "selectPlatform": "Təminatçı seçin",
     "addKey": "Açar əlavə et",
     "keyAdded": "Açar əlavə edildi",
+    "endpointKeysShareModels": "Eyni son nöqtənin açarları onun modellərini paylaşır.",
     "export": "İxrac",
     "exportAll": "Bütün açarlar",
     "exportHealthy": "Yalnız sağlam",

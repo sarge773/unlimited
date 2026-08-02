@@ -325,6 +325,7 @@
     "selectPlatform": "Alege un furnizor",
     "addKey": "Tonul de adăugare",
     "keyAdded": "Cheia adăugată",
+    "endpointKeysShareModels": "Cheile aceluiași endpoint partajează modelele acestuia.",
     "export": "Export",
     "exportAll": "Toate cheile",
     "exportHealthy": "Doar sănătos",

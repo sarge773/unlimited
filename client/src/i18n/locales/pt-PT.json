@@ -325,6 +325,7 @@
     "selectPlatform": "Selecione um fornecedor",
     "addKey": "Adicionar a tecla",
     "keyAdded": "Chave adicionada",
+    "endpointKeysShareModels": "As chaves do mesmo endpoint partilham os seus modelos.",
     "export": "Exportação",
     "exportAll": "Todas as tonalidades",
     "exportHealthy": "Apenas saudável",

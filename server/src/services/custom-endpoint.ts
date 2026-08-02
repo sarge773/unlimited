@@ -119,6 +119,13 @@ export function resolveCustomEndpointKey(
   return insertKey(db, baseUrl, providedKey, label);
 }
 
+/** True when this endpoint already stores this exact secret. Lets a caller tell
+ *  a genuinely new credential from a re-submit of one already in the pool, which
+ *  `resolveCustomEndpointKey` deliberately treats the same way. */
+export function endpointHasCredential(db: Db, baseUrl: string, secret: string): boolean {
+  return endpointKeyRows(db, baseUrl).some(row => plaintextOf(row) === secret);
+}
+
 /**
  * Every api_keys id that serves the SAME custom endpoint as `keyId` — i.e. the
  * credential pool a model bound to `keyId` may rotate across. Falls back to the

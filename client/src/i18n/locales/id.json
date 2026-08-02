@@ -325,6 +325,7 @@
     "selectPlatform": "Pilih penyedia",
     "addKey": "Tambahkan kunci",
     "keyAdded": "Kunci ditambahkan",
+    "endpointKeysShareModels": "Kunci untuk endpoint yang sama berbagi model-modelnya.",
     "export": "Ekspor",
     "exportAll": "Semua kunci",
     "exportHealthy": "Hanya sehat",

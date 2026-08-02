@@ -325,6 +325,7 @@
     "selectPlatform": "Selecciona un proveedor",
     "addKey": "Añadir clave",
     "keyAdded": "Clave añadida",
+    "endpointKeysShareModels": "Las claves del mismo endpoint comparten sus modelos.",
     "export": "Exportar",
     "exportAll": "All keys",
     "exportHealthy": "Healthy only",
