@@ -703,22 +703,22 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
   const label = parsed.data.label?.trim() || undefined;
 
   // Flatten singular + plural inputs into one list, dedupe by model id, drop
-  // blanks. The singular `displayName` only applies to a lone `model` (it can't
-  // sensibly fan out across many ids). Capability flags resolve per-entry first,
-  // then fall back to the submit-level defaults, then to undefined (DB default).
+  // blanks. Capability flags resolve per-entry first, then fall back to the
+  // submit-level defaults, then to undefined (DB default). `displayName` is
+  // optional and stays NULL when the submit did not name the model: the field
+  // is genuinely optional, so an unnamed model takes its id on insert and keeps
+  // whatever name it already has on re-registration (see the upsert below).
   const topTools = parsed.data.supportsTools;
   const topVision = parsed.data.supportsVision;
-  const entries: { modelId: string; displayName: string; named: boolean; supportsTools?: boolean; supportsVision?: boolean }[] = [];
+  const entries: { modelId: string; displayName: string | null; supportsTools?: boolean; supportsVision?: boolean }[] = [];
   const seen = new Set<string>();
   const addEntry = (rawId: string, rawDisplay?: string, tools?: boolean, vision?: boolean) => {
     const modelId = rawId.trim();
     if (!modelId || seen.has(modelId)) return;
     seen.add(modelId);
-    const named = rawDisplay?.trim();
     entries.push({
       modelId,
-      displayName: named || modelId,
-      named: !!named,
+      displayName: rawDisplay?.trim() || null,
       supportsTools: tools ?? topTools,
       supportsVision: vision ?? topVision,
     });
@@ -736,7 +736,7 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
   // single name cannot fan out across several ids, which is why the form
   // disables the input as soon as a second id is entered.
   const soleName = parsed.data.displayName?.trim();
-  if (soleName && !parsed.data.model?.trim() && entries.length === 1 && !entries[0]!.named) {
+  if (soleName && !parsed.data.model?.trim() && entries.length === 1 && entries[0]!.displayName === null) {
     entries[0]!.displayName = soleName;
   }
 
@@ -801,7 +801,10 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
       // credential doesn't re-bind it (#619).
       // Capability flags: an unset flag binds NULL so COALESCE picks the insert
       // default (tools 1, vision 0) on a new row and preserves the existing
-      // value on re-registration. (#470)
+      // value on re-registration. (#470) An omitted display name binds NULL the
+      // same way — it falls back to the model id on a new row and leaves a name
+      // already on the row alone, so the bulk re-registration behind "Fetch
+      // models" (which posts bare ids) can't wipe names the operator set.
       const bound = db.prepare(
         "SELECT key_id FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
       ).get(modelId, endpointScope) as { key_id: number | null } | undefined;
@@ -817,12 +820,12 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
           (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
            rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window, enabled, key_id,
            supports_tools, supports_vision, source, endpoint_scope)
-        VALUES ('custom', @modelId, @displayName, @intelligenceRank, @speedRank, @sizeLabel,
+        VALUES ('custom', @modelId, COALESCE(@displayName, @modelId), @intelligenceRank, @speedRank, @sizeLabel,
            NULL, NULL, NULL, NULL, '', NULL, 1, @keyId,
            COALESCE(@tools, 1), COALESCE(@vision, 0), 'user', @endpointScope)
         ON CONFLICT(platform, model_id, endpoint_scope)
         DO UPDATE SET
-          display_name = excluded.display_name,
+          display_name = COALESCE(@displayName, display_name),
           key_id = excluded.key_id,
           enabled = 1,
           supports_tools = COALESCE(@tools, supports_tools),
@@ -833,9 +836,12 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
         endpointScope,
       });
 
+      // Read back rather than echo the submitted values: an omitted display name
+      // or capability flag resolves in SQL, so the row is the only place that
+      // knows what this model is actually called now.
       const modelRow = db.prepare(
-        "SELECT id, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
-      ).get(modelId, endpointScope) as { id: number; supports_tools: number; supports_vision: number };
+        "SELECT id, display_name, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
+      ).get(modelId, endpointScope) as { id: number; display_name: string; supports_tools: number; supports_vision: number };
 
       // Append to the fallback chain if not already present.
       const inChain = db.prepare('SELECT 1 FROM fallback_config WHERE model_db_id = ?').get(modelRow.id);
@@ -848,7 +854,7 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
       registered.push({
         modelDbId: modelRow.id,
         model: modelId,
-        displayName,
+        displayName: modelRow.display_name,
         supportsTools: modelRow.supports_tools === 1,
         supportsVision: modelRow.supports_vision === 1,
         created,

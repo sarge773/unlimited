@@ -119,7 +119,10 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
     res.status(400).json({ error: { message: 'model is required' } });
     return;
   }
-  const displayName = parsed.data.displayName?.trim() || modelId;
+  // Optional: NULL means "no opinion". A new model takes its id, and a model
+  // already on record keeps the name it has instead of being reset by a submit
+  // that simply left the field blank (#704).
+  const submittedName = parsed.data.displayName?.trim() || null;
   const label = parsed.data.label?.trim() || undefined;
   const providedKey = parsed.data.apiKey?.trim() || undefined;
   const quotaLabel = parsed.data.quotaLabel?.trim() || 'custom endpoint';
@@ -149,14 +152,14 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
     if (existingModel) {
       db.prepare(`
         UPDATE media_models
-           SET display_name = ?,
+           SET display_name = COALESCE(?, display_name),
                modality = ?,
                priority = ?,
                enabled = 1,
                quota_label = ?,
                key_id = ?
          WHERE id = ?
-      `).run(displayName, parsed.data.modality, priority, quotaLabel, bindKeyId, existingModel.id);
+      `).run(submittedName, parsed.data.modality, priority, quotaLabel, bindKeyId, existingModel.id);
       return { modelDbId: existingModel.id, keyId, storedKeyForMask };
     }
 
@@ -164,11 +167,13 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
       INSERT INTO media_models
         (platform, model_id, display_name, modality, priority, enabled, quota_label, key_id)
       VALUES ('custom', ?, ?, ?, ?, 1, ?, ?)
-    `).run(modelId, displayName, parsed.data.modality, priority, quotaLabel, bindKeyId);
+    `).run(modelId, submittedName ?? modelId, parsed.data.modality, priority, quotaLabel, bindKeyId);
     return { modelDbId: Number(model.lastInsertRowid), keyId, storedKeyForMask };
   });
 
   const result = upsert();
+  const storedName = (db.prepare('SELECT display_name FROM media_models WHERE id = ?')
+    .get(result.modelDbId) as { display_name: string }).display_name;
   res.status(201).json({
     success: true,
     keyId: result.keyId,
@@ -176,7 +181,7 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
     platform: 'custom',
     baseUrl,
     model: modelId,
-    displayName,
+    displayName: storedName,
     modality: parsed.data.modality,
     maskedKey: maskKey(result.storedKeyForMask),
   });

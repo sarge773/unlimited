@@ -395,6 +395,68 @@ describe('Custom Provider Endpoints', () => {
       expect(status).toBe(201);
       expect(body.models[0].displayName).toBe('Per Entry');
     });
+
+    // The name is optional in the form and optional on the wire: not naming a
+    // model is a real choice, not an omission to paper over.
+    it.each([
+      ['omitted', undefined],
+      ['empty', ''],
+      ['blank', '   '],
+    ])('falls back to the model id when the display name is %s', async (kind, displayName) => {
+      const modelId = `unnamed-${kind}`;
+      const { status, body } = await post(app, '/api/keys/custom', {
+        baseUrl: 'http://127.0.0.1:9995/v1',
+        models: [modelId],
+        ...(displayName === undefined ? {} : { displayName }),
+      });
+      expect(status).toBe(201);
+      expect(body.models[0].displayName).toBe(modelId);
+
+      const row = getDb().prepare(
+        "SELECT display_name FROM models WHERE platform = 'custom' AND model_id = ?",
+      ).get(modelId) as any;
+      expect(row.display_name).toBe(modelId);
+    });
+
+    // "Fetch models" (#488) re-posts bare ids for everything the endpoint
+    // serves, including models already registered. Leaving the name out must
+    // mean "no opinion", not "reset it" — the same rule the capability flags
+    // already follow.
+    it('keeps a name already on the model when a later submit omits one', async () => {
+      await post(app, '/api/keys/custom', {
+        baseUrl: 'http://127.0.0.1:9994/v1',
+        models: ['keeper:1'],
+        displayName: 'Kept Name',
+      });
+
+      const { status, body } = await post(app, '/api/keys/custom', {
+        baseUrl: 'http://127.0.0.1:9994/v1',
+        models: ['keeper:1', 'newcomer:1'],
+      });
+      expect(status).toBe(201);
+      expect(body.models.find((m: any) => m.model === 'keeper:1').displayName).toBe('Kept Name');
+      // …while a model nobody named still takes its id.
+      expect(body.models.find((m: any) => m.model === 'newcomer:1').displayName).toBe('newcomer:1');
+
+      const row = getDb().prepare(
+        "SELECT display_name FROM models WHERE platform = 'custom' AND model_id = 'keeper:1'",
+      ).get() as any;
+      expect(row.display_name).toBe('Kept Name');
+    });
+
+    it('still renames a model when a later submit does name one', async () => {
+      await post(app, '/api/keys/custom', {
+        baseUrl: 'http://127.0.0.1:9993/v1',
+        models: ['renamed:1'],
+        displayName: 'First Name',
+      });
+      const { body } = await post(app, '/api/keys/custom', {
+        baseUrl: 'http://127.0.0.1:9993/v1',
+        models: ['renamed:1'],
+        displayName: 'Second Name',
+      });
+      expect(body.models[0].displayName).toBe('Second Name');
+    });
   });
 
   // #470: custom models used to register with supports_tools = 0, so agentic

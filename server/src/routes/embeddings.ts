@@ -95,7 +95,10 @@ embeddingsRouter.post('/custom', async (req: Request, res: Response) => {
     res.status(400).json({ error: { message: 'model is required' } });
     return;
   }
-  const displayName = parsed.data.displayName?.trim() || modelId;
+  // Optional: NULL means "no opinion". A new model takes its id, and a model
+  // already on record keeps the name it has instead of being reset by a submit
+  // that simply left the field blank (#704).
+  const submittedName = parsed.data.displayName?.trim() || null;
   const family = parsed.data.family?.trim() || modelId;
   const providedKey = parsed.data.apiKey?.trim() || undefined;
   const label = parsed.data.label?.trim() || undefined;
@@ -162,7 +165,7 @@ embeddingsRouter.post('/custom', async (req: Request, res: Response) => {
       db.prepare(`
         UPDATE embedding_models
            SET family = ?,
-               display_name = ?,
+               display_name = COALESCE(?, display_name),
                dimensions = ?,
                max_input_tokens = ?,
                priority = ?,
@@ -170,7 +173,7 @@ embeddingsRouter.post('/custom', async (req: Request, res: Response) => {
                quota_label = ?,
                key_id = ?
          WHERE id = ?
-      `).run(family, displayName, dimensions, parsed.data.maxInputTokens ?? null, priority, quotaLabel, bindKeyId, existingModel.id);
+      `).run(family, submittedName, dimensions, parsed.data.maxInputTokens ?? null, priority, quotaLabel, bindKeyId, existingModel.id);
       return { modelDbId: existingModel.id, keyId, storedKeyForMask };
     }
 
@@ -178,11 +181,13 @@ embeddingsRouter.post('/custom', async (req: Request, res: Response) => {
       INSERT INTO embedding_models
         (family, platform, model_id, display_name, dimensions, max_input_tokens, priority, enabled, quota_label, key_id)
       VALUES (?, 'custom', ?, ?, ?, ?, ?, 1, ?, ?)
-    `).run(family, modelId, displayName, dimensions, parsed.data.maxInputTokens ?? null, priority, quotaLabel, bindKeyId);
+    `).run(family, modelId, submittedName ?? modelId, dimensions, parsed.data.maxInputTokens ?? null, priority, quotaLabel, bindKeyId);
     return { modelDbId: Number(model.lastInsertRowid), keyId, storedKeyForMask };
   });
 
   const result = upsert();
+  const storedName = (db.prepare('SELECT display_name FROM embedding_models WHERE id = ?')
+    .get(result.modelDbId) as { display_name: string }).display_name;
   res.status(201).json({
     success: true,
     keyId: result.keyId,
@@ -190,7 +195,7 @@ embeddingsRouter.post('/custom', async (req: Request, res: Response) => {
     platform: 'custom',
     baseUrl,
     model: modelId,
-    displayName,
+    displayName: storedName,
     family,
     dimensions,
     maskedKey: maskKey(result.storedKeyForMask),
