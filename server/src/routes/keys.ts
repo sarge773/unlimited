@@ -708,15 +708,17 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
   // then fall back to the submit-level defaults, then to undefined (DB default).
   const topTools = parsed.data.supportsTools;
   const topVision = parsed.data.supportsVision;
-  const entries: { modelId: string; displayName: string; supportsTools?: boolean; supportsVision?: boolean }[] = [];
+  const entries: { modelId: string; displayName: string; named: boolean; supportsTools?: boolean; supportsVision?: boolean }[] = [];
   const seen = new Set<string>();
   const addEntry = (rawId: string, rawDisplay?: string, tools?: boolean, vision?: boolean) => {
     const modelId = rawId.trim();
     if (!modelId || seen.has(modelId)) return;
     seen.add(modelId);
+    const named = rawDisplay?.trim();
     entries.push({
       modelId,
-      displayName: (rawDisplay?.trim() || modelId),
+      displayName: named || modelId,
+      named: !!named,
       supportsTools: tools ?? topTools,
       supportsVision: vision ?? topVision,
     });
@@ -725,6 +727,17 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
   for (const m of parsed.data.models ?? []) {
     if (typeof m === 'string') addEntry(m);
     else addEntry(m.model, m.displayName, m.supportsTools, m.supportsVision);
+  }
+  // A lone model submitted through the plural `models` also carries its name in
+  // the top-level `displayName` — that is exactly what the dashboard's custom
+  // form sends, and binding the field to the singular `model` alone silently
+  // dropped the name the user typed, leaving the row named after its model id
+  // (#704). Only a submit that resolves to ONE unnamed model may take it: a
+  // single name cannot fan out across several ids, which is why the form
+  // disables the input as soon as a second id is entered.
+  const soleName = parsed.data.displayName?.trim();
+  if (soleName && !parsed.data.model?.trim() && entries.length === 1 && !entries[0]!.named) {
+    entries[0]!.displayName = soleName;
   }
 
   const db = getDb();

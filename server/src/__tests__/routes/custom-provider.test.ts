@@ -356,6 +356,45 @@ describe('Custom Provider Endpoints', () => {
       const { status } = await post(app, '/api/keys/custom', { baseUrl: 'http://127.0.0.1:9999/v1' });
       expect(status).toBe(400);
     });
+
+    // The dashboard's custom form always posts the plural `models`, even for a
+    // single id, and puts the name it collected in the top-level displayName.
+    // That name used to be bound to the singular `model` alone, so the field
+    // was a no-op and the row landed named after its model id (#704).
+    it('applies the top-level displayName to a lone model sent as a models array', async () => {
+      const { status, body } = await post(app, '/api/keys/custom', {
+        baseUrl: 'http://127.0.0.1:9998/v1',
+        models: ['qwen3:4b'],
+        displayName: 'My Local Qwen',
+      });
+      expect(status).toBe(201);
+      expect(body.models[0].displayName).toBe('My Local Qwen');
+
+      const row = getDb().prepare(
+        "SELECT display_name FROM models WHERE platform = 'custom' AND model_id = 'qwen3:4b'",
+      ).get() as any;
+      expect(row.display_name).toBe('My Local Qwen');
+    });
+
+    it('never fans a single displayName out across several ids', async () => {
+      const { status, body } = await post(app, '/api/keys/custom', {
+        baseUrl: 'http://127.0.0.1:9997/v1',
+        models: ['mistral:7b', 'gemma2:9b'],
+        displayName: 'Should Not Apply',
+      });
+      expect(status).toBe(201);
+      expect(body.models.map((m: any) => m.displayName).sort()).toEqual(['gemma2:9b', 'mistral:7b']);
+    });
+
+    it('lets a per-entry displayName win over the top-level one', async () => {
+      const { status, body } = await post(app, '/api/keys/custom', {
+        baseUrl: 'http://127.0.0.1:9996/v1',
+        models: [{ model: 'phi4:mini', displayName: 'Per Entry' }],
+        displayName: 'Top Level',
+      });
+      expect(status).toBe(201);
+      expect(body.models[0].displayName).toBe('Per Entry');
+    });
   });
 
   // #470: custom models used to register with supports_tools = 0, so agentic
