@@ -176,4 +176,86 @@ describe('Fallback API', () => {
     const { status } = await request(app, 'POST', '/api/fallback/sort/invalid');
     expect(status).toBe(400);
   });
+
+  // ── Cloud-fallback chain (Phase 2) ──────────────────────────────────────
+  // The cloud chain is a separate table consulted by the proxy only when
+  // the local chain is exhausted. The CRUD here mirrors /api/fallback but
+  // operates on cloud_fallback_config. The migration seeds one tokenrouter
+  // row (Nemotron 3 Nano Omni 30B) at priority 1, so a fresh install has
+  // a non-empty chain to exercise.
+
+  it('GET /api/fallback/cloud returns the seeded chain ordered by priority', async () => {
+    const { status, body } = await request(app, 'GET', '/api/fallback/cloud');
+    expect(status).toBe(200);
+    expect(Array.isArray(body)).toBe(true);
+    // V28 seeds the tokenrouter Nemotron row (and any future platform marked
+    // LOCAL_ONLY_PLATFORMS in catalog-sync). At least one row expected.
+    expect(body.length).toBeGreaterThan(0);
+    for (let i = 1; i < body.length; i++) {
+      expect(body[i].priority).toBeGreaterThanOrEqual(body[i - 1].priority);
+    }
+  });
+
+  it('GET /api/fallback/cloud entries have expected fields', async () => {
+    const { body } = await request(app, 'GET', '/api/fallback/cloud');
+    const first = body[0];
+    expect(first).toHaveProperty('modelDbId');
+    expect(first).toHaveProperty('priority');
+    expect(first).toHaveProperty('enabled');
+    expect(first).toHaveProperty('platform');
+    expect(first).toHaveProperty('modelId');
+    expect(first).toHaveProperty('displayName');
+  });
+
+  it('PUT /api/fallback/cloud replaces the chain (full update)', async () => {
+    // Pick a model that exists in the catalog and is currently in the cloud chain.
+    const { body: before } = await request(app, 'GET', '/api/fallback/cloud');
+    const first = before[0];
+    expect(first).toBeDefined();
+
+    // Move it to priority 99, enabled=0 — full replace semantics.
+    const { status } = await request(app, 'PUT', '/api/fallback/cloud', [
+      { modelDbId: first.modelDbId, priority: 99, enabled: false },
+    ]);
+    expect(status).toBe(200);
+
+    const { body: after } = await request(app, 'GET', '/api/fallback/cloud');
+    expect(after.length).toBe(1);
+    expect(after[0].modelDbId).toBe(first.modelDbId);
+    expect(after[0].priority).toBe(99);
+    expect(after[0].enabled).toBe(false);
+
+    // Restore original (priority 1, enabled 1) so subsequent runs / app state are sane.
+    await request(app, 'PUT', '/api/fallback/cloud', [
+      { modelDbId: first.modelDbId, priority: 1, enabled: true },
+    ]);
+  });
+
+  it('PUT /api/fallback/cloud with [] clears the chain', async () => {
+    const { status } = await request(app, 'PUT', '/api/fallback/cloud', []);
+    expect(status).toBe(200);
+    const { body } = await request(app, 'GET', '/api/fallback/cloud');
+    expect(body.length).toBe(0);
+    // Restore: re-seed via the sort endpoint.
+    await request(app, 'POST', '/api/fallback/cloud/sort/intelligence');
+  });
+
+  it('PUT /api/fallback/cloud with invalid body returns 400', async () => {
+    const { status } = await request(app, 'PUT', '/api/fallback/cloud', { not: 'an array' });
+    expect(status).toBe(400);
+  });
+
+  it('POST /api/fallback/cloud/sort/intelligence re-seeds the chain', async () => {
+    // Wipe, then sort.
+    await request(app, 'PUT', '/api/fallback/cloud', []);
+    const { status } = await request(app, 'POST', '/api/fallback/cloud/sort/intelligence');
+    expect(status).toBe(200);
+    const { body } = await request(app, 'GET', '/api/fallback/cloud');
+    expect(body.length).toBeGreaterThan(0);
+  });
+
+  it('POST /api/fallback/cloud/sort/invalid returns 400', async () => {
+    const { status } = await request(app, 'POST', '/api/fallback/cloud/sort/invalid');
+    expect(status).toBe(400);
+  });
 });

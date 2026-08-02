@@ -25,8 +25,8 @@ afterEach(() => {
 });
 
 describe('getContextHandoffMode', () => {
-  it('defaults to off', () => {
-    expect(getContextHandoffMode()).toBe('off');
+  it('defaults to on_model_switch', () => {
+    expect(getContextHandoffMode()).toBe('on_model_switch');
   });
 
   it('reads on_model_switch', () => {

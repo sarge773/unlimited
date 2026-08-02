@@ -29,6 +29,9 @@ export type Platform =
   // OVHcloud AI Endpoints — OpenAI-compatible, keyless anonymous tier
   // (2 req/min per IP per model); see migrateModelsV26.
   | 'ovh'
+  // TokenRouter — OpenAI-compatible aggregator at api.tokenrouter.com/v1.
+  // Only `:free` slugs are seeded into the catalog (see migrateModelsV27).
+  | 'tokenrouter'
   // User-configured OpenAI-compatible endpoint (llama.cpp, LM Studio, vLLM,
   // Ollama, any base_url). The endpoint URL lives on the api_keys row; see #117.
   | 'custom';

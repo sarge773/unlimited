@@ -2,6 +2,7 @@ import { getDb, getSetting, setSetting } from '../db/index.js';
 import { getProvider, hasProvider, resolveProvider } from '../providers/index.js';
 import { decrypt } from '../lib/crypto.js';
 import { canMakeRequest, canUseTokens, isOnCooldown, canUseProvider } from './ratelimit.js';
+import { shouldSoftThrottle } from './latency-monitor.js';
 import {
   BANDIT_PRESETS, DEFAULT_STRATEGY, type RoutingStrategy, type RoutingWeights,
   reliabilityPosterior, expectedReliability, sampleBeta,
@@ -348,7 +349,15 @@ function scoreChainEntry(
   const headroom = headroomFactor(stats?.monthlyUsedTokens ?? 0, budget);
   const rl = rateLimitFactor(getPenalty(entry.model_db_id));
 
-  const score = combineScore({ reliability, speed, intelligence, headroom, rateLimit: rl }, weights);
+  let score = combineScore({ reliability, speed, intelligence, headroom, rateLimit: rl }, weights);
+
+  // Soft throttle for high-latency models: if this model's p95 latency > 10s,
+  // apply a 0.5x multiplier to deprioritize it. This avoids repeatedly trying
+  // slow providers that technically work but cause user-facing delays.
+  if (shouldSoftThrottle(entry.model_db_id)) {
+    score *= 0.5;
+  }
+
   return { axes: { reliability, speed, intelligence }, headroom, rateLimit: rl, score };
 }
 
@@ -522,6 +531,37 @@ export function resolveRoutingChain(modelString: string | undefined): ResolvedCh
   }
 
   return { chain, strategyKey: `auto:${suffix}` };
+}
+
+/**
+ * Resolve the cloud-fallback chain (Phase 2 of the local → cloud cascade).
+ *
+ * The cloud chain is a separate, explicit table (`cloud_fallback_config`)
+ * the proxy only consults when the local chain is exhausted. It exists so
+ * cloud aggregators (OpenRouter free, TokenRouter free, etc.) can be wired
+ * in as a "real fallback" without polluting the user's local chain. Models
+ * listed here are typically NOT in the active profile — putting them only
+ * in `cloud_fallback_config` keeps the bandit/local routing clean while
+ * still making them available when everything else has failed.
+ *
+ * Returns a ResolvedChain with strategyKey='cloud:auto' so the bandit
+ * (Thompson sampling) is still applied to the cloud chain — a Frontier
+ * cloud model should beat a Medium cloud model when both are eligible.
+ */
+export function resolveCloudChain(): ResolvedChain {
+  const db = getDb();
+  const chain = db.prepare(`
+    SELECT cfc.model_db_id, cfc.priority, cfc.enabled,
+           m.platform, m.model_id, m.display_name, m.intelligence_rank,
+           m.size_label, m.monthly_token_budget,
+           m.rpm_limit, m.rpd_limit, m.tpm_limit, m.tpd_limit, m.supports_vision,
+           m.supports_tools, m.context_window, m.key_id
+    FROM cloud_fallback_config cfc
+    JOIN models m ON m.id = cfc.model_db_id AND m.enabled = 1
+    WHERE cfc.enabled = 1
+    ORDER BY cfc.priority ASC
+  `).all() as ChainRow[];
+  return { chain, strategyKey: 'cloud:auto' };
 }
 
 export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, preferredModelDbId?: number, requireVision = false, requireTools = false, skipModels?: Set<number>, prefetchedChain?: ChainRow[]): RouteResult {

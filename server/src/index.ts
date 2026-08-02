@@ -1,9 +1,12 @@
 import './env.js';
 import { createApp } from './app.js';
-import { initDb, getSetting } from './db/index.js';
+import { initDb, getDb, getSetting } from './db/index.js';
 import { startHealthChecker } from './services/health.js';
 import { applyProxyUrl, applyProxyEnabled, applyProxyBypass } from './lib/proxy.js';
 import { startCatalogSync } from './services/catalog-sync.js';
+import { startFreeModelDiscovery } from './services/free-model-discovery.js';
+import { applyDisabledProviderMask, assertEnabledProvidersCovered } from './services/provider-coverage.js';
+import { purgeOldEvents } from './services/fallback-logger.js';
 
 const PORT = process.env.PORT ?? 3001;
 // Dual-stack ('::') by default so the dashboard is reachable over both IPv4
@@ -13,6 +16,11 @@ const HOST = process.env.HOST ?? '::';
 
 async function main() {
   initDb();
+  const disabledProviders = applyDisabledProviderMask(getDb());
+  if (disabledProviders.length > 0) {
+    console.log(`[server] Disabled providers via FREELLMAPI_DISABLED_PROVIDERS: ${disabledProviders.join(', ')}`);
+  }
+  assertEnabledProvidersCovered(getDb());
 
   // Load the persisted proxy settings from the DB (env var wins if set).
   // Must happen after initDb so the settings table is ready.
@@ -28,6 +36,17 @@ async function main() {
     console.log(`Proxy endpoint: http://${display}:${PORT}/v1/chat/completions`);
     startHealthChecker();
     startCatalogSync();
+    startFreeModelDiscovery();
+    // Phase 4: prune fallback events older than 7 days. Same retention
+    // posture as catalog-sync's GC — keeps the events table small and
+    // bounded. The prune is cheap (<10ms even on 100k rows) so we run
+    // it on every boot rather than on an interval.
+    try {
+      const removed = purgeOldEvents(7);
+      if (removed > 0) console.log(`[fallback-logger] pruned ${removed} old event(s) on boot`);
+    } catch (e) {
+      console.warn(`[fallback-logger] boot prune failed: ${(e as Error).message}`);
+    }
   };
 
   const server = app.listen(Number(PORT), HOST, onReady(HOST));

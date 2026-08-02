@@ -24,6 +24,7 @@ import PlaygroundPage from '@/pages/PlaygroundPage'
 import FallbackPage from '@/pages/FallbackPage'
 import EmbeddingsPage from '@/pages/EmbeddingsPage'
 import AnalyticsPage from '@/pages/AnalyticsPage'
+import ReliabilityPage from '@/pages/ReliabilityPage'
 import PremiumPage from '@/pages/PremiumPage'
 
 const queryClient = new QueryClient()
@@ -33,6 +34,7 @@ const navItems = [
   { to: '/playground', labelKey: 'nav.playground' },
   { to: '/keys', labelKey: 'nav.keys' },
   { to: '/analytics', labelKey: 'nav.analytics' },
+  { to: '/reliability', labelKey: 'nav.reliability' },
   { to: '/premium', labelKey: 'nav.premium' },
 ]
 
@@ -241,6 +243,7 @@ function App() {
                 <Route path="/keys" element={<KeysPage />} />
                 <Route path="/fallback" element={<Navigate to="/models/chat" replace />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/reliability" element={<ReliabilityPage />} />
                 <Route path="/premium" element={<PremiumPage />} />
                 <Route path="/test" element={<Navigate to="/playground" replace />} />
                 <Route path="/health" element={<Navigate to="/keys" replace />} />

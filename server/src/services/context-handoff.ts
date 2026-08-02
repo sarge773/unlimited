@@ -26,7 +26,10 @@ const store = new Map<string, SessionContext>();
 
 export function getContextHandoffMode(): ContextHandoffMode {
   const raw = process.env.FREELLMAPI_CONTEXT_HANDOFF?.trim().toLowerCase();
-  return raw === 'on_model_switch' ? 'on_model_switch' : 'off';
+  if (raw === undefined || raw === '') return 'on_model_switch';
+  if (raw === 'on_model_switch') return 'on_model_switch';
+  if (raw === 'off') return 'off';
+  return 'off';
 }
 
 // Slice without cutting through a surrogate pair. A bare String.slice can

@@ -78,7 +78,7 @@ describe('bandit router', () => {
     initDb(':memory:');
     // initDb seeds the real catalog; wipe it so each test controls its own
     // models/keys/history (and seeded models don't share a platform with ours).
-    getDb().exec('DELETE FROM fallback_config; DELETE FROM api_keys; DELETE FROM models; DELETE FROM requests;');
+    getDb().exec('DELETE FROM fallback_config; DELETE FROM cloud_fallback_config; DELETE FROM api_keys; DELETE FROM models; DELETE FROM requests;');
     vi.clearAllMocks();
     (ratelimit.canMakeRequest as any).mockReturnValue(true);
     (ratelimit.canUseTokens as any).mockReturnValue(true);

@@ -33,6 +33,13 @@ MCowBQYDK2VwAyEAq9yv4+3EeyMHKsfVYBhkcz1lYgIXSUeHNnN6tNgYX3k=
 
 // Catalogs older than this are ignored. Bump to today's date whenever a model
 // migration lands, so the bundled DB is always the floor.
+// Platforms registered as providers in this binary but not present in the
+// signed remote catalog. Models on these platforms are seeded by local code
+// (migrations or user action) and must NOT be GC'd by the catalog sync — the
+// maintainer-published catalog will never include them. Add to this set when
+// wiring a new "local-only" cloud provider.
+const LOCAL_ONLY_PLATFORMS = new Set<string>(['tokenrouter']);
+
 export const MIN_CATALOG_VERSION = '2026.06.07';
 
 const SYNC_INTERVAL_MS = 12 * 60 * 60 * 1000; // twice daily
@@ -129,6 +136,19 @@ function isCatalog(value: unknown): value is Catalog {
   );
 }
 
+function reorderFallbackChainBySpeed(db: DatabaseType.Database): void {
+  const rows = db.prepare(`
+    SELECT m.id
+    FROM models m
+    ORDER BY m.speed_rank ASC, m.id ASC
+  `).all() as { id: number }[];
+
+  const update = db.prepare('UPDATE fallback_config SET priority = ? WHERE model_db_id = ?');
+  for (let i = 0; i < rows.length; i++) {
+    update.run(i + 1, rows[i].id);
+  }
+}
+
 /**
  * Apply a verified catalog to the local DB inside one transaction.
  *
@@ -222,12 +242,22 @@ export function applyCatalog(db: DatabaseType.Database, catalog: Catalog): NonNu
     const deleteModel = db.prepare('DELETE FROM models WHERE id = ?');
     for (const c of candidates) {
       if (!hasProvider(c.platform as Platform)) continue; // not catalog-managed by this binary
+      // Local-only providers (tokenrouter, etc.) are not in the published catalog
+      // and would be silently GC'd on every sync. Skip deletion for any platform
+      // that opts in to "managed locally, not by the signed catalog" via the
+      // LOCAL_ONLY_PLATFORMS set below. The set is intentionally explicit so a
+      // newly-added platform must consciously opt in.
+      if (LOCAL_ONLY_PLATFORMS.has(c.platform)) continue;
       if (!inCatalog.has(`${c.platform}:${c.model_id}`)) {
         deleteFb.run(c.id);
         deleteModel.run(c.id);
         counts.removed++;
       }
     }
+
+    // Keep the visible fallback chain ordered by speed after every sync so new
+    // catalog rows don't drift to the tail just because they were appended.
+    reorderFallbackChainBySpeed(db);
 
     // Quirks are pure content: replace wholesale.
     db.prepare('DELETE FROM quirk_targets').run();

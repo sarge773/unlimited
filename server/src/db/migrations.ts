@@ -6,47 +6,49 @@ import { applyModelPricing } from './model-pricing.js';
 export function migrateDbSchema(db: Database.Database) {
   createTables(db);
   initEncryptionKey(db);
-  seedModels(db);
-  migrateModels(db);
-  migrateModelsV2(db);
-  migrateModelsV3Ranks(db);
-  migrateModelsV4(db);
-  migrateModelsV5(db);
-  migrateModelsV6(db);
-  migrateModelsV7(db);
-  migrateModelsV8(db);
-  migrateModelsV9(db);
-  migrateModelsV10(db);
-  migrateModelsV11(db);
-  migrateModelsV12(db);
-  migrateModelsV13(db);
-  migrateModelsV14(db);
-  migrateModelsV15(db);
-  migrateModelsV16Vision(db);
-  migrateModelsV17IntelligenceTiers(db);
-  migrateModelsV18OpenCodeZen(db);
-  migrateModelsV19Gemma4(db);
-  migrateModelsV20KiloFree(db);
-  migrateModelsV21PruneDead(db);
-  migrateModelsV22Tools(db);
-  migrateModelsV23FreeTierAudit(db);
-  migrateModelsV24ZenRefresh(db);
-  migrateModelsV25ZenDeadPromos(db);
-  // V25 is the LAST model-data migration. Since the Premium live catalog
-  // shipped (June 2026), model/limit DATA is maintained in the published
-  // catalog (served signed by the catalog service) and reaches installs via
-  // catalog-sync — premium on the live tier within ~12h, free at the monthly
-  // promote. Shipping model data as a
-  // migration would hand it to free users on their next binary update,
-  // bypassing the tier gate. Migrations from here on are baseline/code-level
-  // only (schema, family rules, provider plumbing, quirk-seed corrections).
-  // After all model migrations: add/refresh paid-equivalent pricing
-  // (drives the realistic "Est. savings" analytics stat).
-  applyModelPricing(db);
-  migrateEmbeddingsV1(db);
-  migrateQuirksV1(db);
-  ensureUnifiedKey(db);
-  migrateProfilesInit(db);
+  const _run = (name: string, fn: (db: Database.Database) => void) => {
+    try { fn(db); } catch (e: any) {
+      console.error(`[migrateDbSchema] ${name} FAILED:`, e?.message || e);
+      throw e;
+    }
+  };
+  _run('seedModels',          () => seedModels(db));
+  _run('migrateModels',       () => migrateModels(db));
+  _run('migrateModelsV2',     () => migrateModelsV2(db));
+  _run('migrateModelsV3Ranks',() => migrateModelsV3Ranks(db));
+  _run('migrateModelsV4',     () => migrateModelsV4(db));
+  _run('migrateModelsV5',     () => migrateModelsV5(db));
+  _run('migrateModelsV6',     () => migrateModelsV6(db));
+  _run('migrateModelsV7',     () => migrateModelsV7(db));
+  _run('migrateModelsV8',     () => migrateModelsV8(db));
+  _run('migrateModelsV9',     () => migrateModelsV9(db));
+  _run('migrateModelsV10',    () => migrateModelsV10(db));
+  _run('migrateModelsV11',    () => migrateModelsV11(db));
+  _run('migrateModelsV12',    () => migrateModelsV12(db));
+  _run('migrateModelsV13',    () => migrateModelsV13(db));
+  _run('migrateModelsV14',    () => migrateModelsV14(db));
+  _run('migrateModelsV15',    () => migrateModelsV15(db));
+  _run('migrateModelsV16Vision', () => migrateModelsV16Vision(db));
+  _run('migrateModelsV17IntelligenceTiers', () => migrateModelsV17IntelligenceTiers(db));
+  _run('migrateModelsV18OpenCodeZen', () => migrateModelsV18OpenCodeZen(db));
+  _run('migrateModelsV19Gemma4', () => migrateModelsV19Gemma4(db));
+  _run('migrateModelsV20KiloFree', () => migrateModelsV20KiloFree(db));
+  _run('migrateModelsV21PruneDead', () => migrateModelsV21PruneDead(db));
+  _run('migrateModelsV22Tools', () => migrateModelsV22Tools(db));
+  _run('migrateModelsV23FreeTierAudit', () => migrateModelsV23FreeTierAudit(db));
+  _run('migrateModelsV24ZenRefresh', () => migrateModelsV24ZenRefresh(db));
+  _run('migrateModelsV25ZenDeadPromos', () => migrateModelsV25ZenDeadPromos(db));
+  _run('migrateModelsV27Tokenrouter', () => migrateModelsV27Tokenrouter(db));
+  _run('migrateModelsV28CloudFallback', () => migrateModelsV28CloudFallback(db));
+  _run('migrateModelsV29MiniMaxAndOpenRouterFree', () => migrateModelsV29MiniMaxAndOpenRouterFree(db));
+  _run('migrateModelsV30FreeModelAllowlist', () => migrateModelsV30FreeModelAllowlist(db));
+  _run('migrateModelsV31FallbackEvents',    () => migrateModelsV31FallbackEvents(db));
+  _run('migrateModelsV32CloudflareKimiPaidOnly', () => migrateModelsV32CloudflareKimiPaidOnly(db));
+  _run('applyModelPricing',    () => applyModelPricing(db));
+  _run('migrateEmbeddingsV1', () => migrateEmbeddingsV1(db));
+  _run('migrateQuirksV1',     () => migrateQuirksV1(db));
+  _run('ensureUnifiedKey',    () => ensureUnifiedKey(db));
+  _run('migrateProfilesInit', () => migrateProfilesInit(db));
 }
 
 function createTables(db: Database.Database) {
@@ -123,6 +125,70 @@ function createTables(db: Database.Database) {
       enabled INTEGER NOT NULL DEFAULT 1,
       UNIQUE(model_db_id)
     );
+
+    -- Cloud-fallback tier (Phase 2 of the local → cloud cascade). Mirrors
+    -- fallback_config in shape; semantically a separate chain that the proxy
+    -- only consults when the local chain is exhausted. Models here are
+    -- typically cloud aggregators (OpenRouter, TokenRouter) and are seeded
+    -- with enabled=0 in their catalog row to keep them out of the local
+    -- chain; the cloud chain re-enables them at the user's request via the
+    -- dashboard or /api/fallback/cloud.
+    CREATE TABLE IF NOT EXISTS cloud_fallback_config (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      model_db_id INTEGER NOT NULL REFERENCES models(id),
+      priority INTEGER NOT NULL,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      auto_managed INTEGER NOT NULL DEFAULT 0,
+      UNIQUE(model_db_id)
+    );
+
+    -- Free-model allowlist for tokenrouter (and any other provider whose API
+    -- doesn't expose a "free" hint in the model slug). The discovery service
+    -- reads this table to decide which tokenrouter models are eligible for
+    -- the cloud chain. Openrouter uses a different rule (the ":free" suffix
+    -- in the slug, see services/free-model-discovery.ts) and doesn't need
+    -- an allowlist.
+    --
+    -- Schema:
+    --   platform         - provider name (e.g. 'tokenrouter')
+    --   model_id         - the exact slug the provider uses (no normalization)
+    --   added_at         - when the user added it (audit trail)
+    --   probe_verified   - 1 if a small chat probe succeeded with 0 cost
+    --   notes            - optional freeform text (why this model is here)
+    --
+    -- The PRIMARY KEY prevents duplicate allowlist rows for the same model.
+    CREATE TABLE IF NOT EXISTS cloud_provider_free_models (
+      platform TEXT NOT NULL,
+      model_id TEXT NOT NULL,
+      added_at TEXT NOT NULL DEFAULT (datetime('now')),
+      probe_verified INTEGER NOT NULL DEFAULT 0,
+      notes TEXT,
+      PRIMARY KEY (platform, model_id)
+    );
+
+    -- ── V31: fallback observability ring buffer ─────────────────────
+    -- One row per meaningful event in the proxy retry loop. The
+    -- fallback-logger service inserts here, the /api/fallback/events
+    -- endpoint reads the last 200, and a 7-day prune keeps the table small
+    -- (an average request emits 2-5 rows; even 100 reqs/min × 7 days ×
+    -- 4 rows = 4M rows worst case, which is still cheap on SQLite).
+    --
+    -- The "request_id" matches the "requests.id" for the same chat
+    -- request, so an event can be joined back to its parent. "outcome" is
+    -- a small enum — see EVENT_ in services/fallback-logger.ts.
+    CREATE TABLE IF NOT EXISTS fallback_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      request_id TEXT,
+      tier TEXT NOT NULL,
+      platform TEXT,
+      model TEXT,
+      outcome TEXT NOT NULL,
+      latency_ms INTEGER,
+      reason TEXT,
+      created_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_fallback_events_created_at ON fallback_events(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_fallback_events_request_id ON fallback_events(request_id);
 
     CREATE TABLE IF NOT EXISTS profiles (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -529,6 +595,18 @@ function migrateModelsV4(db: Database.Database) {
       SELECT id FROM models WHERE platform = ? AND model_id = ?
     )
   `);
+  // Phase 3: cloud_fallback_config was added with a RESTRICT FK on
+  // model_db_id (no ON DELETE CASCADE — we want manual control over cloud
+  // chain membership). V4's "remove unavailable model" step would
+  // therefore fail the DELETE on the models table for any model that
+  // happens to be in the cloud chain. Clean it up here so the existing
+  // removals below work on installs that have already grown a cloud
+  // chain (Phase 2.5+).
+  const deleteCloud = db.prepare(`
+    DELETE FROM cloud_fallback_config WHERE model_db_id IN (
+      SELECT id FROM models WHERE platform = ? AND model_id = ?
+    )
+  `);
   const removals: Array<[string, string]> = [
     ['moonshot', 'kimi-latest'],                                            // paid-only now ($1 min deposit)
     ['minimax', 'MiniMax-M1'],                                              // superseded; use OR minimax-m2.5:free
@@ -537,6 +615,10 @@ function migrateModelsV4(db: Database.Database) {
   ];
   const applyRemovals = db.transaction(() => {
     for (const [p, m] of removals) {
+      // Order matters: RESTRICT FKs require child rows to be removed
+      // before the parent. deleteCloud and deleteFallback are
+      // independent; either order works for each.
+      deleteCloud.run(p, m);
       deleteFallback.run(p, m);
       deleteModel.run(p, m);
     }
@@ -1894,6 +1976,366 @@ function migrateModelsV25ZenDeadPromos(db: Database.Database) {
     for (const [p, m] of disables) disable.run(p, m);
   });
   apply();
+}
+
+// V27 (June 2026): TokenRouter provider registration (providers/index.ts)
+// and seed row for the only `:free` slug currently in its public catalog.
+// Live-probed 2026-06-16: GET https://api.tokenrouter.com/v1/models returns
+// ~100 models; exactly one ends in `:free`:
+//
+//   nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+//
+// Conservative limits (20 RPM / 200 RPD, ~6M monthly tokens) match the rest
+// of the recurring-free tier. The row is seeded with enabled=1 but NOT
+// inserted into fallback_config — add it to the chain explicitly via the
+// dashboard or by appending to cloud_fallback_config once phase 2 ships.
+function migrateModelsV27Tokenrouter(db: Database.Database) {
+  const insert = db.prepare(`
+    INSERT OR IGNORE INTO models (platform, model_id, display_name, intelligence_rank, speed_rank, size_label, rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const additions: Array<[string, string, string, number, number, string, number | null, number | null, number | null, number | null, string, number | null]> = [
+    // Reasoning model — fits the user's "fall back to cloud" goal even if it's
+    // a tier behind the Frontier OpenRouter rows. Speed rank 8 (mid) reflects
+    // observed 8-12s TTFB on a 200-token prompt during the live probe.
+    ['tokenrouter', 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', 'Nemotron 3 Nano Omni 30B (free, tokenrouter)', 4, 8, 'Large', 20, 200, null, null, '~6M', 131072],
+  ];
+  const apply = db.transaction(() => {
+    for (const a of additions) insert.run(...a);
+  });
+  apply();
+}
+
+// V28 (June 2026): cloud-fallback tier (Phase 2). The cloud_fallback_config
+// table is a parallel chain the proxy only consults after the local chain is
+// exhausted — see proxy.ts and the FALLBACK_CLOUD_ENABLED env var. The seed
+// places the only tokenrouter `:free` row at priority 1 in BOTH:
+//   - cloud_fallback_config (enabled=1) — the actual cloud-tier routing slot
+//   - fallback_config (enabled=0) — a placeholder so the catalog-wide
+//     "every model has exactly one fallback_config row" invariant (#<id>)
+//     holds on a fresh install; without this, V28 introduces a model with
+//     zero local-fallback entries and the idempotency test breaks on the
+//     second run when a later migration's "missing fallback" pass picks up
+//     the orphan and adds one (non-idempotently).
+function migrateModelsV28CloudFallback(db: Database.Database) {
+  // Backfill the `auto_managed` column on existing installs. createTables
+  // (above) handles fresh installs; for installs that already had a
+  // cloud_fallback_config table without auto_managed, ALTER TABLE adds it.
+  // SQLite raises a "duplicate column" error if the column already exists,
+  // which we catch and ignore — this migration must be idempotent across
+  // re-applies.
+  try {
+    db.exec(`ALTER TABLE cloud_fallback_config ADD COLUMN auto_managed INTEGER NOT NULL DEFAULT 0`);
+  } catch (e: any) {
+    if (!String(e?.message || '').includes('duplicate column')) throw e;
+  }
+
+  // Only seed if the cloud chain is empty — repeated runs and re-applied
+  // migrations should not keep inserting the same row.
+  const cloudCount = db.prepare(`SELECT COUNT(*) AS c FROM cloud_fallback_config`).get() as { c: number };
+  if (cloudCount.c > 0) return;
+
+  // Pick any enabled tokenrouter model in priority order. The user's catalog
+  // currently only has one tokenrouter `:free` row (V27 seed); a future
+  // catalog sync that adds more cloud-tier models would also surface here.
+  const candidates = db.prepare(`
+    SELECT id FROM models WHERE platform = 'tokenrouter' AND enabled = 1
+    ORDER BY intelligence_rank ASC LIMIT 5
+  `).all() as { id: number }[];
+
+  if (candidates.length === 0) {
+    console.log('[migrateModelsV28CloudFallback] no tokenrouter models in catalog, skipping cloud_fallback_config seed');
+    return;
+  }
+
+  const insertCloud = db.prepare(`
+    INSERT OR IGNORE INTO cloud_fallback_config (model_db_id, priority, enabled)
+    VALUES (?, ?, 1)
+  `);
+  // Placeholder fallback_config row (enabled=0) so the model is not orphaned
+  // in fallback_config — the local chain's getActiveChain() filters enabled=0
+  // rows, so the model stays out of local routing.
+  const insertLocalPlaceholder = db.prepare(`
+    INSERT OR IGNORE INTO fallback_config (model_db_id, priority, enabled)
+    VALUES (?, 9999, 0)
+  `);
+  const apply = db.transaction(() => {
+    candidates.forEach((c, i) => {
+      insertCloud.run(c.id, i + 1);
+      insertLocalPlaceholder.run(c.id);
+    });
+  });
+  apply();
+  console.log(`[migrateModelsV28CloudFallback] seeded ${candidates.length} cloud_fallback_config row(s) + fallback_config placeholders`);
+}
+
+// V29 (June 2026): expand the cloud-fallback tier with the verified free
+// models from the live probes earlier today. The chain stays "openrouter
+// free → tokenrouter free" with priorities:
+//   1-22:  openrouter `:free` (live list of 22 models, in intelligence order
+//           — Frontier first, then Large, then Medium, then Small)
+//   23:    tokenrouter MiniMax-M3 (verified to serve 200 with the user's key)
+//   24:    tokenrouter nemotron:free (already in cloud chain from V28, kept
+//           at the tail)
+//
+// Why this is a separate migration (not a discovery-service first run):
+// the discovery service needs an api_key in the api_keys table to call
+// openrouter, but the user already has one (id=7, status=healthy). V29
+// bridges the gap by seeding once at migration time so the cloud chain is
+// useful even if the discovery service is disabled or fails.
+//
+// `auto_managed=0` on every seeded row — V29 rows are treated as
+// user-confirmed, not auto-discovered, so the discovery service won't
+// re-classify them on first run.
+function migrateModelsV29MiniMaxAndOpenRouterFree(db: Database.Database) {
+  // 1. Add MiniMax-M3 to the catalog (model row). The display_name uses the
+  // canonical "minimax" lowercase prefix to match the other M2.x family
+  // already in the catalog (lowercase + slash form was the live-probed API
+  // shape; MiniMax-M3 specifically uses the capitalized form per the user's
+  // screenshot — both are accepted by tokenrouter, the lowercase is
+  // canonical for sorting).
+  const insertModel = db.prepare(`
+    INSERT OR IGNORE INTO models (platform, model_id, display_name, intelligence_rank, speed_rank, size_label, rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window, supports_vision, supports_tools)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  // Verified live (HTTP 200, "MiniMax AI" in response) on 2026-06-16
+  insertModel.run('tokenrouter', 'MiniMax-M3', 'MiniMax-M3 (free, tokenrouter)', 3, 7, 'Large', 20, 200, null, null, '~6M', 131072, 0, 1);
+
+  // 2. Add MiniMax-M3 to the allowlist so the discovery service picks it up
+  // on its first run (even on systems where the migration already ran, the
+  // INSERT OR IGNORE makes this a no-op).
+  db.prepare(`
+    INSERT OR IGNORE INTO cloud_provider_free_models (platform, model_id, probe_verified, notes)
+    VALUES ('tokenrouter', 'MiniMax-M3', 1, 'verified via direct /v1/chat/completions probe 2026-06-16')
+  `).run();
+
+  // 3. Seed the openrouter `:free` models into cloud_fallback_config. Only
+  // runs if the user has fewer than 5 openrouter entries in the cloud chain
+  // — this lets a power-user with a custom config keep their setup, while a
+  // fresh install gets a useful default. Idempotent: re-running just adds
+  // rows for any new :free models.
+  const existingOr = db.prepare(`
+    SELECT COUNT(*) AS c FROM cloud_fallback_config cfc
+    JOIN models m ON m.id = cfc.model_db_id
+    WHERE m.platform = 'openrouter'
+  `).get() as { c: number };
+  if (existingOr.c >= 5) return;
+
+  // Hardcoded list of openrouter :free models known to be available as of
+  // 2026-06-16. The discovery service will add new ones at the tail of the
+  // chain, so this seed only needs to cover the ones that are useful to
+  // have from day one. Order matters: highest intelligence first.
+  const openrouterFree: Array<[string, string, number, number, string, number, number, number]> = [
+    // [model_id, display_name, intelligence_rank, context_window, size_label, supports_vision, rpm_limit, rpd_limit]
+    ['nousresearch/hermes-3-llama-3.1-405b:free',    'Hermes 3 Llama 3.1 405B (free)', 1, 131072, 'Frontier', 0, 20, 200],
+    ['nvidia/nemotron-3-super-120b-a12b:free',       'Nemotron 3 Super 120B (free)',  2, 262144, 'Large',    0, 20, 200],
+    ['nvidia/nemotron-3-ultra-550b-a55b:free',        'Nemotron 3 Ultra 550B (free)',   3, 1000000, 'Large',   0, 20, 200],
+    ['qwen/qwen3-next-80b-a3b-instruct:free',          'Qwen3-Next 80B (free)',          4, 262144, 'Large',    0, 20, 200],
+    ['openai/gpt-oss-120b:free',                       'GPT-OSS 120B (free)',            5, 131072, 'Large',    0, 20, 200],
+    ['nex-agi/nex-n2-pro:free',                        'Nex AGI Nex-N2-Pro (free)',      6, 262144, 'Large',    1, 20, 200],
+    ['poolside/laguna-m.1:free',                       'Poolside Laguna M.1 (free)',     7, 131072, 'Large',    0, 20, 200],
+    ['google/gemma-4-26b-a4b-it:free',                 'Gemma 4 26B (free)',             8, 131072, 'Large',    1, 20, 200],
+    ['qwen/qwen3-coder:free',                          'Qwen3 Coder (free)',             9, 262144, 'Medium',   0, 20, 200],
+    ['meta-llama/llama-3.3-70b-instruct:free',         'Llama 3.3 70B (free)',          10, 131072, 'Medium',   0, 20, 200],
+    ['openai/gpt-oss-20b:free',                        'GPT-OSS 20B (free)',            11, 131072, 'Medium',   0, 20, 200],
+    ['nvidia/nemotron-3-nano-30b-a3b:free',            'Nemotron 3 Nano 30B (free)',     12, 131072, 'Medium',   0, 20, 200],
+    ['nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', 'Nemotron 3 Nano Omni 30B (free)', 13, 131072, 'Medium', 1, 20, 200],
+    ['poolside/laguna-xs.2:free',                      'Poolside Laguna XS.2 (free)',   14, 131072, 'Medium',   0, 20, 200],
+    ['nvidia/nemotron-nano-9b-v2:free',                'Nemotron Nano 9B v2 (free)',     15, 131072, 'Medium',   0, 20, 200],
+    ['liquid/lfm-2.5-1.2b-instruct:free',              'Liquid LFM 2.5 1.2B (free)',     16, 131072, 'Small',    0, 20, 200],
+    ['liquid/lfm-2.5-1.2b-thinking:free',               'Liquid LFM 2.5 1.2B Thinking',   17, 131072, 'Small',    0, 20, 200],
+  ];
+
+  const apply = db.transaction(() => {
+    // Insert into models (or update if exists). The UPDATE only fills in
+    // columns that the earlier migrations might have left NULL (so existing
+    // V12 context_window assertions still hold — we never overwrite a
+    // value that's already set).
+    const insertModel = db.prepare(`
+      INSERT OR IGNORE INTO models (platform, model_id, display_name, intelligence_rank, speed_rank, size_label, rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window, supports_vision, supports_tools)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const fillNulls = db.prepare(`
+      UPDATE models SET
+        display_name = COALESCE(NULLIF(?, ''), display_name),
+        intelligence_rank = COALESCE(?, intelligence_rank),
+        size_label = CASE WHEN size_label = '' THEN ? ELSE size_label END,
+        rpm_limit = COALESCE(rpm_limit, ?),
+        rpd_limit = COALESCE(rpd_limit, ?),
+        context_window = COALESCE(context_window, ?),
+        supports_vision = COALESCE(NULLIF(supports_vision, -1), ?)
+      WHERE platform = 'openrouter' AND model_id = ?
+    `);
+    // Placeholder fallback_config row (enabled=0) for any newly-inserted
+    // model so the catalog-wide "every model has exactly one fallback_config
+    // entry" invariant holds on a fresh install. Same trick V28 uses for
+    // the tokenrouter row. Without this, the test fails and the V2-V25
+    // "missing fallback" pass races the next migration to fill the gap.
+    const insertLocalPlaceholder = db.prepare(`
+      INSERT OR IGNORE INTO fallback_config (model_db_id, priority, enabled)
+      VALUES (?, 9999, 0)
+    `);
+    for (const [id, name, intel, ctx, size, vision, rpm, rpd] of openrouterFree) {
+      const r = insertModel.run('openrouter', id, name, intel, 7, size, rpm, rpd, null, null, '~6M', ctx, vision, 1);
+      // Whether the row was newly inserted OR already existed, fill in any
+      // NULL columns so the model is "complete". The COALESCE keeps existing
+      // values (like V12's specific context_window numbers) untouched.
+      fillNulls.run(name, intel, size, rpm, rpd, ctx, vision, id);
+      // Always make sure a fallback_config row exists for the model. If the
+      // model was just inserted, the row didn't exist either. If it existed
+      // already, the missing-fallback pass in V2-V25 may have already
+      // created one — INSERT OR IGNORE skips that case.
+      const modelRow = db.prepare(`SELECT id FROM models WHERE platform = 'openrouter' AND model_id = ?`).get(id) as { id: number } | undefined;
+      if (modelRow) insertLocalPlaceholder.run(modelRow.id);
+    }
+
+    // Insert into cloud_fallback_config at priorities 1..N (openrouter free
+    // comes before tokenrouter per the user's "secondary, then tertiary"
+    // ordering). Skip if a row already exists.
+    const insertCfc = db.prepare(`
+      INSERT OR IGNORE INTO cloud_fallback_config (model_db_id, priority, enabled, auto_managed)
+      VALUES (?, ?, 1, 0)
+    `);
+    openrouterFree.forEach(([id, _name, _intel, _ctx, _size, _vision, _rpm, _rpd], i) => {
+      const row = db.prepare(`SELECT id FROM models WHERE platform = 'openrouter' AND model_id = ?`).get(id) as { id: number } | undefined;
+      if (row) insertCfc.run(row.id, i + 1);
+    });
+  });
+  apply();
+
+  // 4. Add MiniMax-M3 to the cloud chain at the tail (after openrouter, after
+  // any existing tokenrouter rows from V28). Use SELECT MAX(priority)+1 so
+  // multiple tokenrouter entries stack correctly. Also insert a placeholder
+  // fallback_config row (enabled=0) so the model satisfies the catalog-wide
+  // "every model has exactly one fallback_config entry" invariant — V28
+  // already does this for the tokenrouter model it seeds, and V2-V25's
+  // "missing fallback" pass runs BEFORE V29, so it can't retroactively fill
+  // the gap for MiniMax-M3.
+  const insertLocalPlaceholderForCloud = db.prepare(`
+    INSERT OR IGNORE INTO fallback_config (model_db_id, priority, enabled)
+    VALUES (?, 9999, 0)
+  `);
+  const minimax = db.prepare(`SELECT id FROM models WHERE platform = 'tokenrouter' AND model_id = 'MiniMax-M3'`).get() as { id: number } | undefined;
+  if (minimax) {
+    insertLocalPlaceholderForCloud.run(minimax.id);
+    const exists = db.prepare(`SELECT id FROM cloud_fallback_config WHERE model_db_id = ?`).get(minimax.id) as { id: number } | undefined;
+    if (!exists) {
+      const max = db.prepare(`SELECT COALESCE(MAX(priority), 0) AS m FROM cloud_fallback_config`).get() as { m: number };
+      db.prepare(`INSERT INTO cloud_fallback_config (model_db_id, priority, enabled, auto_managed) VALUES (?, ?, 1, 0)`).run(minimax.id, max.m + 1);
+    }
+  }
+
+  console.log(`[migrateModelsV29MiniMaxAndOpenRouterFree] seeded ${openrouterFree.length} openrouter :free + MiniMax-M3 into cloud chain`);
+}
+
+// V30 (June 2026): free-model allowlist for tokenrouter (and future providers
+// that don't expose "free" in the API). The schema was created in createTables
+// above; this migration only seeds the initial state. The discovery service
+// reads this table on every refresh to know which non-openrouter models are
+// free.
+function migrateModelsV30FreeModelAllowlist(db: Database.Database) {
+  // Idempotent seed: V29 already added MiniMax-M3 with probe_verified=1, so
+  // INSERT OR IGNORE here is a no-op for existing rows. The notes column is
+  // the audit trail for why a model is in the allowlist.
+  const seeds: Array<[string, string, number, string]> = [
+    // [platform, model_id, probe_verified, notes]
+    ['tokenrouter', 'MiniMax-M3', 1, 'verified via direct /v1/chat/completions probe 2026-06-16 (HTTP 200, response name "MiniMax AI")'],
+  ];
+  const insert = db.prepare(`
+    INSERT OR IGNORE INTO cloud_provider_free_models (platform, model_id, probe_verified, notes)
+    VALUES (?, ?, ?, ?)
+  `);
+  for (const [p, m, v, n] of seeds) insert.run(p, m, v, n);
+}
+
+// V31 (June 2026): fallback observability. Every event in the proxy retry
+// loop — a successful attempt, a retryable failure, a breaker open, a tier
+// switch, a chain exhaustion — lands as a row in `fallback_events`. The
+// ring buffer in services/fallback-logger.ts reads from this table; the
+// /api/fallback/events + /api/fallback/stats endpoints expose it to the
+// dashboard. Old rows (>7 days) are pruned by `purgeOldEvents` (called on
+// boot, like catalog-sync's GC).
+//
+// Schema design notes:
+//   request_id  — the same id used in the `requests` table (chat request)
+//                 so an event can be joined to its parent request.
+//   tier        — 'local' | 'cloud'. Lets the dashboard show how often the
+//                 cloud fallback fires (a high cloud-hit rate suggests the
+//                 local providers are degraded).
+//   outcome     — see EVENT_ enum below. Capped at 20 distinct values; the
+//                 downstream `getStats` aggregates these.
+//   latency_ms  — wall time for the call (not the cumulative request time).
+//                 NULL for events that aren't model-bound (tier_switch,
+//                 chain_exhausted, breaker_open).
+//   reason      — free-form short string. For error events: the sanitized
+//                 provider error message. For breaker_open: the trigger
+//                 reason ("fail threshold reached" | "half-open probe failed").
+function migrateModelsV31FallbackEvents(db: Database.Database) {
+  // createTables (above) already handles fresh installs via IF NOT EXISTS.
+  // For existing installs: no-op, the table was just added.
+  // Verify the table exists and has the expected shape — a no-op that
+  // fails loudly if the schema drifts.
+  const cols = db.prepare(`PRAGMA table_info(fallback_events)`).all() as { name: string }[];
+  const expected = ['id', 'request_id', 'tier', 'platform', 'model', 'outcome', 'latency_ms', 'reason', 'created_at'];
+  const got = cols.map(c => c.name);
+  if (got.length !== expected.length || !expected.every(e => got.includes(e))) {
+    throw new Error(`fallback_events schema mismatch: got [${got.join(',')}], expected [${expected.join(',')}]`);
+  }
+}
+
+/**
+ * V32 (Aug 2026): remove rows that should not be active in the local gateway.
+ * - Cloudflare moved @cf/moonshotai/kimi-k2.6 behind the Workers Paid plan.
+ * - openai-codex is a native Hermes OAuth provider, not a FreeLLMAPI runtime
+ *   provider, so catalog-synced rows cannot be routed by this server.
+ * Keep rows for history/pricing, but remove them from active routing so users
+ * do not hit deterministic failures before the fallback cascade moves on.
+ */
+function migrateModelsV32CloudflareKimiPaidOnly(db: Database.Database) {
+  db.prepare(`
+    UPDATE models
+       SET enabled = 0
+     WHERE platform = 'cloudflare'
+       AND model_id = '@cf/moonshotai/kimi-k2.6'
+  `).run();
+
+  db.prepare(`
+    UPDATE fallback_config
+       SET enabled = 0
+     WHERE model_db_id IN (
+       SELECT id FROM models
+        WHERE platform = 'cloudflare'
+          AND model_id = '@cf/moonshotai/kimi-k2.6'
+     )
+  `).run();
+
+  db.prepare(`
+    UPDATE cloud_fallback_config
+       SET enabled = 0
+     WHERE model_db_id IN (
+       SELECT id FROM models
+        WHERE platform = 'cloudflare'
+          AND model_id = '@cf/moonshotai/kimi-k2.6'
+     )
+  `).run();
+
+  db.prepare(`
+    UPDATE models
+       SET enabled = 0
+     WHERE platform = 'openai-codex'
+  `).run();
+
+  db.prepare(`
+    UPDATE fallback_config
+       SET enabled = 0
+     WHERE model_db_id IN (SELECT id FROM models WHERE platform = 'openai-codex')
+  `).run();
+
+  db.prepare(`
+    UPDATE cloud_fallback_config
+       SET enabled = 0
+     WHERE model_db_id IN (SELECT id FROM models WHERE platform = 'openai-codex')
+  `).run();
 }
 
 // V26 NOTE (June 2026, recurring-free audit pass 2): the model-data changes

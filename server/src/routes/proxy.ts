@@ -3,7 +3,12 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import type { ChatMessage, ModelListRow } from '@freellmapi/shared/types.js';
-import { routeRequest, resolveRoutingChain, recordRateLimitHit, recordSuccess, hasEnabledVisionModel, hasEnabledToolsModel, type RouteResult, type ResolvedChain } from '../services/router.js';
+import { routeRequest, resolveRoutingChain, resolveCloudChain, recordRateLimitHit, recordSuccess, hasEnabledVisionModel, hasEnabledToolsModel, type RouteResult, type ResolvedChain } from '../services/router.js';
+import type { Platform } from '@freellmapi/shared/types.js';
+import { breaker } from '../services/breaker.js';
+import { recordLatency, shouldSoftThrottle } from '../services/latency-monitor.js';
+import { isTimeoutError } from '../lib/timeout.js';
+import { recordEvent as logFallbackEvent, EVENT_ as FB_EVENT } from '../services/fallback-logger.js';
 import { recordRequest, recordTokens, setCooldown, getCooldownDurationForLimit, PAYMENT_REQUIRED_COOLDOWN_MS, MODEL_FORBIDDEN_COOLDOWN_MS } from '../services/ratelimit.js';
 import { pruneRequestAnalytics } from '../services/request-retention.js';
 import { runEmbeddings, EmbeddingsError } from '../services/embeddings.js';
@@ -201,7 +206,10 @@ proxyRouter.get('/models', (req: Request, res: Response) => {
 });
 
 
-const MAX_RETRIES = 20;
+// Hard cap on attempts per request (across both tiers). Bounds worst-case
+// latency — e.g. 8 attempts × 15s timeout = 120s p99 cap. Default 5 for
+// aggressive fallback; FALLBACK_MAX_ATTEMPTS lets the user dial it up if needed.
+const MAX_RETRIES = parseInt(process.env.FALLBACK_MAX_ATTEMPTS ?? '5', 10);
 
 // Echo-tolerant tool calls: agents replay OUR responses back as history, and
 // not all of them preserve the strict OpenAI shape. `type` may be dropped
@@ -662,6 +670,20 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
     strategyKey = resolvedChain.strategyKey;
   }
 
+  // Cloud-fallback tier (Phase 2). Gated by FALLBACK_CLOUD_ENABLED; off by
+  // default so the existing local-only behavior is preserved when the env
+  // flag isn't set. When enabled, the chain is resolved once per request
+  // (same cost as the local chain) and consulted only after the local chain
+  // is exhausted.
+  const CLOUD_ENABLED = process.env.FALLBACK_CLOUD_ENABLED === 'true';
+  let resolvedCloudChain: ResolvedChain | null = null;
+  if (CLOUD_ENABLED && isAutoModel(requestedModel)) {
+    resolvedCloudChain = resolveCloudChain();
+    if (resolvedCloudChain.chain.length > 0) {
+      console.log(`[Proxy] Cloud tier enabled: ${resolvedCloudChain.chain.length} model(s) in cloud_fallback_config`);
+    }
+  }
+
   // Context handoff only applies to auto-routed requests. Pinned-model requests
   // are deliberate client choices; injecting "you are taking over" there would
   // be semantically wrong.
@@ -684,6 +706,24 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   let preferredModel: number | undefined;
   if (isAutoModel(requestedModel)) {
     preferredModel = getStickyModel(messages, sessionIdHeader, strategyKey);
+
+    // If we got a sticky model, check whether its platform's breaker is open.
+    // If so, ignore the sticky pin and fall back to auto-routing — this prevents
+    // the user's entire session from being locked out for 30 min if their pinned
+    // model's platform has a cascade failure.
+    if (preferredModel) {
+      try {
+        const db = getDb();
+        const model = db.prepare('SELECT platform FROM models WHERE id = ?').get(preferredModel) as { platform: string } | undefined;
+        if (model && !breaker.canUse(model.platform as Platform)) {
+          console.log(`[sticky] model ${preferredModel} platform '${model.platform}' breaker open, ignoring sticky pin`);
+          preferredModel = undefined;  // fall through to auto-route
+        }
+      } catch (e) {
+        // DB error; keep sticky model for now rather than failing the request
+        console.warn(`[sticky] failed to check breaker state: ${(e as Error)?.message}`);
+      }
+    }
   } else if (requestedModel) {
     const db = getDb();
     const enabled = db.prepare('SELECT id FROM models WHERE model_id = ? AND enabled = 1').get(requestedModel) as { id: number } | undefined;
@@ -710,10 +750,32 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   // traffic and failover overrides are visible.
   const pinnedModelId = requestedModel && !isAutoModel(requestedModel) ? requestedModel : null;
 
-  // Retry loop: on 429/rate limit, skip that model+key and try the next one
+  // Retry loop: on 429/rate limit, skip that model+key and try the next one.
+  // The platform-level circuit breaker (services/breaker.ts) is checked
+  // before each attempt: any model whose platform has an open breaker is
+  // added to skipModels for this request, so the cascade skips it without
+  // re-trying (avoiding the "request hits the same broken provider 20 times"
+  // failure mode).
   const skipKeys = new Set<string>();
   const skipModels = new Set<number>();
+  // Platforms the breaker has marked as open in this very request. We add
+  // them to the platform-skip set incrementally as we discover them, so the
+  // NEXT attempt in the same request skips them without re-running the
+  // per-platform canUse check (which is cheap but adds up across 20 attempts).
+  const skipPlatforms = new Set<string>();
   let lastError: any = null;
+  // Phase 2: tier tracking for the local → cloud cascade. Starts on 'local';
+  // flips to 'cloud' exactly once when the local chain throws and the cloud
+  // chain has eligible candidates. `currentChain` is what we pass into
+  // routeRequest on each attempt; we swap it on the tier switch.
+  let currentTier: 'local' | 'cloud' = 'local';
+  let currentChain: ResolvedChain | undefined = resolvedChain;
+  // Phase 4: per-request id used to correlate fallback_events rows for
+  // the same chat request. Random UUIDv4 — not stable across retries
+  // within a request, but that's intentional: each request gets a fresh
+  // id so the events table groups by the chat request, not by retry.
+  const fbRequestId = crypto.randomUUID();
+  res.setHeader('X-Fallback-Request-Id', fbRequestId);
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     let route: RouteResult;
@@ -724,10 +786,56 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       // the padding is conservative on turns where injection is *possible* (a prior
       // model is on record). Turns where injection can't happen — every turn 1, and
       // sessions that never switched — pay no headroom tax.
+      // Filter the chain to drop platforms the breaker has marked un-routable
+      // (either this request via skipPlatforms, or globally via the
+      // persisted breaker state). Same filter is applied to the cloud chain
+      // on tier switch. The filter is per-attempt so a half-open probe can
+      // still reach the platform the breaker is testing.
+      const filteredChain = currentChain?.chain.filter(m => {
+        if (skipPlatforms.has(m.platform)) return false;
+        if (!breaker.canUse(m.platform as Platform)) return false;
+        return true;
+      });
       const routingEstimate = handoffPossible ? estimatedTotal + HANDOFF_MAX_TOKENS : estimatedTotal;
-      route = routeRequest(routingEstimate, skipKeys.size > 0 ? skipKeys : undefined, preferredModel, hasImage, wantsTools, skipModels.size > 0 ? skipModels : undefined, resolvedChain?.chain);
+      route = routeRequest(routingEstimate, skipKeys.size > 0 ? skipKeys : undefined, preferredModel, hasImage, wantsTools, skipModels.size > 0 ? skipModels : undefined, filteredChain);
     } catch (err: any) {
-      // No more models available
+      // No more candidates in the current chain. Phase 2: if we just emptied
+      // the local chain and there's a cloud chain available, switch to it
+      // and keep going. The skipKeys/skipModels sets are tier-agnostic (the
+      // skipKey tuple is keyed by platform, so a failed local-platform key
+      // doesn't accidentally skip a cloud-platform key on the same model),
+      // which is what we want — a model that 403'd in the local chain is
+      // also 403'd in the cloud chain if it's the same platform+model, but
+      // a different platform (e.g. tokenrouter vs openrouter) is unaffected.
+      if (currentTier === 'local' && resolvedCloudChain && resolvedCloudChain.chain.length > 0) {
+        // Phase 4: log the chain exhaustion (local side) AND the tier
+        // switch in one event each. The dashboard's "cloud hit rate"
+        // stat counts how many requests ever flipped tiers.
+        logFallbackEvent({
+          requestId: fbRequestId,
+          tier: 'local',
+          outcome: FB_EVENT.CHAIN_EXHAUSTED,
+          reason: `${attempt} attempt(s) before local chain exhausted`,
+        });
+        logFallbackEvent({
+          requestId: fbRequestId,
+          tier: 'cloud',
+          outcome: FB_EVENT.TIER_SWITCH,
+          reason: `local → cloud (${resolvedCloudChain.chain.length} model(s))`,
+        });
+        currentTier = 'cloud';
+        currentChain = resolvedCloudChain;
+        console.log(`[Proxy] Local chain exhausted after ${attempt} attempt(s), switching to cloud tier (${resolvedCloudChain.chain.length} model(s))`);
+        continue;
+      }
+      // Both tiers (or local-only with no cloud) are exhausted.
+      // Phase 4: log the final chain-exhausted event.
+      logFallbackEvent({
+        requestId: fbRequestId,
+        tier: currentTier,
+        outcome: FB_EVENT.CHAIN_EXHAUSTED,
+        reason: `both tiers exhausted after ${attempt} attempt(s)`,
+      });
       if (lastError) {
         const safeLastError = sanitizeProviderErrorMessage(lastError.message);
         res.status(429).json({
@@ -959,6 +1067,24 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           recordRequest(route.platform, route.modelId, route.keyId);
           recordTokens(route.platform, route.modelId, route.keyId, estimatedInputTokens + injectedHandoffTokens + totalOutputTokens);
           recordSuccess(route.modelDbId);
+          const latencyMs = Date.now() - start;
+          recordLatency(route.modelDbId, latencyMs);  // track for soft throttling
+          // Reset the platform-level circuit breaker on success. The
+          // breaker.bumpFail path above is the only thing that opens it,
+          // and a single successful request is enough evidence the
+          // platform is back. If we were in half-open, this transitions
+          // us back to closed.
+          breaker.recordSuccess(route.platform as Platform);
+          // Phase 4: log the successful attempt. Only on the streaming
+          // path; the non-stream path below has its own.
+          logFallbackEvent({
+            requestId: fbRequestId,
+            tier: currentTier,
+            platform: route.platform,
+            model: route.modelId,
+            outcome: FB_EVENT.ATTEMPT_SUCCESS,
+            latencyMs: latencyMs,
+          });
           setStickyModel(messages, route.modelDbId, sessionIdHeader, strategyKey);
           if (handoffMode !== 'off' && sessionKey) recordSuccessfulModel({ sessionKey, modelKey });
           logRequest(route.platform, route.modelId, route.keyId, 'success', estimatedInputTokens + injectedHandoffTokens, totalOutputTokens, Date.now() - start, null, ttfbMs, pinnedModelId);
@@ -1028,6 +1154,21 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
         recordRequest(route.platform, route.modelId, route.keyId);
         recordTokens(route.platform, route.modelId, route.keyId, totalTokens);
         recordSuccess(route.modelDbId);
+        const latencyMs = Date.now() - start;
+        recordLatency(route.modelDbId, latencyMs);  // track for soft throttling
+        // Reset the platform-level circuit breaker on success (non-stream
+        // path). Pairs with the bumpFail in the catch block above. If the
+        // breaker was in half-open, this transitions back to closed.
+        breaker.recordSuccess(route.platform as Platform);
+        // Phase 4: log the successful attempt (non-stream path).
+        logFallbackEvent({
+          requestId: fbRequestId,
+          tier: currentTier,
+          platform: route.platform,
+          model: route.modelId,
+          outcome: FB_EVENT.ATTEMPT_SUCCESS,
+          latencyMs: latencyMs,
+        });
         setStickyModel(messages, route.modelDbId, sessionIdHeader, strategyKey);
         if (handoffMode !== 'off' && sessionKey) recordSuccessfulModel({ sessionKey, modelKey });
 
@@ -1093,10 +1234,76 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
         recordRateLimitHit(route.modelDbId);
         lastError = err;
         console.log(`[Proxy] ${safeError.slice(0, 60)} from ${route.displayName}, falling back (attempt ${attempt + 1}/${MAX_RETRIES})`);
+
+        // Phase 4: record this retryable failure so the dashboard can
+        // show per-model error rates. The "reason" is the sanitized
+        // error message (capped to 200 chars to keep the table small).
+        logFallbackEvent({
+          requestId: fbRequestId,
+          tier: currentTier,
+          platform: route.platform,
+          model: route.modelId,
+          outcome: isTimeoutError(err) ? FB_EVENT.ATTEMPT_RETRYABLE : FB_EVENT.ATTEMPT_RETRYABLE,
+          latencyMs: latency,
+          reason: safeError.slice(0, 200),
+        });
+
+        // ── Per-platform circuit breaker (Phase 3) ─────────────────────
+        // Bump the breaker on transient errors. The breaker opens after
+        // FALLBACK_BREAKER_FAIL_THRESHOLD consecutive failures within
+        // FALLBACK_BREAKER_FAIL_WINDOW_MS — when it does, the NEXT attempt
+        // in this request will see the platform marked un-routable and
+        // jump straight to the next platform. This breaks the "request
+        // hits the same broken provider 20 times" failure mode that
+        // happens when a provider is 5xx-ing or timing out.
+        //
+        // We DON'T bump for two cases that don't indicate a real platform
+        // outage: 404 (model is gone upstream — the platform is fine,
+        // the model is the problem) and 403 (per-key tier/subscription
+        // issue — same key on a sibling model would work). Both are
+        // model-scoped, not platform-scoped.
+        const platformLevelFailure = !isModelNotFoundError(err) && !isModelAccessForbiddenError(err);
+        if (platformLevelFailure) {
+          const { opened, halfOpenFailed } = breaker.bumpFail(route.platform as Platform);
+          if (opened) {
+            skipPlatforms.add(route.platform);
+            console.log(`[Proxy] Circuit breaker OPEN for ${route.platform} (${halfOpenFailed ? 'half-open probe failed' : 'fail threshold reached'}) — skipping for the rest of this request`);
+            // Phase 4: log the breaker open as a structural event so the
+            // dashboard can show a timeline of breaker transitions.
+            logFallbackEvent({
+              requestId: fbRequestId,
+              tier: currentTier,
+              platform: route.platform,
+              outcome: FB_EVENT.BREAKER_OPEN,
+              reason: halfOpenFailed ? 'half-open probe failed' : 'fail threshold reached',
+            });
+          } else {
+            // Check if the breaker just transitioned to half-open or got
+            // bumped enough that future attempts on this platform would be
+            // skipped. canUse() handles the open->half-open transition; if
+            // it returns false now, add to skipPlatforms.
+            if (!breaker.canUse(route.platform as Platform)) {
+              skipPlatforms.add(route.platform);
+            }
+          }
+        }
         continue;
       }
 
       // Non-retryable error (auth, 4xx, etc.): don't retry
+      // Phase 4: record so the dashboard shows non-retryable 4xx errors
+      // distinctly from retryable 5xx/timeouts. The 400 case is the most
+      // common — a model in the chain that doesn't accept this request
+      // shape (e.g. streaming-only models, wrong tool schema).
+      logFallbackEvent({
+        requestId: fbRequestId,
+        tier: currentTier,
+        platform: route.platform,
+        model: route.modelId,
+        outcome: FB_EVENT.ATTEMPT_NON_RETRYABLE,
+        latencyMs: Date.now() - start,
+        reason: safeError.slice(0, 200),
+      });
       res.status(502).json({
         error: {
           message: `Provider error (${route.displayName}): ${safeError}`,

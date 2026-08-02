@@ -61,6 +61,19 @@ register(new OpenAICompatProvider({
   },
 }));
 
+// TokenRouter — OpenAI-compatible aggregator at api.tokenrouter.com/v1.
+// Live-probed 2026-06-16: GET /v1/models returns the full catalog with a
+// bearer key; only one row carries the `:free` suffix in the default
+// tenant's plan (`nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`,
+// seeded in migrateModelsV27). Same adapter as OpenRouter — no extra
+// headers required.
+register(new OpenAICompatProvider({
+  platform: 'tokenrouter',
+  name: 'TokenRouter',
+  baseUrl: 'https://api.tokenrouter.com/v1',
+  timeoutMs: 15000,
+}));
+
 // GitHub Models — OpenAI-compatible. Catalog uses `<publisher>/<model>` ids
 // (e.g. `openai/gpt-4.1`); the old Azure endpoint rejects that prefix with
 // "Unknown model", so route to the current models.github.ai endpoint.

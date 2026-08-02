@@ -7,6 +7,7 @@
     "client"
   ],
   "scripts": {
+    "predev": "npm rebuild better-sqlite3",
     "dev": "concurrently --kill-others-on-fail --names server,client \"npm run dev -w server\" \"npm run dev -w client\"",
     "dev:lan": "concurrently --kill-others-on-fail --names server,client \"npm run dev -w server\" \"npm run dev -w client -- --host\"",
     "test": "npm run test -w server && npm run test -w client --if-present",
@@ -18,5 +19,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "better-sqlite3": "12.11.1"
   }
 }
