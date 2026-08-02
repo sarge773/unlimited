@@ -575,14 +575,27 @@ function compareVersions(a: string, b: string): number {
  * for one.
  */
 function AppVersionRow() {
-  const version = typeof window !== 'undefined'
+  // The desktop shell states its own version outright; a browser or container
+  // install asks the server, which resolves it from the release manifest. Both
+  // may come back empty, and then the row is omitted rather than showing a
+  // number that isn't the release.
+  const shellVersion = typeof window !== 'undefined'
     ? (window as { __FREEAPI_VERSION__?: string | null }).__FREEAPI_VERSION__
     : null
+  const [served, setServed] = useState<string | null>(null)
   const [latest, setLatest] = useState<string | null>(null)
   const [state, setState] = useState<'idle' | 'checking' | 'current' | 'outdated' | 'failed'>('idle')
 
-  // Only the desktop shell knows the released version; a browser would have to
-  // guess from the server's own package version, which tracks something else.
+  useEffect(() => {
+    if (shellVersion) return
+    let cancelled = false
+    apiFetch<{ version: string | null }>('/api/settings/version')
+      .then(r => { if (!cancelled) setServed(r.version ?? null) })
+      .catch(() => { /* leave the row hidden */ })
+    return () => { cancelled = true }
+  }, [shellVersion])
+
+  const version = shellVersion || served
   if (!version) return null
 
   async function check() {

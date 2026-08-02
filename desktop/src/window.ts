@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { app, BrowserWindow } from 'electron';
+import { platformChrome } from './window-chrome.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -27,27 +28,7 @@ export function openDashboard(port: number, token: string): void {
     minWidth: 720,
     minHeight: 480,
     title: 'FreeLLMAPI',
-    // Native feel: traffic lights float over the app's own header (the client
-    // adds a drag region + left padding when it detects the desktop shell),
-    // and the window carries a sidebar vibrancy — the strong, Finder-style
-    // material — so the client's translucent desktop backdrop (html.desktop
-    // in index.css) shows real glass, matching the tray popover. The material
-    // follows nativeTheme.themeSource, i.e. the dashboard's own theme.
-    ...(process.platform === 'darwin'
-      ? {
-          titleBarStyle: 'hiddenInset' as const,
-          vibrancy: 'sidebar' as const,
-          visualEffectState: 'followWindow' as const,
-          backgroundColor: '#00000000',
-        }
-      : {
-          backgroundColor: '#09090b',
-          // Windows and Linux otherwise carry Electron's stock File/Edit/View
-          // menu permanently — none of it does anything this app needs, and it
-          // cannot be dismissed (#703). Hidden rather than removed so the menu's
-          // clipboard accelerators keep working; Alt still reveals it.
-          autoHideMenuBar: true,
-        }),
+    ...platformChrome(process.platform),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
