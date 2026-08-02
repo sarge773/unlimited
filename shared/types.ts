@@ -194,6 +194,9 @@ export interface ApiKey {
   status: KeyStatus;
   enabled: boolean;
   keyless: boolean;
+  /** Whether an export file would actually contain this row. The server decides
+   *  it so the dialog's "will export N keys" cannot drift from the export. */
+  exportable: boolean;
   createdAt: string;
   lastCheckedAt: string | null;
   lastHealthError: string | null;

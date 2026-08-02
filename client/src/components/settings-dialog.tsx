@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
+  ArrowRight,
   Check,
   ChevronsUpDown,
   FlaskConical,
@@ -8,6 +9,7 @@ import {
   Loader2,
   Monitor,
   Moon,
+  RefreshCw,
   Search,
   SlidersHorizontal,
   Sun,
@@ -545,6 +547,104 @@ function PreviewSection({ state }: { state: CompressionState }) {
   )
 }
 
+const RELEASES_URL = 'https://github.com/tashfeenahmed/freellmapi/releases'
+const LATEST_RELEASE_API = 'https://api.github.com/repos/tashfeenahmed/freellmapi/releases/latest'
+
+/** Compare two dotted versions; > 0 when `a` is newer. Missing parts read as 0. */
+function compareVersions(a: string, b: string): number {
+  const pa = a.replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0)
+  const pb = b.replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0)
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const diff = (pa[i] ?? 0) - (pb[i] ?? 0)
+    if (diff !== 0) return diff
+  }
+  return 0
+}
+
+/**
+ * Which build this is, and — on demand — whether a newer one has been published
+ * (#703: neither was reachable from the dashboard at all).
+ *
+ * Deliberately wordless: a proper noun for the label, version numbers, an arrow
+ * and icons. Every string a locale would have to translate is one this feature
+ * would ship untranslated in 59 of the 60 shipped languages, so it says the same
+ * thing in symbols instead.
+ *
+ * The check only runs when clicked. A dashboard that phoned GitHub on open would
+ * make an outbound request on behalf of self-hosted operators who never asked
+ * for one.
+ */
+function AppVersionRow() {
+  const version = typeof window !== 'undefined'
+    ? (window as { __FREEAPI_VERSION__?: string | null }).__FREEAPI_VERSION__
+    : null
+  const [latest, setLatest] = useState<string | null>(null)
+  const [state, setState] = useState<'idle' | 'checking' | 'current' | 'outdated' | 'failed'>('idle')
+
+  // Only the desktop shell knows the released version; a browser would have to
+  // guess from the server's own package version, which tracks something else.
+  if (!version) return null
+
+  async function check() {
+    setState('checking')
+    try {
+      const res = await fetch(LATEST_RELEASE_API, { headers: { Accept: 'application/vnd.github+json' } })
+      if (!res.ok) throw new Error(String(res.status))
+      const tag = String(((await res.json()) as { tag_name?: string }).tag_name ?? '').trim()
+      if (!tag) throw new Error('no tag')
+      setLatest(tag.replace(/^v/, ''))
+      setState(compareVersions(tag, version!) > 0 ? 'outdated' : 'current')
+    } catch {
+      setState('failed')
+    }
+  }
+
+  return (
+    <Row
+      label="FreeLLMAPI"
+      control={(
+        <div className="flex items-center gap-2 text-sm tabular-nums">
+          <span>v{version}</span>
+          {state === 'outdated' && latest && (
+            <a
+              href={RELEASES_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              title={RELEASES_URL}
+              className="flex items-center gap-1 text-primary underline underline-offset-2"
+            >
+              <ArrowRight className="size-3.5" aria-hidden />
+              <span>v{latest}</span>
+            </a>
+          )}
+          {state === 'current' && <Check className="size-4 text-emerald-600 dark:text-emerald-400" aria-hidden />}
+          {state === 'failed' && (
+            <a
+              href={RELEASES_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              title={RELEASES_URL}
+              className="text-primary underline underline-offset-2"
+            >
+              {RELEASES_URL.replace('https://', '')}
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={check}
+            disabled={state === 'checking'}
+            title={RELEASES_URL}
+            aria-label={RELEASES_URL}
+            className="inline-flex rounded-full text-muted-foreground/70 outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
+          >
+            <RefreshCw className={`size-3.5 ${state === 'checking' ? 'animate-spin' : ''}`} aria-hidden />
+          </button>
+        </div>
+      )}
+    />
+  )
+}
+
 function GeneralSection() {
   const { t } = useI18n()
   const { theme, setTheme } = useTheme()
@@ -572,6 +672,7 @@ function GeneralSection() {
           />
         )}
       />
+      <AppVersionRow />
     </>
   )
 }

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow } from 'electron';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,13 +40,22 @@ export function openDashboard(port: number, token: string): void {
           visualEffectState: 'followWindow' as const,
           backgroundColor: '#00000000',
         }
-      : { backgroundColor: '#09090b' }),
+      : {
+          backgroundColor: '#09090b',
+          // Windows and Linux otherwise carry Electron's stock File/Edit/View
+          // menu permanently — none of it does anything this app needs, and it
+          // cannot be dismissed (#703). Hidden rather than removed so the menu's
+          // clipboard accelerators keep working; Alt still reveals it.
+          autoHideMenuBar: true,
+        }),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       sandbox: false,
       nodeIntegration: false,
-      additionalArguments: [`--freeapi-token=${token}`],
+      // The dashboard has no other way to know which build is running: the
+      // server's own package version is not the released app version (#703).
+      additionalArguments: [`--freeapi-token=${token}`, `--freeapi-version=${app.getVersion()}`],
     },
   });
 

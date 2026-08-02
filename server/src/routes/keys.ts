@@ -130,6 +130,22 @@ function insertImportedKey(platform: (typeof PLATFORMS)[number], keyName: string
 // its models ship in the premium/live catalog and only appear for free-tier
 // installs once they age into the monthly catalog, so a fresh install adds the
 // key and silently sees nothing.
+/**
+ * Whether a stored row belongs in an export file. Kept in one place because the
+ * export dialog shows a count before downloading, and computing that count from
+ * a different rule than the export itself made it lie: it promised 40 keys and
+ * wrote 39 whenever a no-auth custom endpoint was in the list (#687).
+ *
+ * A custom endpoint is worth exporting even when it holds only the `no-key`
+ * placeholder — the endpoint IS the thing being backed up, and its base_url
+ * restores it. Anything else needs a real secret to be worth a line.
+ */
+export function isExportableKey(row: { platform: string; baseUrl: string | null; key: string }): boolean {
+  if (row.platform === 'custom') return Boolean(row.baseUrl);
+  const v = row.key.trim();
+  return v.length > 0 && v !== 'no-key';
+}
+
 function enabledModelCount(platform: string): number {
   const db = getDb();
   const row = db.prepare(
@@ -254,8 +270,9 @@ keysRouter.get('/', (_req: Request, res: Response) => {
 
   const keys = rows.map(row => {
     let maskedKey = '****';
+    let realKey = '';
     try {
-      const realKey = decrypt(row.encrypted_key, row.iv, row.auth_tag);
+      realKey = decrypt(row.encrypted_key, row.iv, row.auth_tag);
       maskedKey = maskKey(realKey);
     } catch {
       maskedKey = '[decrypt failed]';
@@ -270,6 +287,8 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       status: row.status,
       enabled: row.enabled === 1,
       keyless: resolveProvider(row.platform)?.keyless === true,
+      // Lets the export dialog count exactly what the export will write.
+      exportable: isExportableKey({ platform: row.platform, baseUrl: row.base_url ?? null, key: realKey }),
       createdAt: row.created_at,
       lastCheckedAt: row.last_checked_at,
       lastHealthError: row.last_health_error ?? null,
@@ -344,10 +363,7 @@ keysRouter.get('/export', (req: Request, res: Response) => {
         baseUrl: row.base_url || undefined,
       };
     })
-    .filter(k => {
-      const v = k.key.trim();
-      return v.length > 0 && v !== 'no-key';
-    });
+    .filter(k => isExportableKey({ platform: k.platform, baseUrl: k.baseUrl ?? null, key: k.key }));
 
   if (decryptedKeys.length === 0) {
     res.status(404).json({ error: { message: 'No keys to export' } });
@@ -356,8 +372,29 @@ keysRouter.get('/export', (req: Request, res: Response) => {
 
   if (format === 'env') {
     // .env format: GOOGLE_KEY=xxx\nGROQ_KEY=yyy
+    //
+    // Names have to stay unique. A .env is read back into a map keyed by name,
+    // so two rows sharing one name collapse into a single imported key — every
+    // second Google key was silently lost on a round trip. Repeats therefore
+    // take a numeric suffix (GOOGLE_KEY_2), which still resolves to the same
+    // platform through PREFIX_MAP.
+    //
+    // Custom endpoints get an indexed PAIR, because a custom key without its
+    // base_url cannot be restored — there is no endpoint to attach it to (#687).
+    const seenPerPlatform = new Map<string, number>();
+    let customIndex = 0;
     const lines = decryptedKeys.map(k => {
-      const envKey = `${k.platform.toUpperCase()}_KEY=${k.key}`;
+      if (k.platform === 'custom' && k.baseUrl) {
+        customIndex++;
+        return [
+          `# ${k.label || `custom endpoint ${customIndex}`}`,
+          `CUSTOM_${customIndex}_BASE_URL=${k.baseUrl}`,
+          `CUSTOM_${customIndex}_KEY=${k.key}`,
+        ].join('\n');
+      }
+      const n = (seenPerPlatform.get(k.platform) ?? 0) + 1;
+      seenPerPlatform.set(k.platform, n);
+      const envKey = `${k.platform.toUpperCase()}_KEY${n > 1 ? `_${n}` : ''}=${k.key}`;
       return k.label ? `# ${k.label}\n${envKey}` : envKey;
     });
     const content = lines.join('\n\n') + '\n';
@@ -377,9 +414,13 @@ keysRouter.get('/export', (req: Request, res: Response) => {
     // (labels); the key value must round-trip verbatim for re-import, and the
     // platform is one of our own fixed enum values.
     const neutralize = (v: string) => (/^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
-    const header = 'platform,key,label';
+    // base_url is the fourth column: a custom row is an ENDPOINT, and without
+    // its URL the key cannot be re-imported (#687). Blank for every other
+    // platform. The importer tolerates the three-column form too, so files
+    // written by older builds still load.
+    const header = 'platform,key,label,base_url';
     const lines = decryptedKeys.map(k =>
-      [escCsv(k.platform), escCsv(k.key), escCsv(neutralize(k.label))].join(',')
+      [escCsv(k.platform), escCsv(k.key), escCsv(neutralize(k.label)), escCsv(k.baseUrl ?? '')].join(',')
     );
     const content = [header, ...lines].join('\n') + '\n';
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -888,7 +929,7 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
 });
 
 keysRouter.post('/import', (req: Request, res: Response, next: NextFunction) => {
-  upload.single('file')(req, res, (err: any) => {
+  upload.single('file')(req, res, async (err: any) => {
     if (handleUploadError(err, res, next)) return;
 
     try {
@@ -901,6 +942,9 @@ keysRouter.post('/import', (req: Request, res: Response, next: NextFunction) => 
       const imported: Array<{ keyName: string; platform: string }> = [];
       const skipped = [...result.skipped];
       const errors: Array<{ key: string; error: string }> = [];
+      // One SSRF verdict per endpoint, not per key: a pooled endpoint (#619)
+      // brings several keys to the same URL and each check costs a DNS lookup.
+      const urlVerdicts = new Map<string, { allowed: boolean; reason?: string }>();
 
       for (const parsedKey of result.keys) {
         const { keyName, keyValue } = splitRawKey(parsedKey.rawKey);
@@ -909,10 +953,44 @@ keysRouter.post('/import', (req: Request, res: Response, next: NextFunction) => 
           continue;
         }
         const platformParse = z.enum(PLATFORMS).safeParse(parsedKey.platform);
-        if (!platformParse.success || platformParse.data === 'custom') {
+        if (!platformParse.success) {
           skipped.push(keyName);
           continue;
         }
+
+        // Custom rows name an ENDPOINT. They used to be dropped outright, which
+        // made every export/import round trip lose them (#687); they import now,
+        // but only with the base_url that says where the endpoint is.
+        if (platformParse.data === 'custom') {
+          if (!parsedKey.baseUrl) {
+            skipped.push(keyName);
+            continue;
+          }
+          const baseUrl = normalizeBaseUrl(parsedKey.baseUrl);
+          // Same SSRF guard the manual add path uses (#440) — an import file is
+          // just as capable of naming a cloud metadata address.
+          let verdict = urlVerdicts.get(baseUrl);
+          if (!verdict) {
+            verdict = await assessProviderUrl(baseUrl);
+            urlVerdicts.set(baseUrl, verdict);
+          }
+          if (!verdict.allowed) {
+            errors.push({ key: keyName, error: `baseUrl rejected: ${verdict.reason}` });
+            continue;
+          }
+          try {
+            // A placeholder value means "endpoint with auth off" — hand it to
+            // the resolver as "no key submitted" so it stores the sentinel once
+            // instead of treating 'no-key' as a real secret.
+            const secret = keyValue.trim() === 'no-key' ? undefined : keyValue.trim() || undefined;
+            resolveCustomEndpointKey(getDb(), baseUrl, secret, keyName);
+            imported.push({ keyName, platform: 'custom' });
+          } catch (insertErr) {
+            errors.push({ key: keyName, error: (insertErr as Error).message });
+          }
+          continue;
+        }
+
         if (!keyValue.trim()) {
           errors.push({ key: keyName, error: 'keyValue must be at least 1 character' });
           continue;
