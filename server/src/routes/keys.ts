@@ -400,6 +400,39 @@ keysRouter.get('/export', (req: Request, res: Response) => {
   res.json(jsonExport);
 });
 
+// Reveal ONE key in plaintext, so the dashboard can offer a copy action for a
+// credential it otherwise only ever shows masked (#705). Exporting every key to
+// a file was the only way to read one back, which is a poor trade for "what is
+// the key on this row again?". Gated exactly like the export it narrows: the
+// session alone is not enough, the password has to be re-entered.
+keysRouter.post('/:id/reveal', (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const password = req.headers['x-reauth-password'] as string | undefined;
+  if (!password || !verifyCredentials(user.email, password)) {
+    res.status(403).json({ error: { message: 'Password verification required to reveal a key', type: 'authentication_error' } });
+    return;
+  }
+
+  const id = parseInt(req.params.id as string, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: { message: 'Invalid key ID' } });
+    return;
+  }
+
+  const row = getDb().prepare('SELECT encrypted_key, iv, auth_tag FROM api_keys WHERE id = ?')
+    .get(id) as { encrypted_key: string; iv: string; auth_tag: string } | undefined;
+  if (!row) {
+    res.status(404).json({ error: { message: 'Key not found' } });
+    return;
+  }
+
+  try {
+    res.json({ key: decrypt(row.encrypted_key, row.iv, row.auth_tag) });
+  } catch {
+    res.status(500).json({ error: { message: 'This key could not be decrypted. It was stored with a different ENCRYPTION_KEY.' } });
+  }
+});
+
 // Add a key
 keysRouter.post('/', (req: Request, res: Response) => {
   const parsed = addKeySchema.safeParse(req.body);

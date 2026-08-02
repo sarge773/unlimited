@@ -423,6 +423,8 @@ export type QuotaObservationSource = 'header' | 'quota_api' | 'error_body' | 'lo
 export interface ProviderQuotaState {
   platform: Platform;
   keyId: number;
+  /** The key's operator-facing label, when the row still names a live key. */
+  keyLabel?: string | null;
   quotaPoolKey: string;
   metric: QuotaMetric;
   limit: number | null;
