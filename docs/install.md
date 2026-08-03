@@ -70,6 +70,17 @@ docker compose up -d
 >
 > Only do this on a trusted network: the proxy is single-user and guarded only by the unified API key.
 
+> **Providers unreachable from the container, but fine from the host?** A container has its own network stack, so two things that work on your machine do not carry over:
+>
+> - **A proxy on `127.0.0.1` is not your machine.** Inside the container, loopback is the container itself. If you reach providers through a proxy client on the host (Clash, v2rayN, sing-box, a corporate proxy), point FreeLLMAPI at the host instead: `PROXY_URL=socks5h://host.docker.internal:7890`. The bundled `docker-compose.yml` maps `host.docker.internal` to the host gateway, so this works on plain Linux Docker as well as Docker Desktop. The proxy also has to accept connections from outside loopback (in Clash, `allow-lan: true`).
+> - **An IPv6-only host needs IPv6 enabled in Docker.** The default bridge network is IPv4-only, so on a host with no IPv4 route the container cannot reach anything, DNS included. Enable it in `/etc/docker/daemon.json` with `"ipv6": true`, `"ip6tables": true` and a `"fixed-cidr-v6"` range, then restart Docker.
+>
+> To see which of these you are hitting, ask the container directly:
+>
+> ```bash
+> docker compose exec freellmapi node -e "fetch('https://generativelanguage.googleapis.com/').then(r=>console.log('ok',r.status)).catch(e=>console.log('fail',e.cause?.code||e.message))"
+> ```
+
 ## Local development
 
 **Prerequisites:** Node.js 20+, npm.
