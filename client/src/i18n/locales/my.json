@@ -377,6 +377,8 @@
     "addAudioModel": "အသံမော်ဒယ် ထည့်ပါ",
     "addingCustom": "ထပ်ထည့်နေသည်...",
     "discoverModels": "မော်ဒယ်များ ရယူရန်",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "ဤအဆုံးမှတ်ရှိ မော်ဒယ်များ",
     "discoverHint": "မှတ်ပုံတင်မည့် မော်ဒယ်များကို ရွေးပါ။ ထည့်ပြီးသားများမှာ သော့ခတ်ထားသည်။",
     "discoverEmpty": "ဤအဆုံးမှတ်က မော်ဒယ်တစ်ခုမျှ မပြန်ပါ။",

@@ -377,6 +377,8 @@
     "addAudioModel": "آڈیو ماڈل شامل کریں۔",
     "addingCustom": "شامل کیا جا رہا ہے…",
     "discoverModels": "ماڈلز حاصل کریں",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "اس اینڈ پوائنٹ کے ماڈلز",
     "discoverHint": "رجسٹر کرنے کے لیے ماڈلز منتخب کریں۔ پہلے سے شامل ماڈلز مقفل رہتے ہیں۔",
     "discoverEmpty": "اس اینڈ پوائنٹ نے کوئی ماڈل واپس نہیں کیا۔",

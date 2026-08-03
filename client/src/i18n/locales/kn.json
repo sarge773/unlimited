@@ -377,6 +377,8 @@
     "addAudioModel": "ಆಡಿಯೋ ಮಾದರಿಯನ್ನು ಸೇರಿಸಿ",
     "addingCustom": "ಸೇರಿಸಲಾಗುತ್ತಿದೆ...",
     "discoverModels": "ಮಾದರಿಗಳನ್ನು ತರಿಸಿ",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "ಈ ಎಂಡ್‌ಪಾಯಿಂಟ್‌ನ ಮಾದರಿಗಳು",
     "discoverHint": "ನೋಂದಾಯಿಸಬೇಕಾದ ಮಾದರಿಗಳನ್ನು ಆರಿಸಿ. ಈಗಾಗಲೇ ಸೇರಿಸಿದವು ಲಾಕ್ ಆಗಿರುತ್ತವೆ.",
     "discoverEmpty": "ಈ ಎಂಡ್‌ಪಾಯಿಂಟ್ ಯಾವ ಮಾದರಿಯನ್ನೂ ಹಿಂತಿರುಗಿಸಲಿಲ್ಲ.",

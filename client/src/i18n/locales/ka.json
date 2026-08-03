@@ -377,6 +377,8 @@
     "addAudioModel": "აუდიო მოდელის დამატება",
     "addingCustom": "ემატება…",
     "discoverModels": "მოდელების მიღება",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "მოდელები ამ ბოლოწერტილზე",
     "discoverHint": "აირჩიე რეგისტრირებადი მოდელები. უკვე დამატებულები ჩაკეტილი რჩება.",
     "discoverEmpty": "ამ ბოლოწერტილმა მოდელები არ დააბრუნა.",

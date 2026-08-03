@@ -377,6 +377,8 @@
     "addAudioModel": "Pridať zvukový model",
     "addingCustom": "Pridávam...",
     "discoverModels": "Načítať modely",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Modely na tomto endpointe",
     "discoverHint": "Vyberte modely na registráciu. Už pridané zostávajú uzamknuté.",
     "discoverEmpty": "Tento endpoint nevrátil žiadne modely.",

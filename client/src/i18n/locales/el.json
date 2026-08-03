@@ -377,6 +377,8 @@
     "addAudioModel": "Προσθήκη μοντέλου ήχου",
     "addingCustom": "Προσθέτοντας...",
     "discoverModels": "Λήψη μοντέλων",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Μοντέλα σε αυτό το endpoint",
     "discoverHint": "Επίλεξε τα μοντέλα προς καταχώριση. Όσα έχεις ήδη προσθέσει μένουν κλειδωμένα.",
     "discoverEmpty": "Αυτό το endpoint δεν επέστρεψε μοντέλα.",

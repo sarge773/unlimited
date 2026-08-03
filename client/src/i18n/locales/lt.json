@@ -377,6 +377,8 @@
     "addAudioModel": "Pridėti garso modelį",
     "addingCustom": "Prideda...",
     "discoverModels": "Gauti modelius",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Modeliai šiame galiniame taške",
     "discoverHint": "Pasirink registruotinus modelius. Jau pridėti lieka užrakinti.",
     "discoverEmpty": "Šis galinis taškas negrąžino modelių.",

@@ -377,6 +377,8 @@
     "addAudioModel": "ਆਡੀਓ ਮਾਡਲ ਸ਼ਾਮਲ ਕਰੋ",
     "addingCustom": "ਜੋੜ ਰਿਹਾ ਹੈ...",
     "discoverModels": "ਮਾਡਲ ਲਿਆਓ",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "ਇਸ ਐਂਡਪੌਇੰਟ ਦੇ ਮਾਡਲ",
     "discoverHint": "ਰਜਿਸਟਰ ਕਰਨ ਲਈ ਮਾਡਲ ਚੁਣੋ। ਪਹਿਲਾਂ ਜੋੜੇ ਮਾਡਲ ਲਾਕ ਰਹਿੰਦੇ ਹਨ।",
     "discoverEmpty": "ਇਸ ਐਂਡਪੌਇੰਟ ਨੇ ਕੋਈ ਮਾਡਲ ਨਹੀਂ ਦਿੱਤਾ।",

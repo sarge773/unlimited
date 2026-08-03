@@ -1,5 +1,6 @@
 import { OpenAICompatProvider } from '../providers/openai-compat.js';
 import { isAbortLikeError } from '../lib/error-classify.js';
+import type { ChatCompletionResponse } from '@freellmapi/shared/types.js';
 
 // ── Model discovery on a user's own custom endpoint (#488) ──────────────────
 //
@@ -222,4 +223,52 @@ export async function discoverEndpointModels(baseUrl: string, apiKey: string): P
     throw new ModelDiscoveryError(502, `${baseUrl}/models did not return a model list in a format this gateway understands.`);
   }
   return parseModelCatalog(payload);
+}
+
+/**
+ * Fire one minimal real chat request at a custom endpoint to measure latency
+ * and confirm the key works end-to-end ("立即探测", #685 follow-up). Reuses
+ * discovery to learn a model id and the provider adapter for the call itself.
+ * Returns the probed model id, the round-trip latency and the completion token
+ * count so the caller can write a stats row; throws ModelDiscoveryError with a
+ * clean message on any failure (the caller must NOT record a sample then).
+ */
+export async function probeEndpointModel(
+  baseUrl: string,
+  apiKey: string,
+): Promise<{ modelId: string; latencyMs: number; outputTokens: number }> {
+  const discovered = await discoverEndpointModels(baseUrl, apiKey);
+  if (discovered.length === 0) {
+    throw new ModelDiscoveryError(502, 'The endpoint returned no models to probe.');
+  }
+  const modelId = discovered[0].id;
+
+  const provider = new OpenAICompatProvider({
+    platform: 'custom',
+    name: 'Custom (OpenAI-compatible)',
+    baseUrl,
+    // Interactive: the operator is watching, so a bounded timeout beats the
+    // 120s custom-provider chat default.
+    timeoutMs: 30_000,
+  });
+
+  const startedAt = Date.now();
+  let response: ChatCompletionResponse;
+  try {
+    response = await provider.chatCompletion(
+      apiKey,
+      [{ role: 'user', content: 'ping' }],
+      modelId,
+      { max_tokens: 1 },
+    );
+  } catch (err) {
+    const reason = isAbortLikeError(err) ? 'timed out' : ((err as Error)?.message ?? 'unknown error');
+    throw new ModelDiscoveryError(502, `Probe request to ${modelId} failed: ${reason}`);
+  }
+
+  return {
+    modelId,
+    latencyMs: Date.now() - startedAt,
+    outputTokens: response.usage?.completion_tokens ?? 0,
+  };
 }

@@ -377,6 +377,8 @@
     "addAudioModel": "የድምጽ ሞዴል ያክሉ",
     "addingCustom": "በማከል ላይ...",
     "discoverModels": "ሞዴሎችን አምጣ",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "በዚህ መዳረሻ ላይ ያሉ ሞዴሎች",
     "discoverHint": "ለመመዝገብ ሞዴሎችን ይምረጡ። አስቀድመው የተጨመሩት ተቆልፈው ይቆያሉ።",
     "discoverEmpty": "ይህ መዳረሻ ምንም ሞዴል አልመለሰም።",

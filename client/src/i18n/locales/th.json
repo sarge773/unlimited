@@ -377,6 +377,8 @@
     "addAudioModel": "เพิ่มโมเดลเสียง",
     "addingCustom": "กำลังเพิ่ม...",
     "discoverModels": "ดึงรายการโมเดล",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "โมเดลบนเอนด์พอยต์นี้",
     "discoverHint": "เลือกโมเดลที่จะลงทะเบียน โมเดลที่เพิ่มไว้แล้วจะถูกล็อก",
     "discoverEmpty": "เอนด์พอยต์นี้ไม่ได้ส่งโมเดลกลับมา",

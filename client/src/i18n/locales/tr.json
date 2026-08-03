@@ -377,6 +377,8 @@
     "addAudioModel": "Ses modeli ekle",
     "addingCustom": "Ekleniyor…",
     "discoverModels": "Modelleri getir",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Bu uç noktadaki modeller",
     "discoverHint": "Kaydedilecek modelleri seç. Zaten eklenenler kilitli kalır.",
     "discoverEmpty": "Bu uç nokta hiç model döndürmedi.",

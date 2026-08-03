@@ -377,6 +377,8 @@
     "addAudioModel": "Audio modelini qo'shing",
     "addingCustom": "Qo‘shilmoqda…",
     "discoverModels": "Modellarni olish",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Ushbu endpointdagi modellar",
     "discoverHint": "Ro'yxatga olinadigan modellarni tanlang. Allaqachon qo'shilganlari qulflangan qoladi.",
     "discoverEmpty": "Ushbu endpoint hech qanday model qaytarmadi.",

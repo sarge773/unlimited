@@ -377,6 +377,8 @@
     "addAudioModel": "添加音频模型",
     "addingCustom": "添加中…",
     "discoverModels": "获取模型",
+    "probeNow": "立即探测",
+    "probeSuccess": "已探测 {model}，耗时 {latency}ms",
     "discoverTitle": "此端点上的模型",
     "discoverHint": "选择要注册的模型。已添加的模型保持锁定。",
     "discoverEmpty": "此端点未返回任何模型。",

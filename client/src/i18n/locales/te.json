@@ -377,6 +377,8 @@
     "addAudioModel": "ఆడియో మోడల్‌ని జోడించండి",
     "addingCustom": "జోడిస్తోంది...",
     "discoverModels": "మోడల్‌లను తెచ్చు",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "ఈ ఎండ్‌పాయింట్‌లోని మోడల్‌లు",
     "discoverHint": "నమోదు చేయాల్సిన మోడల్‌లను ఎంచుకోండి. ఇప్పటికే జోడించినవి లాక్‌గా ఉంటాయి.",
     "discoverEmpty": "ఈ ఎండ్‌పాయింట్ ఏ మోడల్‌నూ ఇవ్వలేదు.",

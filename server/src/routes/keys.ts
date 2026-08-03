@@ -13,7 +13,7 @@ import { ensureModelInProfiles } from '../services/profile-models.js';
 import { getActiveCooldownsForKeys, clearCooldownsForKey } from '../services/ratelimit.js';
 import { resolveCustomEndpointKey, customEndpointKeyIds, siblingEndpointKeyId, endpointHasCredential } from '../services/custom-endpoint.js';
 import { customModelSeed } from '../services/custom-model-seed.js';
-import { discoverEndpointModels, ModelDiscoveryError } from '../services/model-discovery.js';
+import { discoverEndpointModels, probeEndpointModel, ModelDiscoveryError } from '../services/model-discovery.js';
 import { endpointScopeForBaseUrl, normalizeBaseUrl } from '../lib/endpoint-scope.js';
 
 export const keysRouter = Router();
@@ -721,6 +721,53 @@ keysRouter.post('/custom/discover-models', async (req: Request, res: Response) =
       return;
     }
     res.status(502).json({ error: { message: `Model discovery failed: ${err?.message ?? 'unknown error'}` } });
+  }
+});
+
+// POST /custom/probe — fire one minimal real chat request at the endpoint so an
+// unmeasured model gains a reliability/speed sample without waiting for natural
+// traffic (#685 follow-up). Interactive: the operator is watching, so a bounded
+// timeout and a clean error beat a silent 120s hang. Only a SUCCESSFUL probe
+// writes a `requests` row (which the stats cache folds into the bandit); a
+// failure (401 / timeout / unreachable) surfaces the reason and records nothing.
+keysRouter.post('/custom/probe', async (req: Request, res: Response) => {
+  const parsed = discoverModelsSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: { message: parsed.error.errors.map(e => e.message).join(', ') } });
+    return;
+  }
+
+  let endpoint: CustomEndpointRef;
+  try {
+    endpoint = resolveEndpointRef(parsed.data);
+  } catch (err: any) {
+    res.status(err.status ?? 400).json({ error: { message: err.message } });
+    return;
+  }
+
+  if (await rejectUnsafeBaseUrl(endpoint.baseUrl, res)) return;
+
+  const apiKey = parsed.data.apiKey?.trim() || endpoint.storedKey || 'no-key';
+
+  try {
+    const probe = await probeEndpointModel(endpoint.baseUrl, apiKey);
+
+    // Only a successful probe records a sample. The row mirrors what the proxy
+    // writes on a real request so the decay-weighted stats cache picks it up.
+    if (endpoint.keyId != null) {
+      getDb().prepare(`
+        INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, ttfb_ms, request_type)
+        VALUES ('custom', ?, ?, 'success', 0, ?, ?, ?, 'chat')
+      `).run(probe.modelId, endpoint.keyId, probe.outputTokens, probe.latencyMs, probe.latencyMs);
+    }
+
+    res.json({ modelId: probe.modelId, latencyMs: probe.latencyMs });
+  } catch (err: any) {
+    if (err instanceof ModelDiscoveryError) {
+      res.status(err.status).json({ error: { message: err.message } });
+      return;
+    }
+    res.status(502).json({ error: { message: `Probe failed: ${err?.message ?? 'unknown error'}` } });
   }
 });
 

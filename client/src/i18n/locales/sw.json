@@ -377,6 +377,8 @@
     "addAudioModel": "Ongeza muundo wa sauti",
     "addingCustom": "Inaongeza...",
     "discoverModels": "Leta modeli",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Modeli kwenye mwisho huu",
     "discoverHint": "Chagua modeli za kusajili. Zilizoongezwa tayari zinabaki zimefungwa.",
     "discoverEmpty": "Mwisho huu haukurudisha modeli yoyote.",

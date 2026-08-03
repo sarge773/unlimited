@@ -399,6 +399,8 @@
     "addAudioModel": "Add audio model",
     "addingCustom": "Adding…",
     "discoverModels": "Fetch models",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Models on this endpoint",
     "discoverHint": "Pick the models to register. Ones you already added stay locked.",
     "discoverEmpty": "This endpoint returned no models.",

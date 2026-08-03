@@ -377,6 +377,8 @@
     "addAudioModel": "Додати модель звуку",
     "addingCustom": "Додавання…",
     "discoverModels": "Отримати моделі",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Моделі на цій кінцевій точці",
     "discoverHint": "Виберіть моделі для реєстрації. Уже додані залишаються заблокованими.",
     "discoverEmpty": "Ця кінцева точка не повернула жодної моделі.",

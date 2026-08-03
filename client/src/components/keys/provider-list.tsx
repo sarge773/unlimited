@@ -17,10 +17,11 @@ import {
   DropdownMenuItem,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown, CircleAlert, Copy, ExternalLink, KeyRound, ListPlus, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
+import { ChevronDown, CircleAlert, Copy, ExternalLink, KeyRound, ListPlus, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2, Zap } from 'lucide-react'
 import type { ApiKey, ApiKeyModel } from '../../../../shared/types'
 import { formatSqliteUtcToLocalTime } from '@/lib/utils'
 import { useI18n } from '@/i18n'
+import { toast } from '@/lib/toast'
 import {
   PLATFORMS,
   CUSTOM_GROUP,
@@ -106,6 +107,25 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['health'] })
       queryClient.invalidateQueries({ queryKey: ['keys'] })
+    },
+  })
+
+  // #685 follow-up: fire one real chat request at a custom endpoint so an
+  // unmeasured model gains a reliability/speed sample immediately instead of
+  // waiting for natural traffic. Only a successful probe records a sample.
+  const probeKey = useMutation({
+    meta: { silenceToast: true },
+    mutationFn: (keyId: number) =>
+      apiFetch<{ modelId: string; latencyMs: number }>(`/api/keys/custom/probe`, {
+        method: 'POST',
+        body: JSON.stringify({ keyId }),
+      }),
+    onSuccess: (data) => {
+      for (const key of ['keys', 'health', 'fallback']) {
+        queryClient.invalidateQueries({ queryKey: [key] })
+      }
+      queryClient.invalidateQueries({ queryKey: ['fallback', 'routing'] })
+      toast.success(t('keys.probeSuccess', { model: data.modelId, latency: data.latencyMs }))
     },
   })
 
@@ -493,6 +513,17 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                                       aria-label={t('keys.discoverModels')}
                                     >
                                       <ListPlus className="size-3" />
+                                    </Button>
+                                  </Tooltip>
+                                  <Tooltip text={t('keys.probeNow')}>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => probeKey.mutate(k.id)}
+                                      disabled={probeKey.isPending}
+                                      aria-label={t('keys.probeNow')}
+                                    >
+                                      <Zap className={`size-3 ${probeKey.isPending ? 'animate-pulse' : ''}`} />
                                     </Button>
                                   </Tooltip>
                                 </>

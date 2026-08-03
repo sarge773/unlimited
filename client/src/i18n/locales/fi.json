@@ -377,6 +377,8 @@
     "addAudioModel": "Lisää äänimalli",
     "addingCustom": "Lisään...",
     "discoverModels": "Hae mallit",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Tämän päätepisteen mallit",
     "discoverHint": "Valitse rekisteröitävät mallit. Jo lisätyt pysyvät lukittuina.",
     "discoverEmpty": "Tämä päätepiste ei palauttanut malleja.",

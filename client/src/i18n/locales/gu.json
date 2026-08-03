@@ -377,6 +377,8 @@
     "addAudioModel": "ઓડિયો મોડલ ઉમેરો",
     "addingCustom": "ઉમેરી રહ્યું છે...",
     "discoverModels": "મોડેલ મેળવો",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "આ એન્ડપોઇન્ટ પરના મોડેલ",
     "discoverHint": "નોંધણી માટે મોડેલ પસંદ કરો. પહેલેથી ઉમેરેલા લોક રહે છે.",
     "discoverEmpty": "આ એન્ડપોઇન્ટે કોઈ મોડેલ પરત કર્યું નથી.",

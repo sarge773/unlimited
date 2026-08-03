@@ -377,6 +377,8 @@
     "addAudioModel": "Audio model əlavə et",
     "addingCustom": "Əlavə edirəm...",
     "discoverModels": "Modelləri gətir",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Bu son nöqtədəki modellər",
     "discoverHint": "Qeyd ediləcək modelləri seçin. Artıq əlavə edilənlər kilidli qalır.",
     "discoverEmpty": "Bu son nöqtə heç bir model qaytarmadı.",

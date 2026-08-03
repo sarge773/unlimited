@@ -377,6 +377,8 @@
     "addAudioModel": "ऑडिओ मॉडेल जोडा",
     "addingCustom": "जोडत आहे...",
     "discoverModels": "मॉडेल आणा",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "या एंडपॉइंटवरील मॉडेल",
     "discoverHint": "नोंदणीसाठी मॉडेल निवडा. आधीच जोडलेली मॉडेल लॉक राहतात.",
     "discoverEmpty": "या एंडपॉइंटने कोणतेही मॉडेल परत केले नाही.",

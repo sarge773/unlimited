@@ -377,6 +377,8 @@
     "addAudioModel": "Tambahkan model audio",
     "addingCustom": "Menambahkan…",
     "discoverModels": "Ambil model",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Model di endpoint ini",
     "discoverHint": "Pilih model yang akan didaftarkan. Yang sudah ditambahkan tetap terkunci.",
     "discoverEmpty": "Endpoint ini tidak mengembalikan model apa pun.",

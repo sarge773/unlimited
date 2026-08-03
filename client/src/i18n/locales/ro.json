@@ -377,6 +377,8 @@
     "addAudioModel": "Adaugă modelul audio",
     "addingCustom": "Adăugând...",
     "discoverModels": "Preia modelele",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Modele pe acest endpoint",
     "discoverHint": "Alege modelele de înregistrat. Cele deja adăugate rămân blocate.",
     "discoverEmpty": "Acest endpoint nu a returnat niciun model.",

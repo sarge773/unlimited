@@ -377,6 +377,8 @@
     "addAudioModel": "オーディオモデルの追加",
     "addingCustom": "追加中…",
     "discoverModels": "モデルを取得",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "このエンドポイントのモデル",
     "discoverHint": "登録するモデルを選択してください。追加済みのモデルはロックされます。",
     "discoverEmpty": "このエンドポイントはモデルを返しませんでした。",

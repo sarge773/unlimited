@@ -377,6 +377,8 @@
     "addAudioModel": "Ṣafikun awoṣe ohun",
     "addingCustom": "Nfi…",
     "discoverModels": "Gba àwọn àwòṣe",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Àwọn àwòṣe lórí ibùdó yìí",
     "discoverHint": "Yan àwọn àwòṣe láti forúkọsílẹ̀. Àwọn tí o ti fikún ń wà ní títì.",
     "discoverEmpty": "Ibùdó yìí kò dá àwòṣe kankan padà.",

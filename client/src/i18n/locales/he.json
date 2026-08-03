@@ -377,6 +377,8 @@
     "addAudioModel": "הוסף מודל אודיו",
     "addingCustom": "מוסיף...",
     "discoverModels": "משיכת מודלים",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "מודלים בנקודת קצה זו",
     "discoverHint": "בחר את המודלים לרישום. אלה שכבר הוספת נשארים נעולים.",
     "discoverEmpty": "נקודת קצה זו לא החזירה מודלים.",

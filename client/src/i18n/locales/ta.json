@@ -377,6 +377,8 @@
     "addAudioModel": "ஆடியோ மாதிரியைச் சேர்க்கவும்",
     "addingCustom": "சேர்க்கிறது…",
     "discoverModels": "மாதிரிகளைப் பெறு",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "இந்த எண்ட்பாயிண்டில் உள்ள மாதிரிகள்",
     "discoverHint": "பதிவு செய்ய வேண்டிய மாதிரிகளைத் தேர்வுசெய். ஏற்கனவே சேர்த்தவை பூட்டப்பட்டிருக்கும்.",
     "discoverEmpty": "இந்த எண்ட்பாயிண்ட் எந்த மாதிரியையும் தரவில்லை.",

@@ -377,6 +377,8 @@
     "addAudioModel": "Додајте аудио модел",
     "addingCustom": "Додавање…",
     "discoverModels": "Преузми моделе",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Модели на овој крајњој тачки",
     "discoverHint": "Изабери моделе за регистрацију. Већ додати остају закључани.",
     "discoverEmpty": "Ова крајња тачка није вратила ниједан модел.",

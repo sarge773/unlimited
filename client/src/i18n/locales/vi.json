@@ -377,6 +377,8 @@
     "addAudioModel": "Thêm mô hình âm thanh",
     "addingCustom": "Đang thêm…",
     "discoverModels": "Lấy danh sách mô hình",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Mô hình trên endpoint này",
     "discoverHint": "Chọn mô hình cần đăng ký. Những mô hình đã thêm vẫn bị khóa.",
     "discoverEmpty": "Endpoint này không trả về mô hình nào.",

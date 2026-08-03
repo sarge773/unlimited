@@ -377,6 +377,8 @@
     "addAudioModel": "Ƙara samfurin sauti",
     "addingCustom": "Ana ƙara…",
     "discoverModels": "Ɗauko samfura",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Samfura a wannan matattarar",
     "discoverHint": "Zaɓi samfuran da za a yi rajista. Waɗanda aka riga aka ƙara sun kasance a kulle.",
     "discoverEmpty": "Wannan matattarar ba ta dawo da wani samfuri ba.",

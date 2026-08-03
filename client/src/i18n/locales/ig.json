@@ -377,6 +377,8 @@
     "addAudioModel": "Tinye ụdị ọdịyo",
     "addingCustom": "Na-agbakwụnye…",
     "discoverModels": "Weta ụdị",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Ụdị dị na njedebe a",
     "discoverHint": "Họrọ ụdị ị ga-edebanye. Ndị i tinyerelarị na-anọgide na-akpọchi.",
     "discoverEmpty": "Njedebe a ewetaghị ụdị ọ bụla.",

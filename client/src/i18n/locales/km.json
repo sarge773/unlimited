@@ -377,6 +377,8 @@
     "addAudioModel": "បន្ថែមម៉ូដែលសំឡេង",
     "addingCustom": "បន្ថែម...",
     "discoverModels": "ទាញយកម៉ូដែល",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "ម៉ូដែលនៅចំណុចបញ្ចប់នេះ",
     "discoverHint": "ជ្រើសរើសម៉ូដែលដើម្បីចុះឈ្មោះ។ ម៉ូដែលដែលបានបន្ថែមរួចនៅតែជាប់សោ។",
     "discoverEmpty": "ចំណុចបញ្ចប់នេះមិនបានផ្តល់ម៉ូដែលណាមួយទេ។",

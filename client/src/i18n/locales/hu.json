@@ -377,6 +377,8 @@
     "addAudioModel": "Hangmodell hozzáadása",
     "addingCustom": "Hozzátéve...",
     "discoverModels": "Modellek lekérése",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Modellek ezen a végponton",
     "discoverHint": "Válaszd ki a regisztrálandó modelleket. A már hozzáadottak zárolva maradnak.",
     "discoverEmpty": "Ez a végpont nem adott vissza modellt.",

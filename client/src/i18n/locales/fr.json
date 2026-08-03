@@ -377,6 +377,8 @@
     "addAudioModel": "Ajouter un modèle audio",
     "addingCustom": "Ajout…",
     "discoverModels": "Récupérer les modèles",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Modèles sur cet endpoint",
     "discoverHint": "Choisissez les modèles à enregistrer. Ceux déjà ajoutés restent verrouillés.",
     "discoverEmpty": "Cet endpoint n'a renvoyé aucun modèle.",

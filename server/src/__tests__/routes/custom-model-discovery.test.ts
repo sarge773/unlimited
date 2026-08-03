@@ -299,4 +299,65 @@ describe('median seeding for custom models (#488)', () => {
     expect([kept.intelligence_rank, kept.speed_rank, kept.size_label]).toEqual([1, 1, 'Frontier']);
     expect(chatModel('relay-b')!.size_label).toBe('Large');
   });
+
+  it('probe fires one chat request and records a success sample (#685 follow-up)', async () => {
+    await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-a', apiKey: 'relay-secret' });
+    const keyId = customKeyIds()[0]!;
+
+    // Discovery asks GET /models; the probe then POSTs /chat/completions.
+    const mock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (String(url).endsWith('/models')) {
+        return jsonResponse({ object: 'list', data: [{ id: 'relay-a', owned_by: 'acme' }] });
+      }
+      return jsonResponse({
+        id: 'chatcmpl-probe',
+        object: 'chat.completion',
+        created: 0,
+        model: 'relay-a',
+        choices: [{ index: 0, message: { role: 'assistant', content: 'pong' }, finish_reason: 'stop' }],
+        usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+      });
+    });
+    globalThis.fetch = mock as any;
+
+    const { status, body } = await post(app, '/api/keys/custom/probe', { keyId });
+
+    expect(status).toBe(200);
+    expect(body.modelId).toBe('relay-a');
+    expect(typeof body.latencyMs).toBe('number');
+
+    const chatCall = mock.mock.calls.find(([u]) => String(u).endsWith('/chat/completions'))!;
+    expect(chatCall).toBeTruthy();
+    expect((chatCall[1] as RequestInit).method).toBe('POST');
+    const chatBody = JSON.parse(String((chatCall[1] as RequestInit).body)) as any;
+    expect(chatBody.max_tokens).toBe(1);
+    expect(chatBody.model).toBe('relay-a');
+
+    // The successful probe wrote a request row the stats cache can fold in.
+    const row = getDb().prepare(
+      "SELECT status, output_tokens, latency_ms FROM requests WHERE platform = 'custom' AND model_id = 'relay-a' ORDER BY id DESC LIMIT 1",
+    ).get() as { status: string; output_tokens: number; latency_ms: number };
+    expect(row.status).toBe('success');
+    expect(row.output_tokens).toBe(1);
+  });
+
+  it('probe failure surfaces the reason and records no sample (#685 follow-up)', async () => {
+    await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-a', apiKey: 'relay-secret' });
+    const keyId = customKeyIds()[0]!;
+
+    const mock = vi.fn(async (url: string) => {
+      if (String(url).endsWith('/models')) {
+        return jsonResponse({ object: 'list', data: [{ id: 'relay-a' }] });
+      }
+      return jsonResponse({ error: { message: 'upstream exploded' } }, 502);
+    });
+    globalThis.fetch = mock as any;
+
+    const { status, body } = await post(app, '/api/keys/custom/probe', { keyId });
+
+    expect(status).toBe(502);
+    expect(String(body.error.message)).toContain('upstream exploded');
+    const count = (getDb().prepare("SELECT COUNT(*) AS c FROM requests WHERE platform = 'custom'").get() as { c: number }).c;
+    expect(count).toBe(0);
+  });
 });

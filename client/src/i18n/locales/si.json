@@ -377,6 +377,8 @@
     "addAudioModel": "ශ්රව්ය ආකෘතිය එක් කරන්න",
     "addingCustom": "එකතු කරමින්...",
     "discoverModels": "ආකෘති ලබාගන්න",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "මෙම අන්තයේ ඇති ආකෘති",
     "discoverHint": "ලියාපදිංචි කළ යුතු ආකෘති තෝරන්න. දැනටමත් එකතු කළ ඒවා අගුළු දමා පවතී.",
     "discoverEmpty": "මෙම අන්තය ආකෘති කිසිවක් ලබා දුන්නේ නැත.",

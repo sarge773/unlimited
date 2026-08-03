@@ -377,6 +377,8 @@
     "addAudioModel": "Добавить аудиомодель",
     "addingCustom": "Добавление…",
     "discoverModels": "Получить модели",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Модели на этой точке доступа",
     "discoverHint": "Выберите модели для регистрации. Уже добавленные остаются заблокированными.",
     "discoverEmpty": "Эта точка доступа не вернула ни одной модели.",

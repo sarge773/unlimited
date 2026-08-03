@@ -377,6 +377,8 @@
     "addAudioModel": "Legg til lydmodell",
     "addingCustom": "Legger til...",
     "discoverModels": "Hent modeller",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Modeller på dette endepunktet",
     "discoverHint": "Velg modellene som skal registreres. Allerede lagt til forblir låst.",
     "discoverEmpty": "Dette endepunktet returnerte ingen modeller.",

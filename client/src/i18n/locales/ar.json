@@ -377,6 +377,8 @@
     "addAudioModel": "إضافة نموذج صوتي",
     "addingCustom": "جارٍ الإضافة…",
     "discoverModels": "جلب النماذج",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "النماذج على نقطة النهاية هذه",
     "discoverHint": "اختر النماذج المراد تسجيلها. النماذج المضافة مسبقاً تبقى مقفلة.",
     "discoverEmpty": "لم تُرجع نقطة النهاية أي نماذج.",

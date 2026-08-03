@@ -377,6 +377,8 @@
     "addAudioModel": "Audiomodel toevoegen",
     "addingCustom": "En ik voeg toe...",
     "discoverModels": "Modellen ophalen",
+    "probeNow": "Probe endpoint",
+    "probeSuccess": "Probed {model} in {latency}ms",
     "discoverTitle": "Modellen op dit endpoint",
     "discoverHint": "Kies de modellen om te registreren. Al toegevoegde blijven vergrendeld.",
     "discoverEmpty": "Dit endpoint gaf geen modellen terug.",
