@@ -17,6 +17,7 @@
     "desktop:dev": "npm run build -w client && npm --prefix desktop run dev",
     "desktop:dist": "npm run build -w client && npm --prefix desktop run dist",
     "desktop:dist:win": "npm run build -w client && npm --prefix desktop run dist:win",
+    "desktop:dist:linux": "npm run build -w client && npm --prefix desktop run dist:linux",
     "db:migration:up": "npm run db:migration:up -w server",
     "db:migration:down": "npm run db:migration:down -w server",
     "db:migration:fresh": "npm run db:migration:fresh -w server",
