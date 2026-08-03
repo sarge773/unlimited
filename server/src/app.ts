@@ -18,11 +18,20 @@ import { healthRouter } from './routes/health.js';
 import { settingsRouter } from './routes/settings.js';
 import { premiumRouter } from './routes/premium.js';
 import { cacheRouter } from './routes/cache.js';
+import { compressionRouter } from './routes/compression.js';
 import { authRouter } from './routes/auth.js';
 import { docsRouter } from './routes/docs.js';
 import { mcpRouter } from './routes/mcp.js';
+import { statusRouter, providersRouter } from './routes/status.js';
+import { geminiRouter } from './routes/gemini.js';
+import { ollamaRouter } from './routes/ollama.js';
+import { urlTokenRouter } from './routes/url-tokens.js';
 import { requireAuth } from './middleware/requireAuth.js';
-import { createProxyRateLimiter } from './middleware/rateLimit.js';
+import { createProxyRateLimiter, createAdminRateLimiter } from './middleware/rateLimit.js';
+
+// Password-guess ceiling for GET /api/keys/export. Deliberately low: a real
+// user exports keys occasionally, never ten times a minute.
+const EXPORT_RATE_LIMIT_RPM = 10;
 import { errorHandler } from './middleware/errorHandler.js';
 import { clientContextMiddleware } from './lib/client-context.js';
 import type { Config } from './lib/config.js';
@@ -35,6 +44,12 @@ const DEFAULT_DASHBOARD_ORIGINS = [
   'http://127.0.0.1:5173',
   'http://[::1]:5173',
 ];
+
+// SHA-256 of the inline theme/direction bootstrap in client/index.html, which
+// must run before first paint. Kept as a literal so the CSP header stays a
+// constant string; csp-inline-bootstrap.test.ts recomputes it from the real
+// index.html (source and build) and fails if the two ever drift apart.
+export const INLINE_BOOTSTRAP_SHA = "'sha256-4Mz/yZAENQGlTAAeE1WqXruXCripvlvl0s+Q9S1VS4A='";
 
 // A build asset is safe to cache forever+immutable when its URL is
 // content-addressed. Vite parks every hashed chunk (JS, CSS, fonts, images)
@@ -57,13 +72,64 @@ export function createApp(config?: Config) {
     ...cfg.dashboardOrigins,
   ]);
 
-  // CSP intentionally disabled — the SPA bundles inline styles and the OG
-  // image is loaded from the same origin; enabling helmet's default CSP
-  // breaks the React build's hashed-asset loader. HSTS off because this is
-  // a single-user local proxy, served over HTTP on localhost. Both should
-  // stay disabled unless someone serves the proxy over HTTPS publicly
-  // (which is also not a supported deployment — see README).
-  app.use(helmet({ contentSecurityPolicy: false, hsts: false }));
+  // CSP: default-src 'self' restricts content to the same origin. Scripts
+  // are hashed by the Vite/React build, so 'self' works in production. Inline
+  // styles from React hydration need 'unsafe-inline'. HSTS stays off because
+  // this is a single-user local proxy served over HTTP (see README).
+  //
+  // `upgrade-insecure-requests` is emitted by Helmet by default; v0.6.6's
+  // CSP hardening (#498) inherited it and broke HTTP LAN installs because the
+  // browser rewrites /assets/* to https:// on an origin that has no TLS,
+  // producing ERR_SSL_PROTOCOL_ERROR and a blank dashboard (#682).
+  // The directive is dropped from the static Helmet config and re-added per
+  // request below, gated by protocol + the CSP_UPGRADE_INSECURE_REQUESTS env.
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        // index.html carries one inline <script>: the theme/direction bootstrap
+        // that has to run before first paint, or every dark-mode user gets a
+        // white flash. 'self' alone blocks it on every install, HTTPS included,
+        // so it is allowed by hash — nothing else inline is. INLINE_BOOTSTRAP_SHA
+        // is asserted against the real index.html in csp-inline-bootstrap.test.ts,
+        // so editing that script fails the suite instead of silently breaking it.
+        scriptSrc: ["'self'", INLINE_BOOTSTRAP_SHA],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        formAction: ["'self'"],
+        baseUri: ["'self'"],
+        upgradeInsecureRequests: null,
+      },
+    },
+    hsts: false,
+  }));
+  // Per-request CSP re-issue: only HTTPS origins should tell the browser to
+  // upgrade http→https, since plain-HTTP LAN setups have no TLS to upgrade to.
+  // `req.secure` is true when the TLS socket terminated on this server; the
+  // X-Forwarded-Proto check covers HTTPS reverse proxies (the documented setup
+  // for publishing the proxy beyond localhost). The env flag overrides both.
+  // Helmet ran above and synchronously set the CSP header on res; this runs
+  // next, still before any route handler writes the body, so setHeader here
+  // lands before the response is flushed.
+  app.use((req, res, next) => {
+    const forwardedProto = req.headers['x-forwarded-proto'];
+    const isHttps =
+      String(forwardedProto ?? '').toLowerCase().startsWith('https') || req.secure;
+    const shouldEmit =
+      cfg.cspUpgradeInsecureRequests === true ||
+      (cfg.cspUpgradeInsecureRequests === undefined && isHttps);
+
+    if (shouldEmit) {
+      const csp = res.getHeader('content-security-policy');
+      if (typeof csp === 'string' && !csp.includes('upgrade-insecure-requests')) {
+        res.setHeader('content-security-policy', `${csp}; upgrade-insecure-requests`);
+      }
+    }
+
+    next();
+  });
   app.use(cors({
     origin(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
       callback(null, !origin || allowedCorsOrigins.has(origin));
@@ -78,12 +144,37 @@ export function createApp(config?: Config) {
   // AsyncLocalStorage so logRequest() can read it from any depth.
   app.use(clientContextMiddleware);
 
+  // Ollama emulation owns only its exact fixed /api/* paths. Mount it before
+  // the dashboard session gate because real Ollama clients do not use that
+  // auth scheme. Its legacy /api/embeddings handler explicitly falls through
+  // when it sees a valid dashboard session.
+  // The same per-IP limiter as /v1 runs first: key-required mode is a
+  // brute-forceable credential check without it. Dashboard traffic on the
+  // shared /api/embeddings path shares the (generous, configurable) budget.
+  app.use(
+    ['/api/tags', '/api/version', '/api/show', '/api/chat', '/api/generate', '/api/embed', '/api/embeddings'],
+    createProxyRateLimiter(cfg.proxyRateLimitRpm),
+  );
+  app.use(ollamaRouter);
+
   // Dashboard auth (#35): /api/auth/{status,setup,login} bootstrap without a
   // session; everything else under /api/* requires a logged-in dashboard user.
   // The /v1 proxy keeps its own unified-API-key auth and is NOT gated here.
   app.use('/api/auth', authRouter);
 
-  // API routes — all admin endpoints sit behind requireAuth.
+  // Admin API — all routes share an IP-based rate limiter to throttle
+  // brute-force attempts (auth, key export, etc). The limiter is mounted
+  // broadly on /api; requireAuth gates each sub-path individually so that
+  // unauthenticated endpoints under /api (like /api/ping) are not blocked.
+  const adminRateLimiter = createAdminRateLimiter();
+  app.use('/api', adminRateLimiter);
+
+  // Key export re-verifies the dashboard password, which makes it the one admin
+  // endpoint a guesser can attack. The broad limiter above is sized for normal
+  // dashboard traffic and far too loose for that, so this path gets its own
+  // tight per-IP bucket on top of it.
+  app.use('/api/keys/export', createAdminRateLimiter(EXPORT_RATE_LIMIT_RPM));
+
   app.use('/api/keys', requireAuth, keysRouter);
   app.use('/api/models', requireAuth, modelsRouter);
   app.use('/api/profiles', requireAuth, profilesRouter);
@@ -95,12 +186,28 @@ export function createApp(config?: Config) {
   app.use('/api/settings', requireAuth, settingsRouter);
   app.use('/api/premium', requireAuth, premiumRouter);
   app.use('/api/cache', requireAuth, cacheRouter);
+  app.use('/api/compression', requireAuth, compressionRouter);
+
+  // Health check — no auth required.
+  app.get('/api/ping', (_req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
 
   // Static, unauthenticated API reference: GET /v1/docs (viewer) and
   // GET /v1/openapi.json (spec). Mounted before the rate limiter so the docs
   // are always reachable and don't draw down a caller's request budget. It only
   // owns those two paths; everything else falls through to the routers below.
   app.use('/v1', docsRouter);
+
+  // Read-only per-upstream status for meta-gateways (GET /v1/providers, #433).
+  // Unified-key auth is enforced inside the handler; mounted before the rate
+  // limiter (like docsRouter) so status polling doesn't draw down a caller's
+  // request budget.
+  app.use('/v1', providersRouter);
+
+  // Separately revocable URL tokens for clients that cannot set headers.
+  app.use('/v1/t/:token', createProxyRateLimiter(cfg.proxyRateLimitRpm));
+  app.use('/v1/t/:token', urlTokenRouter);
 
   // OpenAI-compatible proxy. Per-IP rate limiting (#35 item #6) runs first so
   // it throttles unauthenticated brute-force / flood attempts before any
@@ -116,6 +223,10 @@ export function createApp(config?: Config) {
   // OpenAI Responses API shim (Codex CLI requires wire_api="responses"; see #96)
   app.use('/v1', responsesRouter);
 
+  // Native Gemini wire surface for Gemini CLI and Gemini-lineage agents.
+  app.use('/v1beta', createProxyRateLimiter(cfg.proxyRateLimitRpm));
+  app.use('/v1beta', geminiRouter);
+
   // MCP server (Model Context Protocol over stateless Streamable HTTP):
   // gateway introspection tools for MCP-speaking agents. Unified-key auth,
   // like /v1 — NOT behind the dashboard session gate. Same per-IP limiter as
@@ -124,10 +235,11 @@ export function createApp(config?: Config) {
   app.use('/mcp', createProxyRateLimiter(cfg.proxyRateLimitRpm));
   app.use('/mcp', mcpRouter);
 
-  // Health check
-  app.get('/api/ping', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-  });
+  // Liveness / readiness probes for orchestrators (GET /livez, /readyz, #433).
+  // Unauthenticated so a load balancer can probe them; registered before the
+  // static / SPA-fallback block below so these root paths resolve to JSON
+  // instead of index.html.
+  app.use(statusRouter);
 
   // Error handler (for API routes)
   app.use(errorHandler);
@@ -165,7 +277,7 @@ export function createApp(config?: Config) {
     }));
     // SPA fallback — serve index.html for non-API routes
     app.use((req, res, next) => {
-      if (req.path.startsWith('/api/') || req.path.startsWith('/v1/')) {
+      if (req.path.startsWith('/api/') || req.path.startsWith('/v1/') || req.path.startsWith('/v1beta/')) {
         next();
         return;
       }

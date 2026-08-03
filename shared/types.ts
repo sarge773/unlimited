@@ -5,6 +5,8 @@ export interface PreviewKey {
   keyValue: string;
   detectedPlatform: string | null;
   prefix: string;
+  /** Custom endpoints only: the upstream URL the export file carried (#687). */
+  baseUrl?: string;
   isDuplicate?: boolean;
 }
 
@@ -12,6 +14,7 @@ export interface ImportKey {
   keyName: string;
   keyValue: string;
   platform: string;
+  baseUrl?: string;
 }
 
 export interface PreviewResponse {
@@ -102,6 +105,13 @@ export type Platform =
   // (Google sign-in, no card, no region wall) at 10 RPM; catalog rows live in
   // the Oracle catalog (premium now, free after 30 days).
   | 'sealion'
+  // ModelScope (魔搭社区, Alibaba) — OpenAI-compatible inference API
+  // (api-inference.modelscope.cn/v1). Free tier is 2000 requests/day
+  // account-wide, but calls only work after the ModelScope account is bound to
+  // an Alibaba Cloud CHINA-site (cn) account with Chinese real-name
+  // verification — tokens mint without binding, then every call 401s. Catalog
+  // rows land after community testing confirms per-model behavior (#581).
+  | 'modelscope'
   // AI Horde — free, community-powered inference (volunteer workers) via an
   // OpenAI-compatible proxy (https://oai.aihorde.net/v1). Queue-based, so calls
   // can take tens of seconds; no tool support; usage is reported as kudos, not
@@ -170,6 +180,14 @@ export interface ApiKeyModel {
   family?: string | null;
 }
 
+/** An active rate-limit cooldown on one model for a key. A key can be healthy
+ *  and enabled yet still skipped by the router because of these. */
+export interface ApiKeyCooldown {
+  modelId: string;
+  expiresAtMs: number;
+  remainingMs: number;
+}
+
 export interface ApiKey {
   id: number;
   platform: Platform;
@@ -179,10 +197,14 @@ export interface ApiKey {
   status: KeyStatus;
   enabled: boolean;
   keyless: boolean;
+  /** Whether an export file would actually contain this row. The server decides
+   *  it so the dialog's "will export N keys" cannot drift from the export. */
+  exportable: boolean;
   createdAt: string;
   lastCheckedAt: string | null;
   lastHealthError: string | null;
   models?: ApiKeyModel[];
+  cooldowns?: ApiKeyCooldown[];
 }
 
 export interface ApiKeyCreate {
@@ -407,6 +429,8 @@ export type QuotaObservationSource = 'header' | 'quota_api' | 'error_body' | 'lo
 export interface ProviderQuotaState {
   platform: Platform;
   keyId: number;
+  /** The key's operator-facing label, when the row still names a live key. */
+  keyLabel?: string | null;
   quotaPoolKey: string;
   metric: QuotaMetric;
   limit: number | null;
