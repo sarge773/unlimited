@@ -67,6 +67,7 @@
     "confirm": "Megerősítse",
     "copy": "Értettem",
     "copied": "Másolva",
+    "copyFailed": "Nem sikerült a másolás — jelölje ki a szöveget, és másolja kézzel",
     "show": "Műsor",
     "hide": "Bújj el",
     "apply": "Jelentkezz",

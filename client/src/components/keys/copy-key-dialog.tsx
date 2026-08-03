@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FieldError } from '@/components/ui/field-error'
 import { apiFetch } from '@/lib/api'
+import { copyText } from '@/lib/clipboard'
 import { useI18n } from '@/i18n'
 import { toast } from '@/lib/toast'
 
@@ -29,6 +30,9 @@ export function CopyKeyDialog({
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  // Only set when the clipboard refused: the key is on screen for a manual
+  // copy, and disappears again with the dialog.
+  const [revealed, setRevealed] = useState<string | null>(null)
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -39,12 +43,20 @@ export function CopyKeyDialog({
         method: 'POST',
         headers: { 'x-reauth-password': password },
       })
-      await navigator.clipboard.writeText(key)
+      // A plain-HTTP LAN origin has no Clipboard API at all, so this falls back
+      // to execCommand rather than throwing (#734). If even that fails the key
+      // has already been revealed — show it instead of discarding it, or the
+      // password round trip was for nothing.
+      if (!await copyText(key)) {
+        setRevealed(key)
+        setError(t('common.copyFailed'))
+        return
+      }
       toast.success(t('keys.copiedKey'))
       onOpenChange(false)
     } catch (err) {
-      // Wrong password and a clipboard the browser refused both land here, and
-      // both are things to fix in place rather than behind a closed dialog.
+      // A wrong password lands here; it is worth fixing in place rather than
+      // behind a closed dialog.
       setError((err as Error).message)
       setPassword('')
     } finally {
@@ -56,7 +68,11 @@ export function CopyKeyDialog({
     <Dialog open onOpenChange={onOpenChange}>
       <DialogPopup maxWidth="max-w-md">
         <DialogTitle>{t('keys.copyFullKey')}</DialogTitle>
-        <code className="mt-2 block font-mono text-[11px] text-muted-foreground">{maskedKey}</code>
+        {/* select-all + break-all so the fallback key can be grabbed in one
+            click and still fits the dialog. */}
+        <code className="mt-2 block font-mono text-[11px] text-muted-foreground break-all select-all">
+          {revealed ?? maskedKey}
+        </code>
 
         <form onSubmit={submit} className="mt-4 space-y-4">
           <div className="space-y-1.5">

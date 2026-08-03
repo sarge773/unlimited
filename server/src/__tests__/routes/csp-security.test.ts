@@ -1,17 +1,39 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import http from 'node:http';
 import type { Express } from 'express';
 import { createApp } from '../../app.js';
 import { initDb } from '../../db/index.js';
 import { loadConfig } from '../../lib/config.js';
 
-async function getHeaders(app: Express, path: string, forwardedProto?: string): Promise<Headers> {
+async function getHeaders(
+  app: Express,
+  path: string,
+  forwardedProto?: string,
+  host?: string,
+): Promise<Headers> {
   const server = app.listen(0);
   const addr = server.address() as any;
   const headers: Record<string, string> = {};
   if (forwardedProto) headers['x-forwarded-proto'] = forwardedProto;
-  const res = await fetch(`http://127.0.0.1:${addr.port}${path}`, { headers });
-  server.close();
-  return res.headers;
+  // Overriding Host is how a LAN/reverse-proxy origin is simulated without
+  // actually binding to one: req.hostname reads it. node:http rather than
+  // fetch(), because undici silently overwrites Host with the connect target.
+  if (host) headers['host'] = host;
+  try {
+    return await new Promise<Headers>((resolve, reject) => {
+      const req = http.request(
+        { host: '127.0.0.1', port: addr.port, path, headers },
+        res => {
+          res.resume();
+          resolve(new Headers(res.headers as Record<string, string>));
+        },
+      );
+      req.on('error', reject);
+      req.end();
+    });
+  } finally {
+    server.close();
+  }
 }
 
 describe('CSP security headers', () => {
@@ -75,6 +97,50 @@ describe('CSP upgrade-insecure-requests (#682)', () => {
     const headers = await getHeaders(app, '/api/ping', 'https');
     const csp = headers.get('content-security-policy')!;
     expect(csp).toContain('upgrade-insecure-requests');
+  });
+});
+
+// #734: COOP and Origin-Agent-Cluster apply to secure contexts only. Sending
+// them to a plain-HTTP LAN origin gets them discarded with a console error, so
+// they are emitted only where the browser would honour them.
+describe('secure-context-only headers (#734)', () => {
+  let app: Express;
+
+  beforeAll(() => {
+    process.env.ENCRYPTION_KEY = '0'.repeat(64);
+    initDb(':memory:');
+    app = createApp();
+  });
+
+  it('omits COOP and Origin-Agent-Cluster on a plain-HTTP LAN origin', async () => {
+    const headers = await getHeaders(app, '/api/ping', undefined, '192.168.3.50:4001');
+    expect(headers.get('cross-origin-opener-policy')).toBeNull();
+    expect(headers.get('origin-agent-cluster')).toBeNull();
+  });
+
+  it('keeps them on loopback, which is a secure context over plain HTTP', async () => {
+    for (const host of ['localhost:3001', '127.0.0.1:3001', 'freellmapi.localhost']) {
+      const headers = await getHeaders(app, '/api/ping', undefined, host);
+      expect(headers.get('cross-origin-opener-policy'), host).toBe('same-origin');
+      expect(headers.get('origin-agent-cluster'), host).toBe('?1');
+    }
+  });
+
+  it('keeps them behind an HTTPS reverse proxy', async () => {
+    const headers = await getHeaders(app, '/api/ping', 'https', 'proxy.example.com');
+    expect(headers.get('cross-origin-opener-policy')).toBe('same-origin');
+    expect(headers.get('origin-agent-cluster')).toBe('?1');
+  });
+
+  it('reads the client-facing hop from a multi-proxy X-Forwarded-Proto', async () => {
+    const headers = await getHeaders(app, '/api/ping', 'https, http', 'proxy.example.com');
+    expect(headers.get('cross-origin-opener-policy')).toBe('same-origin');
+    expect(headers.get('content-security-policy')).toContain('upgrade-insecure-requests');
+  });
+
+  it('leaves Cross-Origin-Resource-Policy alone (it is not secure-context gated)', async () => {
+    const headers = await getHeaders(app, '/api/ping', undefined, '192.168.3.50:4001');
+    expect(headers.get('cross-origin-resource-policy')).toBe('same-origin');
   });
 });
 

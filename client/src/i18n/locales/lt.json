@@ -67,6 +67,7 @@
     "confirm": "Patvirtinkite",
     "copy": "Supratau",
     "copied": "Nukopijuota",
+    "copyFailed": "Nepavyko nukopijuoti — pažymėkite tekstą ir nukopijuokite rankiniu būdu",
     "show": "Laida",
     "hide": "Slėpkis",
     "apply": "Pateikite paraišką",

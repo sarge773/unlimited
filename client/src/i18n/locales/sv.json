@@ -67,6 +67,7 @@
     "confirm": "Bekräfta",
     "copy": "Kopiera",
     "copied": "Kopierat",
+    "copyFailed": "Det gick inte att kopiera — markera texten och kopiera manuellt",
     "show": "Show",
     "hide": "Göm dig",
     "apply": "Ansök",

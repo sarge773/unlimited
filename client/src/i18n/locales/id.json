@@ -67,6 +67,7 @@
     "confirm": "Konfirmasikan",
     "copy": "Salin",
     "copied": "Disalin",
+    "copyFailed": "Gagal menyalin — pilih teksnya dan salin secara manual",
     "show": "Tunjukkan",
     "hide": "Sembunyikan",
     "apply": "Terapkan",

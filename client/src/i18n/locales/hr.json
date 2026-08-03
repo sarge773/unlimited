@@ -67,6 +67,7 @@
     "confirm": "Potvrdi",
     "copy": "Primljeno",
     "copied": "Kopirano",
+    "copyFailed": "Kopiranje nije uspjelo — označite tekst i kopirajte ga ručno",
     "show": "Emisija",
     "hide": "Sakrij se",
     "apply": "Prijavite se",

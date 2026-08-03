@@ -67,6 +67,7 @@
     "confirm": "Bevestig",
     "copy": "Begrepen",
     "copied": "Gekopieerd",
+    "copyFailed": "Kopiëren mislukt — selecteer de tekst en kopieer handmatig",
     "show": "Show",
     "hide": "Verstop",
     "apply": "Solliciteer",

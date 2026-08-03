@@ -67,6 +67,7 @@
     "confirm": "Confirmă",
     "copy": "Recepționat",
     "copied": "Copiat",
+    "copyFailed": "Nu s-a putut copia — selectează textul și copiază-l manual",
     "show": "Emisiune",
     "hide": "Ascunde-te",
     "apply": "Aplică",

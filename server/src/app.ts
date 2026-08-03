@@ -64,6 +64,29 @@ function isImmutableAsset(filePath: string): boolean {
   );
 }
 
+// Loopback and *.localhost are "potentially trustworthy" origins even over
+// plain HTTP (https://www.w3.org/TR/powerful-features/#is-origin-trustworthy),
+// so a desktop/localhost install still gets the secure-context-only headers.
+const LOOPBACK_HOST_RE = /^(?:localhost|[^.]+(?:\.[^.]+)*\.localhost|127(?:\.\d{1,3}){3}|\[?::1\]?)$/i;
+
+// TLS terminated here (req.secure), or in front of us and forwarded. The
+// X-Forwarded-Proto check is the documented reverse-proxy setup for publishing
+// the proxy beyond localhost.
+function isHttpsRequest(req: express.Request): boolean {
+  const forwardedProto = req.headers['x-forwarded-proto'];
+  // A proxy chain sends a comma-separated list; the client-facing hop is first.
+  const first = String(forwardedProto ?? '').split(',')[0]!.trim().toLowerCase();
+  return first === 'https' || req.secure;
+}
+
+// Whether the browser will treat this origin as a secure context. Headers that
+// only apply to secure contexts are worse than useless elsewhere: the browser
+// drops them and logs an error, which is exactly what a plain-HTTP LAN install
+// reported in #734.
+function isTrustworthyOrigin(req: express.Request): boolean {
+  return isHttpsRequest(req) || LOOPBACK_HOST_RE.test(req.hostname ?? '');
+}
+
 export function createApp(config?: Config) {
   const cfg = config ?? loadConfig();
   const app = express();
@@ -83,6 +106,12 @@ export function createApp(config?: Config) {
   // producing ERR_SSL_PROTOCOL_ERROR and a blank dashboard (#682).
   // The directive is dropped from the static Helmet config and re-added per
   // request below, gated by protocol + the CSP_UPGRADE_INSECURE_REQUESTS env.
+  //
+  // Cross-Origin-Opener-Policy and Origin-Agent-Cluster are handled the same
+  // way, for the same reason: both only apply to secure contexts, so on a
+  // plain-HTTP LAN origin the browser discards them and logs a console error
+  // instead (#734). They are re-added per request whenever the origin is one
+  // the browser trusts — HTTPS, or loopback, which covers desktop/localhost.
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
@@ -104,28 +133,33 @@ export function createApp(config?: Config) {
       },
     },
     hsts: false,
+    crossOriginOpenerPolicy: false,
+    originAgentCluster: false,
   }));
-  // Per-request CSP re-issue: only HTTPS origins should tell the browser to
-  // upgrade http→https, since plain-HTTP LAN setups have no TLS to upgrade to.
-  // `req.secure` is true when the TLS socket terminated on this server; the
-  // X-Forwarded-Proto check covers HTTPS reverse proxies (the documented setup
-  // for publishing the proxy beyond localhost). The env flag overrides both.
-  // Helmet ran above and synchronously set the CSP header on res; this runs
-  // next, still before any route handler writes the body, so setHeader here
-  // lands before the response is flushed.
+  // Per-request re-issue of the headers that depend on how the page was
+  // reached. Only HTTPS origins should tell the browser to upgrade http→https,
+  // since plain-HTTP LAN setups have no TLS to upgrade to; the env flag
+  // overrides that either way. COOP and Origin-Agent-Cluster go back on for any
+  // origin the browser considers trustworthy (HTTPS or loopback), which is
+  // every origin that would have honoured them in the first place.
+  // Helmet ran above and synchronously set its headers on res; this runs next,
+  // still before any route handler writes the body, so setHeader here lands
+  // before the response is flushed.
   app.use((req, res, next) => {
-    const forwardedProto = req.headers['x-forwarded-proto'];
-    const isHttps =
-      String(forwardedProto ?? '').toLowerCase().startsWith('https') || req.secure;
     const shouldEmit =
       cfg.cspUpgradeInsecureRequests === true ||
-      (cfg.cspUpgradeInsecureRequests === undefined && isHttps);
+      (cfg.cspUpgradeInsecureRequests === undefined && isHttpsRequest(req));
 
     if (shouldEmit) {
       const csp = res.getHeader('content-security-policy');
       if (typeof csp === 'string' && !csp.includes('upgrade-insecure-requests')) {
         res.setHeader('content-security-policy', `${csp}; upgrade-insecure-requests`);
       }
+    }
+
+    if (isTrustworthyOrigin(req)) {
+      res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+      res.setHeader('Origin-Agent-Cluster', '?1');
     }
 
     next();

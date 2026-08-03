@@ -67,6 +67,7 @@
     "confirm": "Onayla",
     "copy": "Kopyala",
     "copied": "Kopyalandı",
+    "copyFailed": "Kopyalanamadı — metni seçip elle kopyalayın",
     "show": "Göster",
     "hide": "Gizle",
     "apply": "Uygula",

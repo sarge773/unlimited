@@ -67,6 +67,7 @@
     "confirm": "Bestätigen",
     "copy": "Kopieren",
     "copied": "Kopiert",
+    "copyFailed": "Kopieren fehlgeschlagen — Text markieren und manuell kopieren",
     "show": "Zeigen",
     "hide": "Verstecken",
     "apply": "Bewerben",

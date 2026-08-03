@@ -67,6 +67,7 @@
     "confirm": "Bekræft",
     "copy": "Modtaget",
     "copied": "Kopieret",
+    "copyFailed": "Kunne ikke kopiere — markér teksten, og kopiér manuelt",
     "show": "Show",
     "hide": "Gem dig",
     "apply": "Ansøg",

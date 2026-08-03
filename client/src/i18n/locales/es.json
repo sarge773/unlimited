@@ -67,6 +67,7 @@
     "confirm": "Confirmar",
     "copy": "Copiar",
     "copied": "Copiado",
+    "copyFailed": "No se pudo copiar — selecciona el texto y cópialo manualmente",
     "show": "Mostrar",
     "hide": "Ocultar",
     "apply": "Aplicar",

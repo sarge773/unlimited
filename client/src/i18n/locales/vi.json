@@ -67,6 +67,7 @@
     "confirm": "Xác nhận",
     "copy": "Sao chép",
     "copied": "Đã sao chép",
+    "copyFailed": "Không thể sao chép — hãy chọn văn bản và sao chép thủ công",
     "show": "Hiển thị",
     "hide": "Ẩn",
     "apply": "Áp dụng",

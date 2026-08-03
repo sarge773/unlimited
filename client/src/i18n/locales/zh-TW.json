@@ -67,6 +67,7 @@
     "confirm": "確認",
     "copy": "複製",
     "copied": "已複製",
+    "copyFailed": "無法複製 — 請手動選取文字並複製",
     "show": "顯示",
     "hide": "隱藏",
     "apply": "套用",

@@ -67,6 +67,7 @@
     "confirm": "Tasdiqlang",
     "copy": "Nusxalash",
     "copied": "Ko‘chirildi",
+    "copyFailed": "Nusxalab bo‘lmadi — matnni tanlab, qo‘lda nusxalang",
     "show": "Ko'rsatish",
     "hide": "Yashirish",
     "apply": "Murojaat qiling",

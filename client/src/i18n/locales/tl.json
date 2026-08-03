@@ -67,6 +67,7 @@
     "confirm": "Kumpirmahin",
     "copy": "Kopyahin",
     "copied": "kinopya",
+    "copyFailed": "Hindi makopya — piliin ang teksto at kopyahin nang manu-mano",
     "show": "Ipakita",
     "hide": "itago",
     "apply": "Mag-apply",

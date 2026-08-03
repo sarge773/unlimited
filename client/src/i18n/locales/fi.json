@@ -67,6 +67,7 @@
     "confirm": "Vahvista",
     "copy": "Selvä",
     "copied": "Kopioitu",
+    "copyFailed": "Kopiointi epäonnistui — valitse teksti ja kopioi käsin",
     "show": "Ohjelma",
     "hide": "Piiloudu",
     "apply": "Hae",
