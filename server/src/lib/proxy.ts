@@ -339,6 +339,17 @@ function socksFetch(
   const signal = init?.signal;
   const startedAt = Date.now();
 
+  // Honor the caller's timeout instead of a hardcoded 120s (#666): a custom
+  // provider with a longer PROVIDER_TIMEOUT_CUSTOM still died at 120s because
+  // this socket idle timer fired before the caller's deadline. `timeoutMs` is
+  // the total-request budget the provider passed in; using it here means the
+  // socket layer never outlives the caller's intent. 0 disables the timer
+  // (provider semantics: "no timeout"); undefined keeps the historical 120s
+  // guard for callers that don't pass a budget.
+  const socketTimeoutMs = typeof timeoutMs === 'number' && timeoutMs > 0
+    ? timeoutMs
+    : (typeof timeoutMs === 'number' ? 0 : 120_000);
+
   // What to reject with when the signal fires. A client-caused abort carries
   // its own marked reason (newClientAbortError in lib/error-classify.ts) —
   // preserve it so the failure isn't misclassified downstream as a provider
@@ -360,7 +371,7 @@ function socksFetch(
       agent,
       servername: isTls ? url.hostname : undefined,
       rejectUnauthorized: true,
-      timeout: 120_000,
+      timeout: socketTimeoutMs,
     }, (res) => {
       if (signal?.aborted) {
         res.destroy();

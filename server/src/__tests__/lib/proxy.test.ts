@@ -154,6 +154,33 @@ describe('proxyFetch dispatcher selection for SOCKS schemes (#630)', () => {
       expect(agent?.proxy?.port).toBe(1080);
     });
   }
+
+  it('uses the caller timeout as the socket timeout instead of a hardcoded 120s (#666)', async () => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'custom', 'chat', 300_000);
+
+    expect((reqSpy.mock.calls[0][0] as any).timeout).toBe(300_000);
+  });
+
+  it('keeps the historical 120s socket guard when no timeout is passed', async () => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq');
+
+    expect((reqSpy.mock.calls[0][0] as any).timeout).toBe(120_000);
+  });
+
+  it('disables the socket timer when the caller timeout is 0 (no timeout)', async () => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'custom', 'chat', 0);
+
+    expect((reqSpy.mock.calls[0][0] as any).timeout).toBe(0);
+  });
 });
 
 // #353: HTTPS_PROXY / HTTP_PROXY / ALL_PROXY / NO_PROXY are the de-facto
