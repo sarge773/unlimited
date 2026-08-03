@@ -29,6 +29,14 @@ const MAX_MODEL_ID_LENGTH = 256;
 export interface DiscoveredModel {
   id: string;
   ownedBy: string | null;
+  /** Approximate context window in tokens when the upstream advertises one
+   *  (OpenRouter's context_length, Ollama's ctx_len, max_model_len, ...). */
+  contextWindow?: number;
+  /** Human-readable price hint ("free", "$0.15/M in") when the upstream
+   *  ships one — lets the picker show "is this model likely free?" (#685). */
+  priceNote?: string;
+  /** True when the upstream advertises image input (modalities/vision). */
+  vision?: boolean;
 }
 
 /** Carries the HTTP status the route should answer with, so a relay's 401 stays
@@ -49,6 +57,17 @@ const LIST_KEYS = ['data', 'models', 'result', 'results', 'items'] as const;
 // slug spellings assorted relays ship.
 const ID_KEYS = ['id', 'name', 'model', 'model_id', 'modelId', 'slug'] as const;
 const OWNER_KEYS = ['owned_by', 'ownedBy', 'organization', 'owner', 'provider', 'publisher'] as const;
+// Context-window spellings seen on OpenAI-style /models (OpenRouter), Ollama
+// /api/tags (ctx_len), and assorted relays. Only present on some envelopes;
+// absent means "unknown", which the picker renders as nothing.
+const CONTEXT_KEYS = ['context_length', 'context_window', 'max_model_len', 'max_context_length', 'max_context_tokens', 'ctx_len', 'contextWindow'] as const;
+// Price hint spellings: OpenRouter nests { prompt, completion }, others ship a
+// plain string. Absent means "unknown price".
+const PRICE_KEYS = ['price', 'pricing'] as const;
+const VISION_KEYS = ['vision', 'supports_vision', 'supportsVision', 'image_input', 'multimodal'] as const;
+// OpenAI's /models modality field is an array like ["text", "image"]; a
+// boolean `vision: true` is the simpler spelling relays use.
+const VISION_MODALITIES = ['image', 'vision', 'image-input'] as const;
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value)
@@ -81,6 +100,50 @@ function firstString(record: Record<string, unknown>, keys: readonly string[]): 
   return null;
 }
 
+function firstNumber(record: Record<string, unknown>, keys: readonly string[]): number | undefined {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0) return value;
+  }
+  return undefined;
+}
+
+/** Price hint out of OpenRouter-style `pricing: { prompt, completion }` or a
+ *  plain `price: "free"` string. Anything unrecognizable is left alone — the
+ *  picker just omits the badge. */
+function priceNoteOf(record: Record<string, unknown>): string | undefined {
+  for (const key of PRICE_KEYS) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim().length > 0) return value.trim();
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      const pricing = value as Record<string, unknown>;
+      const prompt = typeof pricing.prompt === 'number' ? pricing.prompt : null;
+      const completion = typeof pricing.completion === 'number' ? pricing.completion : null;
+      if (prompt !== null || completion !== null) {
+        const parts: string[] = [];
+        if (prompt !== null) parts.push(`$${prompt}/M in`);
+        if (completion !== null) parts.push(`$${completion}/M out`);
+        return parts.join(' ');
+      }
+    }
+  }
+  return undefined;
+}
+
+/** Vision support: a boolean `vision`/`multimodal` flag, or OpenAI-style
+ *  `modalities: ["text", "image"]`. Absent is "unknown" (no badge). */
+function visionOf(record: Record<string, unknown>): boolean | undefined {
+  for (const key of VISION_KEYS) {
+    const value = record[key];
+    if (typeof value === 'boolean') return value;
+  }
+  const modalities = record['modalities'] ?? record['input_modalities'];
+  if (Array.isArray(modalities)) {
+    return modalities.some(m => VISION_MODALITIES.includes(String(m).toLowerCase()));
+  }
+  return undefined;
+}
+
 function toDiscovered(entry: unknown): DiscoveredModel | null {
   if (typeof entry === 'string') {
     const id = entry.trim();
@@ -89,7 +152,18 @@ function toDiscovered(entry: unknown): DiscoveredModel | null {
   const record = asRecord(entry);
   if (!record) return null;
   const id = firstString(record, ID_KEYS);
-  return id ? { id, ownedBy: firstString(record, OWNER_KEYS) } : null;
+  if (!id) return null;
+
+  const model: DiscoveredModel = { id, ownedBy: firstString(record, OWNER_KEYS) };
+  // Optional detail fields are only set when the upstream actually advertises
+  // them, so a minimal `{ data: [{ id }] }` envelope keeps an identical shape.
+  const contextWindow = firstNumber(record, CONTEXT_KEYS);
+  if (contextWindow !== undefined) model.contextWindow = contextWindow;
+  const priceNote = priceNoteOf(record);
+  if (priceNote !== undefined) model.priceNote = priceNote;
+  const vision = visionOf(record);
+  if (vision !== undefined) model.vision = vision;
+  return model;
 }
 
 /** Whether this payload carries a model list at all — the difference between

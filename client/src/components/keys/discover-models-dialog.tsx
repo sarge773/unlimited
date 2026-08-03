@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogPopup, DialogTitle } from '@/components/ui/dialog'
 import { useI18n } from '@/i18n'
 import { toast } from '@/lib/toast'
+import { formatContext } from '@/lib/routing'
 
 // #488: relays add and drop models weekly, so keeping a custom endpoint's model
 // list current by hand means re-running `curl .../v1/models | jq` every so
@@ -15,6 +16,12 @@ export interface DiscoveredModel {
   id: string
   ownedBy: string | null
   registered: boolean
+  /** Approximate context window in tokens when the upstream advertises one. */
+  contextWindow?: number
+  /** Human-readable price hint ("free", "$0.15/M in") when present (#685). */
+  priceNote?: string
+  /** True when the upstream advertises image input. */
+  vision?: boolean
 }
 
 interface DiscoverResponse {
@@ -153,6 +160,28 @@ export function DiscoverModelsDialog({
                     className="size-4 accent-primary"
                   />
                   <code className="min-w-0 flex-1 truncate font-mono" title={model.id}>{model.id}</code>
+                  {model.vision && (
+                    <span className="shrink-0 text-[10px] rounded bg-cyan-600/15 px-1.5 py-0.5 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-400">
+                      {t('models.vision')}
+                    </span>
+                  )}
+                  {model.contextWindow !== undefined && model.contextWindow > 0 && (
+                    <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">
+                      {formatContext(model.contextWindow)}
+                    </span>
+                  )}
+                  {model.priceNote && (
+                    <span
+                      className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${
+                        /free|0(\D|$)/i.test(model.priceNote)
+                          ? 'bg-emerald-600/15 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-400'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                      title={model.priceNote}
+                    >
+                      {model.priceNote}
+                    </span>
+                  )}
                   {model.ownedBy && (
                     <span className="shrink-0 text-[11px] text-muted-foreground">{model.ownedBy}</span>
                   )}

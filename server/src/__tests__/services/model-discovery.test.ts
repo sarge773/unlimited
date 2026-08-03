@@ -62,6 +62,42 @@ describe('parseModelCatalog tolerance (#488)', () => {
     expect(byId.get('d')).toBeNull();
   });
 
+  it('reads optional detail fields when the upstream advertises them (#685)', () => {
+    const [m] = parseModelCatalog({
+      data: [
+        {
+          id: 'rich',
+          owned_by: 'openai',
+          context_length: 128000,
+          pricing: { prompt: 0.15, completion: 0.6 },
+          modalities: ['text', 'image'],
+        },
+      ],
+    });
+    expect(m).toEqual({
+      id: 'rich',
+      ownedBy: 'openai',
+      contextWindow: 128000,
+      priceNote: '$0.15/M in $0.6/M out',
+      vision: true,
+    });
+  });
+
+  it('keeps a minimal envelope shape when details are absent (#685)', () => {
+    const [m] = parseModelCatalog({ data: [{ id: 'bare' }] });
+    expect(m).toEqual({ id: 'bare', ownedBy: null });
+    expect('contextWindow' in m).toBe(false);
+    expect('priceNote' in m).toBe(false);
+    expect('vision' in m).toBe(false);
+  });
+
+  it('accepts the plain-string price and Ollama ctx_len spellings (#685)', () => {
+    const [m] = parseModelCatalog({
+      models: [{ name: 'qwen3:4b', ctx_len: 32768, price: 'free' }],
+    });
+    expect(m).toEqual({ id: 'qwen3:4b', ownedBy: null, contextWindow: 32768, priceNote: 'free' });
+  });
+
   it('drops blanks, non-strings and duplicates', () => {
     expect(parseModelCatalog({
       data: ['dup', { id: 'dup' }, { id: '   ' }, { id: 42 }, null, 'kept'],
