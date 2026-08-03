@@ -1,6 +1,6 @@
 {
   "name": "freellmapi-desktop",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "FreeLLMAPI menu-bar app \u2014 local OpenAI-compatible LLM router",
   "private": true,
   "type": "module",
