@@ -23,6 +23,7 @@ const AGENT_COMPATIBILITY_FILENAME = '20260727_000001_agent_compatibility.ts';
 const TOMBSTONE_PROVENANCE_FILENAME = '20260728_000001_tombstone_provenance.ts';
 const CUSTOM_MODEL_ENDPOINT_IDENTITY_FILENAME = '20260729_000001_custom_model_endpoint_identity.ts';
 const CUSTOM_ENDPOINT_HOST_LABELS_FILENAME = '20260802_000001_custom_endpoint_host_labels.ts';
+const DISABLE_PAID_CLOUDFLARE_KIMI_FILENAME = '20260803_000001_disable_paid_cloudflare_kimi.ts';
 
 interface SchemaRow {
   type: string;
@@ -92,6 +93,7 @@ describe('migration round trip', () => {
         TOMBSTONE_PROVENANCE_FILENAME,
         CUSTOM_MODEL_ENDPOINT_IDENTITY_FILENAME,
         CUSTOM_ENDPOINT_HOST_LABELS_FILENAME,
+        DISABLE_PAID_CLOUDFLARE_KIMI_FILENAME,
       ]);
     } finally {
       db.close();
