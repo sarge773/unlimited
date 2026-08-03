@@ -194,4 +194,30 @@ describe('bandit router', () => {
     expect(scores[0].score).toBeGreaterThan(0);
     expect(scores[0].score).toBeLessThanOrEqual(1);
   });
+
+  it('a saved intelligence_rank override visibly moves the axis (#673)', () => {
+    // Regression for #673: rank edits used to be invisible because a linear
+    // rank term was dwarfed by tier*1000 and by chain-level min-max
+    // normalization. With the sqrt-compressed rank term, changing a model's
+    // rank (e.g. 5 → 1) must move its displayed intelligence axis.
+    addModel({ platform: 'google', modelId: 'smart', name: 'Smart', intelligenceRank: 5, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
+    addModel({ platform: 'groq', modelId: 'mid', name: 'Mid', intelligenceRank: 50, sizeLabel: 'Medium', budget: '~50M', priority: 2 });
+    addModel({ platform: 'meta', modelId: 'small', name: 'Small', intelligenceRank: 100, sizeLabel: 'Small', budget: '~50M', priority: 3 });
+    setRoutingStrategy('balanced');
+    refreshStatsCache(getDb(), true);
+
+    const before = getRoutingScores();
+    const midBefore = before.scores.find(s => s.modelId === 'mid')!;
+
+    // PATCH /api/models/:id { intelligenceRank: 1 } on the mid model.
+    const row = getDb().prepare('SELECT id FROM models WHERE platform = ? AND model_id = ?').get('groq', 'mid') as { id: number };
+    getDb().prepare('UPDATE models SET intelligence_rank = 1 WHERE id = ?').run(row.id);
+    refreshStatsCache(getDb(), true);
+
+    const after = getRoutingScores();
+    const midAfter = after.scores.find(s => s.modelId === 'mid')!;
+    // A rank 50 → 1 edit must be visible: at least a 2-point move on the
+    // 0-100 axis (was < 1 point, i.e. invisible, before the fix).
+    expect(Math.round(midAfter.intelligence * 100)).toBeGreaterThanOrEqual(Math.round(midBefore.intelligence * 100) + 2);
+  });
 });

@@ -153,9 +153,20 @@ export function tierValue(sizeLabel: string): number {
   return TIER_VALUE[sizeLabel] ?? 0;
 }
 
+// Rank is 1..1000 with 1 = best. A LINEAR rank term made the axis effectively
+// blind to user edits (#673): tier*1000 dwarfed the rank, and the chain-level
+// min-max normalization diluted a few-rank-point change to well under a
+// displayed percentage point, so "set the intelligence rank to a better
+// number" looked like it did nothing. Compress the rank with a square root so
+// edits near the top of the range (1 vs 3 vs 10) are visible on the axis and
+// in routing, while the tier keeps strict dominance: the worst rank in a tier
+// (sqrt(1000)*31 ≈ 980 < 1000) still beats the best rank of the tier below.
+const RANK_SCALE = 31;
+
 export function intelligenceComposite(sizeLabel: string, intelligenceRank: number): number {
-  // tier*1000 keeps tiers strictly separated; -rank prefers lower rank in-tier.
-  return tierValue(sizeLabel) * 1000 - intelligenceRank;
+  // tier*1000 keeps tiers strictly separated; -sqrt(rank)*RANK_SCALE prefers
+  // lower rank in-tier but lets rank edits move the axis (see #673).
+  return tierValue(sizeLabel) * 1000 - Math.sqrt(Math.max(1, intelligenceRank)) * RANK_SCALE;
 }
 
 // Caller supplies a composite (tier-first, rank-as-tiebreaker — see above) and
