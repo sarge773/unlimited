@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} forespørsler denne måneden"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Routingstrategi",
     "description": "Velg en rutestrategi. I manuell modus drar du for å sette rekkefølgen; De andre strategiene følger live score på tvers av pålitelighet, hastighet og intelligens.",
     "weightsSummary": "Pålitelighet {reliability} % · Hastighet {speed} % · Intelligens {intelligence} %",

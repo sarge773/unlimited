@@ -244,6 +244,8 @@
     "usageRequestsMonth": "આ મહિને {count} વિનંતી"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "રૂટીંગ વ્યૂહરચના",
     "description": "રૂટીંગ વ્યૂહરચના પસંદ કરો. મેન્યુઅલ મોડમાં તમે ઓર્ડર સેટ કરવા માટે ખેંચો છો; અન્ય વ્યૂહરચનાઓ સમગ્ર વિશ્વસનીયતા, ઝડપ અને બુદ્ધિમત્તા પર લાઇવ સ્કોર દ્વારા રૂટ કરે છે.",
     "weightsSummary": "વિશ્વસનીયતા {reliability}% · ઝડપ {speed}% · બુદ્ધિ {intelligence}%",

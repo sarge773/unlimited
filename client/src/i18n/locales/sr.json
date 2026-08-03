@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} захтева овог месеца"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Стратегија рутирања",
     "description": "Изаберите стратегију рутирања. У ручном режиму превлачите да бисте поставили редослед; друге стратегије се крећу путем резултата уживо преко поузданости, брзине и интелигенције.",
     "weightsSummary": "поузданост {reliability}% · брзина {speed}% · интелигенција {intelligence}%",

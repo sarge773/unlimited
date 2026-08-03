@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} yêu cầu tháng này"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Chiến lược định tuyến",
     "description": "Chọn một chiến lược định tuyến. Ở chế độ Thủ công, bạn kéo để đặt thứ tự; các chiến lược khác định tuyến theo điểm số trực tiếp dựa trên độ tin cậy, tốc độ và trí thông minh.",
     "weightsSummary": "độ tin cậy {reliability}% · tốc độ {speed}% · trí thông minh {intelligence}%",

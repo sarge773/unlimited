@@ -244,6 +244,8 @@
     "usageRequestsMonth": "bu oyda {count} ta so'rov"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Marshrut strategiyasi",
     "description": "Marshrutlash strategiyasini tanlang. Qo'l rejimida tartibni o'rnatish uchun sudrang; Boshqa strategiyalar ishonchlilik, tezlik va aql bo'yicha jonli hisob bilan yo'naltiriladi.",
     "weightsSummary": "ishonchlilik {reliability}% · tezlik {speed}% · razvedka {intelligence}%",

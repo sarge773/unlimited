@@ -292,6 +292,16 @@ export function getAllPenalties(): Array<{ modelDbId: number; count: number; pen
 // ── Routing strategy (persisted) ────────────────────────────────────────────
 const STRATEGY_KEY = 'routing_strategy';
 const CUSTOM_WEIGHTS_KEY = 'routing_custom_weights';
+const EXPLORE_KEY = 'routing_explore_enabled';
+
+/** Chance per request that an unmeasured model gets tried first when the
+ *  exploration toggle is on. The bandit's Thompson sampling already explores
+ *  automatically; this guarantees a floor so models with no reliability/speed
+ *  data still get sampled instead of being starved by prior-heavy rivals. */
+export const EXPLORE_CHANCE = 0.1;
+/** A model counts as "has data" once its decay-weighted success+failure
+ *  pseudo-count reaches this many samples. */
+export const EXPLORE_MIN_SAMPLES = 5;
 const VALID_STRATEGIES: RoutingStrategy[] = ['priority', 'balanced', 'smartest', 'fastest', 'reliable', 'custom'];
 
 export function getRoutingStrategy(): RoutingStrategy {
@@ -306,6 +316,18 @@ export function setRoutingStrategy(strategy: RoutingStrategy): void {
     throw new Error(`Unknown routing strategy: ${strategy}`);
   }
   setSetting(STRATEGY_KEY, strategy);
+}
+
+// ── Exploration toggle (persisted) ─────────────────────────────────────────
+// Off by default: existing routing behavior unchanged. When on, routeRequest
+// gives unmeasured models a guaranteed chance to be tried (EXPLORE_CHANCE) so
+// they acquire reliability/speed samples instead of losing every bandit draw.
+export function getExploreEnabled(): boolean {
+  return getSetting(EXPLORE_KEY) === '1';
+}
+
+export function setExploreEnabled(enabled: boolean): void {
+  setSetting(EXPLORE_KEY, enabled ? '1' : '0');
 }
 
 // ── Custom weights (persisted) ──────────────────────────────────────────────
@@ -1323,6 +1345,27 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
   const chain = (prefetchedChain ?? getActiveChain(db)).filter(e => e.enabled);
 
   const sortedChain = orderChain(chain, strategy);
+
+  // Exploration toggle (#685/#707 follow-up): when enabled, give a model with
+  // no reliability/speed samples a guaranteed chance to be tried, so it stops
+  // losing every bandit draw to prior-heavy rivals. With EXPLORE_CHANCE
+  // probability, pick one unmeasured model uniformly and try it first; if it
+  // fails, the loop falls through to the scored order as usual. Only for
+  // bandit strategies — Manual is the operator's explicit order.
+  if (strategy !== 'priority' && getExploreEnabled() && Math.random() < EXPLORE_CHANCE) {
+    const unmeasured = sortedChain.filter(e => {
+      const stats = statsCache?.get(modelStatsKey(e.platform, e.model_id, e.endpoint_scope));
+      return (stats?.successes ?? 0) + (stats?.failures ?? 0) < EXPLORE_MIN_SAMPLES;
+    });
+    if (unmeasured.length > 0) {
+      const probe = unmeasured[Math.floor(Math.random() * unmeasured.length)];
+      const idx = sortedChain.findIndex(e => e.model_db_id === probe.model_db_id);
+      if (idx > 0) {
+        const [probeRow] = sortedChain.splice(idx, 1);
+        sortedChain.unshift(probeRow);
+      }
+    }
+  }
 
   // Sticky session / Explicit pinning: move preferred model to front of chain
   if (preferredModelDbId) {

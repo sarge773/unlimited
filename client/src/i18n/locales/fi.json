@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} pyyntöä tässä kuussa"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Reititysstrategia",
     "description": "Valitse reititysstrategia. Manuaalitilassa raahaat järjestyksen asettamiseksi; Muut strategiat ohjaavat reaaliaikaisen tuloksen mukaan luotettavuuden, nopeuden ja älykkyyden välillä.",
     "weightsSummary": "luotettavuus {reliability} % · nopeus {speed}% · älykkyys {intelligence} %",

@@ -244,6 +244,8 @@
     "usageRequestsMonth": "এই মাসে {count}টি অনুরোধ"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "রাউটিং কৌশল",
     "description": "একটি রাউটিং কৌশল বেছে নিন। ম্যানুয়াল মোডে আপনি অর্ডার সেট করতে টেনে আনুন; নির্ভরযোগ্যতা, গতি এবং বুদ্ধিমত্তা জুড়ে লাইভ স্কোরের মাধ্যমে অন্যান্য কৌশলগুলি।",
     "weightsSummary": "নির্ভরযোগ্যতা {reliability}% · গতি {speed}% · বুদ্ধিমত্তা {intelligence}%",

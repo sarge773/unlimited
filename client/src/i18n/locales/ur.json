@@ -244,6 +244,8 @@
     "usageRequestsMonth": "اس مہینے {count} درخواستیں"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "روٹنگ کی حکمت عملی",
     "description": "روٹنگ کی حکمت عملی کا انتخاب کریں۔ مینوئل موڈ میں آپ آرڈر سیٹ کرنے کے لیے گھسیٹتے ہیں۔ قابل اعتماد، رفتار اور ذہانت میں لائیو سکور کے ذریعے دیگر حکمت عملیوں کا راستہ۔",
     "weightsSummary": "وشوسنییتا {reliability}% · رفتار {speed}% · ذہانت {intelligence}%",

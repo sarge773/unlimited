@@ -244,6 +244,8 @@
     "usageRequestsMonth": "ഈ മാസം {count} അഭ്യർത്ഥനകൾ"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "റൂട്ടിംഗ് തന്ത്രം",
     "description": "ഒരു റൂട്ടിംഗ് തന്ത്രം തിരഞ്ഞെടുക്കുക. മാനുവൽ മോഡിൽ ഓർഡർ സജ്ജീകരിക്കാൻ നിങ്ങൾ വലിച്ചിടുക; വിശ്വാസ്യത, വേഗത, ബുദ്ധി എന്നിവയിലുടനീളം തത്സമയ സ്‌കോർ വഴിയുള്ള മറ്റ് തന്ത്രങ്ങൾ.",
     "weightsSummary": "വിശ്വാസ്യത {reliability}% · വേഗത {speed}% · ബുദ്ധി {intelligence}%",

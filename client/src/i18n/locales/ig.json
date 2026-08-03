@@ -244,6 +244,8 @@
     "usageRequestsMonth": "arịrịọ {count} ọnwa a"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Atụmatụ ụzọ",
     "description": "Họrọ atụmatụ ụzọ ụzọ. Na ntuziaka ntuziaka ị na-adọkpụrụ ka ịtọ usoro; Atụmatụ ụzọ ndị ọzọ site na akara ndụ gafere ntụkwasị obi, ọsọ na ọgụgụ isi.",
     "weightsSummary": "ntụkwasị obi {reliability}% · ọsọ {speed}% · ọgụgụ isi {intelligence}%",

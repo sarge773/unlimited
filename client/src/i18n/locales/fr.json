@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} req. ce mois-ci"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Stratégie de routage",
     "description": "Choisissez une stratégie de routage. En mode manuel, glissez pour définir l'ordre ; les autres stratégies routent selon un score en direct combinant fiabilité, vitesse et intelligence.",
     "weightsSummary": "fiabilité {reliability}% · vitesse {speed}% · intelligence {intelligence}%",

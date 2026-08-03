@@ -244,6 +244,8 @@
     "usageRequestsMonth": "今月 {count} 件"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "ルーティング戦略",
     "description": "ルーティング戦略を選択します。手動モードでは、ドラッグして順序を設定します。他の戦略は、信頼性、スピード、インテリジェンスのライブスコアに基づいてルーティングされます。",
     "weightsSummary": "信頼性 {reliability}% · スピード {speed}% · インテリジェンス {intelligence}%",

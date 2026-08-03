@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} ped. este mês"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Estratégia de encaminhamento",
     "description": "Escolha uma estratégia de roteamento. No modo Manual arrasta-se para definir a ordem; As outras estratégias encaminham-se pelo resultado em tempo real através da fiabilidade, velocidade e inteligência.",
     "weightsSummary": "fiabilidade {reliability}% · velocidade {speed}% · inteligência {intelligence}%",

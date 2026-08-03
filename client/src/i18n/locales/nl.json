@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} verz. deze maand"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Routingstrategie",
     "description": "Kies een routeringsstrategie. In de handmatige modus sleep je om de volgorde in te stellen; De andere strategieën worden via live score verzekerd over betrouwbaarheid, snelheid en intelligentie.",
     "weightsSummary": "betrouwbaarheid {reliability}% · Snelheid {speed}% · intelligentie {intelligence}%",

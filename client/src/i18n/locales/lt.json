@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} užkl. šį mėnesį"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Maršrutizavimo strategija",
     "description": "Pasirinkite maršrutizavimo strategiją. Rankiniame režime tempiate, kad nustatytumėte tvarką; Kitos strategijos nukreipiamos pagal gyvus rezultatus pagal patikimumą, greitį ir intelektą.",
     "weightsSummary": "Patikimumas {reliability}% · greitis {speed}% · intelektas {intelligence}%",

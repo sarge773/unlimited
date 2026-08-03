@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} pož. tento mesiac"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Stratégia smerovania",
     "description": "Vyberte si stratégiu smerovania. V manuálnom režime potiahnete na nastavenie poradia; Ostatné stratégie smerujú podľa živého skóre spoľahlivosť, rýchlosť a inteligenciu.",
     "weightsSummary": "spoľahlivosť {reliability} % · rýchlosť {speed}% · inteligencia {intelligence}%",

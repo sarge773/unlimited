@@ -244,6 +244,8 @@
     "usageRequestsMonth": "ဤလတွင် တောင်းဆိုမှု {count} ခု"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "လမ်းကြောင်းသတ်မှတ်မှု မဟာဗျူဟာ",
     "description": "လမ်းကြောင်းသတ်မှတ်မှု မဟာဗျူဟာကို ရွေးချယ်ပါ။ Manual mode တွင် အစီအစဉ်ကို ဆွဲ၍ စီစဉ်နိုင်သည်။ အခြားမဟာဗျူဟာများမှာ ယုံကြည်စိတ်ချမှု၊ အမြန်နှုန်းနှင့် ဉာဏ်ရည်တို့အပေါ် တိုက်ရိုက်အဆင့်သတ်မှတ်ချက်ဖြင့် လမ်းညွှန်သည်။",
     "weightsSummary": "ယုံကြည်စိတ်ချမှု {reliability}% · အမြန်နှုန်း {speed}% · ဉာဏ်ရည် {intelligence}%",

@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} запитів цього місяця"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Стратегія маршрутизації",
     "description": "Виберіть стратегію маршрутизації. У ручному режимі ви перетягуєте, щоб встановити порядок; інші стратегії визначають надійність, швидкість і інтелект за результатами в реальному часі.",
     "weightsSummary": "надійність {reliability}% · швидкість {speed}% · інтелект {intelligence}%",

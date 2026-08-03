@@ -244,6 +244,8 @@
     "usageRequestsMonth": "bu ay {count} sorğu"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Marşrut strategiyası",
     "description": "Bir marşrut strategiyası seçin. Əl rejimində isə ardıcıllığı təyin etmək üçün sürükləyirsən; Digər strategiyalar isə etibarlılıq, sürət və zəka üzrə canlı skora əsaslanır.",
     "weightsSummary": "etibarlılıq {reliability}% · sürət {speed}% · Zəka {intelligence}%",

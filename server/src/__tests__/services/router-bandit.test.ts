@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   routeRequest, refreshStatsCache, getRoutingStrategy, setRoutingStrategy, getRoutingScores,
-  getCustomWeights, setCustomWeights,
+  getCustomWeights, setCustomWeights, getExploreEnabled, setExploreEnabled, EXPLORE_MIN_SAMPLES,
 } from '../../services/router.js';
 import * as ratelimit from '../../services/ratelimit.js';
 import { getDb, initDb } from '../../db/index.js';
@@ -193,5 +193,34 @@ describe('bandit router', () => {
     expect(scores[0].reliability).toBeGreaterThan(0.9);
     expect(scores[0].score).toBeGreaterThan(0);
     expect(scores[0].score).toBeLessThanOrEqual(1);
+  });
+
+  it('exploration toggle persists and defaults to off', () => {
+    expect(getExploreEnabled()).toBe(false);
+    setExploreEnabled(true);
+    expect(getExploreEnabled()).toBe(true);
+    setExploreEnabled(false);
+    expect(getExploreEnabled()).toBe(false);
+  });
+
+  it('exploration toggle gives an unmeasured model a chance to be tried', () => {
+    // A measured model that wins every bandit draw, plus a brand-new model with
+    // no reliability/speed samples. With the toggle off the new model is never
+    // routed; with it on it must appear within a bounded number of requests.
+    addModel({ platform: 'google', modelId: 'old', name: 'Old', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
+    addModel({ platform: 'groq', modelId: 'new', name: 'New', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 2 });
+    addHistory('google', 'old', { successes: 500, failures: 0, outTokens: 1000, latencyMs: 300, ttfbMs: 100 });
+    setRoutingStrategy('balanced');
+    refreshStatsCache(getDb(), true);
+
+    // Toggle off: the unmeasured model loses every draw.
+    setExploreEnabled(false);
+    const without = pickCounts(200);
+    expect(without['new'] ?? 0).toBe(0);
+
+    // Toggle on: 10% per request → over 500 requests the new model must appear.
+    setExploreEnabled(true);
+    const withExplore = pickCounts(500);
+    expect(withExplore['new'] ?? 0).toBeGreaterThan(0);
   });
 });

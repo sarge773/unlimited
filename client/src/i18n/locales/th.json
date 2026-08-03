@@ -244,6 +244,8 @@
     "usageRequestsMonth": "เดือนนี้ {count} คำขอ"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "กลยุทธ์การกำหนดเส้นทาง",
     "description": "เลือกกลยุทธ์การกำหนดเส้นทาง ในโหมดแมนนวล คุณลากเพื่อกำหนดลำดับ ส่วนกลยุทธ์อื่นๆ กำหนดเส้นทางตามคะแนนสดผ่านความน่าเชื่อถือ ความเร็ว และความชาญฉลาด",
     "weightsSummary": "ความน่าเชื่อถือ {reliability}% · ความเร็ว {speed}% · ความฉลาด {intelligence}%",

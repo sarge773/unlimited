@@ -244,6 +244,8 @@
     "usageRequestsMonth": "ఈ నెలలో {count} అభ్యర్థనలు"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "రూటింగ్ వ్యూహం",
     "description": "రూటింగ్ వ్యూహాన్ని ఎంచుకోండి. మాన్యువల్ మోడ్‌లో మీరు ఆర్డర్‌ను సెట్ చేయడానికి లాగండి; విశ్వసనీయత, వేగం మరియు మేధస్సు అంతటా ప్రత్యక్ష స్కోర్ ద్వారా ఇతర వ్యూహాల మార్గం.",
     "weightsSummary": "విశ్వసనీయత {reliability}% · వేగం {speed}% · మేధస్సు {intelligence}%",

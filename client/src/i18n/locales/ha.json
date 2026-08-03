@@ -244,6 +244,8 @@
     "usageRequestsMonth": "buƙatu {count} wannan wata"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Dabarar hanya",
     "description": "Zabi dabarar hanya. A Yanayin Manual zaka ja don saita tsari; da sauran dabarun hanya ta live ci a kan dogara, gudun da hankali.",
     "weightsSummary": "Amintaccen {reliability}% · saurin {speed}% · hankali {intelligence}%",

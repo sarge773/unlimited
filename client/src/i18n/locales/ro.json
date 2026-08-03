@@ -244,6 +244,8 @@
     "usageRequestsMonth": "{count} cereri luna aceasta"
   },
   "strategies": {
+    "explore": "Explore unmeasured models",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "title": "Strategia de rutare",
     "description": "Alege o strategie de rutare. În modul Manual tragi pentru a seta ordinea; Celelalte strategii se ghidează după scorul live, în funcție de fiabilitate, viteză și inteligență.",
     "weightsSummary": "Fiabilitate {reliability}% · viteză {speed}% · Inteligență {intelligence}%",
