@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   routeRequest, refreshStatsCache, getRoutingStrategy, setRoutingStrategy, getRoutingScores,
-  getCustomWeights, setCustomWeights, getExploreEnabled, setExploreEnabled, EXPLORE_MIN_SAMPLES,
+  getCustomWeights, setCustomWeights, getExploreEnabled, setExploreEnabled,
+  getCommunityPrior, setCommunityPriors,
 } from '../../services/router.js';
 import * as ratelimit from '../../services/ratelimit.js';
 import { getDb, initDb } from '../../db/index.js';
@@ -222,5 +223,38 @@ describe('bandit router', () => {
     setExploreEnabled(true);
     const withExplore = pickCounts(500);
     expect(withExplore['new'] ?? 0).toBeGreaterThan(0);
+  });
+
+  it('community priors persist, drop invalid entries, and seed the axis (#685)', () => {
+    expect(getCommunityPrior('groq', 'llama', undefined)).toBeUndefined();
+
+    // Invalid entries (negative, all-zero, missing ':') are dropped.
+    const kept = setCommunityPriors({
+      'groq:llama': { successes: 980, failures: 20 },
+      'bad:key': { successes: -5, failures: 1 },
+      'allzero': { successes: 0, failures: 0 },
+      'no-sep': { successes: 1, failures: 1 },
+    });
+    expect(kept).toBe(1);
+
+    // Survives a fresh read (persisted in settings).
+    expect(getCommunityPrior('groq', 'llama', undefined))
+      .toEqual({ successes: 980, failures: 20 });
+  });
+
+  it('community prior moves the displayed reliability off the uniform start (#685)', () => {
+    // A model with no local samples reads as 0.5 (uniform prior) without a
+    // community record; with a strong record it reads near the community rate.
+    addModel({ platform: 'google', modelId: 'g1', name: 'G1', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
+    setRoutingStrategy('balanced');
+    refreshStatsCache(getDb(), true);
+
+    const plain = getRoutingScores();
+    expect(plain.scores[0]!.reliability).toBeCloseTo(0.5, 2);
+
+    setCommunityPriors({ 'google:g1': { successes: 980, failures: 20 } });
+    refreshStatsCache(getDb(), true);
+    const seeded = getRoutingScores();
+    expect(seeded.scores[0]!.reliability).toBeGreaterThan(0.9);
   });
 });

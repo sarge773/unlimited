@@ -293,6 +293,7 @@ export function getAllPenalties(): Array<{ modelDbId: number; count: number; pen
 const STRATEGY_KEY = 'routing_strategy';
 const CUSTOM_WEIGHTS_KEY = 'routing_custom_weights';
 const EXPLORE_KEY = 'routing_explore_enabled';
+const COMMUNITY_PRIOR_KEY = 'routing_community_prior';
 
 /** Chance per request that an unmeasured model gets tried first when the
  *  exploration toggle is on. The bandit's Thompson sampling already explores
@@ -365,6 +366,61 @@ export function setCustomWeights(weights: RoutingWeights): void {
     speed: speed / sum,
     intelligence: intelligence / sum,
   }));
+}
+
+// ── Community reliability prior (persisted) ────────────────────────────────
+// Aggregated, de-poisoned counts from other self-hosted instances, folded into
+// the Beta posterior as a starting balance so a brand-new model isn't blind
+// (#685 follow-up). Keyed "platform:model_id" (endpoint-scoped keys use the
+// same modelStatsKey form). Local samples dilute it automatically.
+type CommunityPriorMap = Record<string, { successes: number; failures: number }>;
+
+function parseCommunityPriors(): CommunityPriorMap {
+  const raw = getSetting(COMMUNITY_PRIOR_KEY);
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw) as CommunityPriorMap;
+    const clean: CommunityPriorMap = {};
+    for (const [key, v] of Object.entries(parsed)) {
+      if (
+        key.includes(':') &&
+        v && typeof v === 'object' &&
+        Number.isFinite(v.successes) && v.successes >= 0 &&
+        Number.isFinite(v.failures) && v.failures >= 0 &&
+        v.successes + v.failures > 0
+      ) {
+        clean[key] = { successes: Math.round(v.successes), failures: Math.round(v.failures) };
+      }
+    }
+    return clean;
+  } catch {
+    return {};
+  }
+}
+
+/** Community prior for one model, or undefined when none is stored. */
+export function getCommunityPrior(platform: string, modelId: string, endpointScope?: string):
+  { successes: number; failures: number } | undefined {
+  return parseCommunityPriors()[modelStatsKey(platform, modelId, endpointScope)];
+}
+
+/** Replace the whole community-prior map (e.g. after an aggregation fetch).
+ *  Invalid entries are dropped, never stored. */
+export function setCommunityPriors(priors: CommunityPriorMap): number {
+  const clean: CommunityPriorMap = {};
+  for (const [key, v] of Object.entries(priors)) {
+    if (
+      key.includes(':') &&
+      v && typeof v === 'object' &&
+      Number.isFinite(v.successes) && v.successes >= 0 &&
+      Number.isFinite(v.failures) && v.failures >= 0 &&
+      v.successes + v.failures > 0
+    ) {
+      clean[key] = { successes: Math.round(v.successes), failures: Math.round(v.failures) };
+    }
+  }
+  setSetting(COMMUNITY_PRIOR_KEY, JSON.stringify(clean));
+  return Object.keys(clean).length;
 }
 
 function weightsFor(strategy: RoutingStrategy): RoutingWeights | null {
@@ -673,10 +729,12 @@ function scoreChainEntry(
 
   let reliability: number;
   if (sampled) {
-    const { alpha, beta } = reliabilityPosterior(successes, failures);
+    const community = getCommunityPrior(entry.platform, entry.model_id, entry.endpoint_scope);
+    const { alpha, beta } = reliabilityPosterior(successes, failures, community);
     reliability = sampleBeta(alpha, beta);
   } else {
-    reliability = expectedReliability(successes, failures);
+    const community = getCommunityPrior(entry.platform, entry.model_id, entry.endpoint_scope);
+    reliability = expectedReliability(successes, failures, community);
   }
 
   const speed = speedScore(stats?.tokPerSec ?? 0, stats?.avgTtfbMs ?? null);
@@ -911,7 +969,8 @@ function orderKeysByScore(entry: ChainRow, keys: KeyRow[]): KeyRow[] | null {
   return keys
     .map(k => {
       const stats = keyStatsCache!.get(prefix + k.id);
-      const { alpha, beta } = reliabilityPosterior(stats?.successes ?? 0, stats?.failures ?? 0);
+      const community = getCommunityPrior(entry.platform, entry.model_id, entry.endpoint_scope);
+      const { alpha, beta } = reliabilityPosterior(stats?.successes ?? 0, stats?.failures ?? 0, community);
       const rel = sampleBeta(alpha, beta);
       const spd = speedScore(stats?.tokPerSec ?? 0, stats?.avgTtfbMs ?? null);
       return { k, s: KEY_SCORE_WEIGHTS.reliability * rel + KEY_SCORE_WEIGHTS.speed * spd };
