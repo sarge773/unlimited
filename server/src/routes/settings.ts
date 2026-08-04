@@ -9,6 +9,9 @@ import { getGeminiModelMap, setGeminiModelMap } from '../services/gemini-map.js'
 import { getOllamaEmulationMode } from './ollama.js';
 import { listUrlTokens, mintUrlToken, revokeUrlToken } from '../services/url-tokens.js';
 import {
+  isTelemetryOptIn, setTelemetryOptIn, getTelemetryEndpoint, setTelemetryEndpoint,
+} from '../services/telemetry.js';
+import {
   getRequestMaxTokensBudget,
   getMaxConsecutiveUpstreamFails,
   REQUEST_MAX_TOKENS_BUDGET_SETTING,
@@ -166,6 +169,31 @@ settingsRouter.put('/agent-compatibility', (req: Request, res: Response) => {
 
 settingsRouter.get('/url-tokens', (_req: Request, res: Response) => {
   res.json({ tokens: listUrlTokens() });
+});
+
+const telemetrySchema = z.object({
+  optIn: z.boolean().optional(),
+  endpoint: z.string().url('endpoint must be a valid URL').or(z.literal('')).optional(),
+}).strict();
+
+settingsRouter.get('/telemetry', (_req: Request, res: Response) => {
+  res.json({ optIn: isTelemetryOptIn(), endpoint: getTelemetryEndpoint() });
+});
+
+settingsRouter.put('/telemetry', (req: Request, res: Response) => {
+  const parsed = telemetrySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: {
+        message: `Invalid telemetry settings: ${parsed.error.errors.map(error => error.message).join(', ')}`,
+        type: 'invalid_request_error',
+      },
+    });
+    return;
+  }
+  if (parsed.data.optIn !== undefined) setTelemetryOptIn(parsed.data.optIn);
+  if (parsed.data.endpoint !== undefined) setTelemetryEndpoint(parsed.data.endpoint);
+  res.json({ optIn: isTelemetryOptIn(), endpoint: getTelemetryEndpoint() });
 });
 
 settingsRouter.post('/url-tokens', (req: Request, res: Response) => {
