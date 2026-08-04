@@ -9,10 +9,10 @@ import { encrypt, decrypt, maskKey } from '../lib/crypto.js';
 import { parseKeysFromFile, stripJsoncComments, stripTrailingCommas } from '../lib/key-parser.js';
 import { assessProviderUrl } from '../lib/url-guard.js';
 import { verifyCredentials } from '../services/auth.js';
-import { ensureModelInProfiles } from '../services/profile-models.js';
 import { getActiveCooldownsForKeys, clearCooldownsForKey } from '../services/ratelimit.js';
 import { resolveCustomEndpointKey, customEndpointKeyIds, siblingEndpointKeyId, endpointHasCredential } from '../services/custom-endpoint.js';
 import { customModelSeed } from '../services/custom-model-seed.js';
+import { registerCustomModels } from '../services/custom-model-register.js';
 import { discoverEndpointModels, probeEndpointModel, ModelDiscoveryError } from '../services/model-discovery.js';
 import { probeEmbeddingDimensions, registerCustomEmbeddingModel } from '../services/embeddings.js';
 import { endpointScopeForBaseUrl, normalizeBaseUrl } from '../lib/endpoint-scope.js';
@@ -1060,20 +1060,9 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
     return;
   }
 
-  const upsert = db.transaction(() => {
-    // Key rows are matched on (base_url, secret): a new secret for a known
-    // endpoint is a SECOND credential for it, not a replacement (#619), and a
-    // new base_url is a separate provider (#212). Re-submitting with a blank
-    // key preserves the stored one. A submitted keyId pins WHICH credential of
-    // the pool the new models bind to (#488 bulk registration).
-    const { keyId, storedKey: storedKeyForMask } = resolveCustomEndpointKey(
-      db, baseUrl, providedKey, label, endpoint.keyId ?? undefined,
-    );
-    const registered = registerCustomChatModels(db, baseUrl, keyId, entries);
-    return { keyId, registered, storedKeyForMask };
-  });
-
-  const { keyId, registered, storedKeyForMask } = upsert();
+  const { keyId, storedKey, registered } = registerCustomModels(
+    db, baseUrl, providedKey, label, endpoint.keyId ?? undefined, entries,
+  );
   // `model`/`displayName`/`modelDbId` echo the first model for older clients;
   // `models` carries the full set registered in this call.
   const first = registered[0]!;
@@ -1092,7 +1081,7 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
     // picking a whole discovered list re-submits ids that are already there.
     created: registered.filter(m => m.created).length,
     alreadyRegistered: registered.filter(m => !m.created).length,
-    maskedKey: maskKey(storedKeyForMask),
+    maskedKey: maskKey(storedKey),
   });
 });
 
