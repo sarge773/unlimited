@@ -11,8 +11,7 @@ permissions:
   contents: read
   packages: write
 
-env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/freellmapi
+
 
 # Each platform builds NATIVELY (ubuntu-24.04-arm is free for public repos) —
 # no QEMU. Emulated arm64 builds took ~20 min cold (better-sqlite3 compiles
@@ -33,6 +32,9 @@ jobs:
             runner: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set lowercase image name
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/freellmapi" >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -97,6 +99,10 @@ jobs:
           merge-multiple: true
 
       - uses: docker/setup-buildx-action@v3
+
+      - name: Set lowercase image name
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/freellmapi" >> "$GITHUB_ENV"
+
 
       - name: Log in to GHCR
         uses: docker/login-action@v3

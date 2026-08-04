@@ -951,17 +951,30 @@ anthropicRouter.get('/models', (req: Request, res: Response, next: NextFunction)
   const { models } = buildModelListing();
   const available = models.filter(m => m.available === 1);
   const aliasesEnabled = getSetting('expose_cc_discovery_aliases') === '1';
-  const data = [
-    { type: 'model' as const, id: 'auto', display_name: 'Auto (router picks the best available model)', created_at: MODEL_CREATED_AT },
-    ...available.map(m => ({ type: 'model' as const, id: m.id, display_name: m.name, created_at: MODEL_CREATED_AT })),
-    ...(aliasesEnabled
-      ? available.map(m => ({
+
+  const exposeLlms = getSetting('endpoint_expose_llms') !== '0';
+  const exposeAutoBalanced = getSetting('endpoint_expose_auto_balanced') !== '0';
+  const exposeAutoIntelligent = getSetting('endpoint_expose_auto_intelligent') !== '0';
+  const exposeAutoFast = getSetting('endpoint_expose_auto_fast') !== '0';
+  const exposeFusion = getSetting('endpoint_expose_fusion') !== '0';
+
+  const data: any[] = [];
+  if (exposeAutoBalanced) data.push({ type: 'model' as const, id: 'auto', display_name: 'Auto (Balanced)', created_at: MODEL_CREATED_AT });
+  if (exposeAutoIntelligent) data.push({ type: 'model' as const, id: 'auto-intelligent', display_name: 'Auto (Intelligent)', created_at: MODEL_CREATED_AT });
+  if (exposeAutoFast) data.push({ type: 'model' as const, id: 'auto-fast', display_name: 'Auto (Fast)', created_at: MODEL_CREATED_AT });
+  if (exposeFusion) data.push({ type: 'model' as const, id: 'fusion', display_name: 'Fusion (panel of models answer in parallel, a judge synthesizes one answer)', created_at: MODEL_CREATED_AT });
+
+  if (exposeLlms) {
+    data.push(...available.map(m => ({ type: 'model' as const, id: m.id, display_name: m.name, created_at: MODEL_CREATED_AT })));
+    if (aliasesEnabled) {
+      data.push(...available.map(m => ({
         type: 'model' as const,
         id: `claude/${m.id}`,
         display_name: `${m.name} (Claude Code)`,
         created_at: MODEL_CREATED_AT,
-      }))
-      : []),
-  ];
+      })));
+    }
+  }
+
   res.json({ data, has_more: false, first_id: data[0]?.id ?? null, last_id: data[data.length - 1]?.id ?? null });
 });

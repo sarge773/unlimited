@@ -11,6 +11,7 @@ import {
   Moon,
   RefreshCw,
   Search,
+  Server,
   SlidersHorizontal,
   Sun,
   Wrench,
@@ -281,10 +282,11 @@ const ENGINES = [
   { id: 'hard-budget', tKey: 'engineHardBudget', lossless: false },
 ] as const
 
-type SectionId = 'general' | 'compression' | 'advanced' | 'preview'
+type SectionId = 'general' | 'endpoint' | 'compression' | 'advanced' | 'preview'
 
 const SECTIONS = [
   { id: 'general', tKey: 'sectionGeneral', icon: SlidersHorizontal },
+  { id: 'endpoint', tKey: 'sectionEndpoint', icon: Server },
   { id: 'compression', tKey: 'sectionCompression', icon: Gauge },
   { id: 'advanced', tKey: 'sectionAdvanced', icon: Wrench },
   { id: 'preview', tKey: 'sectionPreview', icon: FlaskConical },
@@ -690,6 +692,94 @@ function GeneralSection() {
   )
 }
 
+interface EndpointConfig {
+  exposeLlms: boolean
+  exposeAutoBalanced: boolean
+  exposeAutoIntelligent: boolean
+  exposeAutoFast: boolean
+  exposeFusion: boolean
+}
+
+function useEndpointSettings(open: boolean) {
+  const { t } = useI18n()
+  const [config, setConfig] = useState<EndpointConfig | null>(null)
+  const [busy, setBusy] = useState<'load' | 'save' | null>('load')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!open) return
+    let cancelled = false
+    apiFetch<EndpointConfig>('/api/settings/endpoint')
+      .then(nextConfig => {
+        if (cancelled) return
+        setConfig(nextConfig)
+        setError('')
+      })
+      .catch(reason => {
+        if (!cancelled) setError(reason instanceof Error ? reason.message : t('common.unknownError'))
+      })
+      .finally(() => {
+        if (!cancelled) setBusy(null)
+      })
+    return () => { cancelled = true }
+  }, [open, t])
+
+  const patch = useCallback((update: Partial<EndpointConfig>) => {
+    setConfig(current => current ? { ...current, ...update } : current)
+  }, [])
+
+  const save = useCallback(async () => {
+    if (!config) return
+    setBusy('save')
+    setError('')
+    try {
+      setConfig(await apiFetch<EndpointConfig>('/api/settings/endpoint', {
+        method: 'PUT',
+        body: JSON.stringify(config),
+      }))
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : t('common.unknownError'))
+    } finally {
+      setBusy(null)
+    }
+  }, [config, t])
+
+  return { config, busy, error, patch, save }
+}
+
+function EndpointSection({ state }: { state: ReturnType<typeof useEndpointSettings> }) {
+  const { t } = useI18n()
+  const { config, patch } = state
+  if (!config) return null
+
+  return (
+    <>
+      <SectionHeader title={t('settings.sectionEndpoint')} description={t('settings.endpointDescription')} />
+      <Row
+        label={t('settings.endpointExposeLlms')}
+        control={<Switch checked={config.exposeLlms} onCheckedChange={v => patch({ exposeLlms: v })} />}
+      />
+      <Row
+        label={t('settings.endpointExposeAutoBalanced')}
+        control={<Switch checked={config.exposeAutoBalanced} onCheckedChange={v => patch({ exposeAutoBalanced: v })} />}
+      />
+      <Row
+        label={t('settings.endpointExposeAutoIntelligent')}
+        control={<Switch checked={config.exposeAutoIntelligent} onCheckedChange={v => patch({ exposeAutoIntelligent: v })} />}
+      />
+      <Row
+        label={t('settings.endpointExposeAutoFast')}
+        control={<Switch checked={config.exposeAutoFast} onCheckedChange={v => patch({ exposeAutoFast: v })} />}
+      />
+      <Row
+        label={t('settings.endpointExposeFusion')}
+        control={<Switch checked={config.exposeFusion} onCheckedChange={v => patch({ exposeFusion: v })} />}
+      />
+    </>
+  )
+}
+
+
 export function SettingsDialog({
   open,
   onOpenChange,
@@ -700,9 +790,11 @@ export function SettingsDialog({
   const { t } = useI18n()
   const [section, setSection] = useState<SectionId>('general')
   const state = useCompressionSettings(open)
+  const endpointState = useEndpointSettings(open)
   const { config, busy, error, save } = state
-  const compressionSection = section !== 'general'
-  const loading = compressionSection && !config && busy === 'load'
+  const compressionSection = section !== 'general' && section !== 'endpoint'
+  const endpointSection = section === 'endpoint'
+  const loading = (compressionSection && !config && busy === 'load') || (endpointSection && !endpointState.config && endpointState.busy === 'load')
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -749,6 +841,7 @@ export function SettingsDialog({
           {/* min-height keeps the popup from resizing as sections are switched. */}
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:min-h-[27rem] sm:px-6 sm:py-6">
             {section === 'general' && <GeneralSection />}
+            {section === 'endpoint' && endpointState.config && <EndpointSection state={endpointState} />}
             {loading && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
@@ -765,22 +858,25 @@ export function SettingsDialog({
             {compressionSection && !config && !loading && error && (
               <p className="text-sm text-destructive">{error}</p>
             )}
+            {endpointSection && !endpointState.config && !loading && endpointState.error && (
+              <p className="text-sm text-destructive">{endpointState.error}</p>
+            )}
           </div>
         </div>
 
-        {compressionSection && config && (
+        {(compressionSection && config) || (endpointSection && endpointState.config) ? (
           <div className="flex flex-wrap items-center justify-end gap-3 border-t px-5 py-3 sm:px-6">
-            {error && <p className="me-auto text-xs text-destructive">{error}</p>}
+            {(error || endpointState.error) && <p className="me-auto text-xs text-destructive">{error || endpointState.error}</p>}
             <button
               type="button"
-              onClick={save}
-              disabled={busy !== null}
+              onClick={compressionSection ? save : endpointState.save}
+              disabled={busy !== null || endpointState.busy !== null}
               className="rounded-lg bg-foreground px-4 py-2 text-xs font-medium text-background transition-opacity outline-none hover:opacity-90 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
             >
-              {busy === 'save' ? t('common.saving') : t('common.saveChanges')}
+              {busy === 'save' || endpointState.busy === 'save' ? t('common.saving') : t('common.saveChanges')}
             </button>
           </div>
-        )}
+        ) : null}
       </DialogPopup>
     </Dialog>
   )

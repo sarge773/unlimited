@@ -8,7 +8,7 @@ import { recordRequest, recordTokens, setCooldown, getCooldownDurationForLimit, 
 import { runEmbeddings, EmbeddingsError } from '../services/embeddings.js';
 import { runImageGeneration, runSpeech, runTranscription, MediaError, MAX_TRANSCRIPTION_BYTES } from '../services/media.js';
 import multer from 'multer';
-import { getDb, getUnifiedApiKey } from '../db/index.js';
+import { getDb, getUnifiedApiKey, getSetting } from '../db/index.js';
 import { contentToString, messageHasImage, normalizeOutboundContent, sanitizeResponse } from '../lib/content.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
@@ -228,53 +228,89 @@ proxyRouter.get('/models', (req: Request, res: Response) => {
   const onlyAvailable = q === '1' || q === 'true' || q === 'yes';
   const listed = onlyAvailable ? allListed.filter(m => m.available === 1) : allListed;
 
+  const exposeLlms = getSetting('endpoint_expose_llms') !== '0';
+  const exposeAutoBalanced = getSetting('endpoint_expose_auto_balanced') !== '0';
+  const exposeAutoIntelligent = getSetting('endpoint_expose_auto_intelligent') !== '0';
+  const exposeAutoFast = getSetting('endpoint_expose_auto_fast') !== '0';
+  const exposeFusion = getSetting('endpoint_expose_fusion') !== '0';
+
+  const data: any[] = [];
+
+  if (exposeAutoBalanced) {
+    data.push({
+      id: AUTO_MODEL_ID,
+      object: 'model',
+      created: 0,
+      owned_by: 'freellmapi',
+      name: 'Auto (Balanced)',
+      context_window: autoContextWindow,
+      context_length: autoContextWindow,
+      available: true,
+      unavailable_reason: null,
+    });
+  }
+
+  if (exposeAutoIntelligent) {
+    data.push({
+      id: 'auto-intelligent',
+      object: 'model',
+      created: 0,
+      owned_by: 'freellmapi',
+      name: 'Auto (Intelligent)',
+      context_window: autoContextWindow,
+      context_length: autoContextWindow,
+      available: true,
+      unavailable_reason: null,
+    });
+  }
+
+  if (exposeAutoFast) {
+    data.push({
+      id: 'auto-fast',
+      object: 'model',
+      created: 0,
+      owned_by: 'freellmapi',
+      name: 'Auto (Fast)',
+      context_window: autoContextWindow,
+      context_length: autoContextWindow,
+      available: true,
+      unavailable_reason: null,
+    });
+  }
+
+  if (exposeFusion) {
+    data.push({
+      id: FUSION_MODEL_ID,
+      object: 'model',
+      created: 0,
+      owned_by: 'freellmapi',
+      name: 'Fusion (panel of models answer in parallel, a judge synthesizes one answer)',
+      context_window: autoContextWindow,
+      context_length: autoContextWindow,
+      available: autoContextWindow != null,
+      unavailable_reason: autoContextWindow != null ? null : 'no_models',
+    });
+  }
+
+  if (exposeLlms) {
+    data.push(...listed.map(m => ({
+      id: m.id,
+      object: 'model',
+      created: 0,
+      owned_by: m.ownedBy,
+      name: m.name,
+      context_window: m.contextWindow,
+      context_length: m.contextWindow,
+      available: m.available === 1,
+      unavailable_reason: m.available === 1 ? null : (m.enabled === 1 ? 'no_key' : 'disabled'),
+      supported_parameters: supportedParametersForPlatforms(m.platforms, { tools: m.supportsTools }),
+    })));
+  }
+
   res.json({
     object: 'list',
-    data: [
-      {
-        id: AUTO_MODEL_ID,
-        object: 'model',
-        created: 0,
-        owned_by: 'freellmapi',
-        name: 'Auto (router picks the best available model)',
-        context_window: autoContextWindow,
-        // `context_length` is OpenRouter's field name and the one most
-        // OpenAI-compatible clients read; emit both so whichever a client
-        // looks for is populated. Additive — clients ignore unknown fields.
-        context_length: autoContextWindow,
-        available: true,
-        unavailable_reason: null,
-      },
-      {
-        id: FUSION_MODEL_ID,
-        object: 'model',
-        created: 0,
-        owned_by: 'freellmapi',
-        name: 'Fusion (panel of models answer in parallel, a judge synthesizes one answer)',
-        context_window: autoContextWindow,
-        context_length: autoContextWindow,
-        // Available whenever auto is — fusion needs at least one routable model.
-        available: autoContextWindow != null,
-        unavailable_reason: autoContextWindow != null ? null : 'no_models',
-      },
-      ...listed.map(m => ({
-        id: m.id,
-        object: 'model',
-        created: 0,
-        owned_by: m.ownedBy,
-        name: m.name,
-        context_window: m.contextWindow,
-        context_length: m.contextWindow,
-        // Non-standard but additive: OpenAI clients ignore unknown fields.
-        available: m.available === 1,
-        unavailable_reason: m.available === 1 ? null : (m.enabled === 1 ? 'no_key' : 'disabled'),
-        // OpenRouter's field name; agents use it to pick knobs per model. For
-        // a unify group this is the intersection over member platforms — a
-        // param is only advertised when every platform the router might pick
-        // honors it.
-        supported_parameters: supportedParametersForPlatforms(m.platforms, { tools: m.supportsTools }),
-      })),
-    ],
+    data,
+
   });
 });
 

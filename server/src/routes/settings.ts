@@ -164,6 +164,51 @@ settingsRouter.put('/agent-compatibility', (req: Request, res: Response) => {
   });
 });
 
+const endpointSchema = z.object({
+  exposeLlms: z.boolean().optional(),
+  exposeAutoBalanced: z.boolean().optional(),
+  exposeAutoIntelligent: z.boolean().optional(),
+  exposeAutoFast: z.boolean().optional(),
+  exposeFusion: z.boolean().optional(),
+}).strict();
+
+settingsRouter.get('/endpoint', (_req: Request, res: Response) => {
+  res.json({
+    exposeLlms: getSetting('endpoint_expose_llms') !== '0', // default true
+    exposeAutoBalanced: getSetting('endpoint_expose_auto_balanced') !== '0', // default true
+    exposeAutoIntelligent: getSetting('endpoint_expose_auto_intelligent') !== '0', // default true
+    exposeAutoFast: getSetting('endpoint_expose_auto_fast') !== '0', // default true
+    exposeFusion: getSetting('endpoint_expose_fusion') !== '0', // default true
+  });
+});
+
+settingsRouter.put('/endpoint', (req: Request, res: Response) => {
+  const parsed = endpointSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: {
+        message: `Invalid endpoint settings: ${parsed.error.errors.map(error => error.message).join(', ')}`,
+        type: 'invalid_request_error',
+      },
+    });
+    return;
+  }
+  
+  if (parsed.data.exposeLlms !== undefined) setSetting('endpoint_expose_llms', parsed.data.exposeLlms ? '1' : '0');
+  if (parsed.data.exposeAutoBalanced !== undefined) setSetting('endpoint_expose_auto_balanced', parsed.data.exposeAutoBalanced ? '1' : '0');
+  if (parsed.data.exposeAutoIntelligent !== undefined) setSetting('endpoint_expose_auto_intelligent', parsed.data.exposeAutoIntelligent ? '1' : '0');
+  if (parsed.data.exposeAutoFast !== undefined) setSetting('endpoint_expose_auto_fast', parsed.data.exposeAutoFast ? '1' : '0');
+  if (parsed.data.exposeFusion !== undefined) setSetting('endpoint_expose_fusion', parsed.data.exposeFusion ? '1' : '0');
+
+  res.json({
+    exposeLlms: getSetting('endpoint_expose_llms') !== '0',
+    exposeAutoBalanced: getSetting('endpoint_expose_auto_balanced') !== '0',
+    exposeAutoIntelligent: getSetting('endpoint_expose_auto_intelligent') !== '0',
+    exposeAutoFast: getSetting('endpoint_expose_auto_fast') !== '0',
+    exposeFusion: getSetting('endpoint_expose_fusion') !== '0',
+  });
+});
+
 settingsRouter.get('/url-tokens', (_req: Request, res: Response) => {
   res.json({ tokens: listUrlTokens() });
 });

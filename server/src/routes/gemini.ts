@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { getUnifiedApiKey } from '../db/index.js';
+import { getSetting, getUnifiedApiKey } from '../db/index.js';
 import { buildModelListing, type NormalizedModel } from '../services/model-listing.js';
 import { extractApiToken, timingSafeStringEqual } from './proxy.js';
 import { runInboundChat, type InboundChatWire } from '../lib/inbound-chat.js';
@@ -64,7 +64,7 @@ function modelShape(model: NormalizedModel | null, autoContextWindow: number | n
   const context = model?.contextWindow ?? autoContextWindow ?? 128_000;
   return {
     name: `models/${model?.id ?? id}`,
-    displayName: model?.name ?? 'Auto (router picks the best available model)',
+    displayName: model?.name ?? 'Auto (Balanced)',
     description: model
       ? `FreeLLMAPI catalog model served by ${model.ownedBy}`
       : 'FreeLLMAPI automatically selects the best available model',
@@ -84,24 +84,48 @@ geminiRouter.get('/models', (req, res) => {
   const listed = ['1', 'true', 'yes'].includes(availableOnly)
     ? models.filter(model => model.available === 1)
     : models;
-  res.json({
-    models: [
-      modelShape(null, autoContextWindow),
-      ...listed.map(model => modelShape(model, autoContextWindow)),
-    ],
-  });
+
+  const exposeLlms = getSetting('endpoint_expose_llms') !== '0';
+  const exposeAutoBalanced = getSetting('endpoint_expose_auto_balanced') !== '0';
+  const exposeAutoIntelligent = getSetting('endpoint_expose_auto_intelligent') !== '0';
+  const exposeAutoFast = getSetting('endpoint_expose_auto_fast') !== '0';
+  const exposeFusion = getSetting('endpoint_expose_fusion') !== '0';
+
+  const results: any[] = [];
+  if (exposeAutoBalanced) results.push(modelShape(null, autoContextWindow));
+  if (exposeAutoIntelligent) results.push(modelShape({ id: 'auto-intelligent', name: 'Auto (Intelligent)', ownedBy: 'freellmapi' } as any, autoContextWindow));
+  if (exposeAutoFast) results.push(modelShape({ id: 'auto-fast', name: 'Auto (Fast)', ownedBy: 'freellmapi' } as any, autoContextWindow));
+  if (exposeFusion) results.push(modelShape({ id: 'fusion', name: 'Fusion', ownedBy: 'freellmapi' } as any, autoContextWindow));
+  
+  if (exposeLlms) {
+    results.push(...listed.map(model => modelShape(model, autoContextWindow)));
+  }
+
+  res.json({ models: results });
 });
 
 geminiRouter.get(/^\/models\/(.+)$/, (req, res) => {
   if (!authenticate(req, res)) return;
   const requested = decodeURIComponent(req.params[0]).replace(/^models\//, '');
   const { models, autoContextWindow } = buildModelListing();
-  if (requested === 'auto') {
+  if (requested === 'auto' && getSetting('endpoint_expose_auto_balanced') !== '0') {
     res.json(modelShape(null, autoContextWindow));
     return;
   }
+  if (requested === 'auto-intelligent' && getSetting('endpoint_expose_auto_intelligent') !== '0') {
+    res.json(modelShape({ id: 'auto-intelligent', name: 'Auto (Intelligent)', ownedBy: 'freellmapi' } as any, autoContextWindow));
+    return;
+  }
+  if (requested === 'auto-fast' && getSetting('endpoint_expose_auto_fast') !== '0') {
+    res.json(modelShape({ id: 'auto-fast', name: 'Auto (Fast)', ownedBy: 'freellmapi' } as any, autoContextWindow));
+    return;
+  }
+  if (requested === 'fusion' && getSetting('endpoint_expose_fusion') !== '0') {
+    res.json(modelShape({ id: 'fusion', name: 'Fusion', ownedBy: 'freellmapi' } as any, autoContextWindow));
+    return;
+  }
   const model = models.find(entry => entry.id === requested);
-  if (!model) {
+  if (!model || getSetting('endpoint_expose_llms') === '0') {
     sendError(res, 404, `Model '${requested}' was not found`, 'NOT_FOUND');
     return;
   }
