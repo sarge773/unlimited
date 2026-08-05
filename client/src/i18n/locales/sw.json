@@ -450,6 +450,8 @@
     "duplicate": "Nakala",
     "duplicatesFound": "Nakala mbili za {count} zimetambuliwa - tayari zipo na zitarukwa.",
     "importResult": "Zilizoingizwa {imported}; imeshindwa {failed}.",
+    "importModelCount": "+{count} miundo",
+    "importResultWithModels": "Zilizoingizwa {imported}; miundo {models} imesajiliwa; imeshindwa {failed}.",
     "confirmRemove": "Thibitisha?",
     "quotaSignalsTitle": "Ishara za quota",
     "quotaSignalsEmptyTitle": "Bado hakuna uchunguzi wa kiasi",

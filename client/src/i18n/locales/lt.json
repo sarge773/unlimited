@@ -450,6 +450,8 @@
     "duplicate": "Dublikatas",
     "duplicatesFound": "{count} aptikti dublikatai — jau egzistuoja ir bus praleisti.",
     "importResult": "Importuota {imported}; Nepavyko {failed}.",
+    "importModelCount": "+{count} modeliai",
+    "importResultWithModels": "Importuota {imported}; užregistruota {models} modelių; Nepavyko {failed}.",
     "confirmRemove": "Patvirtinti?",
     "quotaSignalsTitle": "Kvotų signalai",
     "quotaSignalsEmptyTitle": "Kvotos laikymosi dar nėra",

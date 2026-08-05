@@ -450,6 +450,8 @@
     "duplicate": "ନକଲ",
     "duplicatesFound": "{count} ନକଲ(ଗୁଡିକ) ଚିହ୍ନଟ ହୋଇଛି — ପୂର୍ବରୁ ବିଦ୍ୟମାନ ଏବଂ ସ୍କିପ୍ ହେବ।",
     "importResult": "ଆମଦାନୀ ହୋଇଥିବା {imported}; {failed} ବିଫଳ ହୋଇଛି।",
+    "importModelCount": "+{count} ମଡେଲ",
+    "importResultWithModels": "ଆମଦାନୀ ହୋଇଥିବା {imported}; {models} ମଡେଲ ପଞ୍ଜୀକୃତ ହୋଇଛି; {failed} ବିଫଳ ହୋଇଛି।",
     "confirmRemove": "ନିଶ୍ଚିତ କରିବେ?",
     "quotaSignalsTitle": "କୋଟା ସଙ୍କେତ",
     "quotaSignalsEmptyTitle": "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି କୋଟା ପର୍ଯ୍ୟବେକ୍ଷଣ ହୋଇନାହିଁ",

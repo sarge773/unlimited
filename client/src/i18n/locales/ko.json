@@ -450,6 +450,8 @@
     "duplicate": "중복",
     "duplicatesFound": "{count} 중복이 감지되었습니다. 이미 존재하며 건너뜁니다.",
     "importResult": "수입된 {imported}; {failed}에 실패했습니다.",
+    "importModelCount": "+{count}개 모델",
+    "importResultWithModels": "수입된 {imported}; {models}개 모델 등록됨; {failed}에 실패했습니다.",
     "confirmRemove": "확인하시겠습니까?",
     "quotaSignalsTitle": "할당량 신호",
     "quotaSignalsEmptyTitle": "아직 할당량 관찰이 없습니다.",

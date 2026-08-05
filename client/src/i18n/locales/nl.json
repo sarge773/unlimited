@@ -450,6 +450,8 @@
     "duplicate": "Duplicate",
     "duplicatesFound": "{count} duplicaat(en) die worden gedetecteerd — bestaan al en zullen worden overgeslagen.",
     "importResult": "Geïmporteerde {imported}; Mislukt {failed}.",
+    "importModelCount": "+{count} modellen",
+    "importResultWithModels": "Geïmporteerde {imported}; {models} modellen geregistreerd; Mislukt {failed}.",
     "confirmRemove": "Bevestigen?",
     "quotaSignalsTitle": "Quotasignalen",
     "quotaSignalsEmptyTitle": "Nog geen quota-observaties",

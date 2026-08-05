@@ -450,6 +450,8 @@
     "duplicate": "Təkrarlanan",
     "duplicatesFound": "{count} təkrar(lar) aşkar edilib — artıq mövcuddur və atlanacaq.",
     "importResult": "İdxal {imported}; uğursuz {failed}.",
+    "importModelCount": "+{count} model",
+    "importResultWithModels": "İdxal {imported}; {models} model qeydə alındı; uğursuz {failed}.",
     "confirmRemove": "Təsdiqləyək?",
     "quotaSignalsTitle": "Kvota siqnalları",
     "quotaSignalsEmptyTitle": "Hələ kvota müşahidəsi yoxdur",

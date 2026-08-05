@@ -450,6 +450,8 @@
     "duplicate": "Дубликат",
     "duplicatesFound": "{count} открити дубликати — вече съществуват и ще бъдат пропуснати.",
     "importResult": "Внесени {imported}; провалил {failed}.",
+    "importModelCount": "+{count} модела",
+    "importResultWithModels": "Внесени {imported}; регистрирани {models} модела; провалил {failed}.",
     "confirmRemove": "Потвърждавате ли?",
     "quotaSignalsTitle": "Квотни сигнали",
     "quotaSignalsEmptyTitle": "Все още няма наблюдение на квотите",

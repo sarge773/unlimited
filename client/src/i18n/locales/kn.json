@@ -450,6 +450,8 @@
     "duplicate": "ನಕಲು",
     "duplicatesFound": "{count} ನಕಲಿ(ಗಳು) ಪತ್ತೆಯಾಗಿದೆ - ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ ಮತ್ತು ಬಿಟ್ಟುಬಿಡಲಾಗುತ್ತದೆ.",
     "importResult": "ಆಮದು {imported}; ವಿಫಲವಾಗಿದೆ {failed}.",
+    "importModelCount": "+{count} ಮಾದರಿಗಳು",
+    "importResultWithModels": "ಆಮದು {imported}; {models} ಮಾದರಿಗಳು ನೋಂದಾಯಿಸಲಾಗಿದೆ; ವಿಫಲವಾಗಿದೆ {failed}.",
     "confirmRemove": "ದೃಢೀಕರಿಸುವುದೇ?",
     "quotaSignalsTitle": "ಕೋಟಾ ಸಂಕೇತಗಳು",
     "quotaSignalsEmptyTitle": "ಇನ್ನೂ ಯಾವುದೇ ಕೋಟಾ ಅವಲೋಕನಗಳಿಲ್ಲ",

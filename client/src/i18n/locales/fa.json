@@ -450,6 +450,8 @@
     "duplicate": "تکراری",
     "duplicatesFound": "{count} تکراری شناسایی شد - از قبل وجود دارد و از آن صرفنظر خواهد شد.",
     "importResult": "{imported} وارداتی؛ ناموفق {failed}.",
+    "importModelCount": "+{count} مدل",
+    "importResultWithModels": "{imported} وارداتی؛ {models} مدل ثبت شد؛ ناموفق {failed}.",
     "confirmRemove": "تایید کرد؟",
     "quotaSignalsTitle": "سیگنال های سهمیه ای",
     "quotaSignalsEmptyTitle": "هنوز مشاهدات سهمیه ای وجود ندارد",

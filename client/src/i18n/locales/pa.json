@@ -450,6 +450,8 @@
     "duplicate": "ਡੁਪਲੀਕੇਟ",
     "duplicatesFound": "{count} ਡੁਪਲੀਕੇਟ ਖੋਜੇ ਗਏ ਹਨ — ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹਨ ਅਤੇ ਛੱਡ ਦਿੱਤੇ ਜਾਣਗੇ।",
     "importResult": "ਆਯਾਤ ਕੀਤਾ {imported}; ਅਸਫਲ {failed}।",
+    "importModelCount": "+{count} ਮਾਡਲ",
+    "importResultWithModels": "ਆਯਾਤ ਕੀਤਾ {imported}; {models} ਮਾਡਲ ਰਜਿਸਟਰ ਕੀਤੇ; ਅਸਫਲ {failed}।",
     "confirmRemove": "ਪੁਸ਼ਟੀ ਕਰੋ?",
     "quotaSignalsTitle": "ਕੋਟਾ ਸਿਗਨਲ",
     "quotaSignalsEmptyTitle": "ਅਜੇ ਕੋਈ ਕੋਟਾ ਨਿਰੀਖਣ ਨਹੀਂ ਹੈ",

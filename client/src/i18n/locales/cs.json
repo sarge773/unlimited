@@ -450,6 +450,8 @@
     "duplicate": "Duplikát",
     "duplicatesFound": "{count} detekované duplicity — už existují a budou přeskočeny.",
     "importResult": "Dovážené {imported}; neuspěl {failed}.",
+    "importModelCount": "+{count} modelů",
+    "importResultWithModels": "Dovážené {imported}; zaregistrováno {models} modelů; neuspěl {failed}.",
     "confirmRemove": "Potvrdit?",
     "quotaSignalsTitle": "Kvótové signály",
     "quotaSignalsEmptyTitle": "Zatím žádná pozorování kvót",

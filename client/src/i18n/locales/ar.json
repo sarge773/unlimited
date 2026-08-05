@@ -450,6 +450,8 @@
     "duplicate": "مكررة",
     "duplicatesFound": "تم اكتشاف تكرارات {count} - موجودة بالفعل وسيتم تخطيها.",
     "importResult": "المستوردة {imported}. فشل {failed}.",
+    "importModelCount": "+{count} نماذج",
+    "importResultWithModels": "المستوردة {imported}؛ تم تسجيل {models} من النماذج؛ فشل {failed}.",
     "confirmRemove": "تأكيد؟",
     "quotaSignalsTitle": "إشارات الحصص",
     "quotaSignalsEmptyTitle": "لا توجد ملاحظات الحصص حتى الآن",

@@ -450,6 +450,8 @@
     "duplicate": "დუბლიკატი",
     "duplicatesFound": "აღმოჩენილია {count} დუბლიკატი(ები) — უკვე არსებობს და გამოტოვებული იქნება.",
     "importResult": "იმპორტირებული {imported}; წარუმატებელი {failed}.",
+    "importModelCount": "+{count} მოდელი",
+    "importResultWithModels": "იმპორტირებული {imported}; დარეგისტრირებული {models} მოდელი; წარუმატებელი {failed}.",
     "confirmRemove": "დადასტურება?",
     "quotaSignalsTitle": "კვოტის სიგნალები",
     "quotaSignalsEmptyTitle": "კვოტებზე დაკვირვება ჯერ არ არის",

@@ -450,6 +450,8 @@
     "duplicate": "नक्कल गर्नुहोस्",
     "duplicatesFound": "{count} नक्कली पत्ता लगाइयो - पहिले नै अवस्थित छ र फड्काइनेछ ।",
     "importResult": "आयात गरिएका {imported}; असफल {failed} ।",
+    "importModelCount": "+{count} मोडेल",
+    "importResultWithModels": "आयात गरिएका {imported}; {models} मोडेल दर्ता गरियो; असफल {failed} ।",
     "confirmRemove": "पुष्टि गर्नुहुन्छ?",
     "quotaSignalsTitle": "कोटा सङ्केतहरू",
     "quotaSignalsEmptyTitle": "अहिले सम्म कोटा अवलोकन छैन",

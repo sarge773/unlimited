@@ -450,6 +450,8 @@
     "duplicate": "Çoğalt",
     "duplicatesFound": "{count} kopya(lar) algılandı — zaten mevcut ve atlanacak.",
     "importResult": "İçe aktarılan {imported}; başarısız oldu {failed}.",
+    "importModelCount": "+{count} model",
+    "importResultWithModels": "İçe aktarılan {imported}; {models} model kaydedildi; başarısız oldu {failed}.",
     "confirmRemove": "Onaylıyor musun?",
     "quotaSignalsTitle": "Kota sinyalleri",
     "quotaSignalsEmptyTitle": "Henüz kota gözlemi yok",

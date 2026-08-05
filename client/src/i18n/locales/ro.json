@@ -450,6 +450,8 @@
     "duplicate": "Duplicat",
     "duplicatesFound": "{count} duplicate detectate — există deja și vor fi sărite.",
     "importResult": "Importați {imported}; A eșuat {failed}.",
+    "importModelCount": "+{count} modele",
+    "importResultWithModels": "Importați {imported}; {models} modele înregistrate; A eșuat {failed}.",
     "confirmRemove": "Confirmă?",
     "quotaSignalsTitle": "Semnale de cotă",
     "quotaSignalsEmptyTitle": "Încă nu am observat cotele",

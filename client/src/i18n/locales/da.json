@@ -450,6 +450,8 @@
     "duplicate": "Duplikat",
     "duplicatesFound": "{count} dublat opdaget — eksisterer allerede og vil blive sprunget over.",
     "importResult": "Importerede {imported}; fejlede {failed}.",
+    "importModelCount": "+{count} modeller",
+    "importResultWithModels": "Importerede {imported}; registrerede {models} modeller; fejlede {failed}.",
     "confirmRemove": "Bekræfte?",
     "quotaSignalsTitle": "Kvotesignaler",
     "quotaSignalsEmptyTitle": "Ingen kvoteobservationer endnu",

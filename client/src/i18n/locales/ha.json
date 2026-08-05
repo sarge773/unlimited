@@ -450,6 +450,8 @@
     "duplicate": "Kwafi",
     "duplicatesFound": "{count} Kwafi(s) gano - ya riga ya wanzu kuma za a tsallake.",
     "importResult": "Shigo da {imported}; ya kasa {failed}.",
+    "importModelCount": "+{count} samfura",
+    "importResultWithModels": "Shigo da {imported}; an yi rajistar samfura {models}; ya kasa {failed}.",
     "confirmRemove": "Tabbatar?",
     "quotaSignalsTitle": "Alamun ƙididdiga",
     "quotaSignalsEmptyTitle": "Babu abin lura tukuna",

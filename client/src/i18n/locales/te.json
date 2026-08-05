@@ -450,6 +450,8 @@
     "duplicate": "నకిలీ",
     "duplicatesFound": "{count} నకిలీ(లు) కనుగొనబడ్డాయి - ఇప్పటికే ఉనికిలో ఉన్నాయి మరియు దాటవేయబడతాయి.",
     "importResult": "దిగుమతి చేయబడిన {imported}; {failed} విఫలమైంది.",
+    "importModelCount": "+{count} మోడల్స్",
+    "importResultWithModels": "దిగుమతి చేయబడిన {imported}; {models} మోడల్స్ నమోదు చేయబడ్డాయి; {failed} విఫలమైంది.",
     "confirmRemove": "నిర్ధారించాలా?",
     "quotaSignalsTitle": "కోటా సంకేతాలు",
     "quotaSignalsEmptyTitle": "ఇంకా కోటా పరిశీలనలు లేవు",

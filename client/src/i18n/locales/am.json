@@ -450,6 +450,8 @@
     "duplicate": "ማባዛት",
     "duplicatesFound": "{count} የተባዙ(ዎች) ተገኝተዋል - ቀድሞውኑ አሉ እና ይዘለላሉ።",
     "importResult": "ከውጭ የመጡ {imported}; {failed} አልተሳካም።",
+    "importModelCount": "+{count} ሞዴሎች",
+    "importResultWithModels": "ከውጭ የመጡ {imported}; {models} ሞዴሎች ተመዝግበዋል; {failed} አልተሳካም።",
     "confirmRemove": "አረጋግጥ?",
     "quotaSignalsTitle": "የኮታ ምልክቶች",
     "quotaSignalsEmptyTitle": "እስካሁን ምንም የኮታ ምልከታ የለም።",

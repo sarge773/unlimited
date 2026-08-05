@@ -450,6 +450,8 @@
     "duplicate": "ทำซ้ำ",
     "duplicatesFound": "ตรวจพบรายการซ้ำ {count} — มีอยู่แล้วและจะถูกข้าม",
     "importResult": "นำเข้า {imported}; {failed} ล้มเหลว",
+    "importModelCount": "+{count} โมเดล",
+    "importResultWithModels": "นำเข้า {imported}; ลงทะเบียน {models} โมเดล; {failed} ล้มเหลว",
     "confirmRemove": "ยืนยัน?",
     "quotaSignalsTitle": "สัญญาณโควต้า",
     "quotaSignalsEmptyTitle": "ยังไม่มีการสังเกตโควต้า",

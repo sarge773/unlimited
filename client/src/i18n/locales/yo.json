@@ -450,6 +450,8 @@
     "duplicate": "Ṣe pidánpidán",
     "duplicatesFound": "{count} àdáwòkọ(s) ti ri - tẹlẹ tẹlẹ ati pe yoo jẹ foo.",
     "importResult": "Gbe wọle {imported}; kuna {failed}.",
+    "importModelCount": "+{count} awoṣe",
+    "importResultWithModels": "Gbe wọle {imported}; forukọsilẹ awoṣe {models}; kuna {failed}.",
     "confirmRemove": "Jẹrisi?",
     "quotaSignalsTitle": "Quota awọn ifihan agbara",
     "quotaSignalsEmptyTitle": "Ko si awọn akiyesi ipin sibẹsibẹ",

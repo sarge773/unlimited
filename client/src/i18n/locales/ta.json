@@ -450,6 +450,8 @@
     "duplicate": "நகல்",
     "duplicatesFound": "{count} நகல்(கள்) கண்டறியப்பட்டது - ஏற்கனவே உள்ளது மற்றும் தவிர்க்கப்படும்.",
     "importResult": "இறக்குமதி செய்யப்பட்ட {imported}; தோல்வி {failed}.",
+    "importModelCount": "+{count} மாடல்கள்",
+    "importResultWithModels": "இறக்குமதி செய்யப்பட்ட {imported}; {models} மாடல்கள் பதிவு செய்யப்பட்டன; தோல்வி {failed}.",
     "confirmRemove": "உறுதிப்படுத்தவா?",
     "quotaSignalsTitle": "ஒதுக்கீடு சமிக்ஞைகள்",
     "quotaSignalsEmptyTitle": "இன்னும் ஒதுக்கீடு கண்காணிப்புகள் இல்லை",

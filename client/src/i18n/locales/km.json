@@ -450,6 +450,8 @@
     "duplicate": "ចម្លង",
     "duplicatesFound": "{count} — មានរួចហើយ ហើយនឹងត្រូវរំលង។",
     "importResult": "នាំចូល {imported}; បរាជ័យ {failed}។",
+    "importModelCount": "+{count} ម៉ូដែល",
+    "importResultWithModels": "នាំចូល {imported}; បានចុះឈ្មោះម៉ូដែល {models}; បរាជ័យ {failed}។",
     "confirmRemove": "បញ្ជាក់?",
     "quotaSignalsTitle": "សញ្ញាកូតា",
     "quotaSignalsEmptyTitle": "មិនទាន់មានការសង្កេតកូតា",

@@ -450,6 +450,8 @@
     "duplicate": "Megharịa",
     "duplicatesFound": "Achọpụtara {count} oyiri - adịlarị ma a ga-awụpụ.",
     "importResult": "Bubata {imported}; {failed} dara.",
+    "importModelCount": "+{count} ụdị",
+    "importResultWithModels": "Bubata {imported}; edebanyere ụdị {models}; {failed} dara.",
     "confirmRemove": "Kwenye?",
     "quotaSignalsTitle": "Ngosipụta oke",
     "quotaSignalsEmptyTitle": "Onweghi ihe nlebanya oke",

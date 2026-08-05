@@ -450,6 +450,8 @@
     "duplicate": "डुप्लिकेट",
     "duplicatesFound": "{count} डुप्लिकेट का पता चला - पहले से मौजूद है और छोड़ दिया जाएगा।",
     "importResult": "आयातित {imported}; विफल {failed}.",
+    "importModelCount": "+{count} मॉडल",
+    "importResultWithModels": "आयातित {imported}; {models} मॉडल पंजीकृत; विफल {failed}.",
     "confirmRemove": "पुष्टि करें?",
     "quotaSignalsTitle": "कोटा संकेत",
     "quotaSignalsEmptyTitle": "अभी तक कोई कोटा अवलोकन नहीं",

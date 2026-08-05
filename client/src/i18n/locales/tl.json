@@ -450,6 +450,8 @@
     "duplicate": "kopyahin",
     "duplicatesFound": "{count} duplicate(s) na natukoy — umiiral na at malalaktawan na.",
     "importResult": "Imported {imported}; nabigong {failed}.",
+    "importModelCount": "+{count} na modelo",
+    "importResultWithModels": "Imported {imported}; nairehistro ang {models} na modelo; nabigong {failed}.",
     "confirmRemove": "Kumpirmahin?",
     "quotaSignalsTitle": "Mga senyales ng quota",
     "quotaSignalsEmptyTitle": "Wala pang obserbasyon sa quota",

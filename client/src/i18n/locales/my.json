@@ -450,6 +450,8 @@
     "duplicate": "မိတ္တူ",
     "duplicatesFound": "{count} တူညီမှုများ ရှာဖွေတွေ့ရှိပြီး ရှိပြီးသားဖြစ်ပြီး ကျော်လွှားသွားမည်ဖြစ်သည်။",
     "importResult": "တင်သွင်းထားသော {imported}; {failed} မအောင်မြင်ခဲ့ပါ။",
+    "importModelCount": "+{count} မော်ဒယ်",
+    "importResultWithModels": "တင်သွင်းထားသော {imported}; မော်ဒယ် {models} ခု မှတ်ပုံတင်ပြီး; {failed} မအောင်မြင်ခဲ့ပါ။",
     "confirmRemove": "အတည်ပြုပါသလား?",
     "quotaSignalsTitle": "အရေအတွက် အချက်ပြချက်များ",
     "quotaSignalsEmptyTitle": "အရေအတွက် စောင့်ကြည့်မှု မရှိသေးပါ",

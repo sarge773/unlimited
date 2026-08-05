@@ -450,6 +450,8 @@
     "duplicate": "Αντιγραφή",
     "duplicatesFound": "{count} εντοπίστηκαν διπλότυπα — υπάρχουν ήδη και θα παραλειφθούν.",
     "importResult": "Εισαγόμενα {imported}; απέτυχε {failed}.",
+    "importModelCount": "+{count} μοντέλα",
+    "importResultWithModels": "Εισαγόμενα {imported}; καταχωρήθηκαν {models} μοντέλα; απέτυχε {failed}.",
     "confirmRemove": "Επιβεβαιώνω?",
     "quotaSignalsTitle": "Σήματα ποσοστώσεων",
     "quotaSignalsEmptyTitle": "Δεν υπάρχουν ακόμη παρατηρήσεις σχετικά με τις ποσοστώσεις",

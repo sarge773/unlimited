@@ -450,6 +450,8 @@
     "duplicate": "ഡ്യൂപ്ലിക്കേറ്റ്",
     "duplicatesFound": "{count} ഡ്യൂപ്ലിക്കേറ്റ്(കൾ) കണ്ടെത്തി - ഇതിനകം നിലവിലുണ്ട്, അത് ഒഴിവാക്കപ്പെടും.",
     "importResult": "ഇറക്കുമതി ചെയ്ത {imported}; {failed} പരാജയപ്പെട്ടു.",
+    "importModelCount": "+{count} മോഡലുകൾ",
+    "importResultWithModels": "ഇറക്കുമതി ചെയ്ത {imported}; {models} മോഡലുകൾ രജിസ്റ്റർ ചെയ്തു; {failed} പരാജയപ്പെട്ടു.",
     "confirmRemove": "സ്ഥിരീകരിക്കണോ?",
     "quotaSignalsTitle": "ക്വാട്ട സിഗ്നലുകൾ",
     "quotaSignalsEmptyTitle": "ഇതുവരെ ക്വാട്ട നിരീക്ഷണങ്ങളൊന്നുമില്ല",

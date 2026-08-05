@@ -450,6 +450,8 @@
     "duplicate": "Doublon",
     "duplicatesFound": "{count} doublon(s) détecté(s) — existent déjà et seront ignorés.",
     "importResult": "Importés : {imported}. Échecs : {failed}.",
+    "importModelCount": "+{count} modèles",
+    "importResultWithModels": "Importés : {imported}. Modèles enregistrés : {models}. Échecs : {failed}.",
     "confirmRemove": "Confirmer ?",
     "quotaSignalsTitle": "Signaux de quota",
     "quotaSignalsEmptyTitle": "Aucune observation de quota pour le moment",

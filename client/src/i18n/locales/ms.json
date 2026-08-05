@@ -450,6 +450,8 @@
     "duplicate": "Duplikat",
     "duplicatesFound": "{count} pendua yang dikesan — sudah wujud dan akan diabaikan.",
     "importResult": "{imported} import; gagal {failed}.",
+    "importModelCount": "+{count} model",
+    "importResultWithModels": "{imported} import; {models} model didaftarkan; gagal {failed}.",
     "confirmRemove": "Sahkan?",
     "quotaSignalsTitle": "Isyarat kuota",
     "quotaSignalsEmptyTitle": "Tiada pemerhatian kuota lagi",

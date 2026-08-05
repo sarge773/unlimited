@@ -450,6 +450,8 @@
     "duplicate": "Duplikátum",
     "duplicatesFound": "{count} duplikát(ok) észleltek — már léteznek, és kihagyják őket.",
     "importResult": "Importált {imported}; {failed} sikertelen.",
+    "importModelCount": "+{count} modell",
+    "importResultWithModels": "Importált {imported}; {models} modell regisztrálva; {failed} sikertelen.",
     "confirmRemove": "Megerősíteni?",
     "quotaSignalsTitle": "Kvótajelzések",
     "quotaSignalsEmptyTitle": "Még nincs kvótamegfigyelés",

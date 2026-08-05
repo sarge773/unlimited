@@ -450,6 +450,8 @@
     "duplicate": "Duplikat",
     "duplicatesFound": "Wykryto duplikaty {count} — już istnieją i zostaną pominięte.",
     "importResult": "Zaimportowano {imported}; nie powiodło się {failed}.",
+    "importModelCount": "+{count} modeli",
+    "importResultWithModels": "Zaimportowano {imported}; zarejestrowano {models} modeli; nie powiodło się {failed}.",
     "confirmRemove": "Potwierdzić?",
     "quotaSignalsTitle": "Sygnały kwotowe",
     "quotaSignalsEmptyTitle": "Nie ma jeszcze żadnych obserwacji kwot",

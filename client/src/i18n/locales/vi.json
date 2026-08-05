@@ -450,6 +450,8 @@
     "duplicate": "trùng lặp",
     "duplicatesFound": "Đã phát hiện thấy (các) bản sao {count} - đã tồn tại và sẽ bị bỏ qua.",
     "importResult": "{imported} nhập khẩu; {failed} không thành công.",
+    "importModelCount": "+{count} mô hình",
+    "importResultWithModels": "{imported} nhập khẩu; đã đăng ký {models} mô hình; {failed} không thành công.",
     "confirmRemove": "Xác nhận?",
     "quotaSignalsTitle": "tín hiệu hạn ngạch",
     "quotaSignalsEmptyTitle": "Chưa có quan sát hạn ngạch",

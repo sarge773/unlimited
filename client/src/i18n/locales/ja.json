@@ -450,6 +450,8 @@
     "duplicate": "重複",
     "duplicatesFound": "{count} の重複が検出されました - すでに存在するため、スキップされます。",
     "importResult": "{imported}をインポートしました。 {failed} に失敗しました。",
+    "importModelCount": "+{count}モデル",
+    "importResultWithModels": "{imported}をインポートしました。{models}モデルを登録しました。 {failed} に失敗しました。",
     "confirmRemove": "確認しますか？",
     "quotaSignalsTitle": "クォータ信号",
     "quotaSignalsEmptyTitle": "クォータの観測はまだありません",

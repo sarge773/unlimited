@@ -450,6 +450,8 @@
     "duplicate": "ડુપ્લિકેટ",
     "duplicatesFound": "{count} ડુપ્લિકેટ(ઓ) મળી આવ્યા છે — પહેલેથી જ અસ્તિત્વમાં છે અને તેને છોડવામાં આવશે.",
     "importResult": "આયાત કરેલ {imported}; નિષ્ફળ {failed}.",
+    "importModelCount": "+{count} મોડેલ",
+    "importResultWithModels": "આયાત કરેલ {imported}; {models} મોડેલ નોંધાયેલ; નિષ્ફળ {failed}.",
     "confirmRemove": "પુષ્ટિ કરો?",
     "quotaSignalsTitle": "ક્વોટા સંકેતો",
     "quotaSignalsEmptyTitle": "હજુ સુધી કોઈ ક્વોટા અવલોકનો નથી",

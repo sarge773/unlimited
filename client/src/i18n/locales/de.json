@@ -450,6 +450,8 @@
     "duplicate": "Duplizieren",
     "duplicatesFound": "{count} Duplikat(e) erkannt – sind bereits vorhanden und werden übersprungen.",
     "importResult": "Importiert {imported}; fehlgeschlagen {failed}.",
+    "importModelCount": "+{count} Modelle",
+    "importResultWithModels": "Importiert {imported}; {models} Modelle registriert; fehlgeschlagen {failed}.",
     "confirmRemove": "Bestätigen?",
     "quotaSignalsTitle": "Quotensignale",
     "quotaSignalsEmptyTitle": "Noch keine Quotenbeobachtungen",

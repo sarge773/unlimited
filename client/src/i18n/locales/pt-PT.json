@@ -450,6 +450,8 @@
     "duplicate": "Duplicado",
     "duplicatesFound": "{count} duplicado(s) detetado — já existem e serão saltados.",
     "importResult": "{imported} importados; Falhou {failed}.",
+    "importModelCount": "+{count} modelos",
+    "importResultWithModels": "{imported} importados; {models} modelos registados; Falhou {failed}.",
     "confirmRemove": "Confirmar?",
     "quotaSignalsTitle": "Sinais de quota",
     "quotaSignalsEmptyTitle": "Ainda não há observações de quotas",

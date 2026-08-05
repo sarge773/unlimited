@@ -450,6 +450,8 @@
     "duplicate": "Kaksoiskappale",
     "duplicatesFound": "{count} kaksoiskappaleet havaittu — ne ovat jo olemassa ja ne ohitetaan.",
     "importResult": "Tuotu {imported}; epäonnistui {failed}.",
+    "importModelCount": "+{count} mallia",
+    "importResultWithModels": "Tuotu {imported}; rekisteröity {models} mallia; epäonnistui {failed}.",
     "confirmRemove": "Vahvistaa?",
     "quotaSignalsTitle": "Kiintiösignaalit",
     "quotaSignalsEmptyTitle": "Ei vielä kiintiöhavaintoja",

@@ -450,6 +450,8 @@
     "duplicate": "ডুপ্লিকেট",
     "duplicatesFound": "{count} সদৃশ (গুলি) সনাক্ত করা হয়েছে — ইতিমধ্যেই বিদ্যমান এবং এড়িয়ে যাওয়া হবে৷",
     "importResult": "আমদানি করা {imported}; ব্যর্থ {failed}.",
+    "importModelCount": "+{count}টি মডেল",
+    "importResultWithModels": "আমদানি করা {imported}; {models}টি মডেল নিবন্ধিত হয়েছে; ব্যর্থ {failed}.",
     "confirmRemove": "নিশ্চিত?",
     "quotaSignalsTitle": "কোটা সংকেত",
     "quotaSignalsEmptyTitle": "এখনও কোন কোটা পর্যবেক্ষণ",

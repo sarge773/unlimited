@@ -450,6 +450,8 @@
     "duplicate": "نقل",
     "duplicatesFound": "{count} ڈپلیکیٹ کا پتہ چلا — پہلے سے موجود ہے اور اسے چھوڑ دیا جائے گا۔",
     "importResult": "درآمد شدہ {imported}؛ ناکام {failed}۔",
+    "importModelCount": "+{count} ماڈلز",
+    "importResultWithModels": "درآمد شدہ {imported}؛ {models} ماڈلز رجسٹر ہوئے؛ ناکام {failed}۔",
     "confirmRemove": "تصدیق کریں؟",
     "quotaSignalsTitle": "کوٹہ سگنلز",
     "quotaSignalsEmptyTitle": "ابھی تک کوئی کوٹہ مشاہدہ نہیں ہوا۔",

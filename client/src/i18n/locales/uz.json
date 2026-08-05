@@ -450,6 +450,8 @@
     "duplicate": "Dublikat",
     "duplicatesFound": "{count} dublikat(lar)i aniqlandi — allaqachon mavjud va oʻtkazib yuboriladi.",
     "importResult": "Import qilingan {imported}; muvaffaqiyatsiz {failed}.",
+    "importModelCount": "+{count} model",
+    "importResultWithModels": "Import qilingan {imported}; {models} model ro'yxatga olindi; muvaffaqiyatsiz {failed}.",
     "confirmRemove": "Tasdiqlansinmi?",
     "quotaSignalsTitle": "Kvota signallari",
     "quotaSignalsEmptyTitle": "Hozircha kvotalar kuzatilmagan",

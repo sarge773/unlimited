@@ -450,6 +450,8 @@
     "duplicate": "අනුපිටපත් කරන්න",
     "duplicatesFound": "{count} අනුපිටපත්(ය) අනාවරණය විය - දැනටමත් පවතින අතර මඟ හරිනු ඇත.",
     "importResult": "ආනයනය කරන ලද {imported}; අසාර්ථක {failed}.",
+    "importModelCount": "+{count} ආකෘති",
+    "importResultWithModels": "ආනයනය කරන ලද {imported}; ආකෘති {models} ලියාපදිංචි විය; අසාර්ථක {failed}.",
     "confirmRemove": "තහවුරු කරන්නද?",
     "quotaSignalsTitle": "කෝටා සංඥා",
     "quotaSignalsEmptyTitle": "තවම කෝටා නිරීක්ෂණ නොමැත",

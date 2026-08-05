@@ -450,6 +450,8 @@
     "duplicate": "重複",
     "duplicatesFound": "偵測到 {count} 個重複項 — 已存在，將被跳過。",
     "importResult": "已匯入 {imported} 個；失敗 {failed} 個。",
+    "importModelCount": "+{count} 個模型",
+    "importResultWithModels": "已匯入 {imported} 個；已註冊 {models} 個模型；失敗 {failed} 個。",
     "confirmRemove": "確認？",
     "quotaSignalsTitle": "配額訊號",
     "quotaSignalsEmptyTitle": "尚無配額觀測資料",

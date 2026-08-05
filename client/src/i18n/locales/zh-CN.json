@@ -450,6 +450,8 @@
     "duplicate": "重复",
     "duplicatesFound": "检测到 {count} 个重复项 — 已存在，将被跳过。",
     "importResult": "已导入 {imported} 个；失败 {failed} 个。",
+    "importModelCount": "+{count} 个模型",
+    "importResultWithModels": "已导入 {imported} 个；已注册 {models} 个模型；失败 {failed} 个。",
     "confirmRemove": "确认？",
     "quotaSignalsTitle": "配额信号",
     "quotaSignalsEmptyTitle": "暂无配额观测数据",

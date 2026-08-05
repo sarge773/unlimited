@@ -472,6 +472,8 @@
     "duplicate": "Duplicate",
     "duplicatesFound": "{count} duplicate(s) detected — already exist and will be skipped.",
     "importResult": "Imported {imported}; failed {failed}.",
+    "importModelCount": "+{count} models",
+    "importResultWithModels": "Imported {imported}; registered {models} models; failed {failed}.",
     "confirmRemove": "Confirm?",
     "quotaSignalsTitle": "Quota signals",
     "quotaSignalsEmptyTitle": "No quota observations yet",

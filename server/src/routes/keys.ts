@@ -14,7 +14,9 @@ import { getActiveCooldownsForKeys, clearCooldownsForKey } from '../services/rat
 import { resolveCustomEndpointKey, customEndpointKeyIds, siblingEndpointKeyId, endpointHasCredential } from '../services/custom-endpoint.js';
 import { customModelSeed } from '../services/custom-model-seed.js';
 import { discoverEndpointModels, probeEndpointModel, ModelDiscoveryError } from '../services/model-discovery.js';
+import { probeEmbeddingDimensions, registerCustomEmbeddingModel } from '../services/embeddings.js';
 import { endpointScopeForBaseUrl, normalizeBaseUrl } from '../lib/endpoint-scope.js';
+import type { Db } from '../db/types.js';
 
 export const keysRouter = Router();
 
@@ -66,6 +68,13 @@ const importKeySchema = z.object({
   // A custom row names an ENDPOINT, so it only means something with the URL
   // the export file carried alongside it (#687).
   baseUrl: z.string().optional(),
+  // Models declared beside a custom endpoint in the paste (#382). Ignored for
+  // catalog platforms — their model lists come from the catalog, not the file.
+  models: z.array(z.object({
+    id: z.string().min(1),
+    supportsTools: z.boolean().optional(),
+    supportsVision: z.boolean().optional(),
+  })).max(200).optional(),
 });
 
 function handleUploadError(err: any, res: Response, next: NextFunction): boolean {
@@ -642,6 +651,164 @@ function resolveEndpointRef(ref: { keyId?: number; baseUrl?: string }): CustomEn
   return { baseUrl: requestedBaseUrl, keyId: rows[0]?.id ?? null, storedKey: null };
 }
 
+interface CustomChatModelEntry {
+  modelId: string;
+  displayName: string | null;
+  supportsTools?: boolean;
+  supportsVision?: boolean;
+}
+
+interface RegisteredCustomModel {
+  modelDbId: number;
+  model: string;
+  displayName: string;
+  supportsTools: boolean;
+  supportsVision: boolean;
+  created: boolean;
+}
+
+/**
+ * Register chat models bound to a custom endpoint's key — the shared write
+ * path behind POST /custom and the bulk key importer (#382). Runs inside the
+ * caller's transaction.
+ */
+function registerCustomChatModels(db: Db, baseUrl: string, keyId: number, entries: CustomChatModelEntry[]): RegisteredCustomModel[] {
+  const endpointKeyIds = customEndpointKeyIds(db, keyId);
+  // The identity discriminator for every row registered in this call (#651).
+  const endpointScope = endpointScopeForBaseUrl(baseUrl);
+  // Unknown ≠ worst: seed the routing ranks at the catalog median so a new
+  // custom model is explored instead of buried at intelligence 0 (#488).
+  const seed = customModelSeed(db);
+
+  const registered: RegisteredCustomModel[] = [];
+  for (const { modelId, displayName, supportsTools, supportsVision } of entries) {
+    // Register each model bound to THIS endpoint's key. Custom models carry no
+    // rate limits and sort last in the intelligence preset (size_label tier).
+    // Identity is per endpoint (#651): the same model id on a DIFFERENT relay
+    // is a separate row with its own enabled flag, ranks and stats, instead of
+    // silently rebinding the other endpoint's row as it used to. A model
+    // already on THIS endpoint keeps the key it has, so adding a second
+    // credential doesn't re-bind it (#619).
+    // Capability flags: an unset flag binds NULL so COALESCE picks the insert
+    // default (tools 1, vision 0) on a new row and preserves the existing
+    // value on re-registration. (#470) An omitted display name binds NULL the
+    // same way — it falls back to the model id on a new row and leaves a name
+    // already on the row alone, so the bulk re-registration behind "Fetch
+    // models" (which posts bare ids) can't wipe names the operator set.
+    const bound = db.prepare(
+      "SELECT key_id FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
+    ).get(modelId, endpointScope) as { key_id: number | null } | undefined;
+    const created = bound === undefined;
+    const bindKeyId = bound?.key_id != null && endpointKeyIds.has(bound.key_id) ? bound.key_id : keyId;
+    const toolsParam = supportsTools === undefined ? null : (supportsTools ? 1 : 0);
+    const visionParam = supportsVision === undefined ? null : (supportsVision ? 1 : 0);
+    // The seed applies on INSERT only: DO UPDATE deliberately leaves the rank
+    // columns alone so re-registering a model (or bulk-adding alongside it)
+    // never rewrites ranks the operator has since tuned by hand.
+    db.prepare(`
+      INSERT INTO models
+        (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
+         rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window, enabled, key_id,
+         supports_tools, supports_vision, source, endpoint_scope)
+      VALUES ('custom', @modelId, COALESCE(@displayName, @modelId), @intelligenceRank, @speedRank, @sizeLabel,
+         NULL, NULL, NULL, NULL, '', NULL, 1, @keyId,
+         COALESCE(@tools, 1), COALESCE(@vision, 0), 'user', @endpointScope)
+      ON CONFLICT(platform, model_id, endpoint_scope)
+      DO UPDATE SET
+        display_name = COALESCE(@displayName, display_name),
+        key_id = excluded.key_id,
+        enabled = 1,
+        supports_tools = COALESCE(@tools, supports_tools),
+        supports_vision = COALESCE(@vision, supports_vision)
+    `).run({
+      modelId, displayName, keyId: bindKeyId, tools: toolsParam, vision: visionParam,
+      intelligenceRank: seed.intelligenceRank, speedRank: seed.speedRank, sizeLabel: seed.sizeLabel,
+      endpointScope,
+    });
+
+    // Read back rather than echo the submitted values: an omitted display name
+    // or capability flag resolves in SQL, so the row is the only place that
+    // knows what this model is actually called now.
+    const modelRow = db.prepare(
+      "SELECT id, display_name, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
+    ).get(modelId, endpointScope) as { id: number; display_name: string; supports_tools: number; supports_vision: number };
+
+    // Append to the fallback chain if not already present.
+    const inChain = db.prepare('SELECT 1 FROM fallback_config WHERE model_db_id = ?').get(modelRow.id);
+    if (!inChain) {
+      const max = db.prepare('SELECT COALESCE(MAX(priority), 0) AS m FROM fallback_config').get() as { m: number };
+      db.prepare('INSERT INTO fallback_config (model_db_id, priority, enabled) VALUES (?, ?, 1)').run(modelRow.id, max.m + 1);
+    }
+    ensureModelInProfiles(db, modelRow.id);
+
+    registered.push({
+      modelDbId: modelRow.id,
+      model: modelId,
+      displayName: modelRow.display_name,
+      supportsTools: modelRow.supports_tools === 1,
+      supportsVision: modelRow.supports_vision === 1,
+      created,
+    });
+  }
+
+  return registered;
+}
+
+/**
+ * Models attached to an imported custom endpoint (#382). Ids that look like
+ * embedding models go through the embeddings path — it needs a dimension, so
+ * reuse the stored one when the model is already registered and probe the
+ * endpoint (as POST /api/embeddings/custom does) only for a new id. Everything
+ * else registers as a chat model. A failure registers as a per-model error and
+ * skips that model only: the key import itself has already succeeded.
+ */
+async function registerImportedModels(
+  db: Db,
+  baseUrl: string,
+  keyId: number,
+  apiKey: string,
+  keyName: string,
+  models: Array<{ id: string; supportsTools?: boolean; supportsVision?: boolean }>,
+  errors: Array<{ key: string; error: string }>,
+): Promise<number> {
+  const chat = models.filter(m => !/embedding/i.test(m.id));
+  const embeds = models.filter(m => /embedding/i.test(m.id));
+  let registered = 0;
+
+  if (chat.length > 0) {
+    const entries = chat.map(m => ({
+      modelId: m.id,
+      displayName: null,
+      supportsTools: m.supportsTools,
+      supportsVision: m.supportsVision,
+    }));
+    registered += db.transaction(() => registerCustomChatModels(db, baseUrl, keyId, entries))().length;
+  }
+
+  for (const m of embeds) {
+    try {
+      const existing = db.prepare(
+        "SELECT dimensions FROM embedding_models WHERE platform = 'custom' AND model_id = ?",
+      ).get(m.id) as { dimensions: number } | undefined;
+      const dimensions = existing?.dimensions ?? await probeEmbeddingDimensions(baseUrl, apiKey, m.id);
+      registerCustomEmbeddingModel(db, {
+        keyId,
+        modelId: m.id,
+        displayName: null,
+        family: m.id,
+        dimensions,
+        maxInputTokens: null,
+        quotaLabel: 'custom endpoint',
+      });
+      registered++;
+    } catch (err: any) {
+      errors.push({ key: `${keyName}: ${m.id}`, error: err?.message ?? 'embedding registration failed' });
+    }
+  }
+
+  return registered;
+}
+
 // SSRF guard (#440): a base_url is the one user-controlled outbound target.
 // Cloud metadata / link-local addresses are rejected outright; private ranges
 // too when FREEAPI_BLOCK_PRIVATE_PROVIDER_URLS is set. Re-checked at request
@@ -894,84 +1061,7 @@ keysRouter.post('/custom', async (req: Request, res: Response) => {
     const { keyId, storedKey: storedKeyForMask } = resolveCustomEndpointKey(
       db, baseUrl, providedKey, label, endpoint.keyId ?? undefined,
     );
-    const endpointKeyIds = customEndpointKeyIds(db, keyId);
-    // The identity discriminator for every row registered in this call (#651).
-    const endpointScope = endpointScopeForBaseUrl(baseUrl);
-    // Unknown ≠ worst: seed the routing ranks at the catalog median so a new
-    // custom model is explored instead of buried at intelligence 0 (#488).
-    const seed = customModelSeed(db);
-
-    const registered: { modelDbId: number; model: string; displayName: string; supportsTools: boolean; supportsVision: boolean; created: boolean }[] = [];
-    for (const { modelId, displayName, supportsTools, supportsVision } of entries) {
-      // Register each model bound to THIS endpoint's key. Custom models carry no
-      // rate limits and sort last in the intelligence preset (size_label tier).
-      // Identity is per endpoint (#651): the same model id on a DIFFERENT relay
-      // is a separate row with its own enabled flag, ranks and stats, instead of
-      // silently rebinding the other endpoint's row as it used to. A model
-      // already on THIS endpoint keeps the key it has, so adding a second
-      // credential doesn't re-bind it (#619).
-      // Capability flags: an unset flag binds NULL so COALESCE picks the insert
-      // default (tools 1, vision 0) on a new row and preserves the existing
-      // value on re-registration. (#470) An omitted display name binds NULL the
-      // same way — it falls back to the model id on a new row and leaves a name
-      // already on the row alone, so the bulk re-registration behind "Fetch
-      // models" (which posts bare ids) can't wipe names the operator set.
-      const bound = db.prepare(
-        "SELECT key_id FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
-      ).get(modelId, endpointScope) as { key_id: number | null } | undefined;
-      const created = bound === undefined;
-      const bindKeyId = bound?.key_id != null && endpointKeyIds.has(bound.key_id) ? bound.key_id : keyId;
-      const toolsParam = supportsTools === undefined ? null : (supportsTools ? 1 : 0);
-      const visionParam = supportsVision === undefined ? null : (supportsVision ? 1 : 0);
-      // The seed applies on INSERT only: DO UPDATE deliberately leaves the rank
-      // columns alone so re-registering a model (or bulk-adding alongside it)
-      // never rewrites ranks the operator has since tuned by hand.
-      db.prepare(`
-        INSERT INTO models
-          (platform, model_id, display_name, intelligence_rank, speed_rank, size_label,
-           rpm_limit, rpd_limit, tpm_limit, tpd_limit, monthly_token_budget, context_window, enabled, key_id,
-           supports_tools, supports_vision, source, endpoint_scope)
-        VALUES ('custom', @modelId, COALESCE(@displayName, @modelId), @intelligenceRank, @speedRank, @sizeLabel,
-           NULL, NULL, NULL, NULL, '', NULL, 1, @keyId,
-           COALESCE(@tools, 1), COALESCE(@vision, 0), 'user', @endpointScope)
-        ON CONFLICT(platform, model_id, endpoint_scope)
-        DO UPDATE SET
-          display_name = COALESCE(@displayName, display_name),
-          key_id = excluded.key_id,
-          enabled = 1,
-          supports_tools = COALESCE(@tools, supports_tools),
-          supports_vision = COALESCE(@vision, supports_vision)
-      `).run({
-        modelId, displayName, keyId: bindKeyId, tools: toolsParam, vision: visionParam,
-        intelligenceRank: seed.intelligenceRank, speedRank: seed.speedRank, sizeLabel: seed.sizeLabel,
-        endpointScope,
-      });
-
-      // Read back rather than echo the submitted values: an omitted display name
-      // or capability flag resolves in SQL, so the row is the only place that
-      // knows what this model is actually called now.
-      const modelRow = db.prepare(
-        "SELECT id, display_name, supports_tools, supports_vision FROM models WHERE platform = 'custom' AND model_id = ? AND endpoint_scope = ?",
-      ).get(modelId, endpointScope) as { id: number; display_name: string; supports_tools: number; supports_vision: number };
-
-      // Append to the fallback chain if not already present.
-      const inChain = db.prepare('SELECT 1 FROM fallback_config WHERE model_db_id = ?').get(modelRow.id);
-      if (!inChain) {
-        const max = db.prepare('SELECT COALESCE(MAX(priority), 0) AS m FROM fallback_config').get() as { m: number };
-        db.prepare('INSERT INTO fallback_config (model_db_id, priority, enabled) VALUES (?, ?, 1)').run(modelRow.id, max.m + 1);
-      }
-      ensureModelInProfiles(db, modelRow.id);
-
-      registered.push({
-        modelDbId: modelRow.id,
-        model: modelId,
-        displayName: modelRow.display_name,
-        supportsTools: modelRow.supports_tools === 1,
-        supportsVision: modelRow.supports_vision === 1,
-        created,
-      });
-    }
-
+    const registered = registerCustomChatModels(db, baseUrl, keyId, entries);
     return { keyId, registered, storedKeyForMask };
   });
 
@@ -1012,6 +1102,7 @@ keysRouter.post('/import', (req: Request, res: Response, next: NextFunction) => 
       const imported: Array<{ keyName: string; platform: string }> = [];
       const skipped = [...result.skipped];
       const errors: Array<{ key: string; error: string }> = [];
+      let modelsRegistered = 0;
       // One SSRF verdict per endpoint, not per key: a pooled endpoint (#619)
       // brings several keys to the same URL and each check costs a DNS lookup.
       const urlVerdicts = new Map<string, { allowed: boolean; reason?: string }>();
@@ -1053,8 +1144,14 @@ keysRouter.post('/import', (req: Request, res: Response, next: NextFunction) => 
             // the resolver as "no key submitted" so it stores the sentinel once
             // instead of treating 'no-key' as a real secret.
             const secret = keyValue.trim() === 'no-key' ? undefined : keyValue.trim() || undefined;
-            resolveCustomEndpointKey(getDb(), baseUrl, secret, keyName);
+            const db = getDb();
+            const resolved = resolveCustomEndpointKey(db, baseUrl, secret, keyName);
             imported.push({ keyName, platform: 'custom' });
+            if (parsedKey.models?.length) {
+              modelsRegistered += await registerImportedModels(
+                db, baseUrl, resolved.keyId, resolved.storedKey, keyName, parsedKey.models, errors,
+              );
+            }
           } catch (insertErr) {
             errors.push({ key: keyName, error: (insertErr as Error).message });
           }
@@ -1079,6 +1176,7 @@ keysRouter.post('/import', (req: Request, res: Response, next: NextFunction) => 
         skipped,
         errors,
         total: result.keys.length + result.skipped.length,
+        modelsRegistered,
       });
     } catch (handlerErr: any) {
       res.status(handlerErr.status ?? 500).json({ error: { message: handlerErr.message } });
@@ -1097,7 +1195,11 @@ keysRouter.post('/preview', (req: Request, res: Response, next: NextFunction) =>
         return;
       }
 
-      const keys: Array<{ keyName: string; keyValue: string; detectedPlatform: string | null; prefix: string; baseUrl?: string; isDuplicate: boolean }> = [];
+      const keys: Array<{
+        keyName: string; keyValue: string; detectedPlatform: string | null; prefix: string;
+        baseUrl?: string; models?: Array<{ id: string; supportsTools?: boolean; supportsVision?: boolean }>;
+        isDuplicate: boolean;
+      }> = [];
       const skipped: string[] = [];
 
       // Build a set of existing decrypted key values for duplicate detection
@@ -1125,8 +1227,10 @@ keysRouter.post('/preview', (req: Request, res: Response, next: NextFunction) =>
             prefix: parsedKey.prefix,
             // Without this the dialog can show a custom row but never restore
             // it — the endpoint it belongs to would be lost between the two
-            // calls the dashboard actually makes (#687).
+            // calls the dashboard actually makes (#687). Models ride the same
+            // round trip (#382).
             ...(parsedKey.baseUrl ? { baseUrl: parsedKey.baseUrl } : {}),
+            ...(parsedKey.models?.length ? { models: parsedKey.models } : {}),
             isDuplicate,
           });
         }
@@ -1149,6 +1253,7 @@ keysRouter.post('/import-selected', async (req: Request, res: Response) => {
 
   let imported = 0;
   let duplicateSkipped = 0;
+  let modelsRegistered = 0;
   const errors: Array<{ key: string; error: string }> = [];
 
   // Build a set of existing decrypted key values for duplicate detection
@@ -1195,8 +1300,13 @@ keysRouter.post('/import-selected', async (req: Request, res: Response) => {
         // through the resolver (not a raw INSERT) keeps endpoint pooling
         // intact, so re-importing does not duplicate the row (#619).
         const secret = key.keyValue.trim() === 'no-key' ? undefined : key.keyValue.trim() || undefined;
-        resolveCustomEndpointKey(db, baseUrl, secret, keyName);
+        const resolved = resolveCustomEndpointKey(db, baseUrl, secret, keyName);
         imported++;
+        if (key.models?.length) {
+          modelsRegistered += await registerImportedModels(
+            db, baseUrl, resolved.keyId, resolved.storedKey, keyName, key.models, errors,
+          );
+        }
       } catch (err) {
         errors.push({ key: keyName, error: (err as Error).message });
       }
@@ -1223,6 +1333,7 @@ keysRouter.post('/import-selected', async (req: Request, res: Response) => {
     skipped: [],
     errors,
     total: parsed.data.keys.length,
+    modelsRegistered,
   });
 });
 

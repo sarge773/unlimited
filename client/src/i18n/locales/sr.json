@@ -450,6 +450,8 @@
     "duplicate": "Дупликат",
     "duplicatesFound": "{count} дупликати су откривени — већ постоје и биће прескочени.",
     "importResult": "Импортед {imported}; неуспешно {failed}.",
+    "importModelCount": "+{count} модела",
+    "importResultWithModels": "Импортед {imported}; регистровано {models} модела; неуспешно {failed}.",
     "confirmRemove": "Потврдите?",
     "quotaSignalsTitle": "Квотни сигнали",
     "quotaSignalsEmptyTitle": "Још нема запажања квота",

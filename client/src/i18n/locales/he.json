@@ -450,6 +450,8 @@
     "duplicate": "כפיל",
     "duplicatesFound": "{count} שזוהו כפילויות — כבר קיימות ויידלגו עליהן.",
     "importResult": "{imported} מיובא; נכשל {failed}.",
+    "importModelCount": "+{count} מודלים",
+    "importResultWithModels": "{imported} מיובא; {models} מודלים נרשמו; נכשל {failed}.",
     "confirmRemove": "לאשר?",
     "quotaSignalsTitle": "אותות מכסה",
     "quotaSignalsEmptyTitle": "עדיין אין תצפיות על מכסות",
