@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   routeRequest, refreshStatsCache, getRoutingStrategy, setRoutingStrategy, getRoutingScores,
   getCustomWeights, setCustomWeights, getExploreEnabled, setExploreEnabled,
-  getCommunityPrior, setCommunityPriors,
+  getCommunityPrior, setCommunityPriors, getCommunityPriorEnabled, setCommunityPriorEnabled,
 } from '../../services/router.js';
 import * as ratelimit from '../../services/ratelimit.js';
 import { getDb, initDb } from '../../db/index.js';
@@ -225,26 +225,32 @@ describe('bandit router', () => {
     expect(withExplore['new'] ?? 0).toBeGreaterThan(0);
   });
 
-  it('community priors persist, drop invalid entries, and seed the axis (#685)', () => {
+  it('community priors persist, drop invalid entries, and cap effective sample size (#685)', () => {
     expect(getCommunityPrior('groq', 'llama', undefined)).toBeUndefined();
 
     // Invalid entries (negative, all-zero, missing ':') are dropped.
     const kept = setCommunityPriors({
       'groq:llama': { successes: 980, failures: 20 },
+      'groq:small': { successes: 30, failures: 10 },
       'bad:key': { successes: -5, failures: 1 },
       'allzero': { successes: 0, failures: 0 },
       'no-sep': { successes: 1, failures: 1 },
     });
-    expect(kept).toBe(1);
+    expect(kept).toBe(2);
 
-    // Survives a fresh read (persisted in settings).
+    // Oversized priors are rescaled to at most COMMUNITY_PRIOR_MAX_SAMPLES
+    // pseudo-observations, preserving the success/failure ratio; the capped
+    // form is what persists (fresh read from settings).
     expect(getCommunityPrior('groq', 'llama', undefined))
-      .toEqual({ successes: 980, failures: 20 });
+      .toEqual({ successes: 49, failures: 1 });
+    // Priors already under the cap are stored untouched.
+    expect(getCommunityPrior('groq', 'small', undefined))
+      .toEqual({ successes: 30, failures: 10 });
   });
 
-  it('community prior moves the displayed reliability off the uniform start (#685)', () => {
-    // A model with no local samples reads as 0.5 (uniform prior) without a
-    // community record; with a strong record it reads near the community rate.
+  it('community priors are ignored until the opt-in flag is on (#685)', () => {
+    // A model with no local samples reads as 0.5 (uniform prior). A stored
+    // community record must NOT move that while the flag is off (default).
     addModel({ platform: 'google', modelId: 'g1', name: 'G1', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
     setRoutingStrategy('balanced');
     refreshStatsCache(getDb(), true);
@@ -253,8 +259,48 @@ describe('bandit router', () => {
     expect(plain.scores[0]!.reliability).toBeCloseTo(0.5, 2);
 
     setCommunityPriors({ 'google:g1': { successes: 980, failures: 20 } });
-    refreshStatsCache(getDb(), true);
+    expect(getCommunityPriorEnabled()).toBe(false);
+    const gated = getRoutingScores();
+    expect(gated.scores[0]!.reliability).toBeCloseTo(0.5, 2);
+
+    // Flag on → the (capped) prior seeds the axis near the community rate.
+    setCommunityPriorEnabled(true);
+    expect(getCommunityPriorEnabled()).toBe(true);
     const seeded = getRoutingScores();
     expect(seeded.scores[0]!.reliability).toBeGreaterThan(0.9);
+  });
+
+  it('local failures override a capped community prior (#685)', () => {
+    // 5 local successes vs 95 failures: even with a glowing (capped) community
+    // record the displayed reliability must fall well below the prior's rate —
+    // a huge upstream count can no longer pin a locally-broken model at ~0.98.
+    addModel({ platform: 'google', modelId: 'g1', name: 'G1', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
+    addHistory('google', 'g1', { successes: 5, failures: 95 });
+    setRoutingStrategy('balanced');
+    setCommunityPriors({ 'google:g1': { successes: 980, failures: 20 } });
+    setCommunityPriorEnabled(true);
+    refreshStatsCache(getDb(), true);
+
+    const { scores } = getRoutingScores();
+    expect(scores[0]!.reliability).toBeLessThan(0.5);
+  });
+
+  it('tiny community priors vanish under real local traffic (#685)', () => {
+    // A small pessimistic prior barely moves a model with hundreds of local
+    // successes: local evidence dominates.
+    addModel({ platform: 'google', modelId: 'g1', name: 'G1', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
+    addHistory('google', 'g1', { successes: 480, failures: 20 });
+    setRoutingStrategy('balanced');
+    setCommunityPriorEnabled(true);
+    refreshStatsCache(getDb(), true);
+
+    const localOnly = getRoutingScores().scores[0]!.reliability;
+
+    setCommunityPriors({ 'google:g1': { successes: 1, failures: 9 } });
+    refreshStatsCache(getDb(), true);
+    const withPrior = getRoutingScores().scores[0]!.reliability;
+
+    expect(withPrior).toBeGreaterThan(0.9);
+    expect(Math.abs(localOnly - withPrior)).toBeLessThan(0.03);
   });
 });
