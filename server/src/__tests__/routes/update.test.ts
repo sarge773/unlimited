@@ -7,6 +7,7 @@ import { createUpdateRouter } from '../../routes/update.js';
 const LOCAL_SHA = '0123456789abcdef0123456789abcdef01234567';
 const REMOTE_SHA = '89abcdef0123456789abcdef0123456789abcdef';
 const NOW = Date.parse('2026-07-28T14:00:00.000Z');
+const VERSION = '0.6.8';
 
 function httpGet(app: Express, path: string): Promise<{ status: number; body: any }> {
   return new Promise((resolve, reject) => {
@@ -69,15 +70,16 @@ function compareBody(status: 'identical' | 'ahead' | 'behind' | 'diverged', mess
 function createTestApp(overrides: Parameters<typeof createUpdateRouter>[0] = {}) {
   const app = express();
   const fetchMock = overrides.fetch ?? vi.fn(async () => response(compareBody('identical')));
-  const execMock = overrides.execFileSync ?? vi.fn(() => `${LOCAL_SHA}\n`);
+  const execMock = overrides.execFile ?? vi.fn(async () => ({ stdout: `${LOCAL_SHA}\n` }));
   const logger = overrides.logger ?? { error: vi.fn() };
   app.use('/api/update', createUpdateRouter({
     env: {},
     cwd: '/worktree/server',
     now: () => NOW,
+    version: () => VERSION,
     ...overrides,
     fetch: fetchMock,
-    execFileSync: execMock,
+    execFile: execMock,
     logger,
   }));
   return { app, fetchMock, execMock, logger };
@@ -115,14 +117,14 @@ describe('Update API', () => {
     it('prefers a validated packaged-build identity and truncates commit messages', async () => {
       const longMessage = 'x'.repeat(250);
       const fetchMock = vi.fn(async () => response(compareBody('ahead', longMessage)));
-      const execMock = vi.fn(() => `${REMOTE_SHA}\n`);
+      const execMock = vi.fn(async () => ({ stdout: `${REMOTE_SHA}\n` }));
       const { app } = createTestApp({
         env: {
           FREELLMAPI_COMMIT_SHA: LOCAL_SHA.toUpperCase(),
           FREELLMAPI_INSTALL_METHOD: 'docker',
         },
         fetch: fetchMock,
-        execFileSync: execMock,
+        execFile: execMock,
       });
 
       const result = await httpGet(app, '/api/update/check');
@@ -161,11 +163,11 @@ describe('Update API', () => {
 
     it('reports disabled without resolving Git identity or making a network request', async () => {
       const fetchMock = vi.fn();
-      const execMock = vi.fn(() => `${LOCAL_SHA}\n`);
+      const execMock = vi.fn(async () => ({ stdout: `${LOCAL_SHA}\n` }));
       const { app, logger } = createTestApp({
         env: { FREELLMAPI_UPDATE_CHECK: ' OFF ' },
         fetch: fetchMock,
-        execFileSync: execMock,
+        execFile: execMock,
       });
 
       const result = await httpGet(app, '/api/update/check');
@@ -176,6 +178,7 @@ describe('Update API', () => {
         installation: 'unknown',
         localSha: null,
         checkedAt: '2026-07-28T14:00:00.000Z',
+        version: null,
       });
       expect(execMock).not.toHaveBeenCalled();
       expect(fetchMock).not.toHaveBeenCalled();
@@ -310,10 +313,10 @@ describe('Update API', () => {
     });
 
     it('resolves Git identity lazily from the current working directory', async () => {
-      const execMock = vi.fn(() => `${LOCAL_SHA}\n`);
+      const execMock = vi.fn(async () => ({ stdout: `${LOCAL_SHA}\n` }));
       const { app } = createTestApp({
         env: { FREELLMAPI_COMMIT_SHA: 'invalid' },
-        execFileSync: execMock,
+        execFile: execMock,
       });
       expect(execMock).not.toHaveBeenCalled();
 
@@ -338,13 +341,14 @@ describe('Update API', () => {
         installation: 'source',
         localSha: LOCAL_SHA.slice(0, 7),
         checkedAt: '2026-07-28T14:00:00.000Z',
+        version: VERSION,
       });
     });
 
     it('returns unsupported without a network request when no identity is available', async () => {
       const fetchMock = vi.fn();
-      const execMock = vi.fn(() => { throw new Error('not a repository'); });
-      const { app } = createTestApp({ fetch: fetchMock, execFileSync: execMock });
+      const execMock = vi.fn(async () => { throw new Error('not a repository'); });
+      const { app } = createTestApp({ fetch: fetchMock, execFile: execMock });
 
       const result = await httpGet(app, '/api/update/check');
 
@@ -354,17 +358,18 @@ describe('Update API', () => {
         installation: 'unknown',
         localSha: null,
         checkedAt: '2026-07-28T14:00:00.000Z',
+        version: VERSION,
       });
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
     it('preserves the install method for a self-built Docker image without Git metadata', async () => {
       const fetchMock = vi.fn();
-      const execMock = vi.fn(() => `${LOCAL_SHA}\n`);
+      const execMock = vi.fn(async () => ({ stdout: `${LOCAL_SHA}\n` }));
       const { app } = createTestApp({
         env: { FREELLMAPI_INSTALL_METHOD: 'docker' },
         fetch: fetchMock,
-        execFileSync: execMock,
+        execFile: execMock,
       });
 
       const result = await httpGet(app, '/api/update/check');
@@ -396,7 +401,7 @@ describe('Update API', () => {
       expect(logger.error).toHaveBeenCalledOnce();
     });
 
-    it('caches successful semantic results for five minutes but not errors', async () => {
+    it('caches successful semantic results for five minutes, and failures only briefly', async () => {
       let currentTime = NOW;
       const fetchMock = vi.fn()
         .mockResolvedValueOnce(response(compareBody('ahead')))
@@ -411,6 +416,9 @@ describe('Update API', () => {
 
       currentTime += 1;
       expect((await httpGet(app, '/api/update/check')).status).toBe(502);
+      // A failure is never cached as a result, only suppressed for its short
+      // negative TTL — so the retry happens, just not on the very next click.
+      currentTime += 45_000;
       expect((await httpGet(app, '/api/update/check')).body.status).toBe('current');
       expect(fetchMock).toHaveBeenCalledTimes(3);
     });
@@ -434,11 +442,11 @@ describe('Update API', () => {
   describe('GET /api/update/status', () => {
     it('reports disabled without resolving Git identity or making a network request', async () => {
       const fetchMock = vi.fn();
-      const execMock = vi.fn(() => `${LOCAL_SHA}\n`);
+      const execMock = vi.fn(async () => ({ stdout: `${LOCAL_SHA}\n` }));
       const { app } = createTestApp({
         env: { FREELLMAPI_UPDATE_CHECK: 'off' },
         fetch: fetchMock,
-        execFileSync: execMock,
+        execFile: execMock,
       });
 
       expect((await httpGet(app, '/api/update/status')).body).toEqual({
@@ -446,6 +454,7 @@ describe('Update API', () => {
         installation: 'unknown',
         localSha: null,
         lastChecked: null,
+        version: null,
       });
       expect(execMock).not.toHaveBeenCalled();
       expect(fetchMock).not.toHaveBeenCalled();
@@ -459,17 +468,19 @@ describe('Update API', () => {
         installation: 'source',
         localSha: LOCAL_SHA.slice(0, 7),
         lastChecked: null,
+        version: VERSION,
       });
     });
 
     it('returns unsupported for an unknown installation', async () => {
-      const { app } = createTestApp({ execFileSync: vi.fn(() => 'invalid') });
+      const { app } = createTestApp({ execFile: vi.fn(async () => ({ stdout: 'invalid' })) });
 
       expect((await httpGet(app, '/api/update/status')).body).toEqual({
         status: 'unsupported',
         installation: 'unknown',
         localSha: null,
         lastChecked: null,
+        version: VERSION,
       });
     });
 
@@ -483,8 +494,109 @@ describe('Update API', () => {
         installation: 'source',
         localSha: LOCAL_SHA.slice(0, 7),
         lastChecked: '2026-07-28T14:00:00.000Z',
+        version: VERSION,
       });
       expect(fetchMock).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('release version', () => {
+    it('serves the release version alongside the commit comparison', async () => {
+      const { app } = createTestApp();
+
+      const check = await httpGet(app, '/api/update/check');
+      const status = await httpGet(app, '/api/update/status');
+
+      expect(check.body.version).toBe(VERSION);
+      expect(status.body.version).toBe(VERSION);
+    });
+
+    it('reports a null version rather than a number that is not the release', async () => {
+      const { app } = createTestApp({ version: () => null });
+
+      expect((await httpGet(app, '/api/update/check')).body.version).toBeNull();
+      expect((await httpGet(app, '/api/update/status')).body.version).toBeNull();
+    });
+  });
+
+  describe('failure caching', () => {
+    it('does not re-dial GitHub for every click while a failure is fresh', async () => {
+      const fetchMock = vi.fn(async () => { throw new Error('unreachable'); });
+      const { app, logger } = createTestApp({ fetch: fetchMock });
+
+      const first = await httpGet(app, '/api/update/check');
+      const second = await httpGet(app, '/api/update/check');
+
+      expect(first.status).toBe(502);
+      expect(second.status).toBe(502);
+      // The second click is answered from the negative cache: one attempt total.
+      expect(fetchMock).toHaveBeenCalledOnce();
+      expect(logger.error).toHaveBeenCalledOnce();
+    });
+
+    it('retries once the negative TTL has elapsed', async () => {
+      const fetchMock = vi.fn()
+        .mockRejectedValueOnce(new Error('unreachable'))
+        .mockResolvedValueOnce(response(compareBody('identical')));
+      let clock = NOW;
+      const { app } = createTestApp({ fetch: fetchMock, now: () => clock });
+
+      expect((await httpGet(app, '/api/update/check')).status).toBe(502);
+      clock = NOW + 46_000;
+      const retry = await httpGet(app, '/api/update/check');
+
+      expect(retry.status).toBe(200);
+      expect(retry.body.status).toBe('current');
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('serves a successful result from cache and clears the failure state', async () => {
+      const fetchMock = vi.fn()
+        .mockRejectedValueOnce(new Error('unreachable'))
+        .mockResolvedValueOnce(response(compareBody('ahead')));
+      let clock = NOW;
+      const { app } = createTestApp({ fetch: fetchMock, now: () => clock });
+
+      await httpGet(app, '/api/update/check');
+      clock = NOW + 46_000;
+      await httpGet(app, '/api/update/check');
+      const cached = await httpGet(app, '/api/update/check');
+
+      expect(cached.status).toBe(200);
+      expect(cached.body.status).toBe('available');
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('Atom feed ceiling', () => {
+    it('refuses an oversized feed on the declared length, before reading it', async () => {
+      const oversized = new Response('<feed/>', {
+        status: 200,
+        headers: { 'Content-Type': 'application/atom+xml', 'Content-Length': String(2_000_000) },
+      });
+      const textSpy = vi.spyOn(oversized, 'text');
+      const fetchMock = vi.fn()
+        .mockResolvedValueOnce(response({ message: 'API rate limit exceeded' }, 403))
+        .mockResolvedValueOnce(oversized);
+      const { app } = createTestApp({ fetch: fetchMock });
+
+      const result = await httpGet(app, '/api/update/check');
+
+      expect(result.status).toBe(502);
+      expect(textSpy).not.toHaveBeenCalled();
+    });
+
+    it('refuses a feed that exceeds the ceiling mid-stream', async () => {
+      const body = `<?xml version="1.0"?><feed>${'<!-- padding -->'.repeat(70_000)}</feed>`;
+      const fetchMock = vi.fn()
+        .mockResolvedValueOnce(response({ message: 'API rate limit exceeded' }, 403))
+        .mockResolvedValueOnce(new Response(body, {
+          status: 200,
+          headers: { 'Content-Type': 'application/atom+xml' },
+        }));
+      const { app } = createTestApp({ fetch: fetchMock });
+
+      expect((await httpGet(app, '/api/update/check')).status).toBe(502);
     });
   });
 });

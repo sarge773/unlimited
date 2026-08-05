@@ -107,7 +107,9 @@ export default function KeysPage() {
       </div>
 
       <AddKeyDialog open={addOpen} onOpenChange={setAddOpen} />
-      <ExportKeysDialog open={exportOpen} onOpenChange={setExportOpen} />
+      {/* Mounted only while open so the export flow always starts at step one
+          and never retains a previously typed password. */}
+      {exportOpen && <ExportKeysDialog open={exportOpen} onOpenChange={setExportOpen} />}
     </div>
   )
 }

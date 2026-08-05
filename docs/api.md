@@ -1,3 +1,5 @@
+**English** · [简体中文](i18n/zh-CN/docs/api.md)
+
 # API reference
 
 [← Back to README](../README.md) · [Documentation index](README.md)

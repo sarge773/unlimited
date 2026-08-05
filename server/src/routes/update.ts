@@ -1,14 +1,25 @@
-import { execFileSync as nodeExecFileSync } from 'node:child_process';
+import { execFile as nodeExecFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { getAppVersion } from '../lib/app-version.js';
+
+const execFileAsync = promisify(nodeExecFile);
 
 const REPOSITORY = 'tashfeenahmed/freellmapi';
 const CACHE_TTL_MS = 5 * 60 * 1000;
+// Failures are cached too, briefly. Without this a box that cannot reach GitHub
+// re-dials the API and then the Atom feed on every single click.
+const FAILURE_TTL_MS = 45 * 1000;
 const SHA_PATTERN = /^[0-9a-f]{40}$/i;
 const COMPARE_STATUSES = ['identical', 'ahead', 'behind', 'diverged'] as const;
 const MAX_CHANGES = 8;
 const MAX_CHANGE_MESSAGE_LENGTH = 160;
 const MAX_ATOM_FEED_LENGTH = 1_000_000;
+
+// Express's Response is imported into this module, so name the fetch one via the
+// fetch signature rather than the shadowed global.
+type FetchResponse = Awaited<ReturnType<typeof globalThis.fetch>>;
 
 type Installation = 'source' | 'docker' | 'desktop' | 'unknown';
 type CheckStatus = 'current' | 'available' | 'ahead' | 'diverged' | 'unknown' | 'unsupported' | 'disabled';
@@ -24,6 +35,8 @@ interface CheckResult {
   installation: Installation;
   localSha: string | null;
   checkedAt: string;
+  /** The release this build is (#703), or null when it cannot be established. */
+  version: string | null;
   remoteSha?: string;
   remoteMessage?: string;
   remoteDate?: string;
@@ -41,19 +54,20 @@ interface CachedResult {
   cachedAt: number;
 }
 
-type ExecFileSync = (
+type ExecFile = (
   file: string,
   args: string[],
   options: { cwd: string; encoding: 'utf8'; timeout: number },
-) => string | Buffer;
+) => Promise<{ stdout: string | Buffer }>;
 
 export interface UpdateRouterOptions {
   fetch?: typeof globalThis.fetch;
-  execFileSync?: ExecFileSync;
+  execFile?: ExecFile;
   env?: NodeJS.ProcessEnv;
   cwd?: string;
   now?: () => number;
   logger?: Pick<Console, 'error'>;
+  version?: () => string | null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -191,13 +205,50 @@ function decodeXmlText(value: string): string {
   });
 }
 
+/**
+ * Read a response body with a hard byte ceiling, so an oversized feed is refused
+ * on the way in rather than after it is already resident. Checking `.length`
+ * after `await response.text()` — as this used to — is a cap that never bounds
+ * anything.
+ */
+async function readCapped(response: FetchResponse, limit: number): Promise<string> {
+  const declared = Number(response.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > limit) {
+    throw new Error('GitHub Atom feed is too large');
+  }
+
+  const body = response.body;
+  if (!body || typeof body.getReader !== 'function') {
+    // A fetch implementation without a readable body (or a stub); fall back to
+    // buffering, and still refuse anything over the ceiling.
+    const text = await response.text();
+    if (text.length > limit) throw new Error('GitHub Atom feed is too large');
+    return text;
+  }
+
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let read = 0;
+  let text = '';
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      read += value.byteLength;
+      if (read > limit) throw new Error('GitHub Atom feed is too large');
+      text += decoder.decode(value, { stream: true });
+    }
+  } finally {
+    await reader.cancel().catch(() => { /* the ceiling already decided the outcome */ });
+  }
+  return text + decoder.decode();
+}
+
 function parseAtomFallback(
   xml: string,
   localSha: string,
-  baseResult: Pick<CheckResult, 'installation' | 'localSha' | 'checkedAt'>,
+  baseResult: Pick<CheckResult, 'installation' | 'localSha' | 'checkedAt' | 'version'>,
 ): CheckResult {
-  if (xml.length > MAX_ATOM_FEED_LENGTH) throw new Error('GitHub Atom feed is too large');
-
   const commits: Array<Change & { fullSha: string }> = [];
   for (const match of xml.matchAll(/<entry>([\s\S]*?)<\/entry>/gi)) {
     const entry = match[1];
@@ -244,35 +295,42 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
   const router = Router();
   const env = options.env ?? process.env;
   const fetchImpl = options.fetch ?? ((input, init) => globalThis.fetch(input, init));
-  const execFile = options.execFileSync ?? ((file, args, execOptions) => (
-    nodeExecFileSync(file, args, execOptions)
+  const execFile: ExecFile = options.execFile ?? ((file, args, execOptions) => (
+    execFileAsync(file, args, execOptions)
   ));
   const now = options.now ?? Date.now;
   const logger = options.logger ?? console;
+  const appVersion = options.version ?? getAppVersion;
   const updateCheckDisabled = env.FREELLMAPI_UPDATE_CHECK?.trim().toLowerCase() === 'off';
   const githubToken = env.FREELLMAPI_UPDATE_GITHUB_TOKEN?.trim();
 
   let identity: Identity | undefined;
   let cache: CachedResult | null = null;
+  let failedAt: number | null = null;
   let inFlight: Promise<CheckResult> | null = null;
 
-  function resolveIdentity(): Identity {
+  // Lazily resolved, and asynchronously: `git rev-parse` used to run through
+  // execFileSync inside the request handler, which blocked the event loop for
+  // every other in-flight request on the first open of Settings.
+  async function resolveIdentity(): Promise<Identity> {
     if (identity) return identity;
 
     const environmentSha = validSha(env.FREELLMAPI_COMMIT_SHA);
     const installMethod = env.FREELLMAPI_INSTALL_METHOD;
     if (installMethod === 'docker' || installMethod === 'desktop') {
+      // Deliberately before the SHA check: a self-built image without
+      // --build-arg has no embedded SHA, and it is still a container install.
       identity = { sha: environmentSha, installation: installMethod };
       return identity;
     }
 
     try {
-      const output = execFile('git', ['rev-parse', 'HEAD'], {
+      const { stdout } = await execFile('git', ['rev-parse', 'HEAD'], {
         cwd: options.cwd ?? process.cwd(),
         encoding: 'utf8',
         timeout: 5_000,
       });
-      const gitSha = validSha(output.toString());
+      const gitSha = validSha(stdout.toString());
       if (gitSha) {
         identity = { sha: gitSha, installation: 'source' };
         return identity;
@@ -291,6 +349,7 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
       installation: currentIdentity.installation,
       localSha: currentIdentity.sha!.slice(0, 7),
       checkedAt: new Date(checkedAtMs).toISOString(),
+      version: appVersion(),
     };
     const url = `https://api.github.com/repos/${REPOSITORY}/compare/${currentIdentity.sha}...main`;
     const response = await fetchImpl(url, {
@@ -317,7 +376,11 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
       if (!atomResponse.ok) {
         throw new Error(`GitHub Atom request returned HTTP ${atomResponse.status}`);
       }
-      return parseAtomFallback(await atomResponse.text(), currentIdentity.sha!, baseResult);
+      return parseAtomFallback(
+        await readCapped(atomResponse, MAX_ATOM_FEED_LENGTH),
+        currentIdentity.sha!,
+        baseResult,
+      );
     }
     if (!response.ok) {
       throw new Error(`GitHub compare request returned HTTP ${response.status}`);
@@ -341,14 +404,19 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
     if (cache && currentTime - cache.cachedAt < CACHE_TTL_MS) {
       return Promise.resolve(cache.result);
     }
+    if (failedAt !== null && currentTime - failedAt < FAILURE_TTL_MS) {
+      return Promise.reject(new Error('GitHub update check failed recently'));
+    }
     if (inFlight) return inFlight;
 
     const request = performCheck(currentIdentity)
       .then((result) => {
         cache = { result, cachedAt: now() };
+        failedAt = null;
         return result;
       })
       .catch((error: unknown) => {
+        failedAt = now();
         logger.error('[update] GitHub compare check failed', error);
         throw error;
       })
@@ -366,16 +434,18 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
         installation: 'unknown',
         localSha: null,
         checkedAt: new Date(now()).toISOString(),
+        version: null,
       } satisfies CheckResult);
     }
 
-    const currentIdentity = resolveIdentity();
+    const currentIdentity = await resolveIdentity();
     if (!currentIdentity.sha) {
       return res.json({
         status: 'unsupported',
         installation: currentIdentity.installation,
         localSha: null,
         checkedAt: new Date(now()).toISOString(),
+        version: appVersion(),
       } satisfies CheckResult);
     }
 
@@ -391,22 +461,24 @@ export function createUpdateRouter(options: UpdateRouterOptions = {}): Router {
     }
   });
 
-  router.get('/status', (_req: Request, res: Response) => {
+  router.get('/status', async (_req: Request, res: Response) => {
     if (updateCheckDisabled) {
       return res.json({
         status: 'disabled',
         installation: 'unknown',
         localSha: null,
         lastChecked: null,
+        version: null,
       });
     }
 
-    const currentIdentity = resolveIdentity();
+    const currentIdentity = await resolveIdentity();
     res.json({
       status: currentIdentity.sha ? (cache?.result.status ?? 'idle') : 'unsupported',
       installation: currentIdentity.installation,
       localSha: currentIdentity.sha?.slice(0, 7) ?? null,
       lastChecked: cache?.result.checkedAt ?? null,
+      version: appVersion(),
     });
   });
 

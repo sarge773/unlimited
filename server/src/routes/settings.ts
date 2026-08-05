@@ -20,8 +20,18 @@ import {
   setCompressionConfig,
 } from '../services/compression/config.js';
 import { z } from 'zod';
+import { getAppVersion } from '../lib/app-version.js';
 
 export const settingsRouter = Router();
+
+// Which RELEASE this install is, for the dashboard's version row (#703).
+// Deliberately NOT /api/version: the Ollama emulation already owns that path
+// and answers it for real Ollama clients, so mounting here would have shadowed
+// it. `null` means the version could not be established honestly, and the
+// dashboard then shows nothing rather than a number that isn't the release.
+settingsRouter.get('/version', (_req: Request, res: Response) => {
+  res.json({ version: getAppVersion() });
+});
 
 settingsRouter.get('/compression', (_req: Request, res: Response) => {
   res.json(getCompressionConfig());

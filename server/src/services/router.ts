@@ -292,6 +292,18 @@ export function getAllPenalties(): Array<{ modelDbId: number; count: number; pen
 // ── Routing strategy (persisted) ────────────────────────────────────────────
 const STRATEGY_KEY = 'routing_strategy';
 const CUSTOM_WEIGHTS_KEY = 'routing_custom_weights';
+const EXPLORE_KEY = 'routing_explore_enabled';
+const COMMUNITY_PRIOR_KEY = 'routing_community_prior';
+const COMMUNITY_PRIOR_ENABLED_KEY = 'routing_community_prior_enabled';
+
+/** Chance per request that an unmeasured model gets tried first when the
+ *  exploration toggle is on. The bandit's Thompson sampling already explores
+ *  automatically; this guarantees a floor so models with no reliability/speed
+ *  data still get sampled instead of being starved by prior-heavy rivals. */
+export const EXPLORE_CHANCE = 0.1;
+/** A model counts as "has data" once its decay-weighted success+failure
+ *  pseudo-count reaches this many samples. */
+export const EXPLORE_MIN_SAMPLES = 5;
 const VALID_STRATEGIES: RoutingStrategy[] = ['priority', 'balanced', 'smartest', 'fastest', 'reliable', 'custom'];
 
 export function getRoutingStrategy(): RoutingStrategy {
@@ -306,6 +318,18 @@ export function setRoutingStrategy(strategy: RoutingStrategy): void {
     throw new Error(`Unknown routing strategy: ${strategy}`);
   }
   setSetting(STRATEGY_KEY, strategy);
+}
+
+// ── Exploration toggle (persisted) ─────────────────────────────────────────
+// Off by default: existing routing behavior unchanged. When on, routeRequest
+// gives unmeasured models a guaranteed chance to be tried (EXPLORE_CHANCE) so
+// they acquire reliability/speed samples instead of losing every bandit draw.
+export function getExploreEnabled(): boolean {
+  return getSetting(EXPLORE_KEY) === '1';
+}
+
+export function setExploreEnabled(enabled: boolean): void {
+  setSetting(EXPLORE_KEY, enabled ? '1' : '0');
 }
 
 // ── Custom weights (persisted) ──────────────────────────────────────────────
@@ -343,6 +367,112 @@ export function setCustomWeights(weights: RoutingWeights): void {
     speed: speed / sum,
     intelligence: intelligence / sum,
   }));
+}
+
+// ── Community reliability prior (persisted) ────────────────────────────────
+// Aggregated, de-poisoned counts from other self-hosted instances, folded into
+// the Beta posterior as a starting balance so a brand-new model isn't blind
+// (#685 follow-up). Keyed "platform:model_id" (endpoint-scoped keys use the
+// same modelStatsKey form). Local samples dilute it automatically.
+//
+// Opt-in: priors only reach the posterior when routing_community_prior_enabled
+// is on (default off). Server-side only for now — there is deliberately no
+// ingestion path yet, so the flag pins the opt-in semantics before one lands.
+type CommunityPriorMap = Record<string, { successes: number; failures: number }>;
+
+/** Ceiling on a single prior's effective sample size. Local counts are
+ *  decay-weighted (2-day half-life — a busy install still only carries on the
+ *  order of a hundred effective samples), so an unbounded, undecayed community
+ *  count would drown local evidence forever and collapse the Thompson-sampling
+ *  variance to zero. Capping at ~50 pseudo-observations keeps a prior worth
+ *  roughly half the local evidence at most: enough to seed a brand-new model,
+ *  cheap for real local traffic to override. */
+export const COMMUNITY_PRIOR_MAX_SAMPLES = 50;
+
+/** Validate a raw prior map and cap each entry's effective sample size.
+ *  Shared by the read path and the write path so a value is bounded no matter
+ *  how it entered (fresh set, legacy stored blob, hand-edited settings row).
+ *  Invalid entries (negative, all-zero, no ':') are dropped; oversized ones
+ *  are rescaled preserving the success/failure ratio (980/20 → 49/1). */
+function sanitizeCommunityPriors(priors: unknown): CommunityPriorMap {
+  const clean: CommunityPriorMap = {};
+  if (!priors || typeof priors !== 'object') return clean;
+  for (const [key, v] of Object.entries(priors as Record<string, { successes: number; failures: number }>)) {
+    if (
+      key.includes(':') &&
+      v && typeof v === 'object' &&
+      Number.isFinite(v.successes) && v.successes >= 0 &&
+      Number.isFinite(v.failures) && v.failures >= 0 &&
+      v.successes + v.failures > 0
+    ) {
+      const total = v.successes + v.failures;
+      const scale = total > COMMUNITY_PRIOR_MAX_SAMPLES ? COMMUNITY_PRIOR_MAX_SAMPLES / total : 1;
+      const entry = { successes: Math.round(v.successes * scale), failures: Math.round(v.failures * scale) };
+      if (entry.successes + entry.failures > 0) clean[key] = entry;
+    }
+  }
+  return clean;
+}
+
+// Parsed-prior cache, same 60s shape as the stats cache: routing reads the map
+// once per chain entry (and once per key in orderKeysByScore), so hitting
+// sqlite + JSON.parse on every lookup is pure waste. Invalidated by the two
+// setters and by refreshStatsCache, so tests and future ingestion see writes
+// immediately.
+let communityPriorCache: { map: CommunityPriorMap; enabled: boolean } | null = null;
+let communityPriorCacheTime = 0;
+
+function communityPriorState(): { map: CommunityPriorMap; enabled: boolean } {
+  const now = Date.now();
+  if (communityPriorCache && now - communityPriorCacheTime < CACHE_TTL_MS) return communityPriorCache;
+  let map: CommunityPriorMap = {};
+  const raw = getSetting(COMMUNITY_PRIOR_KEY);
+  if (raw) {
+    try {
+      map = sanitizeCommunityPriors(JSON.parse(raw));
+    } catch { /* corrupt setting → no priors */ }
+  }
+  communityPriorCache = { map, enabled: getSetting(COMMUNITY_PRIOR_ENABLED_KEY) === '1' };
+  communityPriorCacheTime = now;
+  return communityPriorCache;
+}
+
+function invalidateCommunityPriorCache(): void {
+  communityPriorCache = null;
+}
+
+/** Whether stored community priors are folded into the posterior. Default off. */
+export function getCommunityPriorEnabled(): boolean {
+  return communityPriorState().enabled;
+}
+
+export function setCommunityPriorEnabled(enabled: boolean): void {
+  setSetting(COMMUNITY_PRIOR_ENABLED_KEY, enabled ? '1' : '0');
+  invalidateCommunityPriorCache();
+}
+
+/** Community prior for one model, or undefined when none is stored.
+ *  Raw read — ignores the enabled flag; routing goes through
+ *  activeCommunityPrior, which honors it. */
+export function getCommunityPrior(platform: string, modelId: string, endpointScope?: string):
+  { successes: number; failures: number } | undefined {
+  return communityPriorState().map[modelStatsKey(platform, modelId, endpointScope)];
+}
+
+/** Gated read for routing: undefined unless the opt-in flag is on. */
+function activeCommunityPrior(platform: string, modelId: string, endpointScope?: string):
+  { successes: number; failures: number } | undefined {
+  const state = communityPriorState();
+  return state.enabled ? state.map[modelStatsKey(platform, modelId, endpointScope)] : undefined;
+}
+
+/** Replace the whole community-prior map (e.g. after an aggregation fetch).
+ *  Invalid entries are dropped and oversized ones capped, never stored raw. */
+export function setCommunityPriors(priors: CommunityPriorMap): number {
+  const clean = sanitizeCommunityPriors(priors);
+  setSetting(COMMUNITY_PRIOR_KEY, JSON.stringify(clean));
+  invalidateCommunityPriorCache();
+  return Object.keys(clean).length;
 }
 
 function weightsFor(strategy: RoutingStrategy): RoutingWeights | null {
@@ -418,6 +548,10 @@ function customEndpointScopes(db: Db): Map<number, string> {
 
 export function refreshStatsCache(db: Db, force = false): void {
   if (!force && statsCache && Date.now() - statsCacheTime < CACHE_TTL_MS) return;
+
+  // Re-read the community priors alongside the stats they season, so a forced
+  // refresh (tests, admin actions) never routes on a stale prior snapshot.
+  invalidateCommunityPriorCache();
 
   const since = new Date(Date.now() - WINDOW_MS).toISOString();
   // Grouped by (model, key, day age): still a handful of rows per model — key
@@ -649,12 +783,13 @@ function scoreChainEntry(
   const successes = stats?.successes ?? 0;
   const failures = stats?.failures ?? 0;
 
+  const community = activeCommunityPrior(entry.platform, entry.model_id, entry.endpoint_scope);
   let reliability: number;
   if (sampled) {
-    const { alpha, beta } = reliabilityPosterior(successes, failures);
+    const { alpha, beta } = reliabilityPosterior(successes, failures, community);
     reliability = sampleBeta(alpha, beta);
   } else {
-    reliability = expectedReliability(successes, failures);
+    reliability = expectedReliability(successes, failures, community);
   }
 
   const speed = speedScore(stats?.tokPerSec ?? 0, stats?.avgTtfbMs ?? null);
@@ -886,10 +1021,12 @@ function orderKeysByScore(entry: ChainRow, keys: KeyRow[]): KeyRow[] | null {
   const prefix = `${modelStatsKey(entry.platform, entry.model_id, entry.endpoint_scope)}:`;
   if (!keys.some(k => keyStatsCache!.has(prefix + k.id))) return null;
 
+  // The prior is per-model, not per-key: look it up once outside the loop.
+  const community = activeCommunityPrior(entry.platform, entry.model_id, entry.endpoint_scope);
   return keys
     .map(k => {
       const stats = keyStatsCache!.get(prefix + k.id);
-      const { alpha, beta } = reliabilityPosterior(stats?.successes ?? 0, stats?.failures ?? 0);
+      const { alpha, beta } = reliabilityPosterior(stats?.successes ?? 0, stats?.failures ?? 0, community);
       const rel = sampleBeta(alpha, beta);
       const spd = speedScore(stats?.tokPerSec ?? 0, stats?.avgTtfbMs ?? null);
       return { k, s: KEY_SCORE_WEIGHTS.reliability * rel + KEY_SCORE_WEIGHTS.speed * spd };
@@ -1324,6 +1461,27 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
 
   const sortedChain = orderChain(chain, strategy);
 
+  // Exploration toggle (#685/#707 follow-up): when enabled, give a model with
+  // no reliability/speed samples a guaranteed chance to be tried, so it stops
+  // losing every bandit draw to prior-heavy rivals. With EXPLORE_CHANCE
+  // probability, pick one unmeasured model uniformly and try it first; if it
+  // fails, the loop falls through to the scored order as usual. Only for
+  // bandit strategies — Manual is the operator's explicit order.
+  if (strategy !== 'priority' && getExploreEnabled() && Math.random() < EXPLORE_CHANCE) {
+    const unmeasured = sortedChain.filter(e => {
+      const stats = statsCache?.get(modelStatsKey(e.platform, e.model_id, e.endpoint_scope));
+      return (stats?.successes ?? 0) + (stats?.failures ?? 0) < EXPLORE_MIN_SAMPLES;
+    });
+    if (unmeasured.length > 0) {
+      const probe = unmeasured[Math.floor(Math.random() * unmeasured.length)];
+      const idx = sortedChain.findIndex(e => e.model_db_id === probe.model_db_id);
+      if (idx > 0) {
+        const [probeRow] = sortedChain.splice(idx, 1);
+        sortedChain.unshift(probeRow);
+      }
+    }
+  }
+
   // Sticky session / Explicit pinning: move preferred model to front of chain
   if (preferredModelDbId) {
     const idx = sortedChain.findIndex(e => e.model_db_id === preferredModelDbId);
@@ -1435,7 +1593,7 @@ export interface RoutingScore {
   totalRequests: number; // decay-weighted observations
 }
 
-export function getRoutingScores(): { strategy: RoutingStrategy; weights: RoutingWeights | null; customWeights: RoutingWeights; scores: RoutingScore[] } {
+export function getRoutingScores(): { strategy: RoutingStrategy; weights: RoutingWeights | null; customWeights: RoutingWeights; exploreEnabled: boolean; scores: RoutingScore[] } {
   const db = getDb();
   const strategy = getRoutingStrategy();
   refreshStatsCache(db);
@@ -1473,7 +1631,10 @@ export function getRoutingScores(): { strategy: RoutingStrategy; weights: Routin
   // so the dashboard's custom-weight sliders can render even before the user
   // has saved their own — distinct from `weights`, which is null in priority
   // mode and the active preset otherwise.
-  return { strategy, weights: weightsFor(strategy), customWeights: getCustomWeights(), scores };
+  // exploreEnabled must ride along here too: the dashboard checkbox renders
+  // from GET /routing, so omitting it would make the toggle look permanently
+  // off (and impossible to turn off) after a refetch.
+  return { strategy, weights: weightsFor(strategy), customWeights: getCustomWeights(), exploreEnabled: getExploreEnabled(), scores };
 }
 
 /**

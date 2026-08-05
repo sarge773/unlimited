@@ -42,6 +42,59 @@ mediaRouter.get('/', (_req: Request, res: Response) => {
   });
 });
 
+// Per-model usage for one modality: requests today and this calendar month,
+// from the tagged request log. Image and audio calls are billed per image or
+// per character, not per token, so `requests` is the honest unit here and no
+// token counts are reported. As with embeddings there is no budget
+// denominator — `media_models` only carries a free-text `quota_label`
+// ("Shared 10k neurons/day", "MP3 output - multilingual", which is not even a
+// quota) — so the summary shows spend and the label verbatim.
+mediaRouter.get('/usage', (req: Request, res: Response) => {
+  const parsed = z.enum(['image', 'audio']).safeParse(req.query.modality);
+  if (!parsed.success) {
+    res.status(400).json({ error: { message: 'modality must be image or audio' } });
+    return;
+  }
+  const modality = parsed.data;
+  const db = getDb();
+
+  const rows = db.prepare(`
+    SELECT mm.id, mm.platform, mm.model_id, mm.display_name, mm.quota_label,
+           COALESCE(SUM(CASE WHEN r.created_at >= datetime('now', 'start of day') THEN 1 ELSE 0 END), 0) AS requests_today,
+           COALESCE(SUM(CASE WHEN r.created_at >= datetime('now', 'start of month') THEN 1 ELSE 0 END), 0) AS requests_month
+    FROM media_models mm
+    LEFT JOIN requests r
+      ON r.request_type = ?
+     AND r.status = 'success'
+     AND r.platform = mm.platform
+     AND r.model_id = mm.model_id
+     AND r.created_at >= datetime('now', 'start of month')
+    WHERE mm.modality = ? AND mm.enabled = 1
+    GROUP BY mm.id
+    ORDER BY mm.priority ASC
+  `).all(modality, modality) as {
+    id: number; platform: string; model_id: string; display_name: string;
+    quota_label: string | null; requests_today: number; requests_month: number;
+  }[];
+
+  const models = rows.map(r => ({
+    id: r.id,
+    platform: r.platform,
+    modelId: r.model_id,
+    displayName: r.display_name,
+    quotaLabel: r.quota_label,
+    requestsToday: r.requests_today,
+    requestsMonth: r.requests_month,
+  }));
+
+  res.json({
+    modality,
+    models,
+    totalRequestsToday: models.reduce((s, m) => s + m.requestsToday, 0),
+    totalRequestsMonth: models.reduce((s, m) => s + m.requestsMonth, 0),
+  });
+});
+
 const customMediaSchema = z.object({
   baseUrl: z.string().url('baseUrl must be a valid URL'),
   model: z.string().min(1),
@@ -66,7 +119,10 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
     res.status(400).json({ error: { message: 'model is required' } });
     return;
   }
-  const displayName = parsed.data.displayName?.trim() || modelId;
+  // Optional: NULL means "no opinion". A new model takes its id, and a model
+  // already on record keeps the name it has instead of being reset by a submit
+  // that simply left the field blank (#704).
+  const submittedName = parsed.data.displayName?.trim() || null;
   const label = parsed.data.label?.trim() || undefined;
   const providedKey = parsed.data.apiKey?.trim() || undefined;
   const quotaLabel = parsed.data.quotaLabel?.trim() || 'custom endpoint';
@@ -96,14 +152,14 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
     if (existingModel) {
       db.prepare(`
         UPDATE media_models
-           SET display_name = ?,
+           SET display_name = COALESCE(?, display_name),
                modality = ?,
                priority = ?,
                enabled = 1,
                quota_label = ?,
                key_id = ?
          WHERE id = ?
-      `).run(displayName, parsed.data.modality, priority, quotaLabel, bindKeyId, existingModel.id);
+      `).run(submittedName, parsed.data.modality, priority, quotaLabel, bindKeyId, existingModel.id);
       return { modelDbId: existingModel.id, keyId, storedKeyForMask };
     }
 
@@ -111,11 +167,13 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
       INSERT INTO media_models
         (platform, model_id, display_name, modality, priority, enabled, quota_label, key_id)
       VALUES ('custom', ?, ?, ?, ?, 1, ?, ?)
-    `).run(modelId, displayName, parsed.data.modality, priority, quotaLabel, bindKeyId);
+    `).run(modelId, submittedName ?? modelId, parsed.data.modality, priority, quotaLabel, bindKeyId);
     return { modelDbId: Number(model.lastInsertRowid), keyId, storedKeyForMask };
   });
 
   const result = upsert();
+  const storedName = (db.prepare('SELECT display_name FROM media_models WHERE id = ?')
+    .get(result.modelDbId) as { display_name: string }).display_name;
   res.status(201).json({
     success: true,
     keyId: result.keyId,
@@ -123,7 +181,7 @@ mediaRouter.post('/custom', (req: Request, res: Response) => {
     platform: 'custom',
     baseUrl,
     model: modelId,
-    displayName,
+    displayName: storedName,
     modality: parsed.data.modality,
     maskedKey: maskKey(result.storedKeyForMask),
   });

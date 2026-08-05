@@ -452,7 +452,7 @@ export function exhaustedRetryError(lastError: any, maxRetries?: number, ctx?: E
   const attempts = ctx?.attempts ?? [];
   const trail = attempts.length > 0 ? ` Attempt trail: ${formatAttemptTrail(attempts)}.` : '';
   const budgetNote = ctx?.timedOut
-    ? ` (stopped early: retry time budget ${Math.round((ctx.budgetMs ?? 0) / 1000)}s exceeded)`
+    ? ` (stopped early: retry time budget ${Math.round((ctx.budgetMs ?? 0) / 1000)}s exceeded — the attempt in flight is never aborted mid-flight, the budget only stops STARTING further retries; raise FALLBACK_TIME_BUDGET_MS or the fallback_time_budget_ms setting to allow a longer failover chain)`
     : '';
   const everyAttempt = (cls: AttemptErrorClass | ReadonlySet<AttemptErrorClass>): boolean =>
     attempts.length > 0 && attempts.every(a => (cls instanceof Set ? cls.has(a.errorClass) : a.errorClass === cls));
