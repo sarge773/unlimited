@@ -19,6 +19,7 @@ import * as tombstoneProvenance from '../migrations/20260728_000001_tombstone_pr
 import * as customModelEndpointIdentity from '../migrations/20260729_000001_custom_model_endpoint_identity.js';
 import * as customEndpointHostLabels from '../migrations/20260802_000001_custom_endpoint_host_labels.js';
 import * as keyModelScope from '../migrations/20260805_000001_key_model_scope.js';
+import * as clientProfiles from '../migrations/20260805_000002_client_profiles.js';
 
 export interface MigrationModule {
   up(db: Db): void;
@@ -50,6 +51,7 @@ export const TOMBSTONE_PROVENANCE_FILENAME = '20260728_000001_tombstone_provenan
 export const CUSTOM_MODEL_ENDPOINT_IDENTITY_FILENAME = '20260729_000001_custom_model_endpoint_identity.ts';
 export const CUSTOM_ENDPOINT_HOST_LABELS_FILENAME = '20260802_000001_custom_endpoint_host_labels.ts';
 export const KEY_MODEL_SCOPE_FILENAME = '20260805_000001_key_model_scope.ts';
+export const CLIENT_PROFILES_FILENAME = '20260805_000002_client_profiles.ts';
 
 export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: LEGACY_BASELINE_FILENAME, module: legacyBaseline },
@@ -72,4 +74,5 @@ export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: CUSTOM_MODEL_ENDPOINT_IDENTITY_FILENAME, module: customModelEndpointIdentity },
   { filename: CUSTOM_ENDPOINT_HOST_LABELS_FILENAME, module: customEndpointHostLabels },
   { filename: KEY_MODEL_SCOPE_FILENAME, module: keyModelScope },
+  { filename: CLIENT_PROFILES_FILENAME, module: clientProfiles },
 ];

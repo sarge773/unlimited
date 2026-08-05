@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Δεν έχει οριστεί εύρος — αυτό το κλειδί εξυπηρετεί όλα τα μοντέλα του παρόχου του.",
     "modelScopeClear": "Καθαρισμός εύρους",
     "modelScopeBadgeOne": "περιορισμένο · 1 μοντέλο",
-    "modelScopeBadgeOther": "περιορισμένο · {count} μοντέλα"
+    "modelScopeBadgeOther": "περιορισμένο · {count} μοντέλα",
+    "cpTitle": "Προφίλ πελατών",
+    "cpDesc": "Κλειδιά API ανά πελάτη, καθένα με ένα system prompt που ο διακομιστής εφαρμόζει πάντα.",
+    "cpEmpty": "Δεν υπάρχουν ακόμη προφίλ πελατών.",
+    "cpNameLabel": "Όνομα",
+    "cpNamePlaceholder": "π.χ. Bot υποστήριξης",
+    "cpPromptLabel": "System prompt (προαιρετικό)",
+    "cpPromptPlaceholder": "Οδηγίες που ο διακομιστής προσθέτει πριν από κάθε αίτημα με αυτό το κλειδί.",
+    "cpCreate": "Δημιουργία προφίλ",
+    "cpRotate": "Εναλλαγή κλειδιού",
+    "cpKeyOnce": "Αντιγράψτε αυτό το κλειδί τώρα — δεν θα εμφανιστεί ξανά.",
+    "cpEnabledAria": "Προφίλ ενεργό"
   },
   "status": {
     "healthy": "υγιής",

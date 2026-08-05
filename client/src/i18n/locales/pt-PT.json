@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Sem âmbito definido — esta chave serve todos os modelos do fornecedor.",
     "modelScopeClear": "Limpar âmbito",
     "modelScopeBadgeOne": "restrita · 1 modelo",
-    "modelScopeBadgeOther": "restrita · {count} modelos"
+    "modelScopeBadgeOther": "restrita · {count} modelos",
+    "cpTitle": "Perfis de cliente",
+    "cpDesc": "Chaves de API por cliente, cada uma com um prompt de sistema que o servidor aplica sempre.",
+    "cpEmpty": "Ainda não existem perfis de cliente.",
+    "cpNameLabel": "Nome",
+    "cpNamePlaceholder": "p. ex., Bot de apoio",
+    "cpPromptLabel": "Prompt de sistema (opcional)",
+    "cpPromptPlaceholder": "Instruções que o servidor antepõe a cada pedido feito com esta chave.",
+    "cpCreate": "Criar perfil",
+    "cpRotate": "Rodar chave",
+    "cpKeyOnce": "Copie esta chave agora — não voltará a ser mostrada.",
+    "cpEnabledAria": "Perfil ativado"
   },
   "status": {
     "healthy": "Saudável",

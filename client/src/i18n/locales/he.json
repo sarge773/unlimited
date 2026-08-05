@@ -490,7 +490,18 @@
     "modelScopeEmpty": "לא הוגדר טווח — מפתח זה משרת את כל המודלים של הספק שלו.",
     "modelScopeClear": "נקה טווח",
     "modelScopeBadgeOne": "מוגבל · מודל 1",
-    "modelScopeBadgeOther": "מוגבל · {count} מודלים"
+    "modelScopeBadgeOther": "מוגבל · {count} מודלים",
+    "cpTitle": "פרופילי לקוח",
+    "cpDesc": "מפתחות API לכל לקוח, לכל אחד הנחיית מערכת שהשרת מחיל תמיד.",
+    "cpEmpty": "אין עדיין פרופילי לקוח.",
+    "cpNameLabel": "שם",
+    "cpNamePlaceholder": "לדוגמה: בוט תמיכה",
+    "cpPromptLabel": "הנחיית מערכת (אופציונלי)",
+    "cpPromptPlaceholder": "הוראות שהשרת מוסיף לפני כל בקשה שנעשית עם מפתח זה.",
+    "cpCreate": "יצירת פרופיל",
+    "cpRotate": "החלפת מפתח",
+    "cpKeyOnce": "העתיקו את המפתח עכשיו — הוא לא יוצג שוב.",
+    "cpEnabledAria": "הפרופיל מופעל"
   },
   "status": {
     "healthy": "בריא",

@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Nincs beállított kör — ez a kulcs a szolgáltató összes modelljét kiszolgálja.",
     "modelScopeClear": "Kör törlése",
     "modelScopeBadgeOne": "korlátozva · 1 modell",
-    "modelScopeBadgeOther": "korlátozva · {count} modell"
+    "modelScopeBadgeOther": "korlátozva · {count} modell",
+    "cpTitle": "Kliensprofilok",
+    "cpDesc": "Kliensenkénti API-kulcsok, mindegyikhez saját rendszerprompt, amelyet a szerver mindig alkalmaz.",
+    "cpEmpty": "Még nincsenek kliensprofilok.",
+    "cpNameLabel": "Név",
+    "cpNamePlaceholder": "pl. Támogatási bot",
+    "cpPromptLabel": "Rendszerprompt (opcionális)",
+    "cpPromptPlaceholder": "Utasítások, amelyeket a szerver minden, ezzel a kulccsal indított kérés elé illeszt.",
+    "cpCreate": "Profil létrehozása",
+    "cpRotate": "Kulcs cseréje",
+    "cpKeyOnce": "Másolja ki most ezt a kulcsot — többé nem jelenik meg.",
+    "cpEnabledAria": "Profil engedélyezve"
   },
   "status": {
     "healthy": "egészséges",

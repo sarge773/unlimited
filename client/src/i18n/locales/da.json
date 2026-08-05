@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Intet omfang angivet — nøglen betjener alle modeller hos sin udbyder.",
     "modelScopeClear": "Ryd omfang",
     "modelScopeBadgeOne": "begrænset · 1 model",
-    "modelScopeBadgeOther": "begrænset · {count} modeller"
+    "modelScopeBadgeOther": "begrænset · {count} modeller",
+    "cpTitle": "Klientprofiler",
+    "cpDesc": "API-nøgler pr. klient, hver med en systemprompt som serveren altid anvender.",
+    "cpEmpty": "Ingen klientprofiler endnu.",
+    "cpNameLabel": "Navn",
+    "cpNamePlaceholder": "f.eks. Supportbot",
+    "cpPromptLabel": "Systemprompt (valgfri)",
+    "cpPromptPlaceholder": "Instruktioner som serveren indsætter før hver forespørgsel med denne nøgle.",
+    "cpCreate": "Opret profil",
+    "cpRotate": "Rotér nøgle",
+    "cpKeyOnce": "Kopiér denne nøgle nu — den vises ikke igen.",
+    "cpEnabledAria": "Profil aktiveret"
   },
   "status": {
     "healthy": "sundt",

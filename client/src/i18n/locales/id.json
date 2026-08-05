@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Cakupan belum diatur — kunci ini melayani semua model penyedianya.",
     "modelScopeClear": "Hapus cakupan",
     "modelScopeBadgeOne": "dibatasi · 1 model",
-    "modelScopeBadgeOther": "dibatasi · {count} model"
+    "modelScopeBadgeOther": "dibatasi · {count} model",
+    "cpTitle": "Profil klien",
+    "cpDesc": "Kunci API per klien, masing-masing dengan prompt sistem yang selalu diterapkan server.",
+    "cpEmpty": "Belum ada profil klien.",
+    "cpNameLabel": "Nama",
+    "cpNamePlaceholder": "mis. Bot dukungan",
+    "cpPromptLabel": "Prompt sistem (opsional)",
+    "cpPromptPlaceholder": "Instruksi yang ditambahkan server di awal setiap permintaan dengan kunci ini.",
+    "cpCreate": "Buat profil",
+    "cpRotate": "Rotasi kunci",
+    "cpKeyOnce": "Salin kunci ini sekarang — tidak akan ditampilkan lagi.",
+    "cpEnabledAria": "Profil aktif"
   },
   "status": {
     "healthy": "sehat",

@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Enweghị oke edobere — igodo a na-arụ ọrụ maka model niile nke onye na-eweta ya.",
     "modelScopeClear": "Hichapụ oke",
     "modelScopeBadgeOne": "oke · model 1",
-    "modelScopeBadgeOther": "oke · model {count}"
+    "modelScopeBadgeOther": "oke · model {count}",
+    "cpTitle": "Profaịlụ ndị ahịa",
+    "cpDesc": "Igodo API maka onye ahịa ọ bụla, nke ọ bụla nwere ntụziaka sistemu nke sava na-etinye mgbe niile.",
+    "cpEmpty": "Enwebeghị profaịlụ onye ahịa.",
+    "cpNameLabel": "Aha",
+    "cpNamePlaceholder": "dịka: Bot nkwado",
+    "cpPromptLabel": "Ntụziaka sistemu (nhọrọ)",
+    "cpPromptPlaceholder": "Ntụziaka sava na-etinye n'ihu arịrịọ ọ bụla e ji igodo a mee.",
+    "cpCreate": "Mepụta profaịlụ",
+    "cpRotate": "Gbanwee igodo",
+    "cpKeyOnce": "Detuo igodo a ugbu a — agaghị egosi ya ọzọ.",
+    "cpEnabledAria": "Profaịlụ na-arụ ọrụ"
   },
   "status": {
     "healthy": "ahụike",

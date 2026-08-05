@@ -490,7 +490,18 @@
     "modelScopeEmpty": "कोई दायरा सेट नहीं — यह कुंजी अपने प्रदाता के सभी मॉडल के लिए काम करती है।",
     "modelScopeClear": "दायरा हटाएँ",
     "modelScopeBadgeOne": "सीमित · 1 मॉडल",
-    "modelScopeBadgeOther": "सीमित · {count} मॉडल"
+    "modelScopeBadgeOther": "सीमित · {count} मॉडल",
+    "cpTitle": "क्लाइंट प्रोफ़ाइल",
+    "cpDesc": "हर क्लाइंट के लिए अलग API कुंजी, जिसके सिस्टम प्रॉम्प्ट को सर्वर हमेशा लागू करता है।",
+    "cpEmpty": "अभी कोई क्लाइंट प्रोफ़ाइल नहीं है।",
+    "cpNameLabel": "नाम",
+    "cpNamePlaceholder": "जैसे: सपोर्ट बॉट",
+    "cpPromptLabel": "सिस्टम प्रॉम्प्ट (वैकल्पिक)",
+    "cpPromptPlaceholder": "निर्देश जो सर्वर इस कुंजी से किए गए हर अनुरोध से पहले जोड़ता है।",
+    "cpCreate": "प्रोफ़ाइल बनाएँ",
+    "cpRotate": "कुंजी बदलें",
+    "cpKeyOnce": "इस कुंजी को अभी कॉपी करें — यह दोबारा नहीं दिखाई जाएगी।",
+    "cpEnabledAria": "प्रोफ़ाइल सक्षम"
   },
   "status": {
     "healthy": "स्वस्थ",

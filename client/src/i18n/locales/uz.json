@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Doira belgilanmagan — bu kalit o‘z provayderining barcha modellariga xizmat qiladi.",
     "modelScopeClear": "Doirani tozalash",
     "modelScopeBadgeOne": "cheklangan · 1 model",
-    "modelScopeBadgeOther": "cheklangan · {count} model"
+    "modelScopeBadgeOther": "cheklangan · {count} model",
+    "cpTitle": "Mijoz profillari",
+    "cpDesc": "Har bir mijoz uchun alohida API kaliti; uning tizim promptini server doim qo'llaydi.",
+    "cpEmpty": "Hozircha mijoz profillari yo'q.",
+    "cpNameLabel": "Nomi",
+    "cpNamePlaceholder": "masalan: Qo'llab-quvvatlash boti",
+    "cpPromptLabel": "Tizim prompti (ixtiyoriy)",
+    "cpPromptPlaceholder": "Server ushbu kalit bilan qilingan har bir so'rov oldiga qo'shadigan ko'rsatmalar.",
+    "cpCreate": "Profil yaratish",
+    "cpRotate": "Kalitni almashtirish",
+    "cpKeyOnce": "Bu kalitni hozir nusxalang — u boshqa ko'rsatilmaydi.",
+    "cpEnabledAria": "Profil yoqilgan"
   },
   "status": {
     "healthy": "sog'lom",

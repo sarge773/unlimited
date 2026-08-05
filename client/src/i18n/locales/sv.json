@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Inget omfång angivet — nyckeln betjänar alla modeller hos sin leverantör.",
     "modelScopeClear": "Rensa omfång",
     "modelScopeBadgeOne": "begränsad · 1 modell",
-    "modelScopeBadgeOther": "begränsad · {count} modeller"
+    "modelScopeBadgeOther": "begränsad · {count} modeller",
+    "cpTitle": "Klientprofiler",
+    "cpDesc": "API-nycklar per klient, var och en med en systemprompt som servern alltid tillämpar.",
+    "cpEmpty": "Inga klientprofiler ännu.",
+    "cpNameLabel": "Namn",
+    "cpNamePlaceholder": "t.ex. Supportbot",
+    "cpPromptLabel": "Systemprompt (valfritt)",
+    "cpPromptPlaceholder": "Instruktioner som servern lägger till före varje förfrågan med den här nyckeln.",
+    "cpCreate": "Skapa profil",
+    "cpRotate": "Rotera nyckel",
+    "cpKeyOnce": "Kopiera nyckeln nu — den visas inte igen.",
+    "cpEnabledAria": "Profil aktiverad"
   },
   "status": {
     "healthy": "Hälsosamt",

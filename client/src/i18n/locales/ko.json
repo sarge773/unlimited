@@ -490,7 +490,18 @@
     "modelScopeEmpty": "범위 미설정 — 이 키는 제공자의 모든 모델에 사용됩니다.",
     "modelScopeClear": "범위 지우기",
     "modelScopeBadgeOne": "제한됨 · 모델 1개",
-    "modelScopeBadgeOther": "제한됨 · 모델 {count}개"
+    "modelScopeBadgeOther": "제한됨 · 모델 {count}개",
+    "cpTitle": "클라이언트 프로필",
+    "cpDesc": "클라이언트별 API 키로, 각 키의 시스템 프롬프트를 서버가 항상 적용합니다.",
+    "cpEmpty": "아직 클라이언트 프로필이 없습니다.",
+    "cpNameLabel": "이름",
+    "cpNamePlaceholder": "예: 고객지원 봇",
+    "cpPromptLabel": "시스템 프롬프트 (선택)",
+    "cpPromptPlaceholder": "이 키로 보내는 모든 요청 앞에 서버가 추가하는 지침입니다.",
+    "cpCreate": "프로필 만들기",
+    "cpRotate": "키 교체",
+    "cpKeyOnce": "지금 이 키를 복사하세요. 다시 표시되지 않습니다.",
+    "cpEnabledAria": "프로필 활성화됨"
   },
   "status": {
     "healthy": "건강한",

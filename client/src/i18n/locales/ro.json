@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Niciun domeniu setat — această cheie servește toate modelele furnizorului ei.",
     "modelScopeClear": "Șterge domeniul",
     "modelScopeBadgeOne": "limitată · 1 model",
-    "modelScopeBadgeOther": "limitată · {count} modele"
+    "modelScopeBadgeOther": "limitată · {count} modele",
+    "cpTitle": "Profiluri de client",
+    "cpDesc": "Chei API per client, fiecare cu un prompt de sistem pe care serverul îl aplică întotdeauna.",
+    "cpEmpty": "Încă nu există profiluri de client.",
+    "cpNameLabel": "Nume",
+    "cpNamePlaceholder": "ex. Bot de asistență",
+    "cpPromptLabel": "Prompt de sistem (opțional)",
+    "cpPromptPlaceholder": "Instrucțiuni pe care serverul le adaugă înaintea fiecărei cereri făcute cu această cheie.",
+    "cpCreate": "Creează profil",
+    "cpRotate": "Rotește cheia",
+    "cpKeyOnce": "Copiază această cheie acum — nu va mai fi afișată.",
+    "cpEnabledAria": "Profil activat"
   },
   "status": {
     "healthy": "Sănătos",

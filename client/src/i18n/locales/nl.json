@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Geen bereik ingesteld — deze sleutel bedient alle modellen van zijn provider.",
     "modelScopeClear": "Bereik wissen",
     "modelScopeBadgeOne": "beperkt · 1 model",
-    "modelScopeBadgeOther": "beperkt · {count} modellen"
+    "modelScopeBadgeOther": "beperkt · {count} modellen",
+    "cpTitle": "Clientprofielen",
+    "cpDesc": "API-sleutels per client, elk met een systeemprompt die de server altijd toepast.",
+    "cpEmpty": "Nog geen clientprofielen.",
+    "cpNameLabel": "Naam",
+    "cpNamePlaceholder": "bijv. Supportbot",
+    "cpPromptLabel": "Systeemprompt (optioneel)",
+    "cpPromptPlaceholder": "Instructies die de server vóór elk verzoek met deze sleutel plaatst.",
+    "cpCreate": "Profiel aanmaken",
+    "cpRotate": "Sleutel rouleren",
+    "cpKeyOnce": "Kopieer deze sleutel nu — hij wordt niet opnieuw getoond.",
+    "cpEnabledAria": "Profiel ingeschakeld"
   },
   "status": {
     "healthy": "Gezond",

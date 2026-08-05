@@ -490,7 +490,18 @@
     "modelScopeEmpty": "មិនទាន់កំណត់វិសាលភាព — សោនេះប្រើបានជាមួយម៉ូដែលទាំងអស់របស់អ្នកផ្តល់សេវា។",
     "modelScopeClear": "លុបវិសាលភាព",
     "modelScopeBadgeOne": "កំណត់ · ម៉ូដែល 1",
-    "modelScopeBadgeOther": "កំណត់ · ម៉ូដែល {count}"
+    "modelScopeBadgeOther": "កំណត់ · ម៉ូដែល {count}",
+    "cpTitle": "ប្រវត្តិរូបអតិថិជន",
+    "cpDesc": "សោ API សម្រាប់អតិថិជននីមួយៗ ដែលមាន system prompt ដែលម៉ាស៊ីនមេអនុវត្តជានិច្ច។",
+    "cpEmpty": "មិនទាន់មានប្រវត្តិរូបអតិថិជនទេ។",
+    "cpNameLabel": "ឈ្មោះ",
+    "cpNamePlaceholder": "ឧ. Bot ជំនួយ",
+    "cpPromptLabel": "System prompt (ស្រេចចិត្ត)",
+    "cpPromptPlaceholder": "ការណែនាំដែលម៉ាស៊ីនមេបន្ថែមនៅមុខសំណើនីមួយៗ ដែលធ្វើដោយសោនេះ។",
+    "cpCreate": "បង្កើតប្រវត្តិរូប",
+    "cpRotate": "ប្ដូរសោ",
+    "cpKeyOnce": "ចម្លងសោនេះឥឡូវនេះ — វានឹងមិនបង្ហាញម្ដងទៀតទេ។",
+    "cpEnabledAria": "ប្រវត្តិរូបបានបើក"
   },
   "status": {
     "healthy": "មានសុខភាពល្អ",

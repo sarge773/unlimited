@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Opseg nije postavljen — ovaj ključ služi sve modele svog pružatelja.",
     "modelScopeClear": "Očisti opseg",
     "modelScopeBadgeOne": "ograničen · 1 model",
-    "modelScopeBadgeOther": "ograničen · {count} modela"
+    "modelScopeBadgeOther": "ograničen · {count} modela",
+    "cpTitle": "Profili klijenata",
+    "cpDesc": "API ključevi po klijentu, svaki sa sistemskim promptom koji poslužitelj uvijek primjenjuje.",
+    "cpEmpty": "Još nema profila klijenata.",
+    "cpNameLabel": "Naziv",
+    "cpNamePlaceholder": "npr. Bot za podršku",
+    "cpPromptLabel": "Sistemski prompt (neobavezno)",
+    "cpPromptPlaceholder": "Upute koje poslužitelj dodaje prije svakog zahtjeva ovim ključem.",
+    "cpCreate": "Stvori profil",
+    "cpRotate": "Rotiraj ključ",
+    "cpKeyOnce": "Kopirajte ovaj ključ sada — neće se ponovno prikazati.",
+    "cpEnabledAria": "Profil omogućen"
   },
   "status": {
     "healthy": "Zdravo",

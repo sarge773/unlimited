@@ -490,7 +490,18 @@
     "modelScopeEmpty": "スコープ未設定 — このキーはプロバイダーのすべてのモデルに使えます。",
     "modelScopeClear": "スコープを解除",
     "modelScopeBadgeOne": "限定 · 1 モデル",
-    "modelScopeBadgeOther": "限定 · {count} モデル"
+    "modelScopeBadgeOther": "限定 · {count} モデル",
+    "cpTitle": "クライアントプロファイル",
+    "cpDesc": "クライアントごとの API キー。それぞれのシステムプロンプトをサーバーが常に適用します。",
+    "cpEmpty": "クライアントプロファイルはまだありません。",
+    "cpNameLabel": "名前",
+    "cpNamePlaceholder": "例: サポートボット",
+    "cpPromptLabel": "システムプロンプト（任意）",
+    "cpPromptPlaceholder": "このキーで行われるすべてのリクエストの先頭にサーバーが追加する指示。",
+    "cpCreate": "プロファイルを作成",
+    "cpRotate": "キーをローテーション",
+    "cpKeyOnce": "このキーを今すぐコピーしてください。二度と表示されません。",
+    "cpEnabledAria": "プロファイル有効"
   },
   "status": {
     "healthy": "健康な",

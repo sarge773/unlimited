@@ -490,7 +490,18 @@
     "modelScopeEmpty": "لا يوجد نطاق محدد — يخدم هذا المفتاح جميع نماذج مزوّده.",
     "modelScopeClear": "مسح النطاق",
     "modelScopeBadgeOne": "مقيّد · نموذج واحد",
-    "modelScopeBadgeOther": "مقيّد · {count} نماذج"
+    "modelScopeBadgeOther": "مقيّد · {count} نماذج",
+    "cpTitle": "ملفات تعريف العملاء",
+    "cpDesc": "مفاتيح API لكل عميل، لكل منها موجّه نظام يطبّقه الخادم دائمًا.",
+    "cpEmpty": "لا توجد ملفات تعريف عملاء بعد.",
+    "cpNameLabel": "الاسم",
+    "cpNamePlaceholder": "مثال: روبوت الدعم",
+    "cpPromptLabel": "موجّه النظام (اختياري)",
+    "cpPromptPlaceholder": "تعليمات يضيفها الخادم قبل كل طلب يُجرى بهذا المفتاح.",
+    "cpCreate": "إنشاء ملف تعريف",
+    "cpRotate": "تدوير المفتاح",
+    "cpKeyOnce": "انسخ هذا المفتاح الآن — لن يظهر مرة أخرى.",
+    "cpEnabledAria": "الملف مفعّل"
   },
   "status": {
     "healthy": "صحي",

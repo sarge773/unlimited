@@ -490,7 +490,18 @@
     "modelScopeEmpty": "ወሰን አልተቀመጠም — ይህ ቁልፍ የአቅራቢውን ሞዴሎች ሁሉ ያገለግላል።",
     "modelScopeClear": "ወሰን አጥፋ",
     "modelScopeBadgeOne": "የተገደበ · 1 ሞዴል",
-    "modelScopeBadgeOther": "የተገደበ · {count} ሞዴሎች"
+    "modelScopeBadgeOther": "የተገደበ · {count} ሞዴሎች",
+    "cpTitle": "የደንበኛ መገለጫዎች",
+    "cpDesc": "ለእያንዳንዱ ደንበኛ የተለየ የ API ቁልፍ፣ እያንዳንዱም አገልጋዩ ሁልጊዜ የሚተገብረው የስርዓት መመሪያ አለው።",
+    "cpEmpty": "እስካሁን የደንበኛ መገለጫ የለም።",
+    "cpNameLabel": "ስም",
+    "cpNamePlaceholder": "ለምሳሌ፦ የድጋፍ ቦት",
+    "cpPromptLabel": "የስርዓት መመሪያ (አማራጭ)",
+    "cpPromptPlaceholder": "አገልጋዩ በዚህ ቁልፍ ለሚደረግ እያንዳንዱ ጥያቄ ፊት የሚያክላቸው መመሪያዎች።",
+    "cpCreate": "መገለጫ ፍጠር",
+    "cpRotate": "ቁልፍ ቀይር",
+    "cpKeyOnce": "ይህን ቁልፍ አሁን ቅዱ — ዳግም አይታይም።",
+    "cpEnabledAria": "መገለጫ ነቅቷል"
   },
   "status": {
     "healthy": "ጤናማ",

@@ -490,7 +490,18 @@
     "modelScopeEmpty": "未設定範圍——此金鑰可服務該供應商的所有模型。",
     "modelScopeClear": "清除範圍",
     "modelScopeBadgeOne": "限定 · 1 個模型",
-    "modelScopeBadgeOther": "限定 · {count} 個模型"
+    "modelScopeBadgeOther": "限定 · {count} 個模型",
+    "cpTitle": "用戶端設定檔",
+    "cpDesc": "為每個用戶端各自發放 API 金鑰，伺服器會一律套用其系統提示詞。",
+    "cpEmpty": "尚無用戶端設定檔。",
+    "cpNameLabel": "名稱",
+    "cpNamePlaceholder": "例如：客服機器人",
+    "cpPromptLabel": "系統提示詞（選填）",
+    "cpPromptPlaceholder": "伺服器會將這些指令加在使用此金鑰的每個請求之前。",
+    "cpCreate": "建立設定檔",
+    "cpRotate": "輪換金鑰",
+    "cpKeyOnce": "請立即複製此金鑰——之後將不會再顯示。",
+    "cpEnabledAria": "設定檔已啟用"
   },
   "status": {
     "healthy": "健康",

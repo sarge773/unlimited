@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Rajausta ei ole asetettu — avain palvelee kaikkia tarjoajansa malleja.",
     "modelScopeClear": "Tyhjennä rajaus",
     "modelScopeBadgeOne": "rajattu · 1 malli",
-    "modelScopeBadgeOther": "rajattu · {count} mallia"
+    "modelScopeBadgeOther": "rajattu · {count} mallia",
+    "cpTitle": "Asiakasprofiilit",
+    "cpDesc": "API-avaimet asiakaskohtaisesti, kullakin järjestelmäkehote, jonka palvelin lisää aina.",
+    "cpEmpty": "Ei vielä asiakasprofiileja.",
+    "cpNameLabel": "Nimi",
+    "cpNamePlaceholder": "esim. Tukibotti",
+    "cpPromptLabel": "Järjestelmäkehote (valinnainen)",
+    "cpPromptPlaceholder": "Ohjeet, jotka palvelin lisää jokaisen tällä avaimella tehdyn pyynnön alkuun.",
+    "cpCreate": "Luo profiili",
+    "cpRotate": "Vaihda avain",
+    "cpKeyOnce": "Kopioi tämä avain nyt — sitä ei näytetä uudelleen.",
+    "cpEnabledAria": "Profiili käytössä"
   },
   "status": {
     "healthy": "terve",

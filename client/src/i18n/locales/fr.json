@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Aucune portée définie — cette clé sert tous les modèles de son fournisseur.",
     "modelScopeClear": "Effacer la portée",
     "modelScopeBadgeOne": "limitée · 1 modèle",
-    "modelScopeBadgeOther": "limitée · {count} modèles"
+    "modelScopeBadgeOther": "limitée · {count} modèles",
+    "cpTitle": "Profils client",
+    "cpDesc": "Des clés API par client, chacune avec un prompt système que le serveur applique toujours.",
+    "cpEmpty": "Aucun profil client pour le moment.",
+    "cpNameLabel": "Nom",
+    "cpNamePlaceholder": "p. ex. Bot de support",
+    "cpPromptLabel": "Prompt système (facultatif)",
+    "cpPromptPlaceholder": "Instructions que le serveur ajoute en tête de chaque requête effectuée avec cette clé.",
+    "cpCreate": "Créer le profil",
+    "cpRotate": "Renouveler la clé",
+    "cpKeyOnce": "Copiez cette clé maintenant — elle ne sera plus affichée.",
+    "cpEnabledAria": "Profil activé"
   },
   "status": {
     "healthy": "sain",

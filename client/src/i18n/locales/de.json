@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Kein Bereich gesetzt — dieser Schlüssel bedient alle Modelle seines Anbieters.",
     "modelScopeClear": "Bereich löschen",
     "modelScopeBadgeOne": "begrenzt · 1 Modell",
-    "modelScopeBadgeOther": "begrenzt · {count} Modelle"
+    "modelScopeBadgeOther": "begrenzt · {count} Modelle",
+    "cpTitle": "Client-Profile",
+    "cpDesc": "API-Schlüssel pro Client, jeweils mit einem System-Prompt, den der Server immer anwendet.",
+    "cpEmpty": "Noch keine Client-Profile.",
+    "cpNameLabel": "Name",
+    "cpNamePlaceholder": "z. B. Support-Bot",
+    "cpPromptLabel": "System-Prompt (optional)",
+    "cpPromptPlaceholder": "Anweisungen, die der Server jeder Anfrage mit diesem Schlüssel voranstellt.",
+    "cpCreate": "Profil erstellen",
+    "cpRotate": "Schlüssel rotieren",
+    "cpKeyOnce": "Kopiere diesen Schlüssel jetzt — er wird nicht erneut angezeigt.",
+    "cpEnabledAria": "Profil aktiviert"
   },
   "status": {
     "healthy": "gesund",

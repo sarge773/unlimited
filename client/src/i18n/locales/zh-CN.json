@@ -490,7 +490,18 @@
     "modelScopeEmpty": "未设置范围——此密钥可服务该提供商的所有模型。",
     "modelScopeClear": "清除范围",
     "modelScopeBadgeOne": "限定 · 1 个模型",
-    "modelScopeBadgeOther": "限定 · {count} 个模型"
+    "modelScopeBadgeOther": "限定 · {count} 个模型",
+    "cpTitle": "客户端配置文件",
+    "cpDesc": "为每个客户端单独发放 API 密钥，服务器会始终应用其系统提示词。",
+    "cpEmpty": "还没有客户端配置文件。",
+    "cpNameLabel": "名称",
+    "cpNamePlaceholder": "例如：客服机器人",
+    "cpPromptLabel": "系统提示词（可选）",
+    "cpPromptPlaceholder": "服务器会将这些指令加在使用此密钥的每个请求之前。",
+    "cpCreate": "创建配置文件",
+    "cpRotate": "轮换密钥",
+    "cpKeyOnce": "请立即复制此密钥——之后将不再显示。",
+    "cpEnabledAria": "配置文件已启用"
   },
   "status": {
     "healthy": "健康",

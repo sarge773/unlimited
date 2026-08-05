@@ -490,7 +490,18 @@
     "modelScopeEmpty": "ยังไม่ได้ตั้งขอบเขต — คีย์นี้ใช้ได้กับทุกโมเดลของผู้ให้บริการ",
     "modelScopeClear": "ล้างขอบเขต",
     "modelScopeBadgeOne": "จำกัด · 1 โมเดล",
-    "modelScopeBadgeOther": "จำกัด · {count} โมเดล"
+    "modelScopeBadgeOther": "จำกัด · {count} โมเดล",
+    "cpTitle": "โปรไฟล์ไคลเอนต์",
+    "cpDesc": "คีย์ API แยกตามไคลเอนต์ แต่ละคีย์มี system prompt ที่เซิร์ฟเวอร์ใช้เสมอ",
+    "cpEmpty": "ยังไม่มีโปรไฟล์ไคลเอนต์",
+    "cpNameLabel": "ชื่อ",
+    "cpNamePlaceholder": "เช่น บอตฝ่ายสนับสนุน",
+    "cpPromptLabel": "System prompt (ไม่บังคับ)",
+    "cpPromptPlaceholder": "คำสั่งที่เซิร์ฟเวอร์เพิ่มไว้หน้าทุกคำขอที่ใช้คีย์นี้",
+    "cpCreate": "สร้างโปรไฟล์",
+    "cpRotate": "หมุนเวียนคีย์",
+    "cpKeyOnce": "คัดลอกคีย์นี้ตอนนี้ — จะไม่แสดงอีก",
+    "cpEnabledAria": "เปิดใช้งานโปรไฟล์"
   },
   "status": {
     "healthy": "มีสุขภาพดี",

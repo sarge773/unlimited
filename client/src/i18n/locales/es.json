@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Sin alcance definido: esta clave sirve todos los modelos de su proveedor.",
     "modelScopeClear": "Borrar alcance",
     "modelScopeBadgeOne": "limitada · 1 modelo",
-    "modelScopeBadgeOther": "limitada · {count} modelos"
+    "modelScopeBadgeOther": "limitada · {count} modelos",
+    "cpTitle": "Perfiles de cliente",
+    "cpDesc": "Claves API por cliente, cada una con un prompt de sistema que el servidor aplica siempre.",
+    "cpEmpty": "Aún no hay perfiles de cliente.",
+    "cpNameLabel": "Nombre",
+    "cpNamePlaceholder": "p. ej., Bot de soporte",
+    "cpPromptLabel": "Prompt de sistema (opcional)",
+    "cpPromptPlaceholder": "Instrucciones que el servidor antepone a cada solicitud hecha con esta clave.",
+    "cpCreate": "Crear perfil",
+    "cpRotate": "Rotar clave",
+    "cpKeyOnce": "Copia esta clave ahora: no se volverá a mostrar.",
+    "cpEnabledAria": "Perfil habilitado"
   },
   "status": {
     "healthy": "correcto",

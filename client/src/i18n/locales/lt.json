@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Aprėptis nenustatyta — šis raktas aptarnauja visus savo teikėjo modelius.",
     "modelScopeClear": "Išvalyti aprėptį",
     "modelScopeBadgeOne": "apribotas · 1 modelis",
-    "modelScopeBadgeOther": "apribotas · {count} modeliai"
+    "modelScopeBadgeOther": "apribotas · {count} modeliai",
+    "cpTitle": "Klientų profiliai",
+    "cpDesc": "Atskiri API raktai kiekvienam klientui, kiekvienas su sisteminiu promptu, kurį serveris visada taiko.",
+    "cpEmpty": "Klientų profilių kol kas nėra.",
+    "cpNameLabel": "Pavadinimas",
+    "cpNamePlaceholder": "pvz., Pagalbos botas",
+    "cpPromptLabel": "Sisteminis promptas (nebūtina)",
+    "cpPromptPlaceholder": "Nurodymai, kuriuos serveris prideda prieš kiekvieną užklausą šiuo raktu.",
+    "cpCreate": "Sukurti profilį",
+    "cpRotate": "Pakeisti raktą",
+    "cpKeyOnce": "Nukopijuokite šį raktą dabar — jis daugiau nebus rodomas.",
+    "cpEnabledAria": "Profilis įjungtas"
   },
   "status": {
     "healthy": "Sveika",

@@ -490,7 +490,18 @@
     "modelScopeEmpty": "පරාසයක් සකසා නැත — මෙම යතුර එහි සැපයුම්කරුගේ සියලුම මොඩල සඳහා ක්‍රියා කරයි.",
     "modelScopeClear": "පරාසය හිස් කරන්න",
     "modelScopeBadgeOne": "සීමිත · මොඩල 1",
-    "modelScopeBadgeOther": "සීමිත · මොඩල {count}"
+    "modelScopeBadgeOther": "සීමිත · මොඩල {count}",
+    "cpTitle": "සේවාලාභී පැතිකඩ",
+    "cpDesc": "එක් එක් සේවාලාභියාට වෙනම API යතුරක්; එහි පද්ධති විධානය සේවාදායකය සැමවිටම යොදයි.",
+    "cpEmpty": "තවම සේවාලාභී පැතිකඩ නොමැත.",
+    "cpNameLabel": "නම",
+    "cpNamePlaceholder": "උදා: සහාය බොට්",
+    "cpPromptLabel": "පද්ධති විධානය (විකල්ප)",
+    "cpPromptPlaceholder": "මෙම යතුරෙන් කරන සෑම ඉල්ලීමකටම පෙර සේවාදායකය එක් කරන උපදෙස්.",
+    "cpCreate": "පැතිකඩ සාදන්න",
+    "cpRotate": "යතුර මාරු කරන්න",
+    "cpKeyOnce": "මෙම යතුර දැන්ම පිටපත් කරන්න — එය නැවත නොපෙන්වයි.",
+    "cpEnabledAria": "පැතිකඩ සක්‍රීයයි"
   },
   "status": {
     "healthy": "සෞඛ්ය සම්පන්න",

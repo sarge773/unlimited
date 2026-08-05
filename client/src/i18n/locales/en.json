@@ -490,7 +490,18 @@
     "modelScopeEmpty": "No scope set — this key serves every model of its provider.",
     "modelScopeClear": "Clear scope",
     "modelScopeBadgeOne": "scoped · 1 model",
-    "modelScopeBadgeOther": "scoped · {count} models"
+    "modelScopeBadgeOther": "scoped · {count} models",
+    "cpTitle": "Client profiles",
+    "cpDesc": "Per-client API keys, each with a system prompt the server always applies.",
+    "cpEmpty": "No client profiles yet.",
+    "cpNameLabel": "Name",
+    "cpNamePlaceholder": "e.g. Support bot",
+    "cpPromptLabel": "System prompt (optional)",
+    "cpPromptPlaceholder": "Instructions the server prepends to every request made with this key.",
+    "cpCreate": "Create profile",
+    "cpRotate": "Rotate key",
+    "cpKeyOnce": "Copy this key now — it won't be shown again.",
+    "cpEnabledAria": "Profile enabled"
   },
   "status": {
     "healthy": "healthy",

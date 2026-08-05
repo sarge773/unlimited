@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Hakuna wigo uliowekwa — ufunguo huu unahudumia modeli zote za mtoa huduma wake.",
     "modelScopeClear": "Futa wigo",
     "modelScopeBadgeOne": "imezuiliwa · modeli 1",
-    "modelScopeBadgeOther": "imezuiliwa · modeli {count}"
+    "modelScopeBadgeOther": "imezuiliwa · modeli {count}",
+    "cpTitle": "Wasifu wa wateja",
+    "cpDesc": "Funguo za API kwa kila mteja, kila mmoja na maelekezo ya mfumo ambayo seva hutumia kila wakati.",
+    "cpEmpty": "Bado hakuna wasifu wa wateja.",
+    "cpNameLabel": "Jina",
+    "cpNamePlaceholder": "k.m. Boti ya usaidizi",
+    "cpPromptLabel": "Maelekezo ya mfumo (hiari)",
+    "cpPromptPlaceholder": "Maelekezo ambayo seva huweka mwanzoni mwa kila ombi linalofanywa kwa ufunguo huu.",
+    "cpCreate": "Unda wasifu",
+    "cpRotate": "Badilisha ufunguo",
+    "cpKeyOnce": "Nakili ufunguo huu sasa — hautaonyeshwa tena.",
+    "cpEnabledAria": "Wasifu umewashwa"
   },
   "status": {
     "healthy": "afya",

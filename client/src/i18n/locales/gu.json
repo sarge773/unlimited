@@ -490,7 +490,18 @@
     "modelScopeEmpty": "કોઈ વ્યાપ સેટ નથી — આ કી તેના પ્રદાતાના બધા મૉડલ માટે કામ કરે છે.",
     "modelScopeClear": "વ્યાપ દૂર કરો",
     "modelScopeBadgeOne": "મર્યાદિત · 1 મૉડલ",
-    "modelScopeBadgeOther": "મર્યાદિત · {count} મૉડલ"
+    "modelScopeBadgeOther": "મર્યાદિત · {count} મૉડલ",
+    "cpTitle": "ક્લાયન્ટ પ્રોફાઇલ",
+    "cpDesc": "દરેક ક્લાયન્ટ માટે અલગ API કી, જેનો સિસ્ટમ પ્રોમ્પ્ટ સર્વર હંમેશાં લાગુ કરે છે.",
+    "cpEmpty": "હજી કોઈ ક્લાયન્ટ પ્રોફાઇલ નથી.",
+    "cpNameLabel": "નામ",
+    "cpNamePlaceholder": "દા.ત. સપોર્ટ બોટ",
+    "cpPromptLabel": "સિસ્ટમ પ્રોમ્પ્ટ (વૈકલ્પિક)",
+    "cpPromptPlaceholder": "આ કીથી થતી દરેક વિનંતી પહેલાં સર્વર ઉમેરે તે સૂચનાઓ.",
+    "cpCreate": "પ્રોફાઇલ બનાવો",
+    "cpRotate": "કી બદલો",
+    "cpKeyOnce": "આ કી હમણાં જ કૉપિ કરો — તે ફરી બતાવવામાં આવશે નહીં.",
+    "cpEnabledAria": "પ્રોફાઇલ સક્ષમ"
   },
   "status": {
     "healthy": "સ્વસ્થ",

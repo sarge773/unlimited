@@ -490,7 +490,18 @@
     "modelScopeEmpty": "کوئی دائرہ مقرر نہیں — یہ کلید اپنے فراہم کنندہ کے تمام ماڈلز کے لیے کام کرتی ہے۔",
     "modelScopeClear": "دائرہ صاف کریں",
     "modelScopeBadgeOne": "محدود · 1 ماڈل",
-    "modelScopeBadgeOther": "محدود · {count} ماڈلز"
+    "modelScopeBadgeOther": "محدود · {count} ماڈلز",
+    "cpTitle": "کلائنٹ پروفائلز",
+    "cpDesc": "ہر کلائنٹ کے لیے الگ API کلید، جس کا سسٹم پرامپٹ سرور ہمیشہ لاگو کرتا ہے۔",
+    "cpEmpty": "ابھی کوئی کلائنٹ پروفائل نہیں۔",
+    "cpNameLabel": "نام",
+    "cpNamePlaceholder": "مثلاً سپورٹ بوٹ",
+    "cpPromptLabel": "سسٹم پرامپٹ (اختیاری)",
+    "cpPromptPlaceholder": "ہدایات جو سرور اس کلید سے کی گئی ہر درخواست سے پہلے شامل کرتا ہے۔",
+    "cpCreate": "پروفائل بنائیں",
+    "cpRotate": "کلید تبدیل کریں",
+    "cpKeyOnce": "یہ کلید ابھی کاپی کریں — یہ دوبارہ نہیں دکھائی جائے گی۔",
+    "cpEnabledAria": "پروفائل فعال"
   },
   "status": {
     "healthy": "صحت مند",

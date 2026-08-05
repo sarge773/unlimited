@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Ba a saita iyaka ba — wannan maɓalli yana aiki da duk samfuran mai bayarwa.",
     "modelScopeClear": "Share iyaka",
     "modelScopeBadgeOne": "iyakantacce · samfuri 1",
-    "modelScopeBadgeOther": "iyakantacce · samfura {count}"
+    "modelScopeBadgeOther": "iyakantacce · samfura {count}",
+    "cpTitle": "Bayanan martabar abokan ciniki",
+    "cpDesc": "Maɓallan API na kowane abokin ciniki, kowanne da umarnin tsarin da sabar ke amfani da shi koyaushe.",
+    "cpEmpty": "Babu bayanan martabar abokan ciniki tukuna.",
+    "cpNameLabel": "Suna",
+    "cpNamePlaceholder": "misali: Bot na tallafi",
+    "cpPromptLabel": "Umarnin tsari (na zaɓi)",
+    "cpPromptPlaceholder": "Umarnin da sabar ke ƙarawa a gaban kowace buƙata da aka yi da wannan maɓallin.",
+    "cpCreate": "Ƙirƙiri bayanin martaba",
+    "cpRotate": "Canza maɓalli",
+    "cpKeyOnce": "Kwafi wannan maɓallin yanzu — ba za a sake nuna shi ba.",
+    "cpEnabledAria": "An kunna bayanin martaba"
   },
   "status": {
     "healthy": "lafiya",

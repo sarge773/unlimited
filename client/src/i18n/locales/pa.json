@@ -490,7 +490,18 @@
     "modelScopeEmpty": "ਕੋਈ ਦਾਇਰਾ ਸੈੱਟ ਨਹੀਂ — ਇਹ ਕੁੰਜੀ ਆਪਣੇ ਪ੍ਰਦਾਤਾ ਦੇ ਸਾਰੇ ਮਾਡਲਾਂ ਲਈ ਕੰਮ ਕਰਦੀ ਹੈ।",
     "modelScopeClear": "ਦਾਇਰਾ ਹਟਾਓ",
     "modelScopeBadgeOne": "ਸੀਮਤ · 1 ਮਾਡਲ",
-    "modelScopeBadgeOther": "ਸੀਮਤ · {count} ਮਾਡਲ"
+    "modelScopeBadgeOther": "ਸੀਮਤ · {count} ਮਾਡਲ",
+    "cpTitle": "ਕਲਾਇੰਟ ਪ੍ਰੋਫਾਈਲ",
+    "cpDesc": "ਹਰ ਕਲਾਇੰਟ ਲਈ ਵੱਖਰੀ API ਕੁੰਜੀ, ਜਿਸਦਾ ਸਿਸਟਮ ਪ੍ਰੋਂਪਟ ਸਰਵਰ ਹਮੇਸ਼ਾ ਲਾਗੂ ਕਰਦਾ ਹੈ।",
+    "cpEmpty": "ਹਾਲੇ ਕੋਈ ਕਲਾਇੰਟ ਪ੍ਰੋਫਾਈਲ ਨਹੀਂ ਹੈ।",
+    "cpNameLabel": "ਨਾਮ",
+    "cpNamePlaceholder": "ਜਿਵੇਂ: ਸਪੋਰਟ ਬੋਟ",
+    "cpPromptLabel": "ਸਿਸਟਮ ਪ੍ਰੋਂਪਟ (ਵਿਕਲਪਿਕ)",
+    "cpPromptPlaceholder": "ਹਦਾਇਤਾਂ ਜੋ ਸਰਵਰ ਇਸ ਕੁੰਜੀ ਨਾਲ ਕੀਤੀ ਹਰ ਬੇਨਤੀ ਤੋਂ ਪਹਿਲਾਂ ਜੋੜਦਾ ਹੈ।",
+    "cpCreate": "ਪ੍ਰੋਫਾਈਲ ਬਣਾਓ",
+    "cpRotate": "ਕੁੰਜੀ ਬਦਲੋ",
+    "cpKeyOnce": "ਇਹ ਕੁੰਜੀ ਹੁਣੇ ਕਾਪੀ ਕਰੋ — ਇਹ ਦੁਬਾਰਾ ਨਹੀਂ ਦਿਖਾਈ ਜਾਵੇਗੀ।",
+    "cpEnabledAria": "ਪ੍ਰੋਫਾਈਲ ਚਾਲੂ"
   },
   "status": {
     "healthy": "ਸਿਹਤਮੰਦ",

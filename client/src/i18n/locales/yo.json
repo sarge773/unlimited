@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Kò sí àgbègbè tí a ṣètò — bọtìnì yìí ń ṣiṣẹ́ fún gbogbo awoṣe olùpèsè rẹ̀.",
     "modelScopeClear": "Pa àgbègbè rẹ́",
     "modelScopeBadgeOne": "ní ààlà · awoṣe 1",
-    "modelScopeBadgeOther": "ní ààlà · awoṣe {count}"
+    "modelScopeBadgeOther": "ní ààlà · awoṣe {count}",
+    "cpTitle": "Àwọn pírófáìlì oníbàárà",
+    "cpDesc": "Àwọn kọ́kọ́rọ́ API fún oníbàárà kọ̀ọ̀kan, ọ̀kọ̀ọ̀kan pẹ̀lú ìtọ́ni ètò tí sáfà máa ń lò nígbà gbogbo.",
+    "cpEmpty": "Kò sí pírófáìlì oníbàárà síbẹ̀.",
+    "cpNameLabel": "Orúkọ",
+    "cpNamePlaceholder": "b.a. Bọ́ọ̀tì àtìlẹ́yìn",
+    "cpPromptLabel": "Ìtọ́ni ètò (àṣàyàn)",
+    "cpPromptPlaceholder": "Àwọn ìtọ́ni tí sáfà máa ń fi kún iwájú gbogbo ìbéèrè tí a fi kọ́kọ́rọ́ yìí ṣe.",
+    "cpCreate": "Ṣẹ̀dá pírófáìlì",
+    "cpRotate": "Yí kọ́kọ́rọ́ padà",
+    "cpKeyOnce": "Ṣàdàkọ kọ́kọ́rọ́ yìí báyìí — a kò ní fi hàn mọ́.",
+    "cpEnabledAria": "Pírófáìlì ti ṣiṣẹ́"
   },
   "status": {
     "healthy": "ni ilera",

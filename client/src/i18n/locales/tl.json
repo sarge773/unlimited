@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Walang nakatakdang saklaw — ginagamit ang key na ito para sa lahat ng modelo ng provider nito.",
     "modelScopeClear": "Burahin ang saklaw",
     "modelScopeBadgeOne": "limitado · 1 modelo",
-    "modelScopeBadgeOther": "limitado · {count} na modelo"
+    "modelScopeBadgeOther": "limitado · {count} na modelo",
+    "cpTitle": "Mga profile ng client",
+    "cpDesc": "Hiwalay na API key para sa bawat client, bawat isa may system prompt na palaging inilalapat ng server.",
+    "cpEmpty": "Wala pang mga profile ng client.",
+    "cpNameLabel": "Pangalan",
+    "cpNamePlaceholder": "hal. Support bot",
+    "cpPromptLabel": "System prompt (opsyonal)",
+    "cpPromptPlaceholder": "Mga tagubiling idinaragdag ng server bago ang bawat kahilingang ginawa gamit ang key na ito.",
+    "cpCreate": "Gumawa ng profile",
+    "cpRotate": "I-rotate ang key",
+    "cpKeyOnce": "Kopyahin ang key na ito ngayon — hindi na ito ipapakita muli.",
+    "cpEnabledAria": "Naka-enable ang profile"
   },
   "status": {
     "healthy": "malusog",

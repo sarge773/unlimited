@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Rozsah není nastaven — tento klíč obsluhuje všechny modely svého poskytovatele.",
     "modelScopeClear": "Vymazat rozsah",
     "modelScopeBadgeOne": "omezený · 1 model",
-    "modelScopeBadgeOther": "omezený · {count} modelů"
+    "modelScopeBadgeOther": "omezený · {count} modelů",
+    "cpTitle": "Profily klientů",
+    "cpDesc": "Samostatné API klíče pro každého klienta, každý se systémovým promptem, který server vždy použije.",
+    "cpEmpty": "Zatím žádné profily klientů.",
+    "cpNameLabel": "Název",
+    "cpNamePlaceholder": "např. Bot podpory",
+    "cpPromptLabel": "Systémový prompt (volitelné)",
+    "cpPromptPlaceholder": "Pokyny, které server přidá před každý požadavek provedený tímto klíčem.",
+    "cpCreate": "Vytvořit profil",
+    "cpRotate": "Obměnit klíč",
+    "cpKeyOnce": "Zkopírujte tento klíč hned — už se znovu nezobrazí.",
+    "cpEnabledAria": "Profil povolen"
   },
   "status": {
     "healthy": "zdravé",

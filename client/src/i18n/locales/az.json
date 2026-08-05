@@ -490,7 +490,18 @@
     "modelScopeEmpty": "Əhatə təyin edilməyib — bu açar provayderinin bütün modellərinə xidmət edir.",
     "modelScopeClear": "Əhatəni təmizlə",
     "modelScopeBadgeOne": "məhdud · 1 model",
-    "modelScopeBadgeOther": "məhdud · {count} model"
+    "modelScopeBadgeOther": "məhdud · {count} model",
+    "cpTitle": "Müştəri profilləri",
+    "cpDesc": "Hər müştəri üçün ayrıca API açarı; onun sistem promptunu server həmişə tətbiq edir.",
+    "cpEmpty": "Hələ müştəri profili yoxdur.",
+    "cpNameLabel": "Ad",
+    "cpNamePlaceholder": "məs. Dəstək botu",
+    "cpPromptLabel": "Sistem promptu (istəyə bağlı)",
+    "cpPromptPlaceholder": "Bu açarla edilən hər sorğunun əvvəlinə serverin əlavə etdiyi təlimatlar.",
+    "cpCreate": "Profil yarat",
+    "cpRotate": "Açarı dəyiş",
+    "cpKeyOnce": "Bu açarı indi kopyalayın — bir daha göstərilməyəcək.",
+    "cpEnabledAria": "Profil aktivdir"
   },
   "status": {
     "healthy": "sağlam",
