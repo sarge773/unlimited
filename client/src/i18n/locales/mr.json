@@ -300,6 +300,8 @@
     "pageTitle": "कळा",
     "pageDescription": "प्रदाता क्रेडेंशियल आणि युनिफाइड API की तुमचे ॲप्स कनेक्ट करतात.",
     "tabProviders": "प्रदाते",
+    "checklistSummary": "{total} पैकी {configured} प्रदाते कॉन्फिगर केले",
+    "checklistKeyless": "की आवश्यक नाही",
     "tabQuotaSignals": "कोटा सिग्नल",
     "tabApiKey": "युनिफाइड API की",
     "tabAnthropic": "Anthropic",

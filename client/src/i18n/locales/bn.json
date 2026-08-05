@@ -300,6 +300,8 @@
     "pageTitle": "চাবি",
     "pageDescription": "প্রদানকারীর শংসাপত্র এবং ইউনিফাইড API কী যেটির সাথে আপনার অ্যাপগুলি সংযোগ করে৷",
     "tabProviders": "প্রদানকারী",
+    "checklistSummary": "{total}টি প্রদানকারীর মধ্যে {configured}টি কনফিগার করা হয়েছে",
+    "checklistKeyless": "কোনো কী প্রয়োজন নেই",
     "tabQuotaSignals": "কোটা সংকেত",
     "tabApiKey": "ইউনিফাইড API কী",
     "tabAnthropic": "Anthropic",

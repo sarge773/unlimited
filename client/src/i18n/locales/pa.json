@@ -300,6 +300,8 @@
     "pageTitle": "ਕੁੰਜੀਆਂ",
     "pageDescription": "ਪ੍ਰਦਾਤਾ ਪ੍ਰਮਾਣ ਪੱਤਰ ਅਤੇ ਯੂਨੀਫਾਈਡ API ਕੁੰਜੀ ਜਿਸ ਨਾਲ ਤੁਹਾਡੀਆਂ ਐਪਾਂ ਜੁੜਦੀਆਂ ਹਨ।",
     "tabProviders": "ਪ੍ਰਦਾਤਾ",
+    "checklistSummary": "{total} ਵਿੱਚੋਂ {configured} ਪ੍ਰਦਾਤਾ ਸੰਰਚਿਤ ਕੀਤੇ ਗਏ",
+    "checklistKeyless": "ਕੁੰਜੀ ਦੀ ਲੋੜ ਨਹੀਂ",
     "tabQuotaSignals": "ਕੋਟਾ ਸਿਗਨਲ",
     "tabApiKey": "ਯੂਨੀਫਾਈਡ API ਕੁੰਜੀ",
     "tabAnthropic": "Anthropic",

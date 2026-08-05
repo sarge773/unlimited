@@ -300,6 +300,8 @@
     "pageTitle": "Klíče",
     "pageDescription": "Přihlašovací údaje poskytovatele a jednotný klíč API se kterými se vaše aplikace připojují.",
     "tabProviders": "Poskytovatelé",
+    "checklistSummary": "Nastaveno {configured} z {total} poskytovatelů",
+    "checklistKeyless": "klíč není potřeba",
     "tabQuotaSignals": "Kvótové signály",
     "tabApiKey": "Sjednocený API klíč",
     "tabAnthropic": "Anthropic",

@@ -300,6 +300,8 @@
     "pageTitle": "သော့များ",
     "pageDescription": "ပံ့ပိုးသူအတည်ပြုချက်များနှင့် သင့်အက်ပ်များ ချိတ်ဆက်ထားသော API သော့ချက်။",
     "tabProviders": "ပံ့ပိုးသူများ",
+    "checklistSummary": "ပံ့ပိုးသူ {total} ဦးအနက် {configured} ဦး သတ်မှတ်ပြီး",
+    "checklistKeyless": "ကီး မလိုအပ်ပါ",
     "tabQuotaSignals": "အရေအတွက် အချက်ပြချက်များ",
     "tabApiKey": "ပေါင်းစည်းထားသော API",
     "tabAnthropic": "Anthropic",

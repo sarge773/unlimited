@@ -300,6 +300,8 @@
     "pageTitle": "キー",
     "pageDescription": "プロバイダーの資格情報と、アプリが接続する統合 API キー。",
     "tabProviders": "プロバイダー",
+    "checklistSummary": "{total}件中{configured}件のプロバイダーを設定済み",
+    "checklistKeyless": "キー不要",
     "tabQuotaSignals": "クォータ信号",
     "tabApiKey": "統一されたAPIキー",
     "tabAnthropic": "Anthropic",

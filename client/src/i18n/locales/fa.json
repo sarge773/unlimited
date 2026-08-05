@@ -300,6 +300,8 @@
     "pageTitle": "کلیدها",
     "pageDescription": "اعتبار ارائه دهنده و کلید یکپارچه API برنامه های شما با آن متصل می شوند.",
     "tabProviders": "ارائه دهندگان",
+    "checklistSummary": "{configured} از {total} ارائه‌دهنده پیکربندی شده است",
+    "checklistKeyless": "بدون نیاز به کلید",
     "tabQuotaSignals": "سیگنال های سهمیه ای",
     "tabApiKey": "کلید یکپارچه API",
     "tabAnthropic": "Anthropic",

@@ -300,6 +300,8 @@
     "pageTitle": "Kunci",
     "pageDescription": "Kelayakan penyedia dan kunci API bersatu yang aplikasi anda sambungkan.",
     "tabProviders": "Penyedia",
+    "checklistSummary": "{configured} daripada {total} penyedia telah dikonfigurasi",
+    "checklistKeyless": "tiada kunci diperlukan",
     "tabQuotaSignals": "Isyarat kuota",
     "tabApiKey": "Kunci API bersatu",
     "tabAnthropic": "Anthropic",

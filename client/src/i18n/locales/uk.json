@@ -300,6 +300,8 @@
     "pageTitle": "Ключі",
     "pageDescription": "Облікові дані постачальника та уніфікований ключ API, з яким підключаються ваші програми.",
     "tabProviders": "Провайдери",
+    "checklistSummary": "Налаштовано {configured} із {total} провайдерів",
+    "checklistKeyless": "ключ не потрібен",
     "tabQuotaSignals": "Сигнали квоти",
     "tabApiKey": "Уніфікований ключ API",
     "tabAnthropic": "Anthropic",

@@ -300,6 +300,8 @@
     "pageTitle": "Ключи",
     "pageDescription": "Учетные данные поставщика и единый ключ API, с помощью которого подключаются ваши приложения.",
     "tabProviders": "Провайдеры",
+    "checklistSummary": "Настроено {configured} из {total} провайдеров",
+    "checklistKeyless": "ключ не нужен",
     "tabQuotaSignals": "Сигналы квоты",
     "tabApiKey": "Единый ключ API",
     "tabAnthropic": "Anthropic",

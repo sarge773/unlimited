@@ -300,6 +300,8 @@
     "pageTitle": "Klucze",
     "pageDescription": "Poświadczenia dostawcy i ujednolicony klucz API, z którym łączą się Twoje aplikacje.",
     "tabProviders": "Dostawcy",
+    "checklistSummary": "Skonfigurowano {configured} z {total} dostawców",
+    "checklistKeyless": "klucz niepotrzebny",
     "tabQuotaSignals": "Sygnały kwotowe",
     "tabApiKey": "Ujednolicony klucz API",
     "tabAnthropic": "Anthropic",

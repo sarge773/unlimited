@@ -300,6 +300,8 @@
     "pageTitle": "Кључеви",
     "pageDescription": "Акредитиви добављача и обједињени кључ API са којим се ваше апликације повезују.",
     "tabProviders": "Провајдери",
+    "checklistSummary": "Подешено {configured} од {total} провајдера",
+    "checklistKeyless": "кључ није потребан",
     "tabQuotaSignals": "Квотни сигнали",
     "tabApiKey": "Обједињени кључ API",
     "tabAnthropic": "Anthropic",

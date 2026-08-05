@@ -300,6 +300,8 @@
     "pageTitle": "Κλειδιά",
     "pageDescription": "Διαπιστευτήρια παρόχου και το ενοποιημένο κλειδί API με το οποίο συνδέονται οι εφαρμογές σας.",
     "tabProviders": "Πάροχοι",
+    "checklistSummary": "{configured} από {total} παρόχους έχουν ρυθμιστεί",
+    "checklistKeyless": "δεν απαιτείται κλειδί",
     "tabQuotaSignals": "Σήματα ποσοστώσεων",
     "tabApiKey": "Ενοποιημένο κλειδί API",
     "tabAnthropic": "Anthropic",

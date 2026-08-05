@@ -300,6 +300,8 @@
     "pageTitle": "Açarlar",
     "pageDescription": "Təminatçı etimadnamələri və tətbiqlərinizin birləşdiyi API açarı ilə əlaqə qurun.",
     "tabProviders": "Təchizatçılar",
+    "checklistSummary": "{total} təchizatçıdan {configured} qurulub",
+    "checklistKeyless": "açar tələb olunmur",
     "tabQuotaSignals": "Kvota siqnalları",
     "tabApiKey": "Birləşmiş API açarı",
     "tabAnthropic": "Anthropic",

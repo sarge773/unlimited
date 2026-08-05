@@ -300,6 +300,8 @@
     "pageTitle": "Kalitlar",
     "pageDescription": "Provayder hisob ma'lumotlari va ilovalaringiz ulanadigan yagona API kaliti.",
     "tabProviders": "Provayderlar",
+    "checklistSummary": "{total} ta provayderdan {configured} tasi sozlangan",
+    "checklistKeyless": "kalit kerak emas",
     "tabQuotaSignals": "Kvota signallari",
     "tabApiKey": "Birlashtirilgan API kaliti",
     "tabAnthropic": "Anthropic",

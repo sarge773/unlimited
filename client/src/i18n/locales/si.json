@@ -300,6 +300,8 @@
     "pageTitle": "යතුරු",
     "pageDescription": "සපයන්නාගේ අක්තපත්‍ර සහ ඒකාබද්ධ API යතුර ඔබගේ යෙදුම් සම්බන්ධ වේ.",
     "tabProviders": "සපයන්නන්",
+    "checklistSummary": "සපයන්නන් {total} දෙනාගෙන් {configured} ක් වින්‍යාස කර ඇත",
+    "checklistKeyless": "යතුරක් අවශ්‍ය නැත",
     "tabQuotaSignals": "කෝටා සංඥා",
     "tabApiKey": "ඒකාබද්ධ API යතුර",
     "tabAnthropic": "Anthropic",

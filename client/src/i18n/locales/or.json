@@ -300,6 +300,8 @@
     "pageTitle": "ଚାବି",
     "pageDescription": "ପ୍ରଦାନକାରୀ ପରିଚୟ ପତ୍ର ଏବଂ ଆପଣଙ୍କ ଆପ୍ଲିକେସନଗୁଡିକ ସହ ସଂଯୋଗ ହୋଇଥିବା ୟୁନିଫାଏଡ୍ API କୀ।",
     "tabProviders": "ପ୍ରଦାନକାରୀ",
+    "checklistSummary": "{total} ମଧ୍ୟରୁ {configured} ପ୍ରଦାନକାରୀ ବିନ୍ୟାସ ହୋଇଛି",
+    "checklistKeyless": "କି ଆବଶ୍ୟକ ନାହିଁ",
     "tabQuotaSignals": "କୋଟା ସଙ୍କେତ",
     "tabApiKey": "ଏକୀକୃତ API କୀ",
     "tabAnthropic": "Anthropic",

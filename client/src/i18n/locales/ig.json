@@ -300,6 +300,8 @@
     "pageTitle": "Igodo",
     "pageDescription": "Asambodo onye na-eweta yana igodo API jikọtara ọnụ na ngwa gị jikọtara.",
     "tabProviders": "Ndị na-enye ihe",
+    "checklistSummary": "Ahaziela {configured} n'ime {total} ndị na-enye ihe",
+    "checklistKeyless": "achọghị igodo",
     "tabQuotaSignals": "Ngosipụta oke",
     "tabApiKey": "Igodo API jikọtara ọnụ",
     "tabAnthropic": "Anthropic",

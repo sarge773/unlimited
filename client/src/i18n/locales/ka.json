@@ -300,6 +300,8 @@
     "pageTitle": "გასაღებები",
     "pageDescription": "პროვაიდერის სერთიფიკატები და ერთიანი API გასაღები, რომელთანაც დაკავშირებულია თქვენი აპები.",
     "tabProviders": "პროვაიდერები",
+    "checklistSummary": "{total}-დან {configured} პროვაიდერი კონფიგურირებულია",
+    "checklistKeyless": "გასაღები არ არის საჭირო",
     "tabQuotaSignals": "კვოტის სიგნალები",
     "tabApiKey": "ერთიანი API გასაღები",
     "tabAnthropic": "Anthropic",

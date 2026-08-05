@@ -300,6 +300,8 @@
     "pageTitle": "Chaves",
     "pageDescription": "Credenciais do fornecedor e a chave unificada de API com que as suas aplicações se ligam.",
     "tabProviders": "Fornecedores",
+    "checklistSummary": "{configured} de {total} fornecedores configurados",
+    "checklistKeyless": "não requer chave",
     "tabQuotaSignals": "Sinais de quota",
     "tabApiKey": "Chave API unificada",
     "tabAnthropic": "Anthropic",

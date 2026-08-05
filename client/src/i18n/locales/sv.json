@@ -300,6 +300,8 @@
     "pageTitle": "Nycklar",
     "pageDescription": "Leverantörsuppgifter och den enhetliga API-nyckeln som dina appar ansluter till.",
     "tabProviders": "Leverantörer",
+    "checklistSummary": "{configured} av {total} leverantörer konfigurerade",
+    "checklistKeyless": "ingen nyckel krävs",
     "tabQuotaSignals": "Kvotsignaler",
     "tabApiKey": "Enhetlig API nyckel",
     "tabAnthropic": "Anthropic",

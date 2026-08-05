@@ -300,6 +300,8 @@
     "pageTitle": "விசைகள்",
     "pageDescription": "வழங்குநரின் நற்சான்றிதழ்கள் மற்றும் ஒருங்கிணைந்த API விசை உங்கள் பயன்பாடுகளுடன் இணைக்கப்பட்டுள்ளது.",
     "tabProviders": "வழங்குபவர்கள்",
+    "checklistSummary": "{total} இல் {configured} வழங்குபவர்கள் உள்ளமைக்கப்பட்டுள்ளனர்",
+    "checklistKeyless": "விசை தேவையில்லை",
     "tabQuotaSignals": "ஒதுக்கீடு சமிக்ஞைகள்",
     "tabApiKey": "ஒருங்கிணைந்த API விசை",
     "tabAnthropic": "Anthropic",

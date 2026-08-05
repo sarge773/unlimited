@@ -300,6 +300,8 @@
     "pageTitle": "కీలు",
     "pageDescription": "ప్రొవైడర్ ఆధారాలు మరియు ఏకీకృత API కీతో మీ యాప్‌లు కనెక్ట్ అవుతాయి.",
     "tabProviders": "ప్రొవైడర్లు",
+    "checklistSummary": "{total}లో {configured} ప్రొవైడర్లు కాన్ఫిగర్ చేయబడ్డాయి",
+    "checklistKeyless": "కీ అవసరం లేదు",
     "tabQuotaSignals": "కోటా సంకేతాలు",
     "tabApiKey": "ఏకీకృత API కీ",
     "tabAnthropic": "Anthropic",

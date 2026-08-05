@@ -300,6 +300,8 @@
     "pageTitle": "Mga Susi",
     "pageDescription": "Mga kredensyal ng provider at ang pinag-isang API key na konektado sa iyong mga app.",
     "tabProviders": "Mga Tagapagbigay",
+    "checklistSummary": "{configured} sa {total} tagapagbigay ang naka-configure",
+    "checklistKeyless": "hindi kailangan ng key",
     "tabQuotaSignals": "Mga senyales ng quota",
     "tabApiKey": "Pinag-isang API key",
     "tabAnthropic": "Anthropic",

@@ -300,6 +300,8 @@
     "pageTitle": "Ključevi",
     "pageDescription": "Vjerodajnice pružatelja i objedinjeni API ključ s kojim se vaše aplikacije povezuju.",
     "tabProviders": "Pružatelji usluga",
+    "checklistSummary": "Konfigurirano {configured} od {total} pružatelja usluga",
+    "checklistKeyless": "ključ nije potreban",
     "tabQuotaSignals": "Kvotni signali",
     "tabApiKey": "Ujedinjeni API ključ",
     "tabAnthropic": "Anthropic",

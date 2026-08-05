@@ -300,6 +300,8 @@
     "pageTitle": "കീകൾ",
     "pageDescription": "ദാതാവിൻ്റെ ക്രെഡൻഷ്യലുകളും ഏകീകൃത API കീയും നിങ്ങളുടെ ആപ്പുകൾ ബന്ധിപ്പിക്കുന്നു.",
     "tabProviders": "ദാതാക്കൾ",
+    "checklistSummary": "{total}-ൽ {configured} ദാതാക്കൾ കോൺഫിഗർ ചെയ്തു",
+    "checklistKeyless": "കീ ആവശ്യമില്ല",
     "tabQuotaSignals": "ക്വാട്ട സിഗ്നലുകൾ",
     "tabApiKey": "ഏകീകൃത API കീ",
     "tabAnthropic": "Anthropic",

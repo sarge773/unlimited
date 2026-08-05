@@ -300,6 +300,8 @@
     "pageTitle": "Avaimet",
     "pageDescription": "Palveluntarjoajan tunnukset ja yhtenäinen API avain, johon sovelluksesi yhdistyvät.",
     "tabProviders": "Palveluntarjoajat",
+    "checklistSummary": "{configured}/{total} palveluntarjoajaa määritetty",
+    "checklistKeyless": "avainta ei tarvita",
     "tabQuotaSignals": "Kiintiösignaalit",
     "tabApiKey": "Yhtenäinen API avain",
     "tabAnthropic": "Anthropic",

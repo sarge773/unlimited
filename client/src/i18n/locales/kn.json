@@ -300,6 +300,8 @@
     "pageTitle": "ಕೀಲಿಗಳು",
     "pageDescription": "ಒದಗಿಸುವವರ ರುಜುವಾತುಗಳು ಮತ್ತು ಏಕೀಕೃತ API ಕೀ ನಿಮ್ಮ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಸಂಪರ್ಕಿಸುತ್ತದೆ.",
     "tabProviders": "ಪೂರೈಕೆದಾರರು",
+    "checklistSummary": "{total} ರಲ್ಲಿ {configured} ಪೂರೈಕೆದಾರರನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿದೆ",
+    "checklistKeyless": "ಕೀ ಅಗತ್ಯವಿಲ್ಲ",
     "tabQuotaSignals": "ಕೋಟಾ ಸಂಕೇತಗಳು",
     "tabApiKey": "ಏಕೀಕೃತ API ಕೀ",
     "tabAnthropic": "Anthropic",

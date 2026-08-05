@@ -300,6 +300,8 @@
     "pageTitle": "چابیاں",
     "pageDescription": "فراہم کنندہ کی اسناد اور متحد API کلید جس سے آپ کی ایپس جڑتی ہیں۔",
     "tabProviders": "فراہم کرنے والے",
+    "checklistSummary": "{total} میں سے {configured} فراہم کنندگان ترتیب دیے گئے",
+    "checklistKeyless": "کلید کی ضرورت نہیں",
     "tabQuotaSignals": "کوٹہ سگنلز",
     "tabApiKey": "متحد API کلید",
     "tabAnthropic": "Anthropic",

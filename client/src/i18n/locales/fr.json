@@ -300,6 +300,8 @@
     "pageTitle": "Clés",
     "pageDescription": "Les identifiants des fournisseurs et la clé API unifiée à laquelle vos applications se connectent.",
     "tabProviders": "Fournisseurs",
+    "checklistSummary": "{configured} fournisseurs sur {total} configurés",
+    "checklistKeyless": "aucune clé requise",
     "tabQuotaSignals": "Signaux de quota",
     "tabApiKey": "Clé d'API unifiée",
     "tabAnthropic": "Anthropic",

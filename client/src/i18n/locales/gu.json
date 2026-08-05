@@ -300,6 +300,8 @@
     "pageTitle": "કીઓ",
     "pageDescription": "પ્રદાતા ઓળખપત્રો અને એકીકૃત API કી જેની સાથે તમારી એપ્લિકેશનો કનેક્ટ થાય છે.",
     "tabProviders": "પ્રદાતાઓ",
+    "checklistSummary": "{total} માંથી {configured} પ્રદાતાઓ ગોઠવેલા છે",
+    "checklistKeyless": "કીની જરૂર નથી",
     "tabQuotaSignals": "ક્વોટા સંકેતો",
     "tabApiKey": "એકીકૃત API કી",
     "tabAnthropic": "Anthropic",

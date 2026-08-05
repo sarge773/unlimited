@@ -300,6 +300,8 @@
     "pageTitle": "Phím",
     "pageDescription": "Thông tin đăng nhập của nhà cung cấp và khóa API hợp nhất mà ứng dụng của bạn kết nối.",
     "tabProviders": "Nhà cung cấp",
+    "checklistSummary": "Đã cấu hình {configured} trong {total} nhà cung cấp",
+    "checklistKeyless": "không cần khóa",
     "tabQuotaSignals": "tín hiệu hạn ngạch",
     "tabApiKey": "Khóa API hợp nhất",
     "tabAnthropic": "Anthropic",

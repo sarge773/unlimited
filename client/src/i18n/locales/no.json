@@ -300,6 +300,8 @@
     "pageTitle": "Nøkler",
     "pageDescription": "Leverandørlegitimasjon og den samlede API-nøkkelen appene dine kobler seg til.",
     "tabProviders": "Leverandører",
+    "checklistSummary": "{configured} av {total} leverandører konfigurert",
+    "checklistKeyless": "ingen nøkkel kreves",
     "tabQuotaSignals": "Kvotesignaler",
     "tabApiKey": "Enhetlig API nøkkel",
     "tabAnthropic": "Anthropic",

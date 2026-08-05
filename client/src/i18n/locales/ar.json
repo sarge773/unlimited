@@ -300,6 +300,8 @@
     "pageTitle": "مفاتيح",
     "pageDescription": "بيانات اعتماد الموفر ومفتاح API الموحد الذي تتصل به تطبيقاتك.",
     "tabProviders": "مقدمي الخدمات",
+    "checklistSummary": "تم إعداد {configured} من {total} من مقدمي الخدمات",
+    "checklistKeyless": "لا حاجة لمفتاح",
     "tabQuotaSignals": "إشارات الحصص",
     "tabApiKey": "مفتاح API الموحد",
     "tabAnthropic": "Anthropic",

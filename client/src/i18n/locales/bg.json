@@ -300,6 +300,8 @@
     "pageTitle": "Ключове",
     "pageDescription": "Идентификационните данни на доставчика и унифицираният API ключ, с който се свързват вашите приложения.",
     "tabProviders": "Доставчици",
+    "checklistSummary": "Настроени са {configured} от {total} доставчици",
+    "checklistKeyless": "не е нужен ключ",
     "tabQuotaSignals": "Квотни сигнали",
     "tabApiKey": "Унифициран API ключ",
     "tabAnthropic": "Anthropic",

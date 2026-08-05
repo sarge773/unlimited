@@ -300,6 +300,8 @@
     "pageTitle": "Anahtarlar",
     "pageDescription": "Sağlayıcı kimlik bilgileri ve uygulamalarınızın bağlandığı birleşik API anahtarı.",
     "tabProviders": "Sağlayıcılar",
+    "checklistSummary": "{total} sağlayıcıdan {configured} tanesi yapılandırıldı",
+    "checklistKeyless": "anahtar gerekmez",
     "tabQuotaSignals": "Kota sinyalleri",
     "tabApiKey": "Birleşik API anahtarı",
     "tabAnthropic": "Anthropic",

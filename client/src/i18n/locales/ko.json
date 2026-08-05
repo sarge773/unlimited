@@ -300,6 +300,8 @@
     "pageTitle": "열쇠",
     "pageDescription": "앱이 연결되는 공급자 자격 증명 및 통합 API 키.",
     "tabProviders": "공급자",
+    "checklistSummary": "{total}개 공급자 중 {configured}개 설정됨",
+    "checklistKeyless": "키 필요 없음",
     "tabQuotaSignals": "할당량 신호",
     "tabApiKey": "통합 API 키",
     "tabAnthropic": "Anthropic",

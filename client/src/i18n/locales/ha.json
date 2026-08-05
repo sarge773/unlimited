@@ -300,6 +300,8 @@
     "pageTitle": "Maɓallai",
     "pageDescription": "Takaddun shaida na mai bayarwa da maɓalli na API na haɗin kai kayan aikinku suna haɗi da su.",
     "tabProviders": "Masu bayarwa",
+    "checklistSummary": "An saita {configured} daga cikin {total} masu bayarwa",
+    "checklistKeyless": "ba a buƙatar maɓalli",
     "tabQuotaSignals": "Alamun ƙididdiga",
     "tabApiKey": "Maɓallin API haɗe",
     "tabAnthropic": "Saukewa: Anthropic",

@@ -300,6 +300,8 @@
     "pageTitle": "Raktai",
     "pageDescription": "Tiekėjų prisijungimo duomenys ir vieningas API raktas, su kuriuo jungiasi jūsų programėlės.",
     "tabProviders": "Tiekėjai",
+    "checklistSummary": "Sukonfigūruota {configured} iš {total} tiekėjų",
+    "checklistKeyless": "rakto nereikia",
     "tabQuotaSignals": "Kvotų signalai",
     "tabApiKey": "Vieningas API raktas",
     "tabAnthropic": "Anthropic",

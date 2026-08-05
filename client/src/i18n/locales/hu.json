@@ -300,6 +300,8 @@
     "pageTitle": "Kulcsok",
     "pageDescription": "A szolgáltatói hitelesítő adatok és az egységes API kulcsa az alkalmazásokhoz kapcsolód.",
     "tabProviders": "Szolgáltatók",
+    "checklistSummary": "{total} szolgáltatóból {configured} beállítva",
+    "checklistKeyless": "nem kell kulcs",
     "tabQuotaSignals": "Kvótajelzések",
     "tabApiKey": "Egységes API kulcs",
     "tabAnthropic": "Anthropic",

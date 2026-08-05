@@ -300,6 +300,8 @@
     "pageTitle": "Chei",
     "pageDescription": "Acreditările furnizorului și cheia unificată API cu care se conectează aplicațiile tale.",
     "tabProviders": "Furnizori",
+    "checklistSummary": "{configured} din {total} furnizori configurați",
+    "checklistKeyless": "nu necesită cheie",
     "tabQuotaSignals": "Semnale de cotă",
     "tabApiKey": "Cheia API unificată",
     "tabAnthropic": "Anthropic",

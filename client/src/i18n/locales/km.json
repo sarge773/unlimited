@@ -300,6 +300,8 @@
     "pageTitle": "សោ",
     "pageDescription": "ព័ត៌មានសម្ងាត់អ្នកផ្តល់សេវា និងកូនសោ API ដែលកម្មវិធីរបស់អ្នកភ្ជាប់ជាមួយ។",
     "tabProviders": "អ្នកផ្តល់សេវា",
+    "checklistSummary": "បានកំណត់រចនាសម្ព័ន្ធអ្នកផ្តល់សេវា {configured} ក្នុងចំណោម {total}",
+    "checklistKeyless": "មិនត្រូវការសោ",
     "tabQuotaSignals": "សញ្ញាកូតា",
     "tabApiKey": "កូនសោ API រួម",
     "tabAnthropic": "Anthropic",

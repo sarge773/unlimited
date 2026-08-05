@@ -300,6 +300,8 @@
     "pageTitle": "מפתחות",
     "pageDescription": "פרטי הספקים ומפתח API המאוחד שאליו האפליקציות שלך מתחברות.",
     "tabProviders": "ספקים",
+    "checklistSummary": "{configured} מתוך {total} ספקים הוגדרו",
+    "checklistKeyless": "אין צורך במפתח",
     "tabQuotaSignals": "אותות מכסה",
     "tabApiKey": "מפתח API מאוחד",
     "tabAnthropic": "Anthropic",

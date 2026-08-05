@@ -300,6 +300,8 @@
     "pageTitle": "Awọn bọtini",
     "pageDescription": "Awọn iwe-ẹri olupese ati bọtini API ti iṣọkan awọn ohun elo rẹ sopọ pẹlu.",
     "tabProviders": "Awọn olupese",
+    "checklistSummary": "A ti ṣètò {configured} nínú {total} olùpèsè",
+    "checklistKeyless": "kò nílò kọ́kọ́rọ́",
     "tabQuotaSignals": "Quota awọn ifihan agbara",
     "tabApiKey": "Bọtini API ti iṣọkan",
     "tabAnthropic": "Anthropic",

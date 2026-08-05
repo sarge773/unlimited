@@ -300,6 +300,8 @@
     "pageTitle": "Schlüssel",
     "pageDescription": "Anbieteranmeldeinformationen und der einheitliche API-Schlüssel, mit dem Ihre Apps eine Verbindung herstellen.",
     "tabProviders": "Anbieter",
+    "checklistSummary": "{configured} von {total} Anbietern eingerichtet",
+    "checklistKeyless": "kein Schlüssel nötig",
     "tabQuotaSignals": "Quotensignale",
     "tabApiKey": "Einheitlicher API-Schlüssel",
     "tabAnthropic": "Anthropic",

@@ -300,6 +300,8 @@
     "pageTitle": "Funguo",
     "pageDescription": "Vitambulisho vya mtoa huduma na ufunguo uliounganishwa wa API ambao programu zako huunganisha nazo.",
     "tabProviders": "Watoa huduma",
+    "checklistSummary": "Watoa huduma {configured} kati ya {total} wamesanidiwa",
+    "checklistKeyless": "hakuna ufunguo unaohitajika",
     "tabQuotaSignals": "Ishara za quota",
     "tabApiKey": "Kitufe cha umoja cha API",
     "tabAnthropic": "Anthropic",

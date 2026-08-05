@@ -300,6 +300,8 @@
     "pageTitle": "Nøgler",
     "pageDescription": "Udbyderoplysninger og den samlede API nøgle, som dine apps forbinder med.",
     "tabProviders": "Udbydere",
+    "checklistSummary": "{configured} af {total} udbydere er konfigureret",
+    "checklistKeyless": "ingen nøgle påkrævet",
     "tabQuotaSignals": "Kvotesignaler",
     "tabApiKey": "Unified API nøgle",
     "tabAnthropic": "Anthropic",
