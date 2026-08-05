@@ -1,8 +1,7 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
-import { Badge } from '@/components/ui/badge'
-import { TableSkeleton } from '@/components/ui/skeleton'
-import { Check, X } from 'lucide-react'
+import { ChevronDown, Plus } from 'lucide-react'
 import { useI18n } from '@/i18n'
 
 // Shape of GET /api/keys/providers (#543). Declared inline: the backend owns
@@ -20,51 +19,65 @@ interface ProvidersChecklist {
   summary: { total: number; configured: number; unconfigured: number }
 }
 
-// At-a-glance list of every built-in provider and whether a key has been added
-// yet, so you can see what's left to set up without scrolling the key manager
-// below and enumerating by hand (#543).
-export function ProviderChecklistSection() {
+// One-line coverage strip above the key manager (#543): "22 of 31 providers
+// configured", expandable to compact chips for the providers still missing a
+// key. Deliberately slim — a single line of secondary text, not a card — so
+// the key manager stays the first thing on the page. Clicking a chip opens
+// the Add key dialog preselected to that provider.
+export function ProviderChecklistSection({ onAddKey }: { onAddKey: (platform: string) => void }) {
   const { t } = useI18n()
-  const { data, isLoading } = useQuery<ProvidersChecklist>({
+  const [expanded, setExpanded] = useState(false)
+  const { data } = useQuery<ProvidersChecklist>({
     queryKey: ['keys-providers'],
     queryFn: () => apiFetch('/api/keys/providers'),
   })
 
-  if (isLoading) return <TableSkeleton rows={3} />
+  // No skeleton: the strip is one line of muted text, so it simply appears
+  // once loaded instead of reserving space while the page settles.
   if (!data || data.providers.length === 0) return null
 
-  const { providers, summary } = data
+  const unconfigured = data.providers.filter(p => !p.configured)
+  const summaryText = t('keys.checklistSummary', {
+    configured: data.summary.configured,
+    total: data.summary.total,
+  })
+
+  // Everything configured: nothing actionable to expand, just the summary.
+  if (unconfigured.length === 0) {
+    return <p className="text-xs text-muted-foreground">{summaryText}</p>
+  }
 
   return (
-    <div className="mb-8">
-      <div className="mb-3">
-        <h3 className="text-sm font-medium">{t('keys.checklistTitle')}</h3>
-        <p className="text-xs text-muted-foreground">
-          {t('keys.checklistSummary', { configured: summary.configured, total: summary.total })}
-        </p>
-      </div>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {providers.map(p => (
-          <div
-            key={p.platform}
-            className="flex items-center gap-2.5 rounded-xl border bg-card px-3 py-2"
-          >
-            {p.configured ? (
-              <Check className="size-4 flex-shrink-0 text-emerald-500" />
-            ) : (
-              <X className="size-4 flex-shrink-0 text-muted-foreground" />
-            )}
-            <span className={`truncate text-sm ${p.configured ? '' : 'text-muted-foreground'}`}>
+    <div>
+      <button
+        type="button"
+        onClick={() => setExpanded(value => !value)}
+        aria-expanded={expanded}
+        className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {summaryText}
+        <ChevronDown className={`size-3.5 transition-transform ${expanded ? '' : '-rotate-90'}`} />
+      </button>
+      {expanded && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {unconfigured.map(p => (
+            <button
+              key={p.platform}
+              type="button"
+              onClick={() => onAddKey(p.platform)}
+              className="inline-flex h-5 items-center gap-1 rounded-4xl border border-border px-2 text-xs font-medium whitespace-nowrap transition-all hover:bg-muted focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              <Plus className="size-3 text-muted-foreground" />
               {p.name}
-            </span>
-            {p.keyless && (
-              <Badge variant="outline" className="ml-auto">
-                {t('keys.checklistKeyless')}
-              </Badge>
-            )}
-          </div>
-        ))}
-      </div>
+              {p.keyless && (
+                <span className="text-[10px] font-normal text-muted-foreground">
+                  {t('keys.checklistKeyless')}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

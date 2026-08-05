@@ -4,7 +4,7 @@ import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { PageHeader } from '@/components/page-header'
-import type { ApiKey } from '../../../shared/types'
+import type { ApiKey, Platform } from '../../../shared/types'
 import { Plus, Download } from 'lucide-react'
 import { useI18n } from '@/i18n'
 import type { HealthData } from '@/components/keys/shared'
@@ -32,7 +32,15 @@ export default function KeysPage() {
   const queryClient = useQueryClient()
   const [tab, setTab] = useState<KeysTab>('providers')
   const [addOpen, setAddOpen] = useState(false)
+  // Provider the Add key dialog opens preselected to, when the add flow was
+  // entered from a checklist chip rather than the generic Add key button.
+  const [addPlatform, setAddPlatform] = useState<Platform | ''>('')
   const [exportOpen, setExportOpen] = useState(false)
+
+  const openAddKey = (platform: Platform | '' = '') => {
+    setAddPlatform(platform)
+    setAddOpen(true)
+  }
 
   // Kept at page level for the header's "Check all" gate; ProviderList runs the
   // same query (deduped by react-query) for the list itself.
@@ -74,7 +82,7 @@ export default function KeysPage() {
               </Button>
             )}
             {tab === 'providers' && (
-              <Button size="sm" onClick={() => setAddOpen(true)}>
+              <Button size="sm" onClick={() => openAddKey()}>
                 <Plus className="size-3.5" />
                 {t('keys.addKey')}
               </Button>
@@ -106,13 +114,13 @@ export default function KeysPage() {
 
         {tab === 'providers' && (
           <>
-            <ProviderChecklistSection />
-            <ProviderList onAddKey={() => setAddOpen(true)} />
+            <ProviderChecklistSection onAddKey={platform => openAddKey(platform as Platform)} />
+            <ProviderList onAddKey={() => openAddKey()} />
           </>
         )}
       </div>
 
-      <AddKeyDialog open={addOpen} onOpenChange={setAddOpen} />
+      <AddKeyDialog open={addOpen} onOpenChange={setAddOpen} initialPlatform={addPlatform || undefined} />
       {/* Mounted only while open so the export flow always starts at step one
           and never retains a previously typed password. */}
       {exportOpen && <ExportKeysDialog open={exportOpen} onOpenChange={setExportOpen} />}

@@ -16,10 +16,13 @@ import { GetKeyLink, PLATFORMS } from './shared'
 // provider. Extracted verbatim from the old inline KeysPage form so all field
 // validation, the keyless/Cloudflare special cases, and the POST /api/keys
 // mutation stay identical. On success it toasts and asks the dialog to close.
-export function AddKeyForm({ onSuccess }: { onSuccess: () => void }) {
+// `initialPlatform` preselects the provider (checklist-chip entry); the field
+// stays editable. The dialog remounts this pane per open, so a plain initial
+// state is enough.
+export function AddKeyForm({ onSuccess, initialPlatform }: { onSuccess: () => void; initialPlatform?: Platform }) {
   const { t } = useI18n()
   const queryClient = useQueryClient()
-  const [platform, setPlatform] = useState<Platform | ''>('')
+  const [platform, setPlatform] = useState<Platform | ''>(initialPlatform ?? '')
   const [apiKey, setApiKey] = useState('')
   const [accountId, setAccountId] = useState('')
   const [label, setLabel] = useState('')
