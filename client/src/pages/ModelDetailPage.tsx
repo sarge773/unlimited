@@ -422,8 +422,10 @@ function ProviderSettingsRow({
           for a given account, or silent about a brand-new model (#551). The
           capability tier drives the intelligence axis — a custom model without
           a recognized tier scores 0, so it gets a picker here (#685). */}
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
-        <label className="space-y-1 text-xs text-muted-foreground" title={t('models.sizeLabelHint')}>
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7">
+        {/* Full-width on the 2/3-column layouts so the six number fields
+            below still tile evenly; one row of seven on desktop. */}
+        <label className="col-span-2 space-y-1 text-xs text-muted-foreground sm:col-span-3 md:col-span-1" title={t('models.sizeLabelHint')}>
           <FieldLabel text={t('models.sizeLabel')} overridden={overridden.has('sizeLabel')} />
           <Select value={form.sizeLabel} onValueChange={value => setField('sizeLabel', value ?? '')}>
             <SelectTrigger className="w-full" aria-label={t('models.sizeLabel')}>
