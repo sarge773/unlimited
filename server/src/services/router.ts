@@ -1478,7 +1478,7 @@ export interface RoutingScore {
   totalRequests: number; // decay-weighted observations
 }
 
-export function getRoutingScores(): { strategy: RoutingStrategy; weights: RoutingWeights | null; customWeights: RoutingWeights; scores: RoutingScore[] } {
+export function getRoutingScores(): { strategy: RoutingStrategy; weights: RoutingWeights | null; customWeights: RoutingWeights; exploreEnabled: boolean; scores: RoutingScore[] } {
   const db = getDb();
   const strategy = getRoutingStrategy();
   refreshStatsCache(db);
@@ -1516,7 +1516,10 @@ export function getRoutingScores(): { strategy: RoutingStrategy; weights: Routin
   // so the dashboard's custom-weight sliders can render even before the user
   // has saved their own — distinct from `weights`, which is null in priority
   // mode and the active preset otherwise.
-  return { strategy, weights: weightsFor(strategy), customWeights: getCustomWeights(), scores };
+  // exploreEnabled must ride along here too: the dashboard checkbox renders
+  // from GET /routing, so omitting it would make the toggle look permanently
+  // off (and impossible to turn off) after a refetch.
+  return { strategy, weights: weightsFor(strategy), customWeights: getCustomWeights(), exploreEnabled: getExploreEnabled(), scores };
 }
 
 /**

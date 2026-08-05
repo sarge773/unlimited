@@ -76,8 +76,9 @@ export interface RoutingData {
   weights: RoutingWeights | null
   customWeights: RoutingWeights
   /** Exploration toggle: when on, unmeasured models get a guaranteed chance to
-   *  be tried so they build reliability/speed data (#685 follow-up). */
-  exploreEnabled?: boolean
+   *  be tried so they build reliability/speed data (#685 follow-up). Required:
+   *  the server always sends it, and the checkbox renders straight from it. */
+  exploreEnabled: boolean
   scores: (RoutingScore & { platform: string; modelId: string; displayName: string; enabled: boolean })[]
 }
 
