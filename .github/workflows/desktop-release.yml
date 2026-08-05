@@ -52,7 +52,6 @@ jobs:
             artifact: linux-installer
             glob: |
               desktop/dist-electron/*.AppImage
-              desktop/dist-electron/*.pacman
               desktop/dist-electron/*.tar.xz
               desktop/dist-electron/*.deb
               desktop/dist-electron/latest-linux.yml

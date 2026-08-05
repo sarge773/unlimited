@@ -56,9 +56,6 @@ linux:
     - target: AppImage
       arch:
         - x64
-    - target: pacman
-      arch:
-        - x64
     - target: tar.xz
       arch:
         - x64
