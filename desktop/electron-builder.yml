@@ -56,19 +56,15 @@ linux:
     - target: AppImage
       arch:
         - x64
-        - arm64
     - target: pacman
       arch:
         - x64
-        - arm64
     - target: tar.xz
       arch:
         - x64
-        - arm64
     - target: deb
       arch:
         - x64
-        - arm64
 nsis:
   oneClick: true
   deleteAppDataOnUninstall: false

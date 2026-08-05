@@ -28,7 +28,7 @@
     "better-sqlite3": "^12.10.0"
   },
   "devDependencies": {
-    "@electron/rebuild": "3.6.1",
+    "@electron/rebuild": "^3.7.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.0.0",
     "electron": "^33.0.0",
