@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} żąd. w tym miesiącu"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Eksploruj niezmierzone modele",
+    "exploreHint": "Daje modelom bez danych o niezawodności/prędkości 10% szansy na wypróbowanie, aby zebrały próbki.",
     "title": "Strategia routingu",
     "description": "Wybierz strategię routingu. W trybie ręcznym przeciągnij, aby ustawić kolejność; inne strategie kierują się wynikami na żywo pod względem niezawodności, szybkości i inteligencji.",
     "weightsSummary": "niezawodność {reliability}% · prędkość {speed}% · inteligencja {intelligence}%",

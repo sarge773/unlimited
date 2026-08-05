@@ -244,8 +244,8 @@
     "usageRequestsMonth": "maombi {count} mwezi huu"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Chunguza mifano isiyopimwa",
+    "exploreHint": "Ipe mifano isiyo na data ya kuegemea/kasi nafasi ya 10% ya kujaribiwa ili ikusanye sampuli.",
     "title": "Mkakati wa uelekezaji",
     "description": "Chagua mkakati wa uelekezaji. Katika hali ya Mwongozo, buruta ili kuweka mpangilio; mikakati mingine kupitia matokeo ya moja kwa moja katika kuegemea, kasi na akili.",
     "weightsSummary": "kuegemea {reliability}% · kasi {speed}% · akili {intelligence}%",

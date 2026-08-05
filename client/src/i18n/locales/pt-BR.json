@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} sol. neste mês"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Explorar modelos sem medições",
+    "exploreHint": "Dá aos modelos sem dados de confiabilidade/velocidade 10% de chance de serem testados para que acumulem amostras.",
     "title": "Estratégia de roteamento",
     "description": "Escolha uma estratégia de roteamento. No modo manual, arraste para definir a ordem; as demais estratégias roteiam por pontuação ao vivo de confiabilidade, velocidade e inteligência.",
     "weightsSummary": "confiabilidade {reliability}% · velocidade {speed}% · inteligência {intelligence}%",

@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} sol. este mes"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Explorar modelos sin mediciones",
+    "exploreHint": "Da a los modelos sin datos de fiabilidad/velocidad un 10 % de probabilidad de ser probados para que acumulen muestras.",
     "title": "Estrategia de enrutamiento",
     "description": "Elige una estrategia de enrutamiento. En el modo manual, arrastra para definir el orden; las demás estrategias enrutan según una puntuación en vivo de fiabilidad, velocidad e inteligencia.",
     "weightsSummary": "fiabilidad {reliability}% · velocidad {speed}% · inteligencia {intelligence}%",

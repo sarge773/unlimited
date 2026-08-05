@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} درخواست این ماه"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "کاوش مدل‌های اندازه‌گیری‌نشده",
+    "exploreHint": "به مدل‌هایی که داده قابلیت اطمینان/سرعت ندارند 10٪ شانس امتحان شدن بدهید تا نمونه جمع کنند.",
     "title": "استراتژی مسیریابی",
     "description": "استراتژی مسیریابی را انتخاب کنید. در حالت دستی، برای تنظیم ترتیب آن را بکشید. راهبردهای دیگر از طریق امتیاز زنده از قابلیت اطمینان، سرعت و هوش عبور می کنند.",
     "weightsSummary": "قابلیت اطمینان {reliability}٪ · سرعت {speed}٪ · هوش {intelligence}٪",

@@ -244,8 +244,8 @@
     "usageRequestsMonth": "இந்த மாதம் {count} கோரிக்கை"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "அளவிடப்படாத மாதிரிகளை ஆராயுங்கள்",
+    "exploreHint": "நம்பகத்தன்மை/வேகத் தரவு இல்லாத மாதிரிகளுக்கு, சாம்பிள்களைச் சேகரிக்க 10% முயற்சி வாய்ப்பு வழங்கவும்.",
     "title": "ரூட்டிங் உத்தி",
     "description": "ஒரு ரூட்டிங் உத்தியைத் தேர்ந்தெடுக்கவும். கையேடு முறையில் நீங்கள் ஆர்டரை அமைக்க இழுக்கவும்; மற்ற உத்திகள் நம்பகத்தன்மை, வேகம் மற்றும் நுண்ணறிவு ஆகியவற்றில் நேரலை மதிப்பெண் மூலம் வழி.",
     "weightsSummary": "நம்பகத்தன்மை {reliability}% · வேகம் {speed}% · நுண்ணறிவு {intelligence}%",

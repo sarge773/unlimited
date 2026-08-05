@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} בקשות החודש"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "חקירת דגמים שטרם נמדדו",
+    "exploreHint": "נותן לדגמים ללא נתוני אמינות/מהירות סיכוי של 10% להיבחר לניסיון כדי שיצברו דגימות.",
     "title": "אסטרטגיית ניתוב",
     "description": "בחר אסטרטגיית ניתוב. במצב ידני אתה גורר כדי להגדיר את הסדר; האסטרטגיות האחרות מתמקדות לפי ניקוד חי בין אמינות, מהירות ואינטליגנציה.",
     "weightsSummary": "אמינות {reliability}% · מהירות {speed}% · אינטליגנציה {intelligence}%",

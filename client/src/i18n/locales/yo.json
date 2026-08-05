@@ -244,8 +244,8 @@
     "usageRequestsMonth": "ìbéèrè {count} ní oṣù yìí"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Ṣawari awọn awoṣe ti a ko ti wọn",
+    "exploreHint": "Fun awọn awoṣe ti ko ni data igbẹkẹle/iyara ni anfani 10% lati dan wo ki wọn le ko apẹẹrẹ jọ.",
     "title": "Ilana ipa ọna",
     "description": "Yan ilana ipa ọna. Ni ipo Afowoyi o fa lati ṣeto aṣẹ; ọna awọn ilana miiran nipasẹ Dimegilio ifiwe kọja igbẹkẹle, iyara ati oye.",
     "weightsSummary": "igbẹkẹle {reliability}% · iyara {speed}% · oye {intelligence}%",

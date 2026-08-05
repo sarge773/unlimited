@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} pož. tento měsíc"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Prozkoumávat nezměřené modely",
+    "exploreHint": "Dá modelům bez dat o spolehlivosti/rychlosti 10% šanci na vyzkoušení, aby nasbíraly vzorky.",
     "title": "Strategie směrování",
     "description": "Vyberte strategii směrování. V manuálním režimu přetahujete pro nastavení pořadí; Ostatní strategie se podle živého skóre zaměřují na spolehlivost, rychlost a inteligenci.",
     "weightsSummary": "spolehlivost {reliability} % · rychlost {speed} % · inteligence {intelligence} %",

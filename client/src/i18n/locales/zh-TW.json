@@ -245,7 +245,7 @@
   },
   "strategies": {
     "explore": "探索未測模型",
-    "exploreHint": "給尚無穩定/速度資料的模型 10% 的嘗試機會，以便累積樣本。",
+    "exploreHint": "給尚無可靠性/速度資料的模型 10% 的嘗試機會，以便累積樣本。",
     "title": "路由策略",
     "description": "選擇路由策略。在手動模式下，拖曳即可設定順序；其他策略會根據可靠性、速度與智慧的即時分數進行路由。",
     "weightsSummary": "可靠性 {reliability}% · 速度 {speed}% · 智慧 {intelligence}%",

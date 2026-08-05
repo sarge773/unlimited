@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} permintaan bulan ini"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Jelajahi model yang belum terukur",
+    "exploreHint": "Beri model tanpa data keandalan/kecepatan peluang 10% untuk dicoba agar mengumpulkan sampel.",
     "title": "Strategi perutean",
     "description": "Pilih strategi perutean. Dalam mode Manual Anda menyeret untuk mengatur urutan; strategi lainnya dirutekan berdasarkan skor langsung dalam hal keandalan, kecepatan, dan kecerdasan.",
     "weightsSummary": "keandalan {reliability}% · kecepatan {speed}% · kecerdasan {intelligence}%",

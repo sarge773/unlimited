@@ -244,8 +244,8 @@
     "usageRequestsMonth": "ଏହି ମାସରେ {count} ଅନୁରୋଧ"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "ମପାଯାଇନଥିବା ମଡେଲଗୁଡ଼ିକୁ ଅନୁସନ୍ଧାନ କରନ୍ତୁ",
+    "exploreHint": "ବିଶ୍ୱସନୀୟତା/ବେଗ ତଥ୍ୟ ନଥିବା ମଡେଲଗୁଡ଼ିକୁ ନମୁନା ସଂଗ୍ରହ ପାଇଁ 10% ଚେଷ୍ଟା କରିବାର ସୁଯୋଗ ଦିଅନ୍ତୁ।",
     "title": "ରାଉଟିଂ ରଣନୀତି",
     "description": "ଏକ ରାଉଟିଂ ରଣନୀତି ବାଛନ୍ତୁ । ମାନୁଆଲ୍ ମୋଡରେ ଆପଣ ଅର୍ଡର୍ ସେଟ୍ କରିବାକୁ ଡ୍ରାଗ୍ କରନ୍ତୁ; ଅନ୍ୟ ରଣନୀତିଗୁଡ଼ିକ ବିଶ୍ୱସନୀୟତା, ଗତି ଏବଂ ବୁଦ୍ଧିମତା ମଧ୍ୟରେ ଲାଇଭ୍ ସ୍କୋର ଦ୍ୱାରା ମାର୍ଗ କରେ ।",
     "weightsSummary": "ବିଶ୍ୱସନୀୟତା {reliability}% · ବେଗ {speed}% · ଇଣ୍ଟେଲିଜେନ୍ସ {intelligence}%",

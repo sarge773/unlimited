@@ -244,8 +244,8 @@
     "usageRequestsMonth": "ខែនេះ {count} សំណើ"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "ស្វែងរកម៉ូដែលដែលមិនទាន់វាស់វែង",
+    "exploreHint": "ផ្តល់ឱ្យម៉ូដែលដែលគ្មានទិន្នន័យភាពទុកចិត្ត/ល្បឿន ឱកាស 10% ដើម្បីសាកល្បង ដើម្បីប្រមូលគំរូ។",
     "title": "យុទ្ធសាស្ត្រផ្លូវបញ្ជូន",
     "description": "ជ្រើសរើសយុទ្ធសាស្ត្រផ្លូវចរាចរណ៍។ នៅក្នុងរបៀបដៃ អ្នកទាញដើម្បីកំណត់លំដាប់; យុទ្ធសាស្ត្រផ្សេងទៀតត្រូវបានរៀបចំតាមពិន្ទុផ្ទាល់តាមរយៈភាពទុកចិត្ត ល្បឿន និងបញ្ញា។",
     "weightsSummary": "ភាពទុកចិត្ត {reliability}% · ល្បឿន {speed}% · បញ្ញា {intelligence}%",

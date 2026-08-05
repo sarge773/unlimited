@@ -244,8 +244,8 @@
     "usageRequestsMonth": "මෙම මාසයේ ඉල්ලීම් {count}"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "නොමැනූ ආකෘති ගවේෂණය කරන්න",
+    "exploreHint": "විශ්වසනීයත්වය/වේගය දත්ත නොමැති ආකෘතිවලට නියැදි එකතු කර ගැනීමට 10% උත්සාහ අවස්ථාවක් දෙන්න.",
     "title": "මාර්ගගත කිරීමේ උපාය",
     "description": "මාර්ගගත කිරීමේ උපාය මාර්ගයක් තෝරන්න. අත්පොත ආකාරයෙන් ඔබ ඇණවුම සැකසීමට ඇද දමන්න; අනෙකුත් උපාය මාර්ග විශ්වසනීයත්වය, වේගය සහ බුද්ධිය හරහා සජීවී ලකුණු අනුව ගමන් කරයි.",
     "weightsSummary": "විශ්වසනීයත්වය {reliability}% · වේගය {speed}% · බුද්ධිය {intelligence}%",

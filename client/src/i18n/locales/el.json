@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} αιτήματα αυτόν τον μήνα"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Εξερεύνηση μη μετρημένων μοντέλων",
+    "exploreHint": "Δίνει στα μοντέλα χωρίς δεδομένα αξιοπιστίας/ταχύτητας 10% πιθανότητα να δοκιμαστούν ώστε να συγκεντρώσουν δείγματα.",
     "title": "Στρατηγική δρομολόγησης",
     "description": "Επιλέξτε μια στρατηγική δρομολόγησης. Στη χειροκίνητη λειτουργία σύρετε για να ορίσετε τη σειρά. Οι άλλες στρατηγικές δρομολογούνται με ζωντανό σκορ σε αξιοπιστία, ταχύτητα και ευφυΐα.",
     "weightsSummary": "αξιοπιστία {reliability}% · Ταχύτητα {speed}% · νοημοσύνη {intelligence}%",

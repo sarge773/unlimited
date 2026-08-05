@@ -244,8 +244,8 @@
     "usageRequestsMonth": "ಈ ತಿಂಗಳು {count} ವಿನಂತಿಗಳು"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "ಅಳೆಯದ ಮಾದರಿಗಳನ್ನು ಅನ್ವೇಷಿಸಿ",
+    "exploreHint": "ವಿಶ್ವಾಸಾರ್ಹತೆ/ವೇಗ ಡೇಟಾ ಇಲ್ಲದ ಮಾದರಿಗಳಿಗೆ ಸ್ಯಾಂಪಲ್‌ಗಳನ್ನು ಸಂಗ್ರಹಿಸಲು 10% ಪ್ರಯತ್ನದ ಅವಕಾಶ ನೀಡಿ.",
     "title": "ರೂಟಿಂಗ್ ತಂತ್ರ",
     "description": "ರೂಟಿಂಗ್ ತಂತ್ರವನ್ನು ಆರಿಸಿ. ಹಸ್ತಚಾಲಿತ ಕ್ರಮದಲ್ಲಿ ನೀವು ಆದೇಶವನ್ನು ಹೊಂದಿಸಲು ಎಳೆಯಿರಿ; ವಿಶ್ವಾಸಾರ್ಹತೆ, ವೇಗ ಮತ್ತು ಬುದ್ಧಿವಂತಿಕೆಯಾದ್ಯಂತ ಲೈವ್ ಸ್ಕೋರ್ ಮೂಲಕ ಇತರ ತಂತ್ರಗಳು ಮಾರ್ಗವಾಗಿದೆ.",
     "weightsSummary": "ವಿಶ್ವಾಸಾರ್ಹತೆ {reliability}% · ವೇಗ {speed}% · ಬುದ್ಧಿವಂತಿಕೆ {intelligence}%",

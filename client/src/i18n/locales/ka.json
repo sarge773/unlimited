@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} მოთხოვნა ამ თვეში"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "გაუზომავი მოდელების შესწავლა",
+    "exploreHint": "საიმედოობის/სიჩქარის მონაცემების არმქონე მოდელებს აძლევს 10%-იან შანსს, რომ გამოიცადონ და ნიმუშები დააგროვონ.",
     "title": "მარშრუტიზაციის სტრატეგია",
     "description": "აირჩიეთ მარშრუტიზაციის სტრატეგია. ხელით რეჟიმში გადაათრევთ შეკვეთის დასაყენებლად; სხვა სტრატეგიები მარშრუტებენ პირდაპირი ქულით საიმედოობის, სიჩქარისა და ინტელექტის მიხედვით.",
     "weightsSummary": "საიმედოობა {reliability}% · სიჩქარე {speed}% · ინტელექტი {intelligence}%",

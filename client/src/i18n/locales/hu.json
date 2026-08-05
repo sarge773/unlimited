@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} kérés e hónapban"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Nem mért modellek felfedezése",
+    "exploreHint": "A megbízhatósági/sebességi adatok nélküli modellek 10% eséllyel kipróbálásra kerülnek, hogy mintákat gyűjtsenek.",
     "title": "Útvonaltervezési stratégia",
     "description": "Válassz egy útvonaltervezési stratégiát. Manuális módban húzni kell a sorrend beállításához; A többi stratégia élő eredmény alapján vezet a megbízhatóság, sebesség és intelligencia terén.",
     "weightsSummary": "megbízhatóság {reliability}% · sebesség {speed}% · Intelligencia {intelligence}%",

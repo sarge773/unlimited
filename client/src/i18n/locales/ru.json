@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} запр. за месяц"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "Исследовать неизмеренные модели",
+    "exploreHint": "Дает моделям без данных о надежности/скорости 10% шанс быть опробованными, чтобы они накапливали выборку.",
     "title": "Стратегия маршрутизации",
     "description": "Выберите стратегию маршрутизации. В ручном режиме вы перетаскиваете, чтобы установить порядок; другие стратегии основаны на реальном счете и учитывают надежность, скорость и интеллект.",
     "weightsSummary": "надежность {reliability}% · скорость {speed}% · интеллект {intelligence}%",

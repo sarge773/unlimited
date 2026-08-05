@@ -244,8 +244,8 @@
     "usageRequestsMonth": "या महिन्यात {count} विनंत्या"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "न मोजलेले मॉडेल्स एक्सप्लोर करा",
+    "exploreHint": "विश्वसनीयता/गती डेटा नसलेल्या मॉडेल्सना नमुने जमवण्यासाठी 10% चाचणीची संधी द्या.",
     "title": "राउटिंग धोरण",
     "description": "राउटिंग धोरण निवडा. मॅन्युअल मोडमध्ये तुम्ही ऑर्डर सेट करण्यासाठी ड्रॅग करता; विश्वासार्हता, वेग आणि बुद्धिमत्तेद्वारे थेट स्कोअरद्वारे इतर धोरणे मार्ग.",
     "weightsSummary": "विश्वसनीयता {reliability}% · गती {speed}% · बुद्धिमत्ता {intelligence}%",

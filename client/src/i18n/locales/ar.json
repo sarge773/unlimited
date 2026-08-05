@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} طلب هذا الشهر"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "استكشاف النماذج غير المقيسة",
+    "exploreHint": "امنح النماذج التي لا تملك بيانات موثوقية/سرعة فرصة 10% للتجربة حتى تجمع عينات.",
     "title": "استراتيجية التوجيه",
     "description": "اختر استراتيجية التوجيه. في الوضع اليدوي، يمكنك السحب لتعيين الترتيب؛ يتم توجيه الاستراتيجيات الأخرى من خلال النتيجة المباشرة عبر الموثوقية والسرعة والذكاء.",
     "weightsSummary": "الموثوقية {reliability}% · السرعة {speed}% · الذكاء {intelligence}%",

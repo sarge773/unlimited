@@ -244,8 +244,8 @@
     "usageRequestsMonth": "{count} kahilingan ngayong buwan"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "I-explore ang mga hindi pa nasusukat na modelo",
+    "exploreHint": "Bigyan ang mga modelong walang data ng pagiging maaasahan/bilis ng 10% na tsansang masubukan para makaipon ng mga sample.",
     "title": "Estratehiya sa Pag-ruta",
     "description": "Pumili ng routing strategy. Sa Manual mode, i-drag mo para itakda ang order; Ang iba pang mga estratehiya ay nakabase sa live score sa reliability, bilis, at intelligence.",
     "weightsSummary": "pagiging maaasahan {reliability}% · bilis {speed}% · intelihensiya {intelligence}%",

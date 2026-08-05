@@ -244,8 +244,8 @@
     "usageRequestsMonth": "इस महीने {count} अनुरोध"
   },
   "strategies": {
-    "explore": "Explore unmeasured models",
-    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
+    "explore": "बिना मापे गए मॉडल एक्सप्लोर करें",
+    "exploreHint": "विश्वसनीयता/गति डेटा रहित मॉडल को नमूने जुटाने के लिए 10% आज़माए जाने का मौका दें।",
     "title": "रूटिंग रणनीति",
     "description": "एक रूटिंग रणनीति चुनें. मैन्युअल मोड में आप ऑर्डर सेट करने के लिए खींचते हैं; अन्य रणनीतियाँ विश्वसनीयता, गति और बुद्धिमत्ता के आधार पर लाइव स्कोर बनाती हैं।",
     "weightsSummary": "विश्वसनीयता {reliability}% · गति {speed}% · बुद्धिमत्ता {intelligence}%",
