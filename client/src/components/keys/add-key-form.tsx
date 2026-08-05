@@ -41,6 +41,7 @@ export function AddKeyForm({ onSuccess, initialPlatform }: { onSuccess: () => vo
       queryClient.invalidateQueries({ queryKey: ['keys'] })
       queryClient.invalidateQueries({ queryKey: ['health'] })
       queryClient.invalidateQueries({ queryKey: ['fallback'] })
+      queryClient.invalidateQueries({ queryKey: ['keys-providers'] })
       toast.success(t('keys.keyAdded'))
       // Server notice when the key is for a platform with no models in the
       // current catalog tier yet (#438) — surfaced as a toast now that the
@@ -59,7 +60,7 @@ export function AddKeyForm({ onSuccess, initialPlatform }: { onSuccess: () => vo
         '/api/keys/import-selected', { method: 'POST', body: JSON.stringify(body) },
       ),
     onSuccess: (data) => {
-      for (const key of ['keys', 'health', 'fallback']) {
+      for (const key of ['keys', 'health', 'fallback', 'keys-providers']) {
         queryClient.invalidateQueries({ queryKey: [key] })
       }
       toast.success(t('keys.importResult', { imported: data.imported, failed: data.total - data.imported }))

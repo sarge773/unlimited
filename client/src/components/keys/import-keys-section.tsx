@@ -78,6 +78,7 @@ export function ImportKeysSection({ onImported }: { onImported?: () => void } = 
       queryClient.invalidateQueries({ queryKey: ['keys'] })
       queryClient.invalidateQueries({ queryKey: ['health'] })
       queryClient.invalidateQueries({ queryKey: ['fallback'] })
+      queryClient.invalidateQueries({ queryKey: ['keys-providers'] })
       // The dialog closes on success, so surface the imported/failed counts as
       // a toast.
       if (onImported) {

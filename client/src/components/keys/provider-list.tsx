@@ -87,6 +87,9 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keys'] })
       queryClient.invalidateQueries({ queryKey: ['health'] })
+      // Deleting the last key of a platform flips it back to unconfigured in
+      // the checklist strip.
+      queryClient.invalidateQueries({ queryKey: ['keys-providers'] })
     },
   })
 
