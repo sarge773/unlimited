@@ -550,6 +550,7 @@
     "requestedModelHint": "ವಿನಂತಿಸಿದ {model}, ಫಾಲ್‌ಬ್ಯಾಕ್ ಮೂಲಕ ಸೇವೆ ಸಲ್ಲಿಸಲಾಗಿದೆ",
     "attempts": "ಪ್ರಯತ್ನಗಳು",
     "filterAll": "ಎಲ್ಲಾ",
+    "filterCanceled": "ರದ್ದಾದವು",
     "providerBreakdown": "ಪ್ರತಿ-ಒದಗಿಸುವವರ ಸ್ಥಗಿತ",
     "tokensPerSec": "ಟೋಕ್/ರು",
     "allProviders": "ಎಲ್ಲಾ ಪೂರೈಕೆದಾರರು",

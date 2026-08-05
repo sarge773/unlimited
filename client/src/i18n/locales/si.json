@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} ඉල්ලන ලදී, පසුබැසීම මගින් සේවය කරන ලදී",
     "attempts": "උත්සාහයන්",
     "filterAll": "සියල්ල",
+    "filterCanceled": "අවලංගු කළ",
     "providerBreakdown": "එක්-සැපයුම්කරු බිඳ වැටීම",
     "tokensPerSec": "Tok/s",
     "allProviders": "සියලුම සපයන්නන්",

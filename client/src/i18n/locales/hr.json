@@ -550,6 +550,7 @@
     "requestedModelHint": "Zatraženo {model}, posluženo kao rezerva",
     "attempts": "Pokušaji",
     "filterAll": "Svi",
+    "filterCanceled": "Otkazani",
     "providerBreakdown": "Raspodjela po pružatelju usluga",
     "tokensPerSec": "Tok/s",
     "allProviders": "Svi pružatelji",

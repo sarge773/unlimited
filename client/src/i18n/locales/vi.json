@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} được yêu cầu, được cung cấp bởi dự phòng",
     "attempts": "Nỗ lực",
     "filterAll": "Tất cả",
+    "filterCanceled": "Đã hủy",
     "providerBreakdown": "Phân tích theo nhà cung cấp",
     "tokensPerSec": "Tok/giây",
     "allProviders": "Tất cả các nhà cung cấp",

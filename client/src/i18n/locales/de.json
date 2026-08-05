@@ -550,6 +550,7 @@
     "requestedModelHint": "Angeforderter {model}, bereitgestellt durch Fallback",
     "attempts": "Versuche",
     "filterAll": "Alle",
+    "filterCanceled": "Abgebrochen",
     "providerBreakdown": "Aufschlüsselung nach Anbieter",
     "tokensPerSec": "Tok/s",
     "allProviders": "Alle Anbieter",

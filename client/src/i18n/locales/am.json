@@ -550,6 +550,7 @@
     "requestedModelHint": "የተጠየቀ {model}፣ በመውደቅ አገልግሏል",
     "attempts": "ሙከራዎች",
     "filterAll": "ሁሉም",
+    "filterCanceled": "የተሰረዙ",
     "providerBreakdown": "በእያንዳንዱ አቅራቢ መከፋፈል",
     "tokensPerSec": "ቶክ / ዎች",
     "allProviders": "ሁሉም አቅራቢዎች",

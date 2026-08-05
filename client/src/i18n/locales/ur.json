@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} کی درخواست کی گئی، فال بیک کے ذریعے پیش کی گئی۔",
     "attempts": "کوششیں",
     "filterAll": "تمام",
+    "filterCanceled": "منسوخ شدہ",
     "providerBreakdown": "فی فراہم کنندہ کی خرابی",
     "tokensPerSec": "Tok/s",
     "allProviders": "تمام فراہم کنندگان",

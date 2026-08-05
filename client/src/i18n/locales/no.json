@@ -550,6 +550,7 @@
     "requestedModelHint": "Bedt om {model}, betjent som reserveplan",
     "attempts": "Forsøk",
     "filterAll": "Alle",
+    "filterCanceled": "Avbrutt",
     "providerBreakdown": "Fordeling per leverandør",
     "tokensPerSec": "Tok/s",
     "allProviders": "Alle tilbydere",

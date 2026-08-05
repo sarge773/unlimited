@@ -550,6 +550,7 @@
     "requestedModelHint": "Kértem {model}, tartalék kézbe szállítva",
     "attempts": "Próbálkozások",
     "filterAll": "Mind",
+    "filterCanceled": "Megszakítva",
     "providerBreakdown": "Szolgáltatónkénti bontás",
     "tokensPerSec": "Tok/s",
     "allProviders": "Minden szolgáltató",

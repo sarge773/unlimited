@@ -550,6 +550,7 @@
     "requestedModelHint": "대체 서비스로 제공되는 {model} 요청",
     "attempts": "시도",
     "filterAll": "모두",
+    "filterCanceled": "취소됨",
     "providerBreakdown": "공급자별 분석",
     "tokensPerSec": "톡/초",
     "allProviders": "모든 제공업체",

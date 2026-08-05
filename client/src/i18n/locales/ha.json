@@ -550,6 +550,7 @@
     "requestedModelHint": "Neman {model}, wanda aka yi amfani da shi ta koma baya",
     "attempts": "Ƙoƙari",
     "filterAll": "Duka",
+    "filterCanceled": "An soke",
     "providerBreakdown": "Rushewar kowane mai bayarwa",
     "tokensPerSec": "Tok/s",
     "allProviders": "Duk masu samarwa",

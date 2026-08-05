@@ -550,6 +550,7 @@
     "requestedModelHint": "請求了 {model}，由備援模型提供",
     "attempts": "嘗試次數",
     "filterAll": "全部",
+    "filterCanceled": "已取消",
     "providerBreakdown": "按提供者細分",
     "tokensPerSec": "Token/秒",
     "allProviders": "全部提供者",

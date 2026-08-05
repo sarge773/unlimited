@@ -550,6 +550,7 @@
     "requestedModelHint": "ఫాల్‌బ్యాక్ ద్వారా అందించబడిన {model} అభ్యర్థించబడింది",
     "attempts": "ప్రయత్నాలు",
     "filterAll": "అన్నీ",
+    "filterCanceled": "రద్దైనవి",
     "providerBreakdown": "ప్రతి ప్రొవైడర్ బ్రేక్‌డౌన్",
     "tokensPerSec": "టోక్/లు",
     "allProviders": "అందరు ప్రొవైడర్లు",

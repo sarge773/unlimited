@@ -550,6 +550,7 @@
     "requestedModelHint": "Hiniling na {model}, pinagsilbihan bilang fallback",
     "attempts": "Mga Pagtatangka",
     "filterAll": "Lahat",
+    "filterCanceled": "Kanselado",
     "providerBreakdown": "Pagkakahati-hati ng bawat provider",
     "tokensPerSec": "Tok/s",
     "allProviders": "Lahat ng provider",

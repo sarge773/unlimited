@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} ची विनंती केली, फॉलबॅकद्वारे सेवा दिली",
     "attempts": "प्रयत्न",
     "filterAll": "सर्व",
+    "filterCanceled": "रद्द",
     "providerBreakdown": "प्रति-प्रदाता ब्रेकडाउन",
     "tokensPerSec": "टोक/से",
     "allProviders": "सर्व प्रदाते",

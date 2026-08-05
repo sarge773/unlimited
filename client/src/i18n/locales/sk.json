@@ -550,6 +550,7 @@
     "requestedModelHint": "Požiadaný {model}, obsluhovaný záložnou zálohou",
     "attempts": "Pokusy",
     "filterAll": "Všetko",
+    "filterCanceled": "Zrušené",
     "providerBreakdown": "Rozdelenie podľa poskytovateľa",
     "tokensPerSec": "Tok/s",
     "allProviders": "Všetci poskytovatelia",

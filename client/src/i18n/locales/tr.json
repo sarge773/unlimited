@@ -550,6 +550,7 @@
     "requestedModelHint": "İstenen {model}, yedek tarafından sunuldu",
     "attempts": "denemeler",
     "filterAll": "Hepsi",
+    "filterCanceled": "İptal edilenler",
     "providerBreakdown": "Sağlayıcı başına döküm",
     "tokensPerSec": "Tok/s",
     "allProviders": "Tüm sağlayıcılar",

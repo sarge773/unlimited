@@ -550,6 +550,7 @@
     "requestedModelHint": "Anmodede {model}, betjent via fallback",
     "attempts": "Forsøg",
     "filterAll": "Alle",
+    "filterCanceled": "Annullerede",
     "providerBreakdown": "Opdeling pr. udbyder",
     "tokensPerSec": "Tok/s",
     "allProviders": "Alle udbydere",

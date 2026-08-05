@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} ଅନୁରୋଧ କରାଯାଇଛି, ଫଲବ୍ୟାକ୍ ଦ୍ୱାରା ପରିବେଷଣ କରାଯାଇଛି",
     "attempts": "ଉଦ୍ୟମ",
     "filterAll": "ସମସ୍ତ",
+    "filterCanceled": "ବାତିଲ",
     "providerBreakdown": "ପ୍ରତି-ପ୍ରଦାନକାରୀ ବ୍ରେକଡାଉନ୍",
     "tokensPerSec": "ଟୋକ୍ / ସେକେଣ୍ଡ",
     "allProviders": "ସମସ୍ତ ପ୍ରଦାନକାରୀ",

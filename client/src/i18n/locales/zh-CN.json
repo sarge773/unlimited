@@ -550,6 +550,7 @@
     "requestedModelHint": "请求了 {model}，由回退模型提供",
     "attempts": "尝试次数",
     "filterAll": "全部",
+    "filterCanceled": "已取消",
     "providerBreakdown": "按提供方细分",
     "tokensPerSec": "词元/秒",
     "allProviders": "全部提供方",

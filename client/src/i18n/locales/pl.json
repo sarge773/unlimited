@@ -550,6 +550,7 @@
     "requestedModelHint": "Żądano {model}, obsługiwane przez rezerwę",
     "attempts": "Próby",
     "filterAll": "Wszystko",
+    "filterCanceled": "Anulowane",
     "providerBreakdown": "Podział na dostawcę",
     "tokensPerSec": "Tok/s",
     "allProviders": "Wszyscy dostawcy",

@@ -550,6 +550,7 @@
     "requestedModelHint": "Ζητήθηκε {model}, εξυπηρετείται από εναλλακτική",
     "attempts": "Προσπάθειες",
     "filterAll": "Όλα",
+    "filterCanceled": "Ακυρωμένες",
     "providerBreakdown": "Ανάλυση ανά πάροχο",
     "tokensPerSec": "Τοκ/α",
     "allProviders": "Όλοι οι πάροχοι",

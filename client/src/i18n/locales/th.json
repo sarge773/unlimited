@@ -550,6 +550,7 @@
     "requestedModelHint": "ร้องขอ {model} ซึ่งให้บริการโดยทางเลือก",
     "attempts": "ความพยายาม",
     "filterAll": "ทั้งหมด",
+    "filterCanceled": "ยกเลิกแล้ว",
     "providerBreakdown": "รายละเอียดต่อผู้ให้บริการ",
     "tokensPerSec": "ต๊อก/ส",
     "allProviders": "ผู้ให้บริการทั้งหมด",

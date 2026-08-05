@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} ਦੀ ਬੇਨਤੀ ਕੀਤੀ, ਫਾਲਬੈਕ ਦੁਆਰਾ ਸੇਵਾ ਕੀਤੀ ਗਈ",
     "attempts": "ਕੋਸ਼ਿਸ਼ਾਂ",
     "filterAll": "ਸਾਰੇ",
+    "filterCanceled": "ਰੱਦ ਕੀਤੇ",
     "providerBreakdown": "ਪ੍ਰਤੀ-ਪ੍ਰਦਾਤਾ ਟੁੱਟਣ",
     "tokensPerSec": "Tok/s",
     "allProviders": "ਸਾਰੇ ਪ੍ਰਦਾਤਾ",

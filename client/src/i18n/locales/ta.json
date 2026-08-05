@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} கோரப்பட்டது, ஃபால்பேக் மூலம் சேவை வழங்கப்பட்டது",
     "attempts": "முயற்சிகள்",
     "filterAll": "அனைத்து",
+    "filterCanceled": "ரத்தானவை",
     "providerBreakdown": "ஒவ்வொரு வழங்குநருக்கும் முறிவு",
     "tokensPerSec": "டோக்/கள்",
     "allProviders": "அனைத்து வழங்குநர்கள்",

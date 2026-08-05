@@ -550,6 +550,7 @@
     "requestedModelHint": "Soʻralgan {model}, zaxira orqali xizmat koʻrsatadi",
     "attempts": "Urinishlar",
     "filterAll": "Hammasi",
+    "filterCanceled": "Bekor qilingan",
     "providerBreakdown": "Har bir provayder bo'yicha taqsimot",
     "tokensPerSec": "Tok/s",
     "allProviders": "Barcha provayderlar",

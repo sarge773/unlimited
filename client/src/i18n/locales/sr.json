@@ -550,6 +550,7 @@
     "requestedModelHint": "Захтевано {model}, сервирано резервним путем",
     "attempts": "Покушаји",
     "filterAll": "Све",
+    "filterCanceled": "Отказани",
     "providerBreakdown": "Анализа по добављачима",
     "tokensPerSec": "Ток/с",
     "allProviders": "Сви провајдери",

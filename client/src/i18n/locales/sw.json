@@ -550,6 +550,7 @@
     "requestedModelHint": "Umeomba {model}, ukitolewa kwa njia mbadala",
     "attempts": "Majaribio",
     "filterAll": "Wote",
+    "filterCanceled": "Zilizoghairiwa",
     "providerBreakdown": "Uchanganuzi wa kila mtoaji",
     "tokensPerSec": "Tok/s",
     "allProviders": "Watoa huduma wote",

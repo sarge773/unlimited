@@ -550,6 +550,7 @@
     "requestedModelHint": "Begärt {model}, servat som reservplan",
     "attempts": "Försök",
     "filterAll": "Alla",
+    "filterCanceled": "Avbrutna",
     "providerBreakdown": "Uppdelning per leverantör",
     "tokensPerSec": "Tok/s",
     "allProviders": "Alla leverantörer",

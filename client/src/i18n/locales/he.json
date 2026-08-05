@@ -550,6 +550,7 @@
     "requestedModelHint": "מבוקש {model}, משרת על ידי גיבוי",
     "attempts": "ניסיונות",
     "filterAll": "הכל",
+    "filterCanceled": "בוטלו",
     "providerBreakdown": "פירוט לכל ספק",
     "tokensPerSec": "Tok/s",
     "allProviders": "כל הספקים",

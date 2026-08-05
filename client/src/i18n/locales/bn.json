@@ -550,6 +550,7 @@
     "requestedModelHint": "অনুরোধ করা হয়েছে {model}, ফলব্যাক দ্বারা পরিবেশিত৷",
     "attempts": "প্রচেষ্টা",
     "filterAll": "সব",
+    "filterCanceled": "বাতিল",
     "providerBreakdown": "প্রতি-প্রদানকারী ব্রেকডাউন",
     "tokensPerSec": "টোক/সে",
     "allProviders": "সমস্ত প্রদানকারী",

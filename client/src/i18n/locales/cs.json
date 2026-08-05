@@ -550,6 +550,7 @@
     "requestedModelHint": "Požadovaný {model}, sloužen záložní variantou",
     "attempts": "Pokusy",
     "filterAll": "Všichni",
+    "filterCanceled": "Zrušené",
     "providerBreakdown": "Rozdělení podle poskytovatele",
     "tokensPerSec": "Tok/s",
     "allProviders": "Všichni poskytovatelé",

@@ -550,6 +550,7 @@
     "requestedModelHint": "अनुरोधित {model}, फ़ॉलबैक द्वारा सेवा प्रदान की गई",
     "attempts": "प्रयास",
     "filterAll": "सब",
+    "filterCanceled": "रद्द",
     "providerBreakdown": "प्रति-प्रदाता टूटना",
     "tokensPerSec": "टोक/एस",
     "allProviders": "सभी प्रदाता",

@@ -550,6 +550,7 @@
     "requestedModelHint": "მოითხოვა {model}, მოწოდებული სარეზერვო საშუალებით",
     "attempts": "მცდელობები",
     "filterAll": "ყველა",
+    "filterCanceled": "გაუქმებული",
     "providerBreakdown": "თითო პროვაიდერის დაშლა",
     "tokensPerSec": "ტოკ/ს",
     "allProviders": "ყველა პროვაიდერი",

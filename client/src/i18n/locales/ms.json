@@ -550,6 +550,7 @@
     "requestedModelHint": "Permintaan {model}, dilayani sebagai sandaran",
     "attempts": "Percubaan",
     "filterAll": "Semua",
+    "filterCanceled": "Dibatalkan",
     "providerBreakdown": "Pecahan setiap penyedia",
     "tokensPerSec": "Tok/s",
     "allProviders": "Semua penyedia",

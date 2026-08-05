@@ -550,6 +550,7 @@
     "requestedModelHint": "Запрошен {model}, обслуживается резервным способом.",
     "attempts": "Попытки",
     "filterAll": "Все",
+    "filterCanceled": "Отменённые",
     "providerBreakdown": "Разбивка по провайдерам",
     "tokensPerSec": "Ток/с",
     "allProviders": "Все провайдеры",

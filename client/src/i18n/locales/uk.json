@@ -550,6 +550,7 @@
     "requestedModelHint": "Запитано {model}, обслуговується резервним способом",
     "attempts": "Спроби",
     "filterAll": "все",
+    "filterCanceled": "Скасовані",
     "providerBreakdown": "Розподіл за постачальником",
     "tokensPerSec": "Ток/с",
     "allProviders": "Всі провайдери",

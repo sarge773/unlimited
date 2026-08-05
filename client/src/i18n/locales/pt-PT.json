@@ -550,6 +550,7 @@
     "requestedModelHint": "Solicitado {model}, servido por recuo",
     "attempts": "Tentativas",
     "filterAll": "Todos",
+    "filterCanceled": "Canceladas",
     "providerBreakdown": "Distribuição por fornecedor",
     "tokensPerSec": "Tok/s",
     "allProviders": "Todos os prestadores",

@@ -529,12 +529,14 @@ function decayWeight(ageDays: number): number {
   return Math.pow(0.5, Math.max(0, ageDays) / HALF_LIFE_DAYS);
 }
 
-// SQL predicate for "this row is a timed-out request" (#619). `requests.status`
-// only ever holds 'success' or 'error' — a timeout is an error row whose text
-// carries one of the shared timeout markers (lib/error-classify.ts), which is
-// also what the failover attempt trail classifies on. The markers are
-// hard-coded lowercase identifiers from our own source, never user input, so
-// interpolating them into the LIKE list is safe.
+// SQL predicate for "this row is a timed-out request" (#619). A timeout is an
+// error row whose text carries one of the shared timeout markers
+// (lib/error-classify.ts), which is also what the failover attempt trail
+// classifies on. 'canceled' rows (#752 — client hung up) never reach this
+// predicate: the stats query below filters them out entirely, because a
+// vanished client says nothing about the model's reliability or speed. The
+// markers are hard-coded lowercase identifiers from our own source, never
+// user input, so interpolating them into the LIKE list is safe.
 const IS_TIMEOUT_SQL = `(status != 'success' AND (${
   TIMEOUT_ERROR_MARKERS.map(m => `LOWER(COALESCE(error, '')) LIKE '%${m}%'`).join(' OR ')
 }))`;
@@ -570,7 +572,7 @@ export function refreshStatsCache(db: Db, force = false): void {
       SUM(CASE WHEN ${IS_TIMEOUT_SQL} THEN 1 ELSE 0 END) AS timeouts,
       SUM(CASE WHEN ${IS_TIMEOUT_SQL} THEN MIN(MAX(latency_ms, 0), ${TIMEOUT_LATENCY_CAP_MS}) ELSE 0 END) AS timeout_lat
     FROM requests
-    WHERE created_at >= ?
+    WHERE created_at >= ? AND status <> 'canceled'
     GROUP BY platform, model_id, key_id, age_days
   `).all(since) as Array<{
     platform: string; model_id: string; key_id: number | null; age_days: number; total: number; successes: number;

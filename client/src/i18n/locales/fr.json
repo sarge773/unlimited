@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} demandé, servi par repli",
     "attempts": "Tentatives",
     "filterAll": "Toutes",
+    "filterCanceled": "Annulées",
     "providerBreakdown": "Détail par fournisseur",
     "tokensPerSec": "Tok/s",
     "allProviders": "Tous les fournisseurs",

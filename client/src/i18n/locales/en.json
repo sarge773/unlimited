@@ -567,6 +567,7 @@
     "requestedModelHint": "Requested {model}, served by fallback",
     "attempts": "Attempts",
     "filterAll": "All",
+    "filterCanceled": "Canceled",
     "providerBreakdown": "Per-provider breakdown",
     "tokensPerSec": "Tok/s",
     "allProviders": "All providers",

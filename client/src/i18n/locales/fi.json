@@ -550,6 +550,7 @@
     "requestedModelHint": "Pyydetty {model}, toimitettu varasuunnitelmana",
     "attempts": "Yritykset",
     "filterAll": "Kaikki",
+    "filterCanceled": "Peruutetut",
     "providerBreakdown": "Palveluntarjoajakohtainen erittely",
     "tokensPerSec": "Tok/s",
     "allProviders": "Kaikki palveluntarjoajat",

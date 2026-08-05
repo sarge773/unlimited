@@ -550,6 +550,7 @@
     "requestedModelHint": "درخواست {model}، ارائه شده توسط بازگشت",
     "attempts": "تلاش ها",
     "filterAll": "همه",
+    "filterCanceled": "لغوشده",
     "providerBreakdown": "تفکیک هر ارائه دهنده",
     "tokensPerSec": "Tok/s",
     "allProviders": "همه ارائه دهندگان",

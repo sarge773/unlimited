@@ -550,6 +550,7 @@
     "requestedModelHint": "Prašyta {model}, aptarnauta atsarginiu būdu",
     "attempts": "Bandymai",
     "filterAll": "Visi",
+    "filterCanceled": "Atšauktos",
     "providerBreakdown": "Pasiskirstymas pagal tiekėją",
     "tokensPerSec": "Tok/s",
     "allProviders": "Visi tiekėjai",

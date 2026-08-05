@@ -550,6 +550,7 @@
     "requestedModelHint": "リクエストされた {model}、フォールバックによって提供される",
     "attempts": "試み",
     "filterAll": "すべて",
+    "filterCanceled": "キャンセル",
     "providerBreakdown": "プロバイダーごとの内訳",
     "tokensPerSec": "トク/秒",
     "allProviders": "すべてのプロバイダー",

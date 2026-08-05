@@ -550,6 +550,7 @@
     "requestedModelHint": "تم طلب {model}، ويتم تقديمه بطريقة احتياطية",
     "attempts": "محاولات",
     "filterAll": "الكل",
+    "filterCanceled": "ملغاة",
     "providerBreakdown": "تفصيل لكل مزود",
     "tokensPerSec": "توك/س",
     "allProviders": "جميع مقدمي الخدمة",

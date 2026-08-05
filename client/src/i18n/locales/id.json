@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} yang diminta, dilayani oleh fallback",
     "attempts": "Upaya",
     "filterAll": "Semua",
+    "filterCanceled": "Dibatalkan",
     "providerBreakdown": "Perincian per penyedia",
     "tokensPerSec": "Tok/dtk",
     "allProviders": "Semua penyedia",

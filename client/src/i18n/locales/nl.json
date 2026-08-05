@@ -550,6 +550,7 @@
     "requestedModelHint": "Gevraagd {model}, bediend via reserveplan",
     "attempts": "Pogingen",
     "filterAll": "Allemaal",
+    "filterCanceled": "Geannuleerd",
     "providerBreakdown": "Uitsplitsing per aanbieder",
     "tokensPerSec": "Tok/s",
     "allProviders": "Alle aanbieders",

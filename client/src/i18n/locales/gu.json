@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} વિનંતી કરી, ફોલબેક દ્વારા સેવા આપવામાં આવી",
     "attempts": "પ્રયાસો",
     "filterAll": "બધા",
+    "filterCanceled": "રદ થયેલ",
     "providerBreakdown": "પ્રતિ-પ્રદાતા બ્રેકડાઉન",
     "tokensPerSec": "ટોક/સે",
     "allProviders": "બધા પ્રદાતાઓ",

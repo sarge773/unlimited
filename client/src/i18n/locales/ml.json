@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} അഭ്യർത്ഥിച്ചു, ഫാൾബാക്ക് നൽകി",
     "attempts": "ശ്രമങ്ങൾ",
     "filterAll": "എല്ലാം",
+    "filterCanceled": "റദ്ദാക്കിയവ",
     "providerBreakdown": "ഓരോ ദാതാവിനും തകരാർ",
     "tokensPerSec": "ടോക്ക്/സെ",
     "allProviders": "എല്ലാ ദാതാക്കളും",

@@ -550,6 +550,7 @@
     "requestedModelHint": "បានស្នើសុំ {model} បម្រើដោយជម្រើសបម្រុង",
     "attempts": "ការព្យាយាម",
     "filterAll": "ទាំងអស់",
+    "filterCanceled": "បានបោះបង់",
     "providerBreakdown": "ការបែងចែកតាមអ្នកផ្តល់សេវា",
     "tokensPerSec": "តុក/វិនាទី",
     "allProviders": "អ្នកផ្តល់សេវាទាំងអស់",

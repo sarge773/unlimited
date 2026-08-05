@@ -550,6 +550,7 @@
     "requestedModelHint": "Поискано {model}, обслужено като резерв",
     "attempts": "Опити",
     "filterAll": "Всички",
+    "filterCanceled": "Отменени",
     "providerBreakdown": "Разпределение на всеки доставчик",
     "tokensPerSec": "Ток/с",
     "allProviders": "Всички доставчици",

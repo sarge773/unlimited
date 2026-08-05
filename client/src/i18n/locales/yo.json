@@ -550,6 +550,7 @@
     "requestedModelHint": "Ti beere {model}, yoo wa nipasẹ fallback",
     "attempts": "Awọn igbiyanju",
     "filterAll": "Gbogbo",
+    "filterCanceled": "Ti fagile",
     "providerBreakdown": "Pipin-olupese",
     "tokensPerSec": "Tok/s",
     "allProviders": "Gbogbo olupese",

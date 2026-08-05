@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} अनुरोध गरियो, फलब्याकद्वारा सेवा गरियो",
     "attempts": "प्रयासहरू",
     "filterAll": "सबै",
+    "filterCanceled": "रद्द गरिएका",
     "providerBreakdown": "प्रत्येक प्रदायक क्रमाङ्कन",
     "tokensPerSec": "टक/एस",
     "allProviders": "सबै प्रदायकहरू",

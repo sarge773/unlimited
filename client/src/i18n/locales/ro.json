@@ -550,6 +550,7 @@
     "requestedModelHint": "Solicitat {model}, deservit de rezervă",
     "attempts": "Încercări",
     "filterAll": "Toate",
+    "filterCanceled": "Anulate",
     "providerBreakdown": "Defalcare pe furnizor",
     "tokensPerSec": "Tok/s",
     "allProviders": "Toți furnizorii",

@@ -187,7 +187,15 @@ interface RequestDetail extends Omit<RecentCallRow, 'attemptCount'> {
   attempts: RequestAttempt[]
 }
 
-type StatusFilter = 'all' | 'success' | 'error'
+type StatusFilter = 'all' | 'success' | 'error' | 'canceled'
+
+// 'canceled' (#752 — the client hung up mid-request) is neither success nor
+// error: neutral amber, not destructive red.
+function statusTextClass(status: string): string {
+  if (status === 'success') return 'text-muted-foreground'
+  if (status === 'canceled') return 'text-amber-600 dark:text-amber-400'
+  return 'text-destructive'
+}
 
 // First product token of the UA ("python-requests/2.32.3", "curl/8.6.0", …)
 // is enough to tell callers apart in a narrow cell; full string on hover.
@@ -310,7 +318,7 @@ function RequestDetailDialog({ requestId, onClose }: { requestId: number | null;
               <DetailField
                 label={t('common.status')}
                 value={
-                  <span className={detail.status === 'success' ? '' : 'text-destructive'}>{detail.status}</span>
+                  <span className={detail.status === 'success' ? '' : statusTextClass(detail.status)}>{detail.status}</span>
                 }
               />
               <DetailField
@@ -362,7 +370,8 @@ function RequestDetailDialog({ requestId, onClose }: { requestId: number | null;
                         <span className="font-medium">{a.platform}</span>
                         <span className="text-muted-foreground truncate" title={a.modelId}>{a.modelId}</span>
                         <Badge variant="outline">{t('analytics.keyOrdinal', { n: a.keyOrdinal })}</Badge>
-                        <Badge variant={a.outcome === 'ok' || a.outcome === 'committed' ? 'secondary' : 'destructive'}>
+                        {/* client_abort is the caller's doing, not a hop failure. */}
+                        <Badge variant={a.outcome === 'ok' || a.outcome === 'committed' ? 'secondary' : a.outcome === 'client_abort' ? 'outline' : 'destructive'}>
                           {a.outcome}
                         </Badge>
                         <span
@@ -765,6 +774,7 @@ export default function AnalyticsPage() {
                       { value: 'all', label: t('analytics.filterAll') },
                       { value: 'success', label: t('common.success') },
                       { value: 'error', label: t('analytics.errors') },
+                      { value: 'canceled', label: t('analytics.filterCanceled') },
                     ]}
                     ariaLabel={t('common.status')}
                   />
@@ -827,7 +837,7 @@ export default function AnalyticsPage() {
                             {r.requestedModel && r.requestedModel !== r.modelId ? ' *' : ''}
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">{r.platform}</TableCell>
-                          <TableCell className={`text-xs ${r.status === 'success' ? 'text-muted-foreground' : 'text-destructive'}`} title={r.error ?? undefined}>
+                          <TableCell className={`text-xs ${statusTextClass(r.status)}`} title={r.error ?? undefined}>
                             {r.status}
                           </TableCell>
                           {/* >1 = the request burned failover hops; that is the

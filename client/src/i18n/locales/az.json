@@ -550,6 +550,7 @@
     "requestedModelHint": "{model} tələb olundu, ehtiyat qüvvə ilə təqdim edildi",
     "attempts": "Cəhdlər",
     "filterAll": "Hamı",
+    "filterCanceled": "Ləğv edilmiş",
     "providerBreakdown": "Təminatçı üzrə bölgü",
     "tokensPerSec": "Tok/s",
     "allProviders": "Bütün təminatçılar",

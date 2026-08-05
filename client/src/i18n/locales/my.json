@@ -550,6 +550,7 @@
     "requestedModelHint": "တောင်းဆိုထားသော {model}၊ fallback ဖြင့် ဝန်ဆောင်မှု",
     "attempts": "ကြိုးစားမှုများ",
     "filterAll": "အားလုံး",
+    "filterCanceled": "ပယ်ဖျက်ပြီး",
     "providerBreakdown": "ပံ့ပိုးသူအလိုက် ခွဲခြားချက်",
     "tokensPerSec": "Tok/s",
     "allProviders": "ပံ့ပိုးသူအားလုံး",

@@ -550,6 +550,7 @@
     "requestedModelHint": "Arịrịọ {model}, nke na-azaghachi azụ azụ",
     "attempts": "Mgbalị",
     "filterAll": "Ha niile",
+    "filterCanceled": "Ndị a kagburu",
     "providerBreakdown": "Mmebi nke onye na-eweta ya",
     "tokensPerSec": "Tok/s",
     "allProviders": "Ndị na-eweta niile",
