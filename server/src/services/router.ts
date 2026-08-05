@@ -27,6 +27,7 @@ import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from '.
 import { getActiveProfileId } from './profile-models.js';
 import { customEndpointKeyIds } from './custom-endpoint.js';
 import { modelStatsKey, endpointScopeForBaseUrl } from '../lib/endpoint-scope.js';
+import { parseModelScope, scopeAllows } from '../lib/model-scope.js';
 import type { BaseProvider } from '../providers/base.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import type { Db } from '../db/types.js';
@@ -117,6 +118,9 @@ interface KeyRow {
   status: string;
   enabled: number;
   base_url: string | null;
+  // Optional JSON array of model_id strings this key may serve; NULL = every
+  // model of its platform (#657).
+  model_scope_json: string | null;
 }
 
 // Chain row joined with the model fields the bandit needs to score it.
@@ -1058,11 +1062,21 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
   }
   const provider = getProvider(entry.platform as Platform)!;
 
-  const keys = db.prepare(
+  const allKeys = db.prepare(
     "SELECT * FROM api_keys WHERE platform = ? AND enabled = 1 AND status IN ('healthy', 'unknown')"
   ).all(entry.platform) as KeyRow[];
-  if (keys.length === 0) {
+  if (allKeys.length === 0) {
     diag?.push(`${label}: no enabled+healthy key for platform`);
+    return null;
+  }
+
+  // Scoped keys (#657) are dropped before the walk: a key whose model scope
+  // excludes this model is not a candidate at all — it neither takes a
+  // round-robin slot nor burns an attempt on a guaranteed 403. Parsed once per
+  // key row.
+  const keys = allKeys.filter(k => scopeAllows(parseModelScope(k.model_scope_json), entry.model_id));
+  if (keys.length === 0) {
+    diag?.push(`${label}: no usable key — ${allKeys.length} key(s) scoped to other models`);
     return null;
   }
 
@@ -1192,8 +1206,8 @@ export function hasOtherUsableKey(modelDbId: number, excludingKeyId: number, ski
 
   const limits = { rpm: m.rpm_limit, rpd: m.rpd_limit, tpm: m.tpm_limit, tpd: m.tpd_limit };
   const keys = db.prepare(
-    "SELECT id FROM api_keys WHERE platform = ? AND enabled = 1 AND status IN ('healthy', 'unknown')"
-  ).all(m.platform) as { id: number }[];
+    "SELECT id, model_scope_json FROM api_keys WHERE platform = ? AND enabled = 1 AND status IN ('healthy', 'unknown')"
+  ).all(m.platform) as { id: number; model_scope_json: string | null }[];
 
   // Keys of the model's own custom endpoint (#212, #619); a key belonging to a
   // DIFFERENT endpoint cannot serve it, so it doesn't count as an alternative.
@@ -1204,6 +1218,9 @@ export function hasOtherUsableKey(modelDbId: number, excludingKeyId: number, ski
   for (const k of keys) {
     if (k.id === excludingKeyId) continue;
     if (endpointKeyIds && !endpointKeyIds.has(k.id)) continue;
+    // A sibling scoped away from this model can never serve it (#657) — counting
+    // it would wrongly suppress the model-level penalty this gate exists for.
+    if (!scopeAllows(parseModelScope(k.model_scope_json), m.model_id)) continue;
     if (skipKeys?.has(`${m.platform}:${m.model_id}:${k.id}`)) continue;
     if (isOnCooldown(m.platform, m.model_id, k.id)) continue;
     if (!canUseProvider(m.platform, k.id)) continue;
@@ -1356,12 +1373,15 @@ export function getOrderedFusionChain(estimatedTokens: number): FusionCandidate[
   // misleading "no available key for model". Passing a placeholder token count
   // here made both size gates no-ops.
   const usableKeys = db.prepare(
-    "SELECT id, platform FROM api_keys WHERE enabled = 1 AND status IN ('healthy', 'unknown')"
-  ).all() as { id: number; platform: string }[];
-  const keysByPlatform = new Map<string, number[]>();
+    "SELECT id, platform, model_scope_json FROM api_keys WHERE enabled = 1 AND status IN ('healthy', 'unknown')"
+  ).all() as { id: number; platform: string; model_scope_json: string | null }[];
+  // Scope parsed once per key row (#657); the servable filter below re-checks
+  // membership per model.
+  const keysByPlatform = new Map<string, { id: number; scope: Set<string> | null }[]>();
   for (const k of usableKeys) {
+    const entry = { id: k.id, scope: parseModelScope(k.model_scope_json) };
     const arr = keysByPlatform.get(k.platform);
-    if (arr) arr.push(k.id); else keysByPlatform.set(k.platform, [k.id]);
+    if (arr) arr.push(entry); else keysByPlatform.set(k.platform, [entry]);
   }
   const servable = chain.filter(e => {
     // A null context_window means "unknown", not "zero": same convention the
@@ -1374,7 +1394,8 @@ export function getOrderedFusionChain(estimatedTokens: number): FusionCandidate[
       ? customEndpointKeyIds(db, e.key_id)
       : null;
     const limits = { rpm: e.rpm_limit, rpd: e.rpd_limit, tpm: e.tpm_limit, tpd: e.tpd_limit };
-    return keyIds.some(kid =>
+    return keyIds.some(({ id: kid, scope }) =>
+      scopeAllows(scope, e.model_id) &&
       (endpointKeyIds == null || endpointKeyIds.has(kid)) &&
       !isOnCooldown(e.platform, e.model_id, kid) &&
       canUseProvider(e.platform, kid) &&

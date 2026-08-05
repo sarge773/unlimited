@@ -217,6 +217,9 @@ export interface ApiKey {
   createdAt: string;
   lastCheckedAt: string | null;
   lastHealthError: string | null;
+  /** Model ids this key is limited to; null = serves every model of its
+   *  platform (#657). */
+  modelScope?: string[] | null;
   models?: ApiKeyModel[];
   cooldowns?: ApiKeyCooldown[];
 }

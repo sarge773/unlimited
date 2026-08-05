@@ -483,7 +483,14 @@
     "createUrlToken": "បង្កើត token",
     "urlTokenOnce": "ចម្លង token នេះឥឡូវនេះ។ វានឹងមិនបង្ហាញម្តងទៀតទេ។",
     "revoked": "បានដកហូត",
-    "revoke": "ដកហូត"
+    "revoke": "ដកហូត",
+    "modelScope": "វិសាលភាពម៉ូដែល",
+    "modelScopeDesc": "កំណត់សោនេះឱ្យប្រើបានតែ ID ម៉ូដែលជាក់លាក់ប៉ុណ្ណោះ។ សម្រាប់ម៉ូដែលផ្សេងទៀត រ៉ោតទ័ររំលងសោនេះ។",
+    "modelScopeAdd": "វាយ ID ម៉ូដែល រួចចុច Enter",
+    "modelScopeEmpty": "មិនទាន់កំណត់វិសាលភាព — សោនេះប្រើបានជាមួយម៉ូដែលទាំងអស់របស់អ្នកផ្តល់សេវា។",
+    "modelScopeClear": "លុបវិសាលភាព",
+    "modelScopeBadgeOne": "កំណត់ · ម៉ូដែល 1",
+    "modelScopeBadgeOther": "កំណត់ · ម៉ូដែល {count}"
   },
   "status": {
     "healthy": "មានសុខភាពល្អ",

@@ -483,7 +483,14 @@
     "createUrlToken": "Token yaratish",
     "urlTokenOnce": "Bu tokenni hozir nusxalang. U boshqa ko'rsatilmaydi.",
     "revoked": "Bekor qilingan",
-    "revoke": "Bekor qilish"
+    "revoke": "Bekor qilish",
+    "modelScope": "Model doirasi",
+    "modelScopeDesc": "Bu kalitni muayyan model ID lari bilan cheklang. Boshqa har qanday model uchun router bu kalitni o‘tkazib yuboradi.",
+    "modelScopeAdd": "Model ID sini kiriting va Enter bosing",
+    "modelScopeEmpty": "Doira belgilanmagan — bu kalit o‘z provayderining barcha modellariga xizmat qiladi.",
+    "modelScopeClear": "Doirani tozalash",
+    "modelScopeBadgeOne": "cheklangan · 1 model",
+    "modelScopeBadgeOther": "cheklangan · {count} model"
   },
   "status": {
     "healthy": "sog'lom",

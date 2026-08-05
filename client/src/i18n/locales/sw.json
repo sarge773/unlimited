@@ -483,7 +483,14 @@
     "createUrlToken": "Unda tokeni",
     "urlTokenOnce": "Nakili tokeni hii sasa. Haitaonyeshwa tena.",
     "revoked": "Imebatilishwa",
-    "revoke": "Batilisha"
+    "revoke": "Batilisha",
+    "modelScope": "Wigo wa modeli",
+    "modelScopeDesc": "Wekea ufunguo huu kikomo cha ID mahususi za modeli. Kipanga njia kinaruka ufunguo huu kwa modeli nyingine yoyote.",
+    "modelScopeAdd": "Andika ID ya modeli kisha ubonyeze Enter",
+    "modelScopeEmpty": "Hakuna wigo uliowekwa — ufunguo huu unahudumia modeli zote za mtoa huduma wake.",
+    "modelScopeClear": "Futa wigo",
+    "modelScopeBadgeOne": "imezuiliwa · modeli 1",
+    "modelScopeBadgeOther": "imezuiliwa · modeli {count}"
   },
   "status": {
     "healthy": "afya",

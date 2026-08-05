@@ -483,7 +483,14 @@
     "createUrlToken": "Buat token",
     "urlTokenOnce": "Salin token ini sekarang. Token tidak akan ditampilkan lagi.",
     "revoked": "Dicabut",
-    "revoke": "Cabut"
+    "revoke": "Cabut",
+    "modelScope": "Cakupan model",
+    "modelScopeDesc": "Batasi kunci ini ke ID model tertentu. Router melewati kunci ini untuk model lain.",
+    "modelScopeAdd": "Masukkan ID model lalu tekan Enter",
+    "modelScopeEmpty": "Cakupan belum diatur — kunci ini melayani semua model penyedianya.",
+    "modelScopeClear": "Hapus cakupan",
+    "modelScopeBadgeOne": "dibatasi · 1 model",
+    "modelScopeBadgeOther": "dibatasi · {count} model"
   },
   "status": {
     "healthy": "sehat",

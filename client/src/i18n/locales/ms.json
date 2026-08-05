@@ -483,7 +483,14 @@
     "createUrlToken": "Cipta token",
     "urlTokenOnce": "Salin token ini sekarang. Ia tidak akan dipaparkan lagi.",
     "revoked": "Dibatalkan",
-    "revoke": "Batalkan"
+    "revoke": "Batalkan",
+    "modelScope": "Skop model",
+    "modelScopeDesc": "Hadkan kunci ini kepada ID model tertentu. Penghala melangkau kunci ini untuk model lain.",
+    "modelScopeAdd": "Masukkan ID model dan tekan Enter",
+    "modelScopeEmpty": "Tiada skop ditetapkan — kunci ini melayani semua model penyedianya.",
+    "modelScopeClear": "Kosongkan skop",
+    "modelScopeBadgeOne": "terhad · 1 model",
+    "modelScopeBadgeOther": "terhad · {count} model"
   },
   "status": {
     "healthy": "sihat",

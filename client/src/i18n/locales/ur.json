@@ -483,7 +483,14 @@
     "createUrlToken": "ٹوکن بنائیں",
     "urlTokenOnce": "یہ ٹوکن ابھی کاپی کریں۔ یہ دوبارہ نہیں دکھایا جائے گا۔",
     "revoked": "منسوخ شدہ",
-    "revoke": "منسوخ کریں"
+    "revoke": "منسوخ کریں",
+    "modelScope": "ماڈل دائرہ",
+    "modelScopeDesc": "اس کلید کو مخصوص ماڈل ID تک محدود کریں۔ کسی بھی دوسرے ماڈل کے لیے راؤٹر اس کلید کو چھوڑ دیتا ہے۔",
+    "modelScopeAdd": "ماڈل ID لکھیں اور Enter دبائیں",
+    "modelScopeEmpty": "کوئی دائرہ مقرر نہیں — یہ کلید اپنے فراہم کنندہ کے تمام ماڈلز کے لیے کام کرتی ہے۔",
+    "modelScopeClear": "دائرہ صاف کریں",
+    "modelScopeBadgeOne": "محدود · 1 ماڈل",
+    "modelScopeBadgeOther": "محدود · {count} ماڈلز"
   },
   "status": {
     "healthy": "صحت مند",

@@ -483,7 +483,14 @@
     "createUrlToken": "Gumawa ng token",
     "urlTokenOnce": "Kopyahin ang token na ito ngayon. Hindi na ito ipapakita muli.",
     "revoked": "Na-revoke",
-    "revoke": "I-revoke"
+    "revoke": "I-revoke",
+    "modelScope": "Saklaw ng modelo",
+    "modelScopeDesc": "Limitahan ang key na ito sa mga partikular na model ID. Nilalaktawan ng router ang key na ito para sa ibang modelo.",
+    "modelScopeAdd": "Maglagay ng model ID at pindutin ang Enter",
+    "modelScopeEmpty": "Walang nakatakdang saklaw — ginagamit ang key na ito para sa lahat ng modelo ng provider nito.",
+    "modelScopeClear": "Burahin ang saklaw",
+    "modelScopeBadgeOne": "limitado · 1 modelo",
+    "modelScopeBadgeOther": "limitado · {count} na modelo"
   },
   "status": {
     "healthy": "malusog",

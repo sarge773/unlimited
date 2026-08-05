@@ -483,7 +483,14 @@
     "createUrlToken": "Crear token",
     "urlTokenOnce": "Copia este token ahora. No se volverá a mostrar.",
     "revoked": "Revocado",
-    "revoke": "Revocar"
+    "revoke": "Revocar",
+    "modelScope": "Alcance de modelos",
+    "modelScopeDesc": "Limita esta clave a determinados ID de modelo. El enrutador omite esta clave para cualquier otro modelo.",
+    "modelScopeAdd": "Añade un ID de modelo y pulsa Intro",
+    "modelScopeEmpty": "Sin alcance definido: esta clave sirve todos los modelos de su proveedor.",
+    "modelScopeClear": "Borrar alcance",
+    "modelScopeBadgeOne": "limitada · 1 modelo",
+    "modelScopeBadgeOther": "limitada · {count} modelos"
   },
   "status": {
     "healthy": "correcto",

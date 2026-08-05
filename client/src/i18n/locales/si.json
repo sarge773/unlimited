@@ -483,7 +483,14 @@
     "createUrlToken": "ටෝකනය සාදන්න",
     "urlTokenOnce": "මෙම ටෝකනය දැන්ම පිටපත් කරන්න. එය නැවත නොපෙන්වයි.",
     "revoked": "අවලංගු කරන ලදී",
-    "revoke": "අවලංගු කරන්න"
+    "revoke": "අවලංගු කරන්න",
+    "modelScope": "මොඩල පරාසය",
+    "modelScopeDesc": "මෙම යතුර නිශ්චිත මොඩල ID වලට සීමා කරන්න. වෙනත් ඕනෑම මොඩලයක් සඳහා රවුටරය මෙම යතුර මඟහරියි.",
+    "modelScopeAdd": "මොඩල ID එකක් ටයිප් කර Enter ඔබන්න",
+    "modelScopeEmpty": "පරාසයක් සකසා නැත — මෙම යතුර එහි සැපයුම්කරුගේ සියලුම මොඩල සඳහා ක්‍රියා කරයි.",
+    "modelScopeClear": "පරාසය හිස් කරන්න",
+    "modelScopeBadgeOne": "සීමිත · මොඩල 1",
+    "modelScopeBadgeOther": "සීමිත · මොඩල {count}"
   },
   "status": {
     "healthy": "සෞඛ්ය සම්පන්න",

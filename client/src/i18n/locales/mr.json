@@ -483,7 +483,14 @@
     "createUrlToken": "टोकन तयार करा",
     "urlTokenOnce": "हे टोकन आत्ताच कॉपी करा. ते पुन्हा दाखवले जाणार नाही.",
     "revoked": "रद्द केले",
-    "revoke": "रद्द करा"
+    "revoke": "रद्द करा",
+    "modelScope": "मॉडेल व्याप्ती",
+    "modelScopeDesc": "ही की विशिष्ट मॉडेल ID पुरती मर्यादित करा. इतर कोणत्याही मॉडेलसाठी राउटर ही की वगळतो.",
+    "modelScopeAdd": "मॉडेल ID लिहा आणि Enter दाबा",
+    "modelScopeEmpty": "व्याप्ती सेट केलेली नाही — ही की तिच्या प्रदात्याच्या सर्व मॉडेलसाठी वापरली जाते.",
+    "modelScopeClear": "व्याप्ती काढा",
+    "modelScopeBadgeOne": "मर्यादित · 1 मॉडेल",
+    "modelScopeBadgeOther": "मर्यादित · {count} मॉडेल"
   },
   "status": {
     "healthy": "निरोगी",

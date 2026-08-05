@@ -483,7 +483,14 @@
     "createUrlToken": "Token erstellen",
     "urlTokenOnce": "Kopieren Sie dieses Token jetzt. Es wird nicht erneut angezeigt.",
     "revoked": "Widerrufen",
-    "revoke": "Widerrufen"
+    "revoke": "Widerrufen",
+    "modelScope": "Modell-Bereich",
+    "modelScopeDesc": "Beschränkt diesen Schlüssel auf bestimmte Modell-IDs. Für alle anderen Modelle überspringt der Router diesen Schlüssel.",
+    "modelScopeAdd": "Modell-ID eingeben und Enter drücken",
+    "modelScopeEmpty": "Kein Bereich gesetzt — dieser Schlüssel bedient alle Modelle seines Anbieters.",
+    "modelScopeClear": "Bereich löschen",
+    "modelScopeBadgeOne": "begrenzt · 1 Modell",
+    "modelScopeBadgeOther": "begrenzt · {count} Modelle"
   },
   "status": {
     "healthy": "gesund",

@@ -483,7 +483,14 @@
     "createUrlToken": "Opprett token",
     "urlTokenOnce": "Kopier dette tokenet nå. Det vises ikke igjen.",
     "revoked": "Tilbakekalt",
-    "revoke": "Tilbakekall"
+    "revoke": "Tilbakekall",
+    "modelScope": "Modellomfang",
+    "modelScopeDesc": "Begrens denne nøkkelen til bestemte modell-ID-er. For alle andre modeller hopper ruteren over nøkkelen.",
+    "modelScopeAdd": "Skriv inn en modell-ID og trykk Enter",
+    "modelScopeEmpty": "Ingen avgrensning satt — nøkkelen betjener alle modellene til leverandøren sin.",
+    "modelScopeClear": "Fjern avgrensning",
+    "modelScopeBadgeOne": "begrenset · 1 modell",
+    "modelScopeBadgeOther": "begrenset · {count} modeller"
   },
   "status": {
     "healthy": "Sunt",

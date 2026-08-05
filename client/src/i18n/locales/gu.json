@@ -483,7 +483,14 @@
     "createUrlToken": "ટોકન બનાવો",
     "urlTokenOnce": "આ ટોકન હમણાં કૉપિ કરો. તે ફરીથી બતાવવામાં આવશે નહીં.",
     "revoked": "રદ કરેલ",
-    "revoke": "રદ કરો"
+    "revoke": "રદ કરો",
+    "modelScope": "મૉડલ વ્યાપ",
+    "modelScopeDesc": "આ કીને ચોક્કસ મૉડલ ID પૂરતી મર્યાદિત કરો. અન્ય કોઈપણ મૉડલ માટે રાઉટર આ કીને છોડી દે છે.",
+    "modelScopeAdd": "મૉડલ ID લખો અને Enter દબાવો",
+    "modelScopeEmpty": "કોઈ વ્યાપ સેટ નથી — આ કી તેના પ્રદાતાના બધા મૉડલ માટે કામ કરે છે.",
+    "modelScopeClear": "વ્યાપ દૂર કરો",
+    "modelScopeBadgeOne": "મર્યાદિત · 1 મૉડલ",
+    "modelScopeBadgeOther": "મર્યાદિત · {count} મૉડલ"
   },
   "status": {
     "healthy": "સ્વસ્થ",

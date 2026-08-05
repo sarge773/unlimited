@@ -483,7 +483,14 @@
     "createUrlToken": "建立 Token",
     "urlTokenOnce": "請立即複製此 Token，它不會再次顯示。",
     "revoked": "已撤銷",
-    "revoke": "撤銷"
+    "revoke": "撤銷",
+    "modelScope": "模型範圍",
+    "modelScopeDesc": "將此金鑰限制為特定的模型 ID。路由器會為其他模型略過此金鑰。",
+    "modelScopeAdd": "輸入模型 ID 並按 Enter 新增",
+    "modelScopeEmpty": "未設定範圍——此金鑰可服務該供應商的所有模型。",
+    "modelScopeClear": "清除範圍",
+    "modelScopeBadgeOne": "限定 · 1 個模型",
+    "modelScopeBadgeOther": "限定 · {count} 個模型"
   },
   "status": {
     "healthy": "健康",

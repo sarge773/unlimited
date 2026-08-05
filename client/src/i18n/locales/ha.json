@@ -483,7 +483,14 @@
     "createUrlToken": "Ƙirƙiri alama",
     "urlTokenOnce": "Kwafi wannan alamar yanzu. Ba za a sake nuna ta ba.",
     "revoked": "An soke",
-    "revoke": "Soke"
+    "revoke": "Soke",
+    "modelScope": "Iyakar samfura",
+    "modelScopeDesc": "Iyakance wannan maɓalli ga takamaiman ID na samfura. Router yana tsallake wannan maɓalli ga kowane sauran samfuri.",
+    "modelScopeAdd": "Rubuta ID na samfuri sannan ka danna Enter",
+    "modelScopeEmpty": "Ba a saita iyaka ba — wannan maɓalli yana aiki da duk samfuran mai bayarwa.",
+    "modelScopeClear": "Share iyaka",
+    "modelScopeBadgeOne": "iyakantacce · samfuri 1",
+    "modelScopeBadgeOther": "iyakantacce · samfura {count}"
   },
   "status": {
     "healthy": "lafiya",

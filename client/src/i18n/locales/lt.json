@@ -483,7 +483,14 @@
     "createUrlToken": "Sukurti žetoną",
     "urlTokenOnce": "Nukopijuokite šį žetoną dabar. Jis daugiau nebus rodomas.",
     "revoked": "Atšaukta",
-    "revoke": "Atšaukti"
+    "revoke": "Atšaukti",
+    "modelScope": "Modelių aprėptis",
+    "modelScopeDesc": "Apribokite šį raktą konkrečiais modelių ID. Kitiems modeliams maršrutizatorius šį raktą praleidžia.",
+    "modelScopeAdd": "Įveskite modelio ID ir spauskite Enter",
+    "modelScopeEmpty": "Aprėptis nenustatyta — šis raktas aptarnauja visus savo teikėjo modelius.",
+    "modelScopeClear": "Išvalyti aprėptį",
+    "modelScopeBadgeOne": "apribotas · 1 modelis",
+    "modelScopeBadgeOther": "apribotas · {count} modeliai"
   },
   "status": {
     "healthy": "Sveika",

@@ -483,7 +483,14 @@
     "createUrlToken": "トークンを作成",
     "urlTokenOnce": "このトークンを今すぐコピーしてください。二度と表示されません。",
     "revoked": "取り消し済み",
-    "revoke": "取り消す"
+    "revoke": "取り消す",
+    "modelScope": "モデルスコープ",
+    "modelScopeDesc": "このキーを特定のモデル ID に限定します。他のモデルではルーターがこのキーをスキップします。",
+    "modelScopeAdd": "モデル ID を入力して Enter を押してください",
+    "modelScopeEmpty": "スコープ未設定 — このキーはプロバイダーのすべてのモデルに使えます。",
+    "modelScopeClear": "スコープを解除",
+    "modelScopeBadgeOne": "限定 · 1 モデル",
+    "modelScopeBadgeOther": "限定 · {count} モデル"
   },
   "status": {
     "healthy": "健康な",

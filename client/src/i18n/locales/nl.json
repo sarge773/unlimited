@@ -483,7 +483,14 @@
     "createUrlToken": "Token aanmaken",
     "urlTokenOnce": "Kopieer dit token nu. Het wordt niet opnieuw getoond.",
     "revoked": "Ingetrokken",
-    "revoke": "Intrekken"
+    "revoke": "Intrekken",
+    "modelScope": "Modelbereik",
+    "modelScopeDesc": "Beperk deze sleutel tot specifieke model-ID's. Voor elk ander model slaat de router deze sleutel over.",
+    "modelScopeAdd": "Voer een model-ID in en druk op Enter",
+    "modelScopeEmpty": "Geen bereik ingesteld — deze sleutel bedient alle modellen van zijn provider.",
+    "modelScopeClear": "Bereik wissen",
+    "modelScopeBadgeOne": "beperkt · 1 model",
+    "modelScopeBadgeOther": "beperkt · {count} modellen"
   },
   "status": {
     "healthy": "Gezond",

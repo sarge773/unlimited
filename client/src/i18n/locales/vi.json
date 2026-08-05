@@ -483,7 +483,14 @@
     "createUrlToken": "Tạo mã thông báo",
     "urlTokenOnce": "Sao chép mã thông báo này ngay bây giờ. Nó sẽ không được hiển thị lại.",
     "revoked": "Đã thu hồi",
-    "revoke": "Thu hồi"
+    "revoke": "Thu hồi",
+    "modelScope": "Phạm vi mô hình",
+    "modelScopeDesc": "Giới hạn khóa này cho các ID mô hình cụ thể. Bộ định tuyến bỏ qua khóa này với mọi mô hình khác.",
+    "modelScopeAdd": "Nhập ID mô hình rồi nhấn Enter",
+    "modelScopeEmpty": "Chưa đặt phạm vi — khóa này phục vụ mọi mô hình của nhà cung cấp.",
+    "modelScopeClear": "Xóa phạm vi",
+    "modelScopeBadgeOne": "giới hạn · 1 mô hình",
+    "modelScopeBadgeOther": "giới hạn · {count} mô hình"
   },
   "status": {
     "healthy": "khỏe mạnh",

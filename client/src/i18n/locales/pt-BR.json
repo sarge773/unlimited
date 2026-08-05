@@ -483,7 +483,14 @@
     "createUrlToken": "Criar token",
     "urlTokenOnce": "Copie este token agora. Ele não será exibido novamente.",
     "revoked": "Revogado",
-    "revoke": "Revogar"
+    "revoke": "Revogar",
+    "modelScope": "Escopo de modelos",
+    "modelScopeDesc": "Limite esta chave a IDs de modelo específicos. O roteador ignora esta chave para qualquer outro modelo.",
+    "modelScopeAdd": "Adicione um ID de modelo e pressione Enter",
+    "modelScopeEmpty": "Sem escopo definido — esta chave atende todos os modelos do provedor.",
+    "modelScopeClear": "Limpar escopo",
+    "modelScopeBadgeOne": "restrita · 1 modelo",
+    "modelScopeBadgeOther": "restrita · {count} modelos"
   },
   "status": {
     "healthy": "saudável",

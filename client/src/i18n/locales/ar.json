@@ -483,7 +483,14 @@
     "createUrlToken": "إنشاء رمز",
     "urlTokenOnce": "انسخ هذا الرمز الآن. لن يتم عرضه مرة أخرى.",
     "revoked": "مُلغى",
-    "revoke": "إلغاء"
+    "revoke": "إلغاء",
+    "modelScope": "نطاق النماذج",
+    "modelScopeDesc": "قصر هذا المفتاح على معرّفات نماذج محددة. يتخطى الموجّه هذا المفتاح لأي نموذج آخر.",
+    "modelScopeAdd": "أدخل معرّف نموذج ثم اضغط Enter",
+    "modelScopeEmpty": "لا يوجد نطاق محدد — يخدم هذا المفتاح جميع نماذج مزوّده.",
+    "modelScopeClear": "مسح النطاق",
+    "modelScopeBadgeOne": "مقيّد · نموذج واحد",
+    "modelScopeBadgeOther": "مقيّد · {count} نماذج"
   },
   "status": {
     "healthy": "صحي",

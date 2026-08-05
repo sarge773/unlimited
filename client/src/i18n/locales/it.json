@@ -483,7 +483,14 @@
     "createUrlToken": "Crea token",
     "urlTokenOnce": "Copia questo token ora. Non verrà mostrato di nuovo.",
     "revoked": "Revocato",
-    "revoke": "Revoca"
+    "revoke": "Revoca",
+    "modelScope": "Ambito modelli",
+    "modelScopeDesc": "Limita questa chiave a specifici ID di modello. Il router salta questa chiave per qualsiasi altro modello.",
+    "modelScopeAdd": "Aggiungi un ID modello e premi Invio",
+    "modelScopeEmpty": "Nessun ambito impostato — questa chiave serve tutti i modelli del suo provider.",
+    "modelScopeClear": "Cancella ambito",
+    "modelScopeBadgeOne": "limitata · 1 modello",
+    "modelScopeBadgeOther": "limitata · {count} modelli"
   },
   "status": {
     "healthy": "funzionante",

@@ -483,7 +483,14 @@
     "createUrlToken": "토큰 생성",
     "urlTokenOnce": "이 토큰을 지금 복사하세요. 다시 표시되지 않습니다.",
     "revoked": "취소됨",
-    "revoke": "취소"
+    "revoke": "취소",
+    "modelScope": "모델 범위",
+    "modelScopeDesc": "이 키를 특정 모델 ID로 제한합니다. 다른 모델에는 라우터가 이 키를 건너뜁니다.",
+    "modelScopeAdd": "모델 ID를 입력하고 Enter를 누르세요",
+    "modelScopeEmpty": "범위 미설정 — 이 키는 제공자의 모든 모델에 사용됩니다.",
+    "modelScopeClear": "범위 지우기",
+    "modelScopeBadgeOne": "제한됨 · 모델 1개",
+    "modelScopeBadgeOther": "제한됨 · 모델 {count}개"
   },
   "status": {
     "healthy": "건강한",

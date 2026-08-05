@@ -483,7 +483,14 @@
     "createUrlToken": "ቶከን ፍጠር",
     "urlTokenOnce": "ይህን ቶከን አሁን ይቅዱ። ዳግም አይታይም።",
     "revoked": "ተሽሯል",
-    "revoke": "ሻር"
+    "revoke": "ሻር",
+    "modelScope": "የሞዴል ወሰን",
+    "modelScopeDesc": "ይህን ቁልፍ ለተወሰኑ የሞዴል መታወቂያዎች ብቻ ገድብ። ለሌላ ማንኛውም ሞዴል ራውተሩ ይህን ቁልፍ ያልፋል።",
+    "modelScopeAdd": "የሞዴል መታወቂያ ያስገቡና Enter ይጫኑ",
+    "modelScopeEmpty": "ወሰን አልተቀመጠም — ይህ ቁልፍ የአቅራቢውን ሞዴሎች ሁሉ ያገለግላል።",
+    "modelScopeClear": "ወሰን አጥፋ",
+    "modelScopeBadgeOne": "የተገደበ · 1 ሞዴል",
+    "modelScopeBadgeOther": "የተገደበ · {count} ሞዴሎች"
   },
   "status": {
     "healthy": "ጤናማ",

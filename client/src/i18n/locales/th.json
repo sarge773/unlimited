@@ -483,7 +483,14 @@
     "createUrlToken": "สร้างโทเค็น",
     "urlTokenOnce": "คัดลอกโทเค็นนี้ตอนนี้ จะไม่แสดงอีก",
     "revoked": "เพิกถอนแล้ว",
-    "revoke": "เพิกถอน"
+    "revoke": "เพิกถอน",
+    "modelScope": "ขอบเขตโมเดล",
+    "modelScopeDesc": "จำกัดคีย์นี้ให้ใช้ได้เฉพาะบาง ID โมเดล เราเตอร์จะข้ามคีย์นี้สำหรับโมเดลอื่น",
+    "modelScopeAdd": "พิมพ์ ID โมเดลแล้วกด Enter",
+    "modelScopeEmpty": "ยังไม่ได้ตั้งขอบเขต — คีย์นี้ใช้ได้กับทุกโมเดลของผู้ให้บริการ",
+    "modelScopeClear": "ล้างขอบเขต",
+    "modelScopeBadgeOne": "จำกัด · 1 โมเดล",
+    "modelScopeBadgeOther": "จำกัด · {count} โมเดล"
   },
   "status": {
     "healthy": "มีสุขภาพดี",

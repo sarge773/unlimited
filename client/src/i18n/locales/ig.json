@@ -483,7 +483,14 @@
     "createUrlToken": "Mepụta akara",
     "urlTokenOnce": "Detuo akara a ugbu a. A gaghị egosi ya ọzọ.",
     "revoked": "Akagbuola",
-    "revoke": "Kagbuo"
+    "revoke": "Kagbuo",
+    "modelScope": "Oke model",
+    "modelScopeDesc": "Kpaa mkpụrụ igodo a n'ID model ụfọdụ. Router na-agafe igodo a maka model ọ bụla ọzọ.",
+    "modelScopeAdd": "Tinye ID model wee pịa Enter",
+    "modelScopeEmpty": "Enweghị oke edobere — igodo a na-arụ ọrụ maka model niile nke onye na-eweta ya.",
+    "modelScopeClear": "Hichapụ oke",
+    "modelScopeBadgeOne": "oke · model 1",
+    "modelScopeBadgeOther": "oke · model {count}"
   },
   "status": {
     "healthy": "ahụike",

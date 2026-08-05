@@ -483,7 +483,14 @@
     "createUrlToken": "Vytvoriť token",
     "urlTokenOnce": "Skopírujte tento token teraz. Už sa znova nezobrazí.",
     "revoked": "Odvolaný",
-    "revoke": "Odvolať"
+    "revoke": "Odvolať",
+    "modelScope": "Rozsah modelov",
+    "modelScopeDesc": "Obmedzte tento kľúč na konkrétne ID modelov. Pre akýkoľvek iný model router tento kľúč preskočí.",
+    "modelScopeAdd": "Zadajte ID modelu a stlačte Enter",
+    "modelScopeEmpty": "Rozsah nie je nastavený — tento kľúč obsluhuje všetky modely svojho poskytovateľa.",
+    "modelScopeClear": "Vymazať rozsah",
+    "modelScopeBadgeOne": "obmedzený · 1 model",
+    "modelScopeBadgeOther": "obmedzený · {count} modelov"
   },
   "status": {
     "healthy": "zdravé",

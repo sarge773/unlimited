@@ -483,7 +483,14 @@
     "createUrlToken": "ਟੋਕਨ ਬਣਾਓ",
     "urlTokenOnce": "ਇਹ ਟੋਕਨ ਹੁਣੇ ਕਾਪੀ ਕਰੋ। ਇਹ ਦੁਬਾਰਾ ਨਹੀਂ ਦਿਖਾਇਆ ਜਾਵੇਗਾ।",
     "revoked": "ਰੱਦ ਕੀਤਾ ਗਿਆ",
-    "revoke": "ਰੱਦ ਕਰੋ"
+    "revoke": "ਰੱਦ ਕਰੋ",
+    "modelScope": "ਮਾਡਲ ਦਾਇਰਾ",
+    "modelScopeDesc": "ਇਸ ਕੁੰਜੀ ਨੂੰ ਖ਼ਾਸ ਮਾਡਲ ID ਤੱਕ ਸੀਮਤ ਕਰੋ। ਕਿਸੇ ਵੀ ਹੋਰ ਮਾਡਲ ਲਈ ਰਾਊਟਰ ਇਸ ਕੁੰਜੀ ਨੂੰ ਛੱਡ ਦਿੰਦਾ ਹੈ।",
+    "modelScopeAdd": "ਮਾਡਲ ID ਲਿਖੋ ਅਤੇ Enter ਦਬਾਓ",
+    "modelScopeEmpty": "ਕੋਈ ਦਾਇਰਾ ਸੈੱਟ ਨਹੀਂ — ਇਹ ਕੁੰਜੀ ਆਪਣੇ ਪ੍ਰਦਾਤਾ ਦੇ ਸਾਰੇ ਮਾਡਲਾਂ ਲਈ ਕੰਮ ਕਰਦੀ ਹੈ।",
+    "modelScopeClear": "ਦਾਇਰਾ ਹਟਾਓ",
+    "modelScopeBadgeOne": "ਸੀਮਤ · 1 ਮਾਡਲ",
+    "modelScopeBadgeOther": "ਸੀਮਤ · {count} ਮਾਡਲ"
   },
   "status": {
     "healthy": "ਸਿਹਤਮੰਦ",

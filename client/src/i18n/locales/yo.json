@@ -483,7 +483,14 @@
     "createUrlToken": "Ṣẹda tokini",
     "urlTokenOnce": "Daakọ tokini yii ni bayi. Kii yoo han lẹẹkansi.",
     "revoked": "Ti fagile",
-    "revoke": "Fagile"
+    "revoke": "Fagile",
+    "modelScope": "Àgbègbè àwọn awoṣe",
+    "modelScopeDesc": "Fi bọtìnì yìí mọ àwọn ID awoṣe kan pàtó. Router máa fo bọtìnì yìí fún awoṣe mìíràn.",
+    "modelScopeAdd": "Tẹ ID awoṣe kí o sì tẹ Enter",
+    "modelScopeEmpty": "Kò sí àgbègbè tí a ṣètò — bọtìnì yìí ń ṣiṣẹ́ fún gbogbo awoṣe olùpèsè rẹ̀.",
+    "modelScopeClear": "Pa àgbègbè rẹ́",
+    "modelScopeBadgeOne": "ní ààlà · awoṣe 1",
+    "modelScopeBadgeOther": "ní ààlà · awoṣe {count}"
   },
   "status": {
     "healthy": "ni ilera",

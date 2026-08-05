@@ -17,6 +17,7 @@ import { discoverEndpointModels, probeEndpointModel, ModelDiscoveryError } from 
 import { probeEmbeddingDimensions, registerCustomEmbeddingModel } from '../services/embeddings.js';
 import { endpointScopeForBaseUrl, normalizeBaseUrl } from '../lib/endpoint-scope.js';
 import type { Db } from '../db/types.js';
+import { parseModelScope } from '../lib/model-scope.js';
 
 export const keysRouter = Router();
 
@@ -54,11 +55,15 @@ const addKeySchema = z.object({
   label: z.string().optional(),
 });
 
+// `modelScope` (#657): the model_id list this key may serve — relay stations
+// scope each key to a model group. null (or an empty array) clears the scope,
+// returning the key to serving every model of its platform.
 const updateKeySchema = z.object({
   enabled: z.boolean().optional(),
   label: z.string().optional(),
-}).refine(data => data.enabled !== undefined || data.label !== undefined, {
-  message: 'At least one of enabled or label must be provided',
+  modelScope: z.array(z.string().trim().min(1).max(200)).max(100).nullable().optional(),
+}).refine(data => data.enabled !== undefined || data.label !== undefined || data.modelScope !== undefined, {
+  message: 'At least one of enabled, label or modelScope must be provided',
 });
 
 const importKeySchema = z.object({
@@ -290,6 +295,7 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       maskedKey = '[decrypt failed]';
     }
     const cooldowns = cooldownsByKeyId.get(Number(row.id)) ?? [];
+    const scope = parseModelScope(row.model_scope_json);
     return {
       id: row.id,
       platform: row.platform,
@@ -304,6 +310,8 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       createdAt: row.created_at,
       lastCheckedAt: row.last_checked_at,
       lastHealthError: row.last_health_error ?? null,
+      // The model_id list this key is limited to; null = serves everything (#657).
+      modelScope: scope ? [...scope] : null,
       models: row.platform === 'custom' ? (modelsByEndpoint.get(endpointOf(Number(row.id))) ?? []) : undefined,
       cooldowns: cooldowns.map(c => ({
         modelId: c.modelId,
@@ -1433,9 +1441,9 @@ keysRouter.patch('/:id', (req: Request, res: Response) => {
     return;
   }
 
-  const { enabled, label } = parsed.data;
+  const { enabled, label, modelScope } = parsed.data;
   const updates: string[] = [];
-  const values: (string | number)[] = [];
+  const values: (string | number | null)[] = [];
 
   if (enabled !== undefined) {
     updates.push('enabled = ?');
@@ -1444,6 +1452,12 @@ keysRouter.patch('/:id', (req: Request, res: Response) => {
   if (label !== undefined) {
     updates.push('label = ?');
     values.push(label);
+  }
+  // Deduped; an empty result stores NULL, which the router reads as "unscoped".
+  const scopeIds = modelScope == null ? [] : [...new Set(modelScope)];
+  if (modelScope !== undefined) {
+    updates.push('model_scope_json = ?');
+    values.push(scopeIds.length > 0 ? JSON.stringify(scopeIds) : null);
   }
 
   values.push(id);
@@ -1459,5 +1473,6 @@ keysRouter.patch('/:id', (req: Request, res: Response) => {
   const response: Record<string, unknown> = { success: true };
   if (enabled !== undefined) response.enabled = enabled;
   if (label !== undefined) response.label = label;
+  if (modelScope !== undefined) response.modelScope = scopeIds.length > 0 ? scopeIds : null;
   res.json(response);
 });

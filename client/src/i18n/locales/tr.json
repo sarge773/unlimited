@@ -483,7 +483,14 @@
     "createUrlToken": "Belirteç oluştur",
     "urlTokenOnce": "Bu belirteci şimdi kopyalayın. Bir daha gösterilmeyecek.",
     "revoked": "İptal edildi",
-    "revoke": "İptal et"
+    "revoke": "İptal et",
+    "modelScope": "Model kapsamı",
+    "modelScopeDesc": "Bu anahtarı belirli model kimlikleriyle sınırlandırın. Yönlendirici diğer tüm modeller için bu anahtarı atlar.",
+    "modelScopeAdd": "Bir model kimliği yazıp Enter'a basın",
+    "modelScopeEmpty": "Kapsam ayarlanmadı — bu anahtar sağlayıcısının tüm modellerine hizmet eder.",
+    "modelScopeClear": "Kapsamı temizle",
+    "modelScopeBadgeOne": "sınırlı · 1 model",
+    "modelScopeBadgeOther": "sınırlı · {count} model"
   },
   "status": {
     "healthy": "sağlıklı",

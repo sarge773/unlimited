@@ -483,7 +483,14 @@
     "createUrlToken": "创建令牌",
     "urlTokenOnce": "请立即复制此令牌，它不会再次显示。",
     "revoked": "已撤销",
-    "revoke": "撤销"
+    "revoke": "撤销",
+    "modelScope": "模型范围",
+    "modelScopeDesc": "将此密钥限制为特定的模型 ID。路由器会为其他模型跳过此密钥。",
+    "modelScopeAdd": "输入模型 ID 并按回车添加",
+    "modelScopeEmpty": "未设置范围——此密钥可服务该提供商的所有模型。",
+    "modelScopeClear": "清除范围",
+    "modelScopeBadgeOne": "限定 · 1 个模型",
+    "modelScopeBadgeOther": "限定 · {count} 个模型"
   },
   "status": {
     "healthy": "健康",

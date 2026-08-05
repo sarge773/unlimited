@@ -483,7 +483,14 @@
     "createUrlToken": "Skapa token",
     "urlTokenOnce": "Kopiera denna token nu. Den visas inte igen.",
     "revoked": "Återkallad",
-    "revoke": "Återkalla"
+    "revoke": "Återkalla",
+    "modelScope": "Modellomfång",
+    "modelScopeDesc": "Begränsa den här nyckeln till specifika modell-ID:n. För alla andra modeller hoppar routern över nyckeln.",
+    "modelScopeAdd": "Ange ett modell-ID och tryck på Enter",
+    "modelScopeEmpty": "Inget omfång angivet — nyckeln betjänar alla modeller hos sin leverantör.",
+    "modelScopeClear": "Rensa omfång",
+    "modelScopeBadgeOne": "begränsad · 1 modell",
+    "modelScopeBadgeOther": "begränsad · {count} modeller"
   },
   "status": {
     "healthy": "Hälsosamt",

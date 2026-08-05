@@ -483,7 +483,14 @@
     "createUrlToken": "ایجاد توکن",
     "urlTokenOnce": "این توکن را همین حالا کپی کنید. دوباره نمایش داده نخواهد شد.",
     "revoked": "لغو شده",
-    "revoke": "لغو"
+    "revoke": "لغو",
+    "modelScope": "محدوده مدل‌ها",
+    "modelScopeDesc": "این کلید را به شناسه‌های مدل مشخص محدود کنید. مسیریاب برای هر مدل دیگری از این کلید صرف‌نظر می‌کند.",
+    "modelScopeAdd": "شناسه مدل را وارد کنید و Enter را بزنید",
+    "modelScopeEmpty": "محدوده‌ای تنظیم نشده — این کلید به همه مدل‌های ارائه‌دهنده‌اش خدمت می‌دهد.",
+    "modelScopeClear": "پاک کردن محدوده",
+    "modelScopeBadgeOne": "محدود · 1 مدل",
+    "modelScopeBadgeOther": "محدود · {count} مدل"
   },
   "status": {
     "healthy": "سالم",

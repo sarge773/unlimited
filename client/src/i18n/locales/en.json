@@ -483,7 +483,14 @@
     "quotaLimit": "Limit",
     "quotaRemaining": "Remaining",
     "quotaReset": "Reset",
-    "quotaObserved": "Observed"
+    "quotaObserved": "Observed",
+    "modelScope": "Model scope",
+    "modelScopeDesc": "Limit this key to specific model IDs. The router skips this key for any other model.",
+    "modelScopeAdd": "Add a model ID and press Enter",
+    "modelScopeEmpty": "No scope set — this key serves every model of its provider.",
+    "modelScopeClear": "Clear scope",
+    "modelScopeBadgeOne": "scoped · 1 model",
+    "modelScopeBadgeOther": "scoped · {count} models"
   },
   "status": {
     "healthy": "healthy",

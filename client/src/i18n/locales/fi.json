@@ -483,7 +483,14 @@
     "createUrlToken": "Luo token",
     "urlTokenOnce": "Kopioi tämä token nyt. Sitä ei näytetä uudelleen.",
     "revoked": "Peruutettu",
-    "revoke": "Peruuta"
+    "revoke": "Peruuta",
+    "modelScope": "Mallirajaus",
+    "modelScopeDesc": "Rajaa tämä avain tiettyihin malli-ID:ihin. Muille malleille reititin ohittaa tämän avaimen.",
+    "modelScopeAdd": "Kirjoita malli-ID ja paina Enter",
+    "modelScopeEmpty": "Rajausta ei ole asetettu — avain palvelee kaikkia tarjoajansa malleja.",
+    "modelScopeClear": "Tyhjennä rajaus",
+    "modelScopeBadgeOne": "rajattu · 1 malli",
+    "modelScopeBadgeOther": "rajattu · {count} mallia"
   },
   "status": {
     "healthy": "terve",

@@ -483,7 +483,14 @@
     "createUrlToken": "টোকেন তৈরি করুন",
     "urlTokenOnce": "এই টোকেনটি এখনই কপি করুন। এটি আর দেখানো হবে না।",
     "revoked": "প্রত্যাহার করা হয়েছে",
-    "revoke": "প্রত্যাহার করুন"
+    "revoke": "প্রত্যাহার করুন",
+    "modelScope": "মডেল পরিধি",
+    "modelScopeDesc": "এই কী-টিকে নির্দিষ্ট মডেল ID-তে সীমাবদ্ধ করুন। অন্য যেকোনো মডেলের জন্য রাউটার এই কী এড়িয়ে যায়।",
+    "modelScopeAdd": "মডেল ID লিখে Enter চাপুন",
+    "modelScopeEmpty": "কোনো পরিধি সেট নেই — এই কী তার প্রোভাইডারের সব মডেলের জন্য কাজ করে।",
+    "modelScopeClear": "পরিধি মুছুন",
+    "modelScopeBadgeOne": "সীমিত · 1টি মডেল",
+    "modelScopeBadgeOther": "সীমিত · {count}টি মডেল"
   },
   "status": {
     "healthy": "সুস্থ",

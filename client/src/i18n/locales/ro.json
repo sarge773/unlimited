@@ -483,7 +483,14 @@
     "createUrlToken": "Creează token",
     "urlTokenOnce": "Copiază acest token acum. Nu va mai fi afișat.",
     "revoked": "Revocat",
-    "revoke": "Revocă"
+    "revoke": "Revocă",
+    "modelScope": "Domeniul modelelor",
+    "modelScopeDesc": "Limitează această cheie la anumite ID-uri de model. Pentru orice alt model, routerul sare peste această cheie.",
+    "modelScopeAdd": "Introdu un ID de model și apasă Enter",
+    "modelScopeEmpty": "Niciun domeniu setat — această cheie servește toate modelele furnizorului ei.",
+    "modelScopeClear": "Șterge domeniul",
+    "modelScopeBadgeOne": "limitată · 1 model",
+    "modelScopeBadgeOther": "limitată · {count} modele"
   },
   "status": {
     "healthy": "Sănătos",

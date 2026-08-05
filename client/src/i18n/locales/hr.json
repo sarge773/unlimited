@@ -483,7 +483,14 @@
     "createUrlToken": "Stvori token",
     "urlTokenOnce": "Kopirajte ovaj token sada. Neće se ponovno prikazati.",
     "revoked": "Opozvano",
-    "revoke": "Opozovi"
+    "revoke": "Opozovi",
+    "modelScope": "Opseg modela",
+    "modelScopeDesc": "Ograničite ovaj ključ na određene ID-ove modela. Za svaki drugi model router preskače ovaj ključ.",
+    "modelScopeAdd": "Unesite ID modela i pritisnite Enter",
+    "modelScopeEmpty": "Opseg nije postavljen — ovaj ključ služi sve modele svog pružatelja.",
+    "modelScopeClear": "Očisti opseg",
+    "modelScopeBadgeOne": "ograničen · 1 model",
+    "modelScopeBadgeOther": "ograničen · {count} modela"
   },
   "status": {
     "healthy": "Zdravo",

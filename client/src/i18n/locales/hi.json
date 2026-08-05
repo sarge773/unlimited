@@ -483,7 +483,14 @@
     "createUrlToken": "टोकन बनाएँ",
     "urlTokenOnce": "यह टोकन अभी कॉपी करें। यह दोबारा नहीं दिखाया जाएगा।",
     "revoked": "रद्द किया गया",
-    "revoke": "रद्द करें"
+    "revoke": "रद्द करें",
+    "modelScope": "मॉडल दायरा",
+    "modelScopeDesc": "इस कुंजी को विशिष्ट मॉडल ID तक सीमित करें। राउटर किसी अन्य मॉडल के लिए इस कुंजी को छोड़ देता है।",
+    "modelScopeAdd": "मॉडल ID लिखें और Enter दबाएँ",
+    "modelScopeEmpty": "कोई दायरा सेट नहीं — यह कुंजी अपने प्रदाता के सभी मॉडल के लिए काम करती है।",
+    "modelScopeClear": "दायरा हटाएँ",
+    "modelScopeBadgeOne": "सीमित · 1 मॉडल",
+    "modelScopeBadgeOther": "सीमित · {count} मॉडल"
   },
   "status": {
     "healthy": "स्वस्थ",

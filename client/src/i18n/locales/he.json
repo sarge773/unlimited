@@ -483,7 +483,14 @@
     "createUrlToken": "צור טוקן",
     "urlTokenOnce": "העתק את הטוקן עכשיו. הוא לא יוצג שוב.",
     "revoked": "בוטל",
-    "revoke": "בטל"
+    "revoke": "בטל",
+    "modelScope": "טווח מודלים",
+    "modelScopeDesc": "הגבל מפתח זה למזהי מודלים מסוימים. עבור כל מודל אחר הנתב מדלג על מפתח זה.",
+    "modelScopeAdd": "הקלד מזהה מודל והקש Enter",
+    "modelScopeEmpty": "לא הוגדר טווח — מפתח זה משרת את כל המודלים של הספק שלו.",
+    "modelScopeClear": "נקה טווח",
+    "modelScopeBadgeOne": "מוגבל · מודל 1",
+    "modelScopeBadgeOther": "מוגבל · {count} מודלים"
   },
   "status": {
     "healthy": "בריא",

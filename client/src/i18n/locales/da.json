@@ -483,7 +483,14 @@
     "createUrlToken": "Opret token",
     "urlTokenOnce": "Kopiér dette token nu. Det vises ikke igen.",
     "revoked": "Tilbagekaldt",
-    "revoke": "Tilbagekald"
+    "revoke": "Tilbagekald",
+    "modelScope": "Modelomfang",
+    "modelScopeDesc": "Begræns denne nøgle til bestemte model-ID'er. For alle andre modeller springer routeren nøglen over.",
+    "modelScopeAdd": "Indtast et model-ID og tryk Enter",
+    "modelScopeEmpty": "Intet omfang angivet — nøglen betjener alle modeller hos sin udbyder.",
+    "modelScopeClear": "Ryd omfang",
+    "modelScopeBadgeOne": "begrænset · 1 model",
+    "modelScopeBadgeOther": "begrænset · {count} modeller"
   },
   "status": {
     "healthy": "sundt",
