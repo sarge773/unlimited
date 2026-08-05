@@ -749,16 +749,36 @@ keysRouter.post('/custom/probe', async (req: Request, res: Response) => {
 
   const apiKey = parsed.data.apiKey?.trim() || endpoint.storedKey || 'no-key';
 
+  // Probe a model actually REGISTERED on this endpoint when there is one — the
+  // sample must feed the stats of a model the router can pick, not whatever id
+  // happens to lead the upstream /models list. Any key of the pool counts
+  // (#619), and knowing the id up front also skips the discovery round-trip.
+  // Only an endpoint with nothing registered falls back to discovery.
+  let registeredModelId: string | null = null;
+  if (endpoint.keyId != null) {
+    const db = getDb();
+    const poolIds = [...customEndpointKeyIds(db, endpoint.keyId)];
+    const placeholders = poolIds.map(() => '?').join(', ');
+    const row = db.prepare(
+      `SELECT model_id FROM models WHERE platform = 'custom' AND key_id IN (${placeholders}) ORDER BY id LIMIT 1`,
+    ).get(...poolIds) as { model_id: string } | undefined;
+    registeredModelId = row?.model_id ?? null;
+  }
+
   try {
-    const probe = await probeEndpointModel(endpoint.baseUrl, apiKey);
+    const probe = await probeEndpointModel(endpoint.baseUrl, apiKey, registeredModelId);
 
     // Only a successful probe records a sample. The row mirrors what the proxy
     // writes on a real request so the decay-weighted stats cache picks it up.
     if (endpoint.keyId != null) {
       getDb().prepare(`
         INSERT INTO requests (platform, model_id, key_id, status, input_tokens, output_tokens, latency_ms, ttfb_ms, request_type)
-        VALUES ('custom', ?, ?, 'success', 0, ?, ?, ?, 'chat')
-      `).run(probe.modelId, endpoint.keyId, probe.outputTokens, probe.latencyMs, probe.latencyMs);
+        VALUES ('custom', ?, ?, 'success', ?, ?, ?, ?, 'chat')
+      `).run(probe.modelId, endpoint.keyId, probe.inputTokens, probe.outputTokens, probe.latencyMs, probe.latencyMs);
+
+      // A real completion just succeeded, which is stronger evidence than any
+      // health ping — lift whatever cooldown was still holding the key back.
+      clearCooldownsForKey(endpoint.keyId);
     }
 
     res.json({ modelId: probe.modelId, latencyMs: probe.latencyMs });

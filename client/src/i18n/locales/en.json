@@ -401,6 +401,7 @@
     "discoverModels": "Fetch models",
     "probeNow": "Probe endpoint",
     "probeSuccess": "Probed {model} in {latency}ms",
+    "probeFailed": "Probe failed: {reason}",
     "discoverTitle": "Models on this endpoint",
     "discoverHint": "Pick the models to register. Ones you already added stay locked.",
     "discoverEmpty": "This endpoint returned no models.",

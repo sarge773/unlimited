@@ -227,21 +227,28 @@ export async function discoverEndpointModels(baseUrl: string, apiKey: string): P
 
 /**
  * Fire one minimal real chat request at a custom endpoint to measure latency
- * and confirm the key works end-to-end ("立即探测", #685 follow-up). Reuses
- * discovery to learn a model id and the provider adapter for the call itself.
- * Returns the probed model id, the round-trip latency and the completion token
- * count so the caller can write a stats row; throws ModelDiscoveryError with a
- * clean message on any failure (the caller must NOT record a sample then).
+ * and confirm the key works end-to-end ("probe now", #685 follow-up). When the
+ * caller already knows which model to probe (a model registered on this
+ * endpoint — the one whose bandit stats the sample feeds), it passes
+ * `preferredModelId` and the discovery round-trip is skipped entirely; only an
+ * endpoint with nothing registered falls back to discovering a model id.
+ * Returns the probed model id, the round-trip latency and the token counts so
+ * the caller can write a stats row; throws ModelDiscoveryError with a clean
+ * message on any failure (the caller must NOT record a sample then).
  */
 export async function probeEndpointModel(
   baseUrl: string,
   apiKey: string,
-): Promise<{ modelId: string; latencyMs: number; outputTokens: number }> {
-  const discovered = await discoverEndpointModels(baseUrl, apiKey);
-  if (discovered.length === 0) {
-    throw new ModelDiscoveryError(502, 'The endpoint returned no models to probe.');
+  preferredModelId?: string | null,
+): Promise<{ modelId: string; latencyMs: number; inputTokens: number; outputTokens: number }> {
+  let modelId = preferredModelId?.trim() || null;
+  if (!modelId) {
+    const discovered = await discoverEndpointModels(baseUrl, apiKey);
+    if (discovered.length === 0) {
+      throw new ModelDiscoveryError(502, 'The endpoint returned no models to probe.');
+    }
+    modelId = discovered[0].id;
   }
-  const modelId = discovered[0].id;
 
   const provider = new OpenAICompatProvider({
     platform: 'custom',
@@ -269,6 +276,7 @@ export async function probeEndpointModel(
   return {
     modelId,
     latencyMs: Date.now() - startedAt,
+    inputTokens: response.usage?.prompt_tokens ?? 0,
     outputTokens: response.usage?.completion_tokens ?? 0,
   };
 }

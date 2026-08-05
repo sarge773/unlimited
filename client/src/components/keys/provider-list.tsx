@@ -114,6 +114,8 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
   // unmeasured model gains a reliability/speed sample immediately instead of
   // waiting for natural traffic. Only a successful probe records a sample.
   const probeKey = useMutation({
+    // The global MutationCache toast would show the bare server message;
+    // silence it and toast a translated line that carries the reason instead.
     meta: { silenceToast: true },
     mutationFn: (keyId: number) =>
       apiFetch<{ modelId: string; latencyMs: number }>(`/api/keys/custom/probe`, {
@@ -126,6 +128,9 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
       }
       queryClient.invalidateQueries({ queryKey: ['fallback', 'routing'] })
       toast.success(t('keys.probeSuccess', { model: data.modelId, latency: data.latencyMs }))
+    },
+    onError: (error) => {
+      toast.error(t('keys.probeFailed', { reason: error instanceof Error ? error.message : String(error) }))
     },
   })
 
