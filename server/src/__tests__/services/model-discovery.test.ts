@@ -62,40 +62,78 @@ describe('parseModelCatalog tolerance (#488)', () => {
     expect(byId.get('d')).toBeNull();
   });
 
-  it('reads optional detail fields when the upstream advertises them (#685)', () => {
+  // #685 details are aimed at OpenRouter first — it is what people actually
+  // point a custom base_url at — so the fixtures below are shaped like the real
+  // /api/v1/models rows: prices are STRINGS of USD per TOKEN, and the modality
+  // signal is buried one level down under `architecture`.
+  it('reads an OpenRouter row: per-token string prices and nested modalities (#685)', () => {
     const [m] = parseModelCatalog({
       data: [
         {
-          id: 'rich',
-          owned_by: 'openai',
-          context_length: 128000,
-          pricing: { prompt: 0.15, completion: 0.6 },
-          modalities: ['text', 'image'],
+          id: 'anthropic/claude-3.5-sonnet',
+          name: 'Anthropic: Claude 3.5 Sonnet',
+          context_length: 200000,
+          architecture: {
+            input_modalities: ['text', 'image'],
+            output_modalities: ['text'],
+            modality: 'text+image->text',
+          },
+          pricing: { prompt: '0.00000125', completion: '0.000002', request: '0', image: '0' },
         },
       ],
     });
     expect(m).toEqual({
-      id: 'rich',
-      ownedBy: 'openai',
-      contextWindow: 128000,
-      priceNote: '$0.15/M in $0.6/M out',
+      id: 'anthropic/claude-3.5-sonnet',
+      ownedBy: null,
+      contextWindow: 200000,
+      priceNote: '$1.25/M in $2/M out',
+      isFree: false,
       vision: true,
     });
+  });
+
+  it('calls an OpenRouter zero-priced model free rather than "$0" (#685)', () => {
+    const [m] = parseModelCatalog({
+      data: [
+        {
+          id: 'deepseek/deepseek-r1:free',
+          context_length: 163840,
+          architecture: { input_modalities: ['text'], modality: 'text->text' },
+          pricing: { prompt: '0', completion: '0', request: '0' },
+        },
+      ],
+    });
+    expect(m).toEqual({
+      id: 'deepseek/deepseek-r1:free',
+      ownedBy: null,
+      contextWindow: 163840,
+      priceNote: 'free',
+      isFree: true,
+      vision: false,
+    });
+  });
+
+  it('accepts a relay that ships ctx_len and a plain "free" price string (#685)', () => {
+    // A generic relay, not Ollama: real /api/tags ships neither field.
+    const [m] = parseModelCatalog({
+      models: [{ name: 'qwen3-4b', ctx_len: 32768, price: 'Free' }],
+    });
+    expect(m).toEqual({ id: 'qwen3-4b', ownedBy: null, contextWindow: 32768, priceNote: 'free', isFree: true });
+  });
+
+  it('caps a chatty price string so it cannot crowd out the model id (#685)', () => {
+    const [m] = parseModelCatalog({
+      data: [{ id: 'chatty', price: 'promo: $0.15 per million in, $0.60 per million out' }],
+    });
+    expect(m.priceNote!.length).toBeLessThanOrEqual(40);
+    expect(m.priceNote!.endsWith('…')).toBe(true);
+    expect(m.isFree).toBe(false);
   });
 
   it('keeps a minimal envelope shape when details are absent (#685)', () => {
     const [m] = parseModelCatalog({ data: [{ id: 'bare' }] });
     expect(m).toEqual({ id: 'bare', ownedBy: null });
-    expect('contextWindow' in m).toBe(false);
-    expect('priceNote' in m).toBe(false);
-    expect('vision' in m).toBe(false);
-  });
-
-  it('accepts the plain-string price and Ollama ctx_len spellings (#685)', () => {
-    const [m] = parseModelCatalog({
-      models: [{ name: 'qwen3:4b', ctx_len: 32768, price: 'free' }],
-    });
-    expect(m).toEqual({ id: 'qwen3:4b', ownedBy: null, contextWindow: 32768, priceNote: 'free' });
+    expect(Object.keys(m).sort()).toEqual(['id', 'ownedBy']);
   });
 
   it('drops blanks, non-strings and duplicates', () => {

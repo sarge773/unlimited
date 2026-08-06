@@ -33,9 +33,13 @@ export interface DiscoveredModel {
   /** Approximate context window in tokens when the upstream advertises one
    *  (OpenRouter's context_length, Ollama's ctx_len, max_model_len, ...). */
   contextWindow?: number;
-  /** Human-readable price hint ("free", "$0.15/M in") when the upstream
-   *  ships one — lets the picker show "is this model likely free?" (#685). */
+  /** Human-readable price hint ("free", "$1.25/M in $2/M out") when the
+   *  upstream ships one — normalized to USD per MILLION tokens (#685). */
   priceNote?: string;
+  /** True when every price component the upstream advertises is zero, or it
+   *  plainly says "free". Set only alongside priceNote, and the only thing the
+   *  picker badges green — the note itself is never pattern-matched. */
+  isFree?: boolean;
   /** True when the upstream advertises image input (modalities/vision). */
   vision?: boolean;
 }
@@ -66,9 +70,18 @@ const CONTEXT_KEYS = ['context_length', 'context_window', 'max_model_len', 'max_
 // plain string. Absent means "unknown price".
 const PRICE_KEYS = ['price', 'pricing'] as const;
 const VISION_KEYS = ['vision', 'supports_vision', 'supportsVision', 'image_input', 'multimodal'] as const;
-// OpenAI's /models modality field is an array like ["text", "image"]; a
-// boolean `vision: true` is the simpler spelling relays use.
+// Modality spellings. OpenRouter keeps the real signal one level down, under
+// `architecture`, as an ["text","image"] array AND as a "text+image->text"
+// string; flatter relays put an array at the top level.
+const MODALITY_KEYS = ['modalities', 'input_modalities', 'inputModalities', 'modality'] as const;
+// A modality entry (or a substring of the modality string) that means images.
 const VISION_MODALITIES = ['image', 'vision', 'image-input'] as const;
+// A price hint sits in a chip next to the model id, so a chatty relay must not
+// be able to squeeze the id out of the row.
+const MAX_PRICE_NOTE_LENGTH = 40;
+// Below a cent per unit the figure can only be per-token (OpenRouter quotes
+// "0.00000125"); at or above it the relay already quoted per million.
+const PER_TOKEN_CEILING = 0.01;
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value)
@@ -109,40 +122,87 @@ function firstNumber(record: Record<string, unknown>, keys: readonly string[]): 
   return undefined;
 }
 
+/** One price component in USD per MILLION tokens, or null when the upstream
+ *  did not ship a usable figure. OpenRouter quotes strings ("0.00000125"),
+ *  others quote numbers, and a few already quote per-million — so parse
+ *  string-or-number and scale by magnitude rather than by source. */
+function perMillionTokens(raw: unknown): number | null {
+  if (typeof raw !== 'number' && typeof raw !== 'string') return null;
+  if (typeof raw === 'string' && raw.trim().length === 0) return null;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) return null;
+  return value > 0 && value < PER_TOKEN_CEILING ? value * 1_000_000 : value;
+}
+
+/** A tidy USD figure: at most four decimals, and no `1.2500000000000002`
+ *  float noise from the per-token scaling. */
+function formatUsd(value: number): string {
+  return `$${Number(value.toFixed(4))}`;
+}
+
+function capNote(note: string): string {
+  return note.length > MAX_PRICE_NOTE_LENGTH
+    ? `${note.slice(0, MAX_PRICE_NOTE_LENGTH - 1).trimEnd()}…`
+    : note;
+}
+
 /** Price hint out of OpenRouter-style `pricing: { prompt, completion }` or a
- *  plain `price: "free"` string. Anything unrecognizable is left alone — the
- *  picker just omits the badge. */
-function priceNoteOf(record: Record<string, unknown>): string | undefined {
+ *  plain `price: "free"` string, plus the free/not-free verdict the picker
+ *  badges on. Anything unrecognizable is left alone — no chip at all. */
+function priceHintOf(record: Record<string, unknown>): { note: string; isFree: boolean } | undefined {
   for (const key of PRICE_KEYS) {
     const value = record[key];
-    if (typeof value === 'string' && value.trim().length > 0) return value.trim();
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      const pricing = value as Record<string, unknown>;
-      const prompt = typeof pricing.prompt === 'number' ? pricing.prompt : null;
-      const completion = typeof pricing.completion === 'number' ? pricing.completion : null;
-      if (prompt !== null || completion !== null) {
-        const parts: string[] = [];
-        if (prompt !== null) parts.push(`$${prompt}/M in`);
-        if (completion !== null) parts.push(`$${completion}/M out`);
-        return parts.join(' ');
-      }
+    if (typeof value === 'string') {
+      const text = value.trim();
+      if (text.length === 0) continue;
+      // Only the literal word counts as free — never a pattern over the note,
+      // which is how "$10/M in" ends up painted green.
+      if (text.toLowerCase() === 'free') return { note: 'free', isFree: true };
+      return { note: capNote(text), isFree: false };
+    }
+    const pricing = asRecord(value);
+    if (!pricing) continue;
+    const prompt = perMillionTokens(pricing.prompt);
+    const completion = perMillionTokens(pricing.completion);
+    if (prompt === null && completion === null) continue;
+    // OpenRouter's ":free" slugs ship a flat {"prompt":"0","completion":"0"}.
+    if ((prompt ?? 0) === 0 && (completion ?? 0) === 0) return { note: 'free', isFree: true };
+    const parts: string[] = [];
+    if (prompt) parts.push(`${formatUsd(prompt)}/M in`);
+    if (completion) parts.push(`${formatUsd(completion)}/M out`);
+    return { note: capNote(parts.join(' ')), isFree: false };
+  }
+  return undefined;
+}
+
+/** Image input out of a modality array (["text", "image"]) or a modality
+ *  string ("text+image->text", where only the input side counts). */
+function modalityVision(record: Record<string, unknown>): boolean | undefined {
+  for (const key of MODALITY_KEYS) {
+    const value = record[key];
+    if (Array.isArray(value)) {
+      return value.some(m => (VISION_MODALITIES as readonly string[]).includes(String(m).toLowerCase()));
+    }
+    if (typeof value === 'string' && value.trim().length > 0) {
+      const input = value.toLowerCase().split('->')[0];
+      return VISION_MODALITIES.some(modality => input.includes(modality));
     }
   }
   return undefined;
 }
 
-/** Vision support: a boolean `vision`/`multimodal` flag, or OpenAI-style
- *  `modalities: ["text", "image"]`. Absent is "unknown" (no badge). */
+/** Vision support: a boolean `vision`/`multimodal` flag, an OpenAI-style
+ *  `modalities: ["text", "image"]`, or OpenRouter's `architecture` object one
+ *  level down. Absent is "unknown" (no badge). */
 function visionOf(record: Record<string, unknown>): boolean | undefined {
   for (const key of VISION_KEYS) {
     const value = record[key];
     if (typeof value === 'boolean') return value;
   }
-  const modalities = record['modalities'] ?? record['input_modalities'];
-  if (Array.isArray(modalities)) {
-    return modalities.some(m => VISION_MODALITIES.includes(String(m).toLowerCase()));
-  }
-  return undefined;
+  const top = modalityVision(record);
+  if (top !== undefined) return top;
+  const architecture = asRecord(record['architecture']);
+  return architecture ? modalityVision(architecture) : undefined;
 }
 
 function toDiscovered(entry: unknown): DiscoveredModel | null {
@@ -160,8 +220,11 @@ function toDiscovered(entry: unknown): DiscoveredModel | null {
   // them, so a minimal `{ data: [{ id }] }` envelope keeps an identical shape.
   const contextWindow = firstNumber(record, CONTEXT_KEYS);
   if (contextWindow !== undefined) model.contextWindow = contextWindow;
-  const priceNote = priceNoteOf(record);
-  if (priceNote !== undefined) model.priceNote = priceNote;
+  const price = priceHintOf(record);
+  if (price !== undefined) {
+    model.priceNote = price.note;
+    model.isFree = price.isFree;
+  }
   const vision = visionOf(record);
   if (vision !== undefined) model.vision = vision;
   return model;
