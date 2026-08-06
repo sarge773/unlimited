@@ -16,10 +16,13 @@ import { GetKeyLink, PLATFORMS } from './shared'
 // provider. Extracted verbatim from the old inline KeysPage form so all field
 // validation, the keyless/Cloudflare special cases, and the POST /api/keys
 // mutation stay identical. On success it toasts and asks the dialog to close.
-export function AddKeyForm({ onSuccess }: { onSuccess: () => void }) {
+// `initialPlatform` preselects the provider (checklist-chip entry); the field
+// stays editable. The dialog remounts this pane per open, so a plain initial
+// state is enough.
+export function AddKeyForm({ onSuccess, initialPlatform }: { onSuccess: () => void; initialPlatform?: Platform }) {
   const { t } = useI18n()
   const queryClient = useQueryClient()
-  const [platform, setPlatform] = useState<Platform | ''>('')
+  const [platform, setPlatform] = useState<Platform | ''>(initialPlatform ?? '')
   const [apiKey, setApiKey] = useState('')
   const [accountId, setAccountId] = useState('')
   const [label, setLabel] = useState('')
@@ -38,6 +41,7 @@ export function AddKeyForm({ onSuccess }: { onSuccess: () => void }) {
       queryClient.invalidateQueries({ queryKey: ['keys'] })
       queryClient.invalidateQueries({ queryKey: ['health'] })
       queryClient.invalidateQueries({ queryKey: ['fallback'] })
+      queryClient.invalidateQueries({ queryKey: ['keys-providers'] })
       toast.success(t('keys.keyAdded'))
       // Server notice when the key is for a platform with no models in the
       // current catalog tier yet (#438) — surfaced as a toast now that the
@@ -56,7 +60,7 @@ export function AddKeyForm({ onSuccess }: { onSuccess: () => void }) {
         '/api/keys/import-selected', { method: 'POST', body: JSON.stringify(body) },
       ),
     onSuccess: (data) => {
-      for (const key of ['keys', 'health', 'fallback']) {
+      for (const key of ['keys', 'health', 'fallback', 'keys-providers']) {
         queryClient.invalidateQueries({ queryKey: [key] })
       }
       toast.success(t('keys.importResult', { imported: data.imported, failed: data.total - data.imported }))
