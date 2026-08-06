@@ -161,11 +161,15 @@ export function observedSpeedRank(speed: number): number {
 }
 
 // ── Intelligence ────────────────────────────────────────────────────────────
-// `size_label` is the CROSS-PROVIDER capability tier (issue #135 —
-// intelligence_rank is only meaningful within one provider's own catalog), so
-// tier dominates and intelligence_rank breaks ties inside a tier. A label we
-// don't recognize scores below every real tier, which is also why a model
-// seeded with a placeholder label can never win an auto-route (#488).
+// `size_label` is the CROSS-PROVIDER capability tier (issue #135 — a seeded
+// intelligence_rank is only calibrated within one provider's own catalog), so
+// tier still dominates and no rank can promote a model past the tier above it.
+// Inside a tier, though, rank is no longer a near-invisible tiebreak: it now
+// has a real, visible effect on the composite ACROSS providers by design, so
+// that a user's rank edit actually moves the axis and the routing order
+// (#673). A label we don't recognize scores below every real tier, which is
+// also why a model seeded with a placeholder label can never win an
+// auto-route (#488).
 export const TIER_VALUE: Record<string, number> = { Frontier: 4, Large: 3, Medium: 2, Small: 1 };
 
 export function tierValue(sizeLabel: string): number {
@@ -188,7 +192,7 @@ export function intelligenceComposite(sizeLabel: string, intelligenceRank: numbe
   return tierValue(sizeLabel) * 1000 - Math.sqrt(Math.max(1, intelligenceRank)) * RANK_SCALE;
 }
 
-// Caller supplies a composite (tier-first, rank-as-tiebreaker — see above) and
+// Caller supplies a composite (tier-first, sqrt-compressed rank — see above) and
 // the min/max across the enabled chain. We min-max normalize to [0,1], 1 = best.
 export function intelligenceScore(composite: number, min: number, max: number): number {
   if (max <= min) return 1; // single model or all equal → neutral-high

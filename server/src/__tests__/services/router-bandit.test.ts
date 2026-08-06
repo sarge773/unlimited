@@ -305,28 +305,35 @@ describe('bandit router', () => {
   });
 
   it('a saved intelligence_rank override visibly moves the axis (#673)', () => {
-    // Regression for #673: rank edits used to be invisible because a linear
-    // rank term was dwarfed by tier*1000 and by chain-level min-max
-    // normalization. With the sqrt-compressed rank term, changing a model's
-    // rank (e.g. 5 → 1) must move its displayed intelligence axis.
-    addModel({ platform: 'google', modelId: 'smart', name: 'Smart', intelligenceRank: 5, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
-    addModel({ platform: 'groq', modelId: 'mid', name: 'Mid', intelligenceRank: 50, sizeLabel: 'Medium', budget: '~50M', priority: 2 });
-    addModel({ platform: 'meta', modelId: 'small', name: 'Small', intelligenceRank: 100, sizeLabel: 'Small', budget: '~50M', priority: 3 });
+    // Regression for #673. A realistic chain: a Frontier flagship on top, a
+    // Medium model at the bottom, and the Large model in between — the one the
+    // user re-ranks from 6 to 1 ("this is actually the best model I have").
+    //
+    // Under the old LINEAR rank term that edit shifted the Large model's
+    // normalized axis by ~0.25 points out of 100, i.e. the dashboard rendered
+    // the SAME integer before and after and the edit looked like a no-op. The
+    // sqrt-compressed term moves it ~2 points, which is visible.
+    addModel({ platform: 'google', modelId: 'flagship', name: 'Flagship', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
+    addModel({ platform: 'groq', modelId: 'workhorse', name: 'Workhorse', intelligenceRank: 6, sizeLabel: 'Large', budget: '~50M', priority: 2 });
+    addModel({ platform: 'meta', modelId: 'compact', name: 'Compact', intelligenceRank: 50, sizeLabel: 'Medium', budget: '~50M', priority: 3 });
     setRoutingStrategy('balanced');
     refreshStatsCache(getDb(), true);
 
-    const before = getRoutingScores();
-    const midBefore = before.scores.find(s => s.modelId === 'mid')!;
+    const before = getRoutingScores().scores.find(s => s.modelId === 'workhorse')!;
 
-    // PATCH /api/models/:id { intelligenceRank: 1 } on the mid model.
-    const row = getDb().prepare('SELECT id FROM models WHERE platform = ? AND model_id = ?').get('groq', 'mid') as { id: number };
+    // PATCH /api/models/:id { intelligenceRank: 1 } bottoms out in exactly this
+    // UPDATE (routes/models.ts maps intelligenceRank → the intelligence_rank
+    // column); this suite drives the router directly and has no HTTP harness,
+    // so write the column and refresh the cache the same way the route does.
+    const row = getDb().prepare('SELECT id FROM models WHERE platform = ? AND model_id = ?').get('groq', 'workhorse') as { id: number };
     getDb().prepare('UPDATE models SET intelligence_rank = 1 WHERE id = ?').run(row.id);
     refreshStatsCache(getDb(), true);
 
-    const after = getRoutingScores();
-    const midAfter = after.scores.find(s => s.modelId === 'mid')!;
-    // A rank 50 → 1 edit must be visible: at least a 2-point move on the
-    // 0-100 axis (was < 1 point, i.e. invisible, before the fix).
-    expect(Math.round(midAfter.intelligence * 100)).toBeGreaterThanOrEqual(Math.round(midBefore.intelligence * 100) + 2);
+    const after = getRoutingScores().scores.find(s => s.modelId === 'workhorse')!;
+
+    // The dashboard renders Math.round(value * 100) (client AxisBar), so assert
+    // on the number the user actually sees: it must move by at least 2 points.
+    const shown = (v: number) => Math.round(v * 100);
+    expect(shown(after.intelligence)).toBeGreaterThanOrEqual(shown(before.intelligence) + 2);
   });
 });
