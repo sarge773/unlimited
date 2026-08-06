@@ -56,16 +56,35 @@ export const DEFAULT_STRATEGY: RoutingStrategy = 'balanced';
 export const PRIOR_SUCCESS = 1;
 export const PRIOR_FAILURE = 1;
 
-export function reliabilityPosterior(successes: number, failures: number): { alpha: number; beta: number } {
+/** Community-sourced prior counts, folded into the Beta posterior as the
+ *  starting balance (#685 follow-up). `successes`/`failures` are the
+ *  decay-weighted LOCAL sample counts; the community numbers are the
+ *  aggregated, de-poisoned counts from other instances. Local samples dilute
+ *  the community prior automatically: the more this install has observed, the
+ *  less the shared starting point matters. */
+export interface CommunityReliabilityPrior {
+  successes: number;
+  failures: number;
+}
+
+export function reliabilityPosterior(
+  successes: number,
+  failures: number,
+  community?: CommunityReliabilityPrior,
+): { alpha: number; beta: number } {
   return {
-    alpha: Math.max(0, successes) + PRIOR_SUCCESS,
-    beta: Math.max(0, failures) + PRIOR_FAILURE,
+    alpha: Math.max(0, successes) + (community?.successes ?? 0) + PRIOR_SUCCESS,
+    beta: Math.max(0, failures) + (community?.failures ?? 0) + PRIOR_FAILURE,
   };
 }
 
 // Deterministic expected reliability — used for the dashboard display score.
-export function expectedReliability(successes: number, failures: number): number {
-  const { alpha, beta } = reliabilityPosterior(successes, failures);
+export function expectedReliability(
+  successes: number,
+  failures: number,
+  community?: CommunityReliabilityPrior,
+): number {
+  const { alpha, beta } = reliabilityPosterior(successes, failures, community);
   return alpha / (alpha + beta);
 }
 
