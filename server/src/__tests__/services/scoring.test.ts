@@ -18,6 +18,25 @@ describe('scoring: reliability posterior', () => {
   it('posterior adds the priors to the observed counts', () => {
     expect(reliabilityPosterior(5, 3)).toEqual({ alpha: 6, beta: 4 });
   });
+
+  it('community prior folds in as the starting balance (#685)', () => {
+    // Unseen model + a strong community record → starts near the community rate.
+    const withCommunity = expectedReliability(0, 0, { successes: 98, failures: 2 });
+    expect(withCommunity).toBeGreaterThan(0.9);
+    expect(withCommunity).toBeLessThan(1);
+    // The posterior carries both the community counts and the uniform priors.
+    expect(reliabilityPosterior(1, 0, { successes: 98, failures: 2 }))
+      .toEqual({ alpha: 100, beta: 3 });
+  });
+
+  it('local samples dilute the community prior automatically (#685)', () => {
+    // A tiny community prior barely moves the posterior once the install has
+    // hundreds of its own samples: 1001/1012 ≈ 0.989 vs 0.99 local-only.
+    const mostlyLocal = expectedReliability(990, 10, { successes: 10, failures: 0 });
+    expect(mostlyLocal).toBeGreaterThan(0.98);
+    // No community prior → pure uniform prior on an unseen model.
+    expect(expectedReliability(0, 0)).toBeCloseTo(0.5, 5);
+  });
 });
 
 describe('scoring: speed axis', () => {
