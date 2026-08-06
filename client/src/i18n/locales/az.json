@@ -422,6 +422,7 @@
     "paneImportFile": "Faylın idxalı",
     "paneCustomEndpoint": "Xüsusi son nöqtə",
     "platform": "Platforma",
+    "hideAdded": "Əlavə edilmiş provayderləri gizlət",
     "apiToken": "API tokeni",
     "noKeyNeededPlaceholder": "Heç API açar lazım deyil",
     "bearerTokenPlaceholder": "Daşıyıcı token",

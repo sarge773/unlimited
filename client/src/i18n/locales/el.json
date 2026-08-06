@@ -422,6 +422,7 @@
     "paneImportFile": "Εισαγωγή αρχείου",
     "paneCustomEndpoint": "Προσαρμοσμένο τελικό σημείο",
     "platform": "Πλατφόρμα",
+    "hideAdded": "Απόκρυψη προστιθέμενων παρόχων",
     "apiToken": "API διακριτικό",
     "noKeyNeededPlaceholder": "Δεν χρειάζεται API κλειδί",
     "bearerTokenPlaceholder": "Διακριτικό κομιστή",

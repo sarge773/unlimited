@@ -444,6 +444,7 @@
     "paneImportFile": "Import file",
     "paneCustomEndpoint": "Custom endpoint",
     "platform": "Platform",
+    "hideAdded": "Hide added providers",
     "apiToken": "API token",
     "noKeyNeededPlaceholder": "No API key needed",
     "bearerTokenPlaceholder": "Bearer token",

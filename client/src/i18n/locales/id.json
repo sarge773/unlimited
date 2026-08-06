@@ -422,6 +422,7 @@
     "paneImportFile": "Impor berkas",
     "paneCustomEndpoint": "Titik akhir khusus",
     "platform": "Peron",
+    "hideAdded": "Sembunyikan penyedia yang sudah ditambahkan",
     "apiToken": "Token API",
     "noKeyNeededPlaceholder": "Tidak diperlukan kunci API",
     "bearerTokenPlaceholder": "Token pembawa",

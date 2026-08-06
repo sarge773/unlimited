@@ -422,6 +422,7 @@
     "paneImportFile": "导入文件",
     "paneCustomEndpoint": "自定义端点",
     "platform": "平台",
+    "hideAdded": "隐藏已添加的提供方",
     "apiToken": "API 令牌",
     "noKeyNeededPlaceholder": "无需 API 密钥",
     "bearerTokenPlaceholder": "Bearer 令牌",

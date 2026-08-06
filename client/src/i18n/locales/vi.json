@@ -422,6 +422,7 @@
     "paneImportFile": "Nhập tập tin",
     "paneCustomEndpoint": "Điểm cuối tùy chỉnh",
     "platform": "Nền tảng",
+    "hideAdded": "Ẩn nhà cung cấp đã thêm",
     "apiToken": "Mã thông báo API",
     "noKeyNeededPlaceholder": "Không cần khóa API",
     "bearerTokenPlaceholder": "Mã thông báo mang",

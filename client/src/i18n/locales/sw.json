@@ -422,6 +422,7 @@
     "paneImportFile": "Ingiza faili",
     "paneCustomEndpoint": "Mwisho maalum",
     "platform": "Jukwaa",
+    "hideAdded": "Ficha watoa huduma walioongezwa",
     "apiToken": "Ishara ya API",
     "noKeyNeededPlaceholder": "Hakuna ufunguo wa API unaohitajika",
     "bearerTokenPlaceholder": "Ishara ya mbebaji",

@@ -422,6 +422,7 @@
     "paneImportFile": "Importar arquivo",
     "paneCustomEndpoint": "Endpoint personalizado",
     "platform": "Plataforma",
+    "hideAdded": "Ocultar provedores adicionados",
     "apiToken": "Token de API",
     "noKeyNeededPlaceholder": "Nenhuma chave de API necessária",
     "bearerTokenPlaceholder": "Token Bearer",

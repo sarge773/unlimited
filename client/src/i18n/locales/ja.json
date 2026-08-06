@@ -422,6 +422,7 @@
     "paneImportFile": "インポートファイル",
     "paneCustomEndpoint": "カスタムエンドポイント",
     "platform": "プラットフォーム",
+    "hideAdded": "追加済みのプロバイダーを非表示",
     "apiToken": "APIトークン",
     "noKeyNeededPlaceholder": "API キーは必要ありません",
     "bearerTokenPlaceholder": "無記名トークン",

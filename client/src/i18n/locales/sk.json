@@ -422,6 +422,7 @@
     "paneImportFile": "Importný súbor",
     "paneCustomEndpoint": "Vlastný koncový bod",
     "platform": "Platforma",
+    "hideAdded": "Skryť pridaných poskytovateľov",
     "apiToken": "API žetón",
     "noKeyNeededPlaceholder": "Kľúč API nie je potrebný",
     "bearerTokenPlaceholder": "Žetón na nositeľa",

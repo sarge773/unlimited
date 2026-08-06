@@ -422,6 +422,7 @@
     "paneImportFile": "ייבוא קובץ",
     "paneCustomEndpoint": "נקודת קצה מותאמת אישית",
     "platform": "פלטפורמה",
+    "hideAdded": "הסתר ספקים שנוספו",
     "apiToken": "אסימון API",
     "noKeyNeededPlaceholder": "אין צורך במפתח API",
     "bearerTokenPlaceholder": "אסימון נושא",

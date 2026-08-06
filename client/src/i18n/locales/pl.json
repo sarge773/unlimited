@@ -422,6 +422,7 @@
     "paneImportFile": "Importuj plik",
     "paneCustomEndpoint": "Niestandardowy punkt końcowy",
     "platform": "Platforma",
+    "hideAdded": "Ukryj dodanych dostawców",
     "apiToken": "Token API",
     "noKeyNeededPlaceholder": "Nie jest potrzebny klucz API",
     "bearerTokenPlaceholder": "Token okaziciela",

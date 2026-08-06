@@ -422,6 +422,7 @@
     "paneImportFile": "ဖိုင်တင်သွင်းပါ",
     "paneCustomEndpoint": "စိတ်ကြိုက် အဆုံးအမှတ်",
     "platform": "ပလက်ဖောင်း",
+    "hideAdded": "ထည့်ပြီးသော Provider များကို ဖျောက်ရန်",
     "apiToken": "API token",
     "noKeyNeededPlaceholder": "API မလိုအပ်ပါ",
     "bearerTokenPlaceholder": "သယ်ဆောင်သူတံဆိပ်",

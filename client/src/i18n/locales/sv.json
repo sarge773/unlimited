@@ -422,6 +422,7 @@
     "paneImportFile": "Importera fil",
     "paneCustomEndpoint": "Anpassad slutpunkt",
     "platform": "Plattform",
+    "hideAdded": "Dölj tillagda leverantörer",
     "apiToken": "API token",
     "noKeyNeededPlaceholder": "Ingen API nyckel behövs",
     "bearerTokenPlaceholder": "Bärartoken",

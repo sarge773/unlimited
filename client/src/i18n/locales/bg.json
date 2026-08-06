@@ -422,6 +422,7 @@
     "paneImportFile": "Импортиращ файл",
     "paneCustomEndpoint": "Персонализирана крайна точка",
     "platform": "Платформа",
+    "hideAdded": "Скриване на добавените доставчици",
     "apiToken": "API токен",
     "noKeyNeededPlaceholder": "Не е нужен API ключ",
     "bearerTokenPlaceholder": "Жетон на носителя",

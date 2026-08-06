@@ -422,6 +422,7 @@
     "paneImportFile": "ફાઇલ આયાત કરો",
     "paneCustomEndpoint": "કસ્ટમ એન્ડપોઇન્ટ",
     "platform": "પ્લેટફોર્મ",
+    "hideAdded": "ઉમેરેલા પ્રદાતાઓ છુપાવો",
     "apiToken": "API ટોકન",
     "noKeyNeededPlaceholder": "API કીની જરૂર નથી",
     "bearerTokenPlaceholder": "બેરર ટોકન",

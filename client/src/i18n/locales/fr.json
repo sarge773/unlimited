@@ -422,6 +422,7 @@
     "paneImportFile": "Importer un fichier",
     "paneCustomEndpoint": "Endpoint personnalisé",
     "platform": "Plateforme",
+    "hideAdded": "Masquer les fournisseurs ajoutés",
     "apiToken": "Jeton API",
     "noKeyNeededPlaceholder": "Aucune clé API requise",
     "bearerTokenPlaceholder": "Jeton Bearer",

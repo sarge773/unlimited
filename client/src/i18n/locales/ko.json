@@ -422,6 +422,7 @@
     "paneImportFile": "파일 가져오기",
     "paneCustomEndpoint": "커스텀 엔드포인트",
     "platform": "플랫폼",
+    "hideAdded": "추가된 제공업체 숨기기",
     "apiToken": "API 토큰",
     "noKeyNeededPlaceholder": "API 키가 필요하지 않습니다.",
     "bearerTokenPlaceholder": "무기명 토큰",

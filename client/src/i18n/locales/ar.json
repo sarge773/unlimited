@@ -422,6 +422,7 @@
     "paneImportFile": "استيراد الملف",
     "paneCustomEndpoint": "نقطة النهاية المخصصة",
     "platform": "منصة",
+    "hideAdded": "إخفاء الموفرين المضافين",
     "apiToken": "الرمز المميز API",
     "noKeyNeededPlaceholder": "لا حاجة لمفتاح API",
     "bearerTokenPlaceholder": "رمز حامل",

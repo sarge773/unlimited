@@ -422,6 +422,7 @@
     "paneImportFile": "फाइल आयात गर्नुहोस्",
     "paneCustomEndpoint": "अन्तिम बिन्दु अनुकूल गर्नुहोस्",
     "platform": "प्लेटफर्म",
+    "hideAdded": "थपिएका प्रदायकहरू लुकाउनुहोस्",
     "apiToken": "API टोकन",
     "noKeyNeededPlaceholder": "कुनै API कुञ्जी आवश्यक पर्दैन",
     "bearerTokenPlaceholder": "वाहक टोकन",

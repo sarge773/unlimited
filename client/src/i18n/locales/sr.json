@@ -422,6 +422,7 @@
     "paneImportFile": "Увези датотеку",
     "paneCustomEndpoint": "Прилагођена крајња тачка",
     "platform": "Платформа",
+    "hideAdded": "Сакриј додате добављаче",
     "apiToken": "API токен",
     "noKeyNeededPlaceholder": "Није потребан кључ API",
     "bearerTokenPlaceholder": "Токен носиоца",

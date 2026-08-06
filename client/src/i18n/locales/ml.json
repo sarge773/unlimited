@@ -422,6 +422,7 @@
     "paneImportFile": "ഫയൽ ഇറക്കുമതി ചെയ്യുക",
     "paneCustomEndpoint": "ഇഷ്‌ടാനുസൃത അന്തിമ പോയിൻ്റ്",
     "platform": "പ്ലാറ്റ്ഫോം",
+    "hideAdded": "ചേർത്ത ദാതാക്കളെ മറയ്ക്കുക",
     "apiToken": "API ടോക്കൺ",
     "noKeyNeededPlaceholder": "API കീ ആവശ്യമില്ല",
     "bearerTokenPlaceholder": "ബെയറർ ടോക്കൺ",

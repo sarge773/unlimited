@@ -422,6 +422,7 @@
     "paneImportFile": "นำเข้าไฟล์",
     "paneCustomEndpoint": "ปลายทางที่กำหนดเอง",
     "platform": "แพลตฟอร์ม",
+    "hideAdded": "ซ่อนผู้ให้บริการที่เพิ่มแล้ว",
     "apiToken": "โทเค็น API",
     "noKeyNeededPlaceholder": "ไม่จำเป็นต้องใช้คีย์ API",
     "bearerTokenPlaceholder": "โทเค็นผู้ถือ",

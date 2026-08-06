@@ -422,6 +422,7 @@
     "paneImportFile": "ਫਾਈਲ ਆਯਾਤ ਕਰੋ",
     "paneCustomEndpoint": "ਵਿਉਂਤਿਆ ਅੰਤ ਬਿੰਦੂ",
     "platform": "ਪਲੇਟਫਾਰਮ",
+    "hideAdded": "ਸ਼ਾਮਲ ਕੀਤੇ ਪ੍ਰਦਾਤਾ ਲੁਕਾਓ",
     "apiToken": "API ਟੋਕਨ",
     "noKeyNeededPlaceholder": "API ਕੁੰਜੀ ਦੀ ਲੋੜ ਨਹੀਂ ਹੈ",
     "bearerTokenPlaceholder": "ਬੇਅਰਰ ਟੋਕਨ",

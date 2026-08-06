@@ -422,6 +422,7 @@
     "paneImportFile": "ආයාත ගොනුව",
     "paneCustomEndpoint": "අභිරුචි අන්ත ලක්ෂ්‍යය",
     "platform": "වේදිකාව",
+    "hideAdded": "එකතු කළ සපයන්නන් සඟවන්න",
     "apiToken": "API ටෝකනය",
     "noKeyNeededPlaceholder": "API යතුර අවශ්‍ය නොවේ",
     "bearerTokenPlaceholder": "දරන්නා සංකේතය",

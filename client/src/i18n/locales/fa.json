@@ -422,6 +422,7 @@
     "paneImportFile": "فایل وارد کنید",
     "paneCustomEndpoint": "نقطه پایان سفارشی",
     "platform": "پلت فرم",
+    "hideAdded": "پنهان کردن ارائه‌دهندگان افزوده‌شده",
     "apiToken": "رمز API",
     "noKeyNeededPlaceholder": "کلید API مورد نیاز نیست",
     "bearerTokenPlaceholder": "نشان حامل",

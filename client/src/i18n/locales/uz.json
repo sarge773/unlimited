@@ -422,6 +422,7 @@
     "paneImportFile": "Faylni import qilish",
     "paneCustomEndpoint": "Maxsus yakuniy nuqta",
     "platform": "Platforma",
+    "hideAdded": "Qo'shilgan provayderlarni yashirish",
     "apiToken": "API tokeni",
     "noKeyNeededPlaceholder": "API kaliti kerak emas",
     "bearerTokenPlaceholder": "Tashuvchi belgisi",

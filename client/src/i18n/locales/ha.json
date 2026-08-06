@@ -422,6 +422,7 @@
     "paneImportFile": "Shigo fayil",
     "paneCustomEndpoint": "Ƙarshen al'ada",
     "platform": "Dandalin",
+    "hideAdded": "Ɓoye masu bayarwa da aka ƙara",
     "apiToken": "Farashin API",
     "noKeyNeededPlaceholder": "Babu maɓallin API da ake buƙata",
     "bearerTokenPlaceholder": "Alamar mai ɗaukar nauyi",

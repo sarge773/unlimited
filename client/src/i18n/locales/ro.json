@@ -422,6 +422,7 @@
     "paneImportFile": "Fișier de import",
     "paneCustomEndpoint": "Punct final personalizat",
     "platform": "Peronul",
+    "hideAdded": "Ascunde furnizorii adăugați",
     "apiToken": "API token",
     "noKeyNeededPlaceholder": "Nu e nevoie de API cheie",
     "bearerTokenPlaceholder": "Jeton de purtător",

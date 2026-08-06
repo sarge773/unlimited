@@ -422,6 +422,7 @@
     "paneImportFile": "దిగుమతి ఫైల్",
     "paneCustomEndpoint": "అనుకూల ముగింపు స్థానం",
     "platform": "వేదిక",
+    "hideAdded": "జోడించిన ప్రొవైడర్‌లను దాచు",
     "apiToken": "API టోకెన్",
     "noKeyNeededPlaceholder": "API కీ అవసరం లేదు",
     "bearerTokenPlaceholder": "బేరర్ టోకెన్",

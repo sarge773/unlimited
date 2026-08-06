@@ -422,6 +422,7 @@
     "paneImportFile": "கோப்பை இறக்குமதி செய்யவும்",
     "paneCustomEndpoint": "தனிப்பயன் இறுதிப்புள்ளி",
     "platform": "மேடை",
+    "hideAdded": "சேர்க்கப்பட்ட வழங்குநர்களை மறை",
     "apiToken": "API டோக்கன்",
     "noKeyNeededPlaceholder": "API விசை தேவையில்லை",
     "bearerTokenPlaceholder": "தாங்கி டோக்கன்",

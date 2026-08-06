@@ -422,6 +422,7 @@
     "paneImportFile": "Імпорт файлу",
     "paneCustomEndpoint": "Спеціальна кінцева точка",
     "platform": "Платформа",
+    "hideAdded": "Сховати доданих провайдерів",
     "apiToken": "Токен API",
     "noKeyNeededPlaceholder": "Ключ API не потрібен",
     "bearerTokenPlaceholder": "Токен на пред'явника",

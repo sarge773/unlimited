@@ -422,6 +422,7 @@
     "paneImportFile": "ಆಮದು ಫೈಲ್",
     "paneCustomEndpoint": "ಕಸ್ಟಮ್ ಅಂತಿಮ ಬಿಂದು",
     "platform": "ವೇದಿಕೆ",
+    "hideAdded": "ಸೇರಿಸಿದ ಪೂರೈಕೆದಾರರನ್ನು ಮರೆಮಾಡಿ",
     "apiToken": "API ಟೋಕನ್",
     "noKeyNeededPlaceholder": "ಯಾವುದೇ API ಕೀ ಅಗತ್ಯವಿಲ್ಲ",
     "bearerTokenPlaceholder": "ಬೇರರ್ ಟೋಕನ್",

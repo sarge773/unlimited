@@ -422,6 +422,7 @@
     "paneImportFile": "ফাইল আমদানি করুন",
     "paneCustomEndpoint": "কাস্টম শেষ বিন্দু",
     "platform": "প্ল্যাটফর্ম",
+    "hideAdded": "যোগ করা প্রদানকারী লুকান",
     "apiToken": "API টোকেন",
     "noKeyNeededPlaceholder": "কোন API কী প্রয়োজন নেই",
     "bearerTokenPlaceholder": "বহনকারী টোকেন",

@@ -422,6 +422,7 @@
     "paneImportFile": "Dosyayı içe aktar",
     "paneCustomEndpoint": "Özel uç nokta",
     "platform": "platformu",
+    "hideAdded": "Eklenen sağlayıcıları gizle",
     "apiToken": "API jetonu",
     "noKeyNeededPlaceholder": "API anahtarına gerek yok",
     "bearerTokenPlaceholder": "Hamiline ait jeton",

@@ -422,6 +422,7 @@
     "paneImportFile": "Importuoti failą",
     "paneCustomEndpoint": "Individualus galinis taškas",
     "platform": "Platforma",
+    "hideAdded": "Slėpti pridėtus tiekėjus",
     "apiToken": "API žetonas",
     "noKeyNeededPlaceholder": "Nereikia API rakto",
     "bearerTokenPlaceholder": "Nešiotojo žetonas",

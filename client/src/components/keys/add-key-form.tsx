@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ModelCombobox } from '@/components/model-combobox'
 import { FieldError } from '@/components/ui/field-error'
-import { Check, ChevronsUpDown, Search } from 'lucide-react'
 import type { ApiKey, Platform } from '../../../../shared/types'
 import { useI18n } from '@/i18n'
 import { toast } from '@/lib/toast'
@@ -34,28 +33,32 @@ export function AddKeyForm({ onSuccess, initialPlatform }: { onSuccess: () => vo
   // single-key field masks what you type, and a textarea cannot.
   const [several, setSeveral] = useState(false)
 
-  // #707: the platform dropdown had no filter, no order, and no way to skip
-  // providers that already have keys. Sort alphabetically, filter by the
-  // search box, and optionally hide already-added providers. Reuses the same
-  // ['keys'] query the Providers tab owns, so this costs no extra request.
+  // #707: the platform dropdown had no search and no way to skip providers that
+  // already have keys, which is painful at thirty-odd entries. The shared
+  // ModelCombobox already does search + arrow keys, so this reuses it and only
+  // supplies the options. PLATFORMS keeps its curated order — it is sorted by
+  // recommendation, not alphabetically — and the search box handles "find it
+  // fast". The added/not-added split reads the same ['keys'] query the
+  // Providers tab owns, so it costs no extra request.
   const { data: keys = [] } = useQuery<ApiKey[]>({
     queryKey: ['keys'],
     queryFn: () => apiFetch('/api/keys'),
   })
   const addedPlatforms = useMemo(() => new Set(keys.map(k => k.platform)), [keys])
-  const [platformSearch, setPlatformSearch] = useState('')
   const [hideAdded, setHideAdded] = useState(false)
-  const [platformOpen, setPlatformOpen] = useState(false)
 
-  const visiblePlatforms = useMemo(() => {
-    const q = platformSearch.trim().toLowerCase()
-    return [...PLATFORMS]
-      .sort((a, b) => a.label.localeCompare(b.label))
-      .filter(p =>
-        (!hideAdded || !addedPlatforms.has(p.value)) &&
-        (q === '' || p.label.toLowerCase().includes(q) || p.value.toLowerCase().includes(q)),
-      )
-  }, [platformSearch, hideAdded, addedPlatforms])
+  const platformOptions = useMemo(
+    () => PLATFORMS
+      // The selected provider always stays listed, so hiding added ones never
+      // blanks out the trigger label.
+      .filter(p => !hideAdded || !addedPlatforms.has(p.value) || p.value === platform)
+      .map(p => ({
+        value: p.value,
+        label: p.label,
+        sub: addedPlatforms.has(p.value) ? t('keys.discoverAlreadyAdded') : undefined,
+      })),
+    [hideAdded, addedPlatforms, platform, t],
+  )
 
   const addKey = useMutation({
     meta: { silenceToast: true },
@@ -135,29 +138,18 @@ export function AddKeyForm({ onSuccess, initialPlatform }: { onSuccess: () => vo
       <form onSubmit={handleSubmit} className="flex flex-wrap gap-3">
         <div className="space-y-1.5">
           <Label className="text-xs">{t('keys.platform')}</Label>
-          <Popover open={platformOpen} onOpenChange={o => { setPlatformOpen(o); if (!o) setPlatformSearch('') }}>
-            <PopoverTrigger
-              className="flex h-8 w-[220px] items-center justify-between gap-2 whitespace-nowrap rounded-lg border border-input bg-transparent px-3 text-sm outline-none transition-colors hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive dark:bg-input/30"
-              aria-invalid={addAttempted && !!platformError}
-              aria-label={t('keys.platform')}
-            >
-              <span className={`truncate ${platform ? '' : 'text-muted-foreground'}`}>
-                {PLATFORMS.find(p => p.value === platform)?.label ?? t('keys.selectPlatform')}
-              </span>
-              <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-[300px] p-0">
-              <div className="flex items-center gap-2 border-b px-3">
-                <Search className="size-4 shrink-0 text-muted-foreground" />
-                <input
-                  autoFocus
-                  value={platformSearch}
-                  onChange={e => setPlatformSearch(e.target.value)}
-                  placeholder={t('keys.filterPlaceholder')}
-                  aria-label={t('keys.filterPlaceholder')}
-                  className="h-9 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                />
-              </div>
+          <ModelCombobox
+            value={platform}
+            options={platformOptions}
+            onSelect={v => setPlatform(v as Platform)}
+            ariaLabel={t('keys.platform')}
+            triggerPlaceholder={t('keys.selectPlatform')}
+            placeholder={t('keys.filterPlaceholder')}
+            emptyText={t('keys.noFilterMatch')}
+            align="start"
+            ariaInvalid={addAttempted && !!platformError}
+            triggerClassName={`flex h-8 w-[220px] items-center justify-between gap-2 whitespace-nowrap rounded-lg border bg-transparent px-3 text-sm outline-none transition-colors hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 ${addAttempted && platformError ? 'border-destructive' : 'border-input'}`}
+            header={
               <div className="flex items-center gap-2 border-b px-3 py-2">
                 <input
                   id="hide-added-platforms"
@@ -167,36 +159,11 @@ export function AddKeyForm({ onSuccess, initialPlatform }: { onSuccess: () => vo
                   className="size-3.5 accent-foreground"
                 />
                 <label htmlFor="hide-added-platforms" className="text-xs text-muted-foreground">
-                  {t('common.hide')} {t('keys.discoverAlreadyAdded')}
+                  {t('keys.hideAdded')}
                 </label>
               </div>
-              <div className="max-h-72 overflow-y-auto p-1">
-                {visiblePlatforms.length === 0 ? (
-                  <div className="px-2 py-6 text-center text-xs text-muted-foreground">{t('keys.noFilterMatch')}</div>
-                ) : (
-                  visiblePlatforms.map(p => {
-                    const added = addedPlatforms.has(p.value)
-                    return (
-                      <button
-                        key={p.value}
-                        type="button"
-                        onClick={() => { setPlatform(p.value); setPlatformOpen(false); setPlatformSearch('') }}
-                        className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${p.value === platform ? 'bg-accent/50' : ''}`}
-                      >
-                        <Check className={`size-4 shrink-0 ${p.value === platform ? 'opacity-100' : 'opacity-0'}`} />
-                        <span className="min-w-0 flex-1 truncate">{p.label}</span>
-                        {added && (
-                          <span className="shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground">
-                            {t('keys.discoverAlreadyAdded')}
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
+            }
+          />
           {addAttempted && <FieldError error={platformError} />}
           {(() => {
             const sel = PLATFORMS.find(p => p.value === platform)

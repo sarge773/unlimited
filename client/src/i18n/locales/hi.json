@@ -422,6 +422,7 @@
     "paneImportFile": "फ़ाइल आयात करें",
     "paneCustomEndpoint": "कस्टम समापन बिंदु",
     "platform": "मंच",
+    "hideAdded": "जोड़े गए प्रदाता छिपाएँ",
     "apiToken": "API टोकन",
     "noKeyNeededPlaceholder": "कोई API कुंजी की आवश्यकता नहीं है",
     "bearerTokenPlaceholder": "वाहक टोकन",
