@@ -1,15 +1,21 @@
 #!/usr/bin/env node
-// scan-free-models.ts — 半自动免费模型扫描器
+// scan-free-models.ts — semi-automated free-model scanner
 //
-// 探测各免费 LLM provider 的 OpenAI 兼容 /v1/models 端点,输出候选模型清单,
-// 供人工对照 freellmapi catalog 决定要添加哪些模型(代替 #767 这类手写请求)。
+// Probes the OpenAI-compatible /v1/models endpoints of the common free LLM
+// providers and prints a candidate model list annotated against the current
+// catalog, so a human can see at a glance which models are new candidates
+// (replaces hand-written Model Request issues like #767).
 //
-// 用法:
+// Usage:
 //   SCAN_GROQ_KEY=... SCAN_OPENROUTER_KEY=... node scripts/scan-free-models.ts
 //
-// 设计:半自动——只负责"发现 + 输出候选",是否上线由人决定。免费模型
-// 可用性波动大(#722:Cloudflare Kimi 变付费;OpenRouter :free 轮换),全自动
-// 写入 catalog 会引入不可靠模型,所以扫描结果必须人工 review 后合并。
+// Design: semi-automated on purpose — "discover + annotate", never auto-write.
+// Free-tier availability churns (#722: Cloudflare Kimi moved to paid; OpenRouter
+// `:free` rotates), so the output is a candidate list for a human to confirm
+// before anything lands in the catalog.
+
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 type Provider = {
   name: string;
@@ -17,15 +23,41 @@ type Provider = {
   keyEnv?: string;
 };
 
-// OpenAI 兼容 /v1/models 端点的免费 provider。有 key 的用 key 探测;
-// 无 key 的(如 ollama.com/v1 匿名)可不配置。
+// OpenAI-compatible /v1/models endpoints of the common free providers. Providers
+// with a keyEnv require a key; keyless ones (ollama.com/v1 anonymous) can be
+// probed without one.
 const PROVIDERS: Provider[] = [
   { name: 'groq', baseUrl: 'https://api.groq.com/openai/v1', keyEnv: 'SCAN_GROQ_KEY' },
   { name: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', keyEnv: 'SCAN_OPENROUTER_KEY' },
   { name: 'ollama-cloud', baseUrl: 'https://ollama.com/v1', keyEnv: 'SCAN_OLLAMA_KEY' },
   { name: 'nvidia-nim', baseUrl: 'https://integrate.api.nvidia.com/v1', keyEnv: 'SCAN_NVIDIA_KEY' },
   { name: 'mistral', baseUrl: 'https://api.mistral.ai/v1', keyEnv: 'SCAN_MISTRAL_KEY' },
+  { name: 'cloudflare', baseUrl: 'https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1', keyEnv: 'SCAN_CLOUDFLARE_KEY' },
+  { name: 'opencode-zen', baseUrl: 'https://api.opencode.ai/v1', keyEnv: 'SCAN_OPENCODE_KEY' },
+  { name: 'cerebras', baseUrl: 'https://api.cerebras.ai/v1', keyEnv: 'SCAN_CEREBRAS_KEY' },
 ];
+
+/** Read the catalog's model ids from the baseline migrations file, so scan
+ *  output can be annotated "already in catalog" vs "new candidate". */
+function readCatalogModelIds(): Set<string> {
+  const migrationsPath = resolve(
+    process.cwd(),
+    'server/src/db/migrations/20260101_000000_legacy_baseline.ts',
+  );
+  const ids = new Set<string>();
+  try {
+    const src = readFileSync(migrationsPath, 'utf8');
+    // additions rows look like: ['platform', 'model:id', 'Display name', ...]
+    const rowRe = /\[\s*'[a-z0-9-]+'\s*,\s*'([^']+)'\s*,/g;
+    let m: RegExpExecArray | null;
+    while ((m = rowRe.exec(src)) !== null) {
+      ids.add(m[1]!);
+    }
+  } catch {
+    // Catalog file missing (not in a checkout) — fall back to no annotations.
+  }
+  return ids;
+}
 
 async function scanProvider(p: Provider): Promise<string[]> {
   const key = p.keyEnv ? process.env[p.keyEnv] : undefined;
@@ -44,19 +76,30 @@ async function scanProvider(p: Provider): Promise<string[]> {
 }
 
 async function main(): Promise<void> {
+  const catalogIds = readCatalogModelIds();
+  let newCandidates = 0;
+
   for (const p of PROVIDERS) {
     const models = await scanProvider(p);
     if (models.length === 0) {
-      console.log(`[${p.name}] 跳过(未配置 ${p.keyEnv ?? 'key'} 或探测失败)`);
+      console.log(`[${p.name}] skipped (no ${p.keyEnv ?? 'key'} or probe failed)`);
       continue;
     }
     console.log(`\n=== ${p.name} (${models.length} models) ===`);
     for (const id of models) {
       const freeHint = id.includes(':free') || id.includes('-free');
-      console.log(`  ${id}${freeHint ? '  ← free' : ''}`);
+      const inCatalog = catalogIds.has(id);
+      if (!inCatalog) newCandidates += 1;
+      const tags = [
+        freeHint ? 'free' : '',
+        inCatalog ? 'in catalog' : 'NEW CANDIDATE',
+      ].filter(Boolean).join(' | ');
+      console.log(`  ${id}${tags ? `  ← ${tags}` : ''}`);
     }
   }
-  console.log('\n扫描完成。对照 server/src/db/migrations/20260101_000000_legacy_baseline.ts 的 catalog,人工确认要添加的模型。');
+
+  console.log(`\nScan done: ${newCandidates} new candidate(s) not in the catalog.`);
+  console.log('Manually review against the catalog before adding (see CONTRIBUTING.md catalog conventions).');
 }
 
 main().catch(err => {
