@@ -46,6 +46,7 @@ export type Platform =
   | 'google'
   | 'groq'
   | 'cerebras'
+  | 'anyapi'
   | 'nvidia'
   | 'mistral'
   | 'sambanova'
