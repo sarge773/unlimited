@@ -23,24 +23,24 @@ Every PR should:
 
 ## Code style
 
-- **TypeScript 严格模式**；类型从 zod schema 用 `z.infer` 推导（如 `SearchConfig`），不重复手写接口
-- **命名**：camelCase 变量/函数、PascalCase 组件/类型、`_` 前缀私有
-- **i18n**：文案走 `t('key')`，不硬编码字符串；新增 key 同步 60 locales
-- **样式**：Tailwind 原子类 + 语义 CSS 变量（`--muted-foreground` 等），不硬编码 hex
-- **时间**：SQLite 存 UTC（空格格式）；前端展示用 `formatSqliteUtcToLocalTime` 转本地时区
-- 不重构无关代码；改动聚焦单一主题
+- **Strict TypeScript**; derive types from zod schemas with `z.infer` (e.g. `SearchConfig`), don't hand-write duplicate interfaces
+- **Naming**: camelCase variables/functions, PascalCase components/types, `_` prefix for private
+- **i18n**: user-visible text goes through `t('key')`, never hardcoded strings; new keys are added to all 60 locales
+- **Styling**: Tailwind utility classes + semantic CSS variables (`--muted-foreground`, etc.), never hardcoded hex
+- **Time**: SQLite stores UTC (space-separated format); render in the viewer's local zone with `formatSqliteUtcToLocalTime`
+- Don't refactor unrelated code; keep changes focused on one topic
 
 ## Validation (required before commit)
 
 ```bash
-cd server && npx tsc --noEmit     # server 类型
-cd client && npx tsc -b           # client 类型
-npm run check:i18n                # 60 locales / key parity（client 目录）
+cd server && npx tsc --noEmit     # server types
+cd client && npx tsc -b           # client types
+npm run check:i18n                # 60 locales / key parity (run from client/)
 ```
 
-- 新功能补测试（vitest：`server/src/__tests__`、`client/src/__tests__`）
-- **catalog / 模型改动**：必须实测可用（`POST /v1/chat/completions` 返回 200，免费账号），在注释/PR 注明验证日期与方式
-- CI 会跑 fmt / tsc / tests / i18n —— 本地先过一遍再提交
+- Add tests for new features (vitest: `server/src/__tests__`, `client/src/__tests__`)
+- **Catalog / model changes**: verify live before submitting (`POST /v1/chat/completions` returns 200 on a free account); note the verification date and method in a comment / PR
+- CI runs fmt / tsc / tests / i18n — run them locally first
 
 ## Database migrations
 
@@ -57,40 +57,40 @@ npm run db:migration:down
 
 ## Catalog conventions
 
-- 模型添加：`server/src/db/model-pricing.ts`（pricing）+ migrations 的 `additions` 数组
-- `model_id` 用 `/v1/models` 返回的精确 id（name:tag，如 `gpt-oss:20b`）
-- **只加真免费模型**；免费变付费的必须人工确认移除（#722 教训）
-- pricing 镜像同模型 paid 变体；无参考时用合理默认并注释说明
-- 可用性证明写进代码注释：验证日期 + 方式（如 "tested 2026-08-06 against Free tier"）
+- Add models in `server/src/db/model-pricing.ts` (pricing) + the migrations `additions` array
+- `model_id` uses the exact `/v1/models` id (name:tag, e.g. `gpt-oss:20b`)
+- **Free models only**: add only genuinely free models; ones that move to paid must be removed by a human (#722)
+- Pricing mirrors the same model's paid variant where one exists; otherwise use a reasonable default and comment why
+- Proof of availability goes in a code comment: verification date + method (e.g. "tested 2026-08-06 against Free tier")
 
 ## Commits
 
-- Conventional Commits：`feat:` / `fix:` / `docs:` / `test:` / `style:` / `refactor:`
-- 正文说明"为什么"；关联 issue `Refs #xxx`
-- 结尾加 `Co-Authored-By` trailer（AI 贡献者）
-- 一个 PR 一个主题；不要混合无关改动
+- Conventional Commits: `feat:` / `fix:` / `docs:` / `test:` / `style:` / `refactor:`
+- Body explains the "why"; reference issues with `Refs #xxx`
+- Append the `Co-Authored-By` trailer (for AI contributors)
+- One PR per topic; don't mix unrelated changes
 
 ## Pull requests
 
-PR 描述用模板：
+PR description template:
 
 ```markdown
 ## What
-（改了什么，面向维护者）
+(what changed, for the maintainer)
 
 ## Why
-（为什么值得合入，关联 issue `Refs #xxx`）
+(why it should land; reference issues with `Refs #xxx`)
 
 ## Tests
-（验证证据：tsc 结果、测试数量、实测记录）
+(evidence: tsc result, test counts, live verification)
 
 ## Files
-（关键文件列表）
+(key files touched)
 ```
 
-- 测试证据如实说明；无法本地验证（如无工具链）必须标注"依赖 CI 验证"
-- **不做半成品**：不提交"存了但没用"的代码（#590 教训）
-- 网络策略：github 直连失败时用 VPS 代理重试（`-x http://llmproxy:...@43.133.45.67:7890`）
+- Report test evidence honestly; if you can't verify locally (e.g. no toolchain), say so and rely on CI
+- **No half-finished work**: don't submit "stored but unused" code or fields (#590)
+- Network: if github is unreachable, retry through the VPS proxy (`-x http://llmproxy:...@43.133.45.67:7890`)
 
 ## Translations
 
@@ -115,10 +115,10 @@ PRs that are clearly unreviewed model output (broad unexplained diffs, fabricate
 
 ## Security
 
-- API key 回显一律 `maskKey`；日志/PR/评论不出现明文
-- 敏感文件 0o600；SSRF 检查（`url-guard`）；代理/凭据脱敏（`redactProxyUrl`）
-- 认证统一 API key（`timingSafeStringEqual`），不信任 socket 本地性
-- 涉及敏感数据的功能：先讨论权限/脱敏方案再实现
+- API keys surfaced only via `maskKey`; no plaintext in logs / PRs / comments
+- Sensitive files 0o600; SSRF checks (`url-guard`); proxy / credential redaction (`redactProxyUrl`)
+- Auth via the unified API key (`timingSafeStringEqual`), never trust socket locality
+- For features touching sensitive data: discuss the permission / redaction approach before implementing
 
 ## Reporting issues
 

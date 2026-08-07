@@ -1,49 +1,52 @@
-# AGENTS.md — freellmapi 开发约束（AI 常驻内核）
+# AGENTS.md — freellmapi development constraints (always-on context for AI agents)
 
-> 本文件是提交给 AI 编码代理的常驻上下文。`CLAUDE.md` 是指向本文件的链接。
-> 每一行都过检验："去掉会导致 agent 犯错吗？"详细规则见 `CONTRIBUTING.md`。
-> 约束与当前代码冲突时，以当前代码为准，先说明差异再改文档或实现。
+> This file is the always-on context handed to AI coding agents working on this
+> repo. `CLAUDE.md` can link to it. Every line passes the test: "would removing
+> this cause the agent to make a mistake it wouldn't otherwise make?" Full
+> details live in `CONTRIBUTING.md`.
+> When a constraint conflicts with the current code, the code wins — note the
+> discrepancy, then fix the doc or the implementation.
 
-## 项目速览
+## Project at a glance
 
-- **freellmapi**：免费 LLM API 网关/代理（OpenAI / Anthropic 兼容）
-- **技术栈**：Node + Express + better-sqlite3（`server/`）、React + Vite + Tailwind（`client/`）
-- **关键数据**：models（catalog + 路由分数）、api_keys（凭据）、requests（用量/延迟/TTFB）、attempt-trace（重试链）
+- **freellmapi**: free-LLM API gateway/proxy (OpenAI / Anthropic compatible)
+- **Stack**: Node + Express + better-sqlite3 (`server/`), React + Vite + Tailwind (`client/`)
+- **Key data**: models (catalog + routing scores), api_keys (credentials), requests (usage / latency / TTFB), attempt-trace (retry chains)
 
-## 代码约定（项目特有）
+## Code conventions (project-specific)
 
-- **i18n**：所有用户可见文案走 `t('key')`，不硬编码字符串；新增 key 必须同步所有 locale（`check:i18n` 60 locales）
-- **样式**：Tailwind 原子类 + 语义 CSS 变量（`--muted-foreground` 等），不硬编码 hex
-- **类型**：用 `z.infer` 从 zod schema 推类型（如 `SearchConfig`），不重复手写接口
-- **时间**：SQLite 存 UTC（空格格式 `YYYY-MM-DD HH:MM:SS`）；前端展示用 `formatSqliteUtcToLocalTime` 转本地时区
+- **i18n**: all user-visible text goes through `t('key')`, never hardcoded strings; new keys must be added to all locales (`check:i18n`, 60 locales)
+- **Styling**: Tailwind utility classes + semantic CSS variables (`--muted-foreground`, etc.), never hardcoded hex
+- **Types**: derive from zod schemas with `z.infer` (e.g. `SearchConfig`), don't hand-write duplicate interfaces
+- **Time**: SQLite stores UTC (space-separated `YYYY-MM-DD HH:MM:SS`); render in the viewer's local zone with `formatSqliteUtcToLocalTime`
 
-## 验证流程（提交前必须）
+## Validation (required before commit)
 
-- server：`cd server && npx tsc --noEmit` 通过
-- client：`cd client && npx tsc -b` 通过
-- i18n 完整性：`npm run check:i18n` 通过
-- 新功能补测试；**catalog/模型改动必须实测可用**（返回 200 + 免费账号验证，注明验证日期/方式）
+- server: `cd server && npx tsc --noEmit`
+- client: `cd client && npx tsc -b`
+- i18n: `npm run check:i18n`
+- add tests for new features; **catalog / model changes must be verified live** (200 + free account, note the verification date and method)
 
-## 提交规范
+## Commit style
 
-- Conventional Commits（`feat:` / `fix:` / `docs:` / `test:` / `style:` / `refactor:`）
-- 正文说明"为什么"，不罗列"改了什么"；关联 issue 用 `Refs #xxx`
-- 一个 PR 一个主题，分功能提交（维护者易合并）
+- Conventional Commits (`feat:` / `fix:` / `docs:` / `test:` / `style:` / `refactor:`)
+- Body explains the "why"; reference issues with `Refs #xxx`
+- One PR per topic; split features into focused PRs
 
-## 安全红线（do 优先）
+## Security red lines (do-first)
 
-- API key 回显一律 `maskKey`，日志/PR/评论不出现明文
-- 敏感文件 0o600、SSRF 检查（`url-guard`）、代理/凭据脱敏（`redactProxyUrl`）
-- 认证统一 API key（`timingSafeStringEqual`），不信任 socket 本地性
+- API keys surfaced only via `maskKey`; no plaintext in logs / PRs / comments
+- Sensitive files 0o600; SSRF checks (`url-guard`); proxy / credential redaction (`redactProxyUrl`)
+- Auth via the unified API key (`timingSafeStringEqual`), never trust socket locality
 
-## 关键约束
+## Key constraints
 
-- **不做半成品**：不提交"存了但没用"的代码/字段（#590 教训）
-- **只加真免费模型**；免费变付费的必须人工确认移除（#722 教训）
-- 模型 `model_id` 用 `/v1/models` 返回的精确 id（name:tag 约定）
-- 网络策略：github 直连失败时走 VPS 代理重试
+- **No half-finished work**: don't submit "stored but unused" code or fields (#590)
+- **Free models only**: add only genuinely free models; ones that move to paid must be removed by a human (#722)
+- Model ids use the exact `/v1/models` id (name:tag convention)
+- Network: if github is unreachable, retry through the VPS proxy
 
-## 详细参考
+## References
 
-- `CONTRIBUTING.md` — 完整开发流程（环境/风格/验证/catalog/PR）
-- 架构与协议细节见 `docs/`（`api.md`、`architecture.md`）
+- `CONTRIBUTING.md` — full development flow (setup / style / validation / catalog / PR)
+- `docs/` (`api.md`, `architecture.md`) — architecture and protocol details
