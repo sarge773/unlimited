@@ -46,7 +46,13 @@ describe('database runtime hardening', () => {
     expect(jmValue.toLowerCase()).toBe('wal');
   });
 
-  it('restricts the database file to the owner', () => {
+  // Windows does not enforce POSIX permission bits: fs.chmod and default file
+  // modes leave group/other read+write bits set, so the owner-only assertions
+  // below can never pass there. The restriction is only enforceable/testable on
+  // POSIX systems (issue #779).
+  const ownerOnlyModeAssertion = process.platform !== 'win32';
+
+  it.skipIf(!ownerOnlyModeAssertion)('restricts the database file to the owner', () => {
     const dbPath = tempDbPath();
     connectDb(dbPath);
 
@@ -55,7 +61,7 @@ describe('database runtime hardening', () => {
     expect(mode & 0o077).toBe(0);
   });
 
-  it('restricts the WAL sidecars once they exist', () => {
+  it.skipIf(!ownerOnlyModeAssertion)('restricts the WAL sidecars once they exist', () => {
     const dbPath = tempDbPath();
     const db = connectDb(dbPath);
     // Force a write so -wal/-shm are created, then reconnect to chmod them.
