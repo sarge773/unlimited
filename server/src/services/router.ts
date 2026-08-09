@@ -225,14 +225,19 @@ const rateLimitPenalties = new Map<number, { count: number; lastHit: number; pen
 
 // Penalty decays over time so models recover
 const PENALTY_PER_429 = 3;        // each 429 adds this many priority positions
+const PENALTY_PER_FAIL = 1;       // each non-limit upstream failure (5xx/timeout/empty stream)
 const MAX_PENALTY = 10;            // cap so a model doesn't sink forever
 const DECAY_INTERVAL_MS = 2 * 60 * 1000; // penalty decays every 2 minutes
 const DECAY_AMOUNT = 1;            // remove this much penalty per decay interval
 
 /**
- * Record a 429 for a model — increases its penalty so it sinks in priority.
+ * Record an upstream failure for a model — increases its penalty so it sinks in
+ * priority. Default weight is the LIGHT one for ordinary upstream failures
+ * (5xx/timeout/empty stream, +1); callers that know they saw a hard limit
+ * signal (429/402) pass the heavier weight — a quota limit is the stronger,
+ * longer-lived health cue.
  */
-export function recordRateLimitHit(modelDbId: number) {
+export function recordModelFailure(modelDbId: number, weight = PENALTY_PER_FAIL) {
   const existing = rateLimitPenalties.get(modelDbId);
   const now = Date.now();
   if (existing) {
@@ -240,10 +245,18 @@ export function recordRateLimitHit(modelDbId: number) {
     existing.penalty = Math.max(0, existing.penalty - decaySteps * DECAY_AMOUNT);
     existing.count++;
     existing.lastHit = now;
-    existing.penalty = Math.min(existing.penalty + PENALTY_PER_429, MAX_PENALTY);
+    existing.penalty = Math.min(existing.penalty + weight, MAX_PENALTY);
   } else {
-    rateLimitPenalties.set(modelDbId, { count: 1, lastHit: now, penalty: PENALTY_PER_429 });
+    rateLimitPenalties.set(modelDbId, { count: 1, lastHit: now, penalty: weight });
   }
+}
+
+/**
+ * Record a 429 for a model — heavier penalty (priority demotion) than ordinary
+ * failures, since a rate-limit signal is the strongest short-term health cue.
+ */
+export function recordRateLimitHit(modelDbId: number) {
+  recordModelFailure(modelDbId, PENALTY_PER_429);
 }
 
 /**
