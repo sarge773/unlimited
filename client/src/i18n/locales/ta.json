@@ -841,5 +841,14 @@
     "manualHint": "கருவியின் சொந்த அமைப்புகளில் உள்ளிட வேண்டிய அடிப்படை URL மற்றும் விசை.",
     "endpoint": "எண்ட்பாயிண்ட்",
     "documentation": "ஆவணங்கள்"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }

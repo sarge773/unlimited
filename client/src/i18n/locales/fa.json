@@ -841,5 +841,14 @@
     "manualHint": "نشانی پایه و کلید برای وارد کردن در تنظیمات خودِ ابزار.",
     "endpoint": "نقطه پایانی",
     "documentation": "مستندات"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }

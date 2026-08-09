@@ -841,5 +841,14 @@
     "manualHint": "Bazinis URL ir raktas, kuriuos reikia įvesti paties įrankio nustatymuose.",
     "endpoint": "Galinis taškas",
     "documentation": "Dokumentacija"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }

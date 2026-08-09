@@ -841,5 +841,14 @@
     "manualHint": "ટૂલની પોતાની સેટિંગ્સમાં દાખલ કરવા માટે બેઝ URL અને કી.",
     "endpoint": "એન્ડપોઇન્ટ",
     "documentation": "દસ્તાવેજીકરણ"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }

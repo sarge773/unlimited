@@ -841,5 +841,14 @@
     "manualHint": "సాధనం సొంత సెట్టింగ్‌లలో నమోదు చేయడానికి బేస్ URL మరియు కీ.",
     "endpoint": "ఎండ్‌పాయింట్",
     "documentation": "డాక్యుమెంటేషన్"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }

@@ -841,5 +841,14 @@
     "manualHint": "टूल की अपनी सेटिंग्स में डालने के लिए बेस URL और कुंजी।",
     "endpoint": "समापन बिंदु",
     "documentation": "दस्तावेज़ीकरण"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }

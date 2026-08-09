@@ -841,5 +841,14 @@
     "manualHint": "ਟੂਲ ਦੀਆਂ ਆਪਣੀਆਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਭਰਨ ਲਈ ਬੇਸ URL ਅਤੇ ਕੁੰਜੀ।",
     "endpoint": "ਐਂਡਪੁਆਇੰਟ",
     "documentation": "ਦਸਤਾਵੇਜ਼"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }

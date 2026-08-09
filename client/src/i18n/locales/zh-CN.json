@@ -841,5 +841,14 @@
     "manualHint": "在该工具的设置中输入基础 URL 和密钥。",
     "endpoint": "端点",
     "documentation": "文档"
+  },
+  "update": {
+    "available": "发现新版本",
+    "whatsNew": "v{version} 更新内容",
+    "publishedOn": "发布于 {date}",
+    "noNotes": "此版本未发布更新说明。",
+    "openRelease": "打开发布页",
+    "dismissVersion": "忽略此版本",
+    "dismiss": "忽略"
   }
 }

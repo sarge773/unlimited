@@ -841,5 +841,14 @@
     "manualHint": "ଟୁଲର ନିଜ ସେଟିଂସରେ ଦେବା ପାଇଁ ବେସ୍ URL ଏବଂ କୀ।",
     "endpoint": "ଏଣ୍ଡପଏଣ୍ଟ",
     "documentation": "ଡକ୍ୟୁମେଣ୍ଟେସନ୍"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }

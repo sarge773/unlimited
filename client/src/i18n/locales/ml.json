@@ -841,5 +841,14 @@
     "manualHint": "ഉപകരണത്തിന്റെ സ്വന്തം ക്രമീകരണങ്ങളിൽ നൽകാനുള്ള ബേസ് URL ഉം കീയും.",
     "endpoint": "എൻഡ്‌പോയിൻ്റ്",
     "documentation": "ഡോക്യുമെൻ്റേഷൻ"
+  },
+  "update": {
+    "available": "New version available",
+    "whatsNew": "What's new in v{version}",
+    "publishedOn": "Published {date}",
+    "noNotes": "No release notes were published for this version.",
+    "openRelease": "Open release page",
+    "dismissVersion": "Dismiss this version",
+    "dismiss": "Dismiss"
   }
 }
