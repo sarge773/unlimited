@@ -21,6 +21,11 @@ import {
 } from '../services/compression/config.js';
 import { z } from 'zod';
 import { getAppVersion } from '../lib/app-version.js';
+import {
+  UNIFIED_MAX_TOKENS_SETTING,
+  UNIFIED_MAX_TOKENS_AUTO,
+  unifiedMaxTokensCap,
+} from '../lib/sampling-params.js';
 
 export const settingsRouter = Router();
 
@@ -188,6 +193,45 @@ settingsRouter.delete('/url-tokens/:id', (req: Request, res: Response) => {
     return;
   }
   res.status(204).end();
+});
+
+// Get the unified output-token cap ('off' = disabled, 'auto' = 32768, or an
+// explicit integer). See lib/sampling-params.ts unifiedMaxTokensCap().
+settingsRouter.get('/output-limit', (_req: Request, res: Response) => {
+  const cap = unifiedMaxTokensCap();
+  const raw = getSetting(UNIFIED_MAX_TOKENS_SETTING) ?? 'off';
+  res.json({
+    mode: raw.trim().toLowerCase() === '' ? 'off' : raw.trim().toLowerCase(),
+    effectiveCap: cap,
+    autoValue: UNIFIED_MAX_TOKENS_AUTO,
+  });
+});
+
+const outputLimitPutSchema = z.object({
+  mode: z.union([
+    z.literal('off'),
+    z.literal('auto'),
+    z.number().int().min(1),
+  ]),
+});
+
+// Update the unified output-token cap. 'off' restores pass-through behaviour;
+// 'auto' clamps every request's max_tokens to UNIFIED_MAX_TOKENS_AUTO; an
+// integer clamps to that value. Takes effect on the next request.
+settingsRouter.put('/output-limit', (req: Request, res: Response) => {
+  const parsed = outputLimitPutSchema.safeParse(req.body);
+  if (!parsed.success) {
+    const detail = parsed.error.errors
+      .map(e => (e.path.length ? `${e.path.join('.')}: ${e.message}` : e.message))
+      .slice(0, 5)
+      .join(', ');
+    res.status(400).json({ error: { message: `Invalid output limit: ${detail}`, type: 'invalid_request_error' } });
+    return;
+  }
+  const mode = parsed.data.mode;
+  setSetting(UNIFIED_MAX_TOKENS_SETTING, mode === 'off' ? 'off' : String(mode));
+  const cap = unifiedMaxTokensCap();
+  res.json({ mode: String(mode), effectiveCap: cap, autoValue: UNIFIED_MAX_TOKENS_AUTO });
 });
 
 // Get the request guardrails (per-request token budget + failover circuit
