@@ -1968,10 +1968,16 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
             }))
             .filter(c => { try { JSON.parse(c.function.arguments); return c.function.name.length > 0; } catch { return false; } });
 
-          // Opt-in schema verdict. Safe here even on the streaming path: the
-          // commit point is held until the first meaningful content, so a
-          // tool-call turn has sent no bytes yet and can still fail over.
-          if (isToolArgumentValidationEnabled() && completedCalls.length > 0) {
+          // Opt-in schema verdict. `!headerSent` is the whole licence to throw
+          // here: the commit point is held until the first meaningful content,
+          // so the common tool-call turn (no prose before the call) has sent no
+          // bytes yet and can still fail over invisibly. A turn that already
+          // flushed prose is past the point of no return — the catch below
+          // would have to tear the SSE stream down with a `stream_error`, which
+          // is strictly worse for the client than forwarding a tool call the
+          // schema dislikes. Off-by-default or not, this check must never turn
+          // a served answer into a broken one.
+          if (isToolArgumentValidationEnabled() && !headerSent && completedCalls.length > 0) {
             const invalid = invalidToolCallReasons(completedCalls, schemas);
             if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
           }
@@ -2179,10 +2185,36 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           }
         }
 
+        // Repair double-encoded tool arguments against the request's tool
+        // schemas (e.g. GLM emitting an array parameter as a JSON string),
+        // so strict clients don't reject the call. Schema-gated — a true
+        // string parameter is never touched. See lib/tool-args.ts.
+        //
+        // Deliberately BEFORE the success bookkeeping below: the opt-in schema
+        // verdict that follows can still fail this attempt over, and crediting
+        // recordUpstreamSuccess / rememberReasoning / setStickyModel to an
+        // attempt we are about to discard would bill a model that never served
+        // the turn and pin the session to it for the next one.
+        if (respMsg?.tool_calls?.length) {
+          const schemas = toolSchemaMap(tools);
+          for (const tc of respMsg.tool_calls) {
+            if (tc?.function?.arguments != null) {
+              tc.function.arguments = repairToolArguments(tc.function.arguments, schemas.get(tc.function.name));
+            }
+          }
+          // Whatever the repair could not fix is still broken. Opt-in, and
+          // thrown before anything is written, so failover is invisible.
+          if (isToolArgumentValidationEnabled()) {
+            const invalid = invalidToolCallReasons(respMsg.tool_calls, schemas);
+            if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
+          }
+        }
+
         // Usage fallback: providers that omit `usage` used to be logged as 0
         // tokens, silently undercounting analytics and the rate-limit ledger.
         // Fall back to the same chars/4 estimate the streaming path uses (tool
-        // arguments included, mirroring the stream accounting).
+        // arguments included, mirroring the stream accounting) — counted after
+        // the repair above, so it measures the bytes actually sent.
         const respToolArgChars = (respMsg?.tool_calls ?? []).reduce((n, tc) => n + (tc?.function?.arguments?.length ?? 0), 0);
         const promptTokens = result.usage?.prompt_tokens ?? estimatedInputTokens;
         const completionTokens = result.usage?.completion_tokens
@@ -2206,24 +2238,6 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
 
         res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
         setFallbackHeaders(res, attempt, attemptLog);
-        // Repair double-encoded tool arguments against the request's tool
-        // schemas (e.g. GLM emitting an array parameter as a JSON string),
-        // so strict clients don't reject the call. Schema-gated — a true
-        // string parameter is never touched. See lib/tool-args.ts.
-        if (respMsg?.tool_calls?.length) {
-          const schemas = toolSchemaMap(tools);
-          for (const tc of respMsg.tool_calls) {
-            if (tc?.function?.arguments != null) {
-              tc.function.arguments = repairToolArguments(tc.function.arguments, schemas.get(tc.function.name));
-            }
-          }
-          // Whatever the repair could not fix is still broken. Opt-in, and
-          // thrown before anything is written, so failover is invisible.
-          if (isToolArgumentValidationEnabled()) {
-            const invalid = invalidToolCallReasons(respMsg.tool_calls, schemas);
-            if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
-          }
-        }
         // Normalize array-shaped message.content to a string on the way out (#166).
         const outboundBody = sanitizeResponse(normalizeOutboundContent(result));
         res.setHeader('X-FreeLLM-Cache', cacheKey ? 'MISS' : 'OFF');

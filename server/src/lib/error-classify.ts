@@ -262,6 +262,14 @@ export function isProviderDegradedError(err: any): boolean {
 // unavailable model would each condemn a healthy platform for the whole request.
 // A message check therefore only runs when there is no status to trust.
 export function isProviderLevelError(err: any): boolean {
+  // A failure the thrower explicitly scoped to the MODEL (`skipModelForRequest`
+  // — an ignored response_format, invalid tool arguments) is never provider
+  // health, and its message quotes caller- and model-supplied text: a tool
+  // named `set_timeout`, or an Ajv complaint about an instance path `/timeout`,
+  // would otherwise trip the substring checks below and condemn a healthy
+  // platform for the whole request. The structured marker is authoritative;
+  // the text is not.
+  if (err?.skipModelForRequest === true) return false;
   const status = typeof err?.status === 'number' ? err.status : 0;
   if (status >= 500) return true;
   // A DEGRADED hosted deployment (NVIDIA NIM, #522) is provider health wearing

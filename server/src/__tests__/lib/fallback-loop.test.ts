@@ -39,6 +39,7 @@ import {
   isProviderLevelError,
   newClientAbortError,
 } from '../../lib/error-classify.js';
+import { invalidToolArgumentsError } from '../../lib/tool-validate.js';
 import { getAllPenalties } from '../../services/router.js';
 import type { RouteResult } from '../../services/router.js';
 
@@ -598,6 +599,25 @@ describe('isProviderLevelError (#788: the PROVIDER is sick, not this key)', () =
     // A vanished client says nothing about provider health.
     expect(isProviderLevelError(newClientAbortError())).toBe(false);
   });
+
+  it('never condemns a platform for MODEL behavior, however the message reads', () => {
+    // These messages quote caller- and model-supplied text: a tool called
+    // `set_timeout`, or an Ajv complaint about the instance path `/timeout`,
+    // puts a timeout marker in the sentence without a timeout having happened.
+    // `skipModelForRequest` is the structured truth and outranks the text.
+    expect(isProviderLevelError(invalidToolArgumentsError(
+      'alpha alpha-big',
+      ['set_timeout: /timeout must be number'],
+    ))).toBe(false);
+    expect(isProviderLevelError(invalidToolArgumentsError(
+      'alpha alpha-big',
+      ['run_query: /mode must be equal to one of the allowed values (degraded)'],
+    ))).toBe(false);
+    expect(isProviderLevelError(Object.assign(
+      new Error('alpha alpha-big ignored response_format (returned non-JSON despite json_object)'),
+      { skipBench: true, skipModelForRequest: true },
+    ))).toBe(false);
+  });
 });
 
 describe('runFallbackLoop: a provider-level failure skips the whole platform (#788)', () => {
@@ -660,6 +680,27 @@ describe('runFallbackLoop: a provider-level failure skips the whole platform (#7
 
     expect((dispatch.mock.calls[1][0] as RouteResult).platform).toBe('alpha');
     expect(state.skipPlatforms.size).toBe(0);
+  });
+
+  it('invalid tool arguments rule out the MODEL, never the platform', async () => {
+    // The provider served the turn perfectly; the model wrote a bad call. The
+    // sibling key would write the same one (skipModelForRequest), but alpha's
+    // OTHER model is still a fine next hop — skipping the platform here would
+    // strand it, and the tool name in the message carries a timeout marker
+    // precisely to prove the text does not drive the decision.
+    const state = newFallbackState();
+    const dispatch = vi.fn()
+      .mockRejectedValueOnce(invalidToolArgumentsError('alpha alpha-big', ['set_timeout: /timeout must be number']))
+      .mockResolvedValueOnce('done');
+
+    await runFallbackLoop(hooksSkeleton({ maxRetries: 20, state, route: miniRouter(state), dispatch }));
+
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    const second = dispatch.mock.calls[1][0] as RouteResult;
+    expect(second.platform).toBe('alpha');
+    expect(second.modelId).toBe('alpha-small');   // not the sibling key of alpha-big
+    expect(state.skipPlatforms.size).toBe(0);
+    expect(state.skipModels.has(788_001)).toBe(true);
   });
 
   it('a timeout with no HTTP status rules the platform out too', async () => {
