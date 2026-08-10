@@ -32,6 +32,11 @@ export interface ServerHandle {
 
 export async function startServer(opts: StartOptions): Promise<ServerHandle> {
   process.env.CLIENT_DIST = opts.clientDist;
+  // #786: the desktop build has no user-set password (the machine user's
+  // password is random and never shown), so password re-verification for
+  // key reveal / export would lock the user out. Mark the process as the
+  // desktop embedder; the server then skips re-auth for these endpoints.
+  process.env.FREEAPI_DESKTOP = '1';
   initDb(opts.dbPath);
   const app = createApp();
   const { server, port } = await listenWithScan(app, opts.host, opts.preferredPort);

@@ -468,10 +468,16 @@ keysRouter.get('/export', (req: Request, res: Response) => {
 // session alone is not enough, the password has to be re-entered.
 keysRouter.post('/:id/reveal', (req: Request, res: Response) => {
   const user = (req as any).user;
-  const password = req.headers['x-reauth-password'] as string | undefined;
-  if (!password || !verifyCredentials(user.email, password)) {
-    res.status(403).json({ error: { message: 'Password verification required to reveal a key', type: 'authentication_error' } });
-    return;
+  // #786: the desktop build has no user-set password, so re-verification
+  // would lock the user out of reading their own keys. The embedder marks
+  // the process (desktop/src/server-host.ts) and we skip re-auth there.
+  const isDesktop = process.env.FREEAPI_DESKTOP === '1';
+  if (!isDesktop) {
+    const password = req.headers['x-reauth-password'] as string | undefined;
+    if (!password || !verifyCredentials(user.email, password)) {
+      res.status(403).json({ error: { message: 'Password verification required to reveal a key', type: 'authentication_error' } });
+      return;
+    }
   }
 
   const id = parseInt(req.params.id as string, 10);
