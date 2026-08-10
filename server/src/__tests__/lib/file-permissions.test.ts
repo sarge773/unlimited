@@ -96,7 +96,12 @@ describe('restrictToOwner on Windows', () => {
     restrictToOwner(target, { platform: 'win32', execFileSync: exec });
 
     for (const call of exec.calls) {
-      expect(path.isAbsolute(call.file)).toBe(true);
+      // path.win32, not path.isAbsolute: the value under test is a Windows path,
+      // and the POSIX implementation this file runs under on CI reads
+      // "C:\\Windows/System32/whoami.exe" as relative because it has no leading
+      // slash. Judging a Windows path by POSIX rules fails the test on the one
+      // platform that always runs it.
+      expect(path.win32.isAbsolute(call.file)).toBe(true);
       expect(call.file.replace(/\\/g, '/').toLowerCase()).toContain('/system32/');
     }
   });
