@@ -159,6 +159,8 @@
     "notGitInstall": "Nwụnye a enweghị ozi commit.",
     "checkFailed": "Enweghị ike ịlele mmelite.",
     "contactsGithub": "A na-eji aka eme nyocha ndị a, ha na-akpọtụrụ GitHub.",
+    "autoUpdateCheck": "Nyocha mmelite akpaaka",
+    "autoUpdateCheckHelp": "Ọ na-enyocha GitHub otu ugboro n'ụbọchị maka ntọhapụ ọhụrụ ma gosi ncheta. A gbanyụrụ ya na ndabara.",
     "openReleases": "Mepee GitHub Releases",
     "restartAfterUpdate": "Malitegharịa FreeLLMAPI mgbe build ahụ gwụchara."
   },

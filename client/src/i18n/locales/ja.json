@@ -159,6 +159,8 @@
     "notGitInstall": "このインストールにはコミット情報が含まれていません。",
     "checkFailed": "アップデートを確認できませんでした。",
     "contactsGithub": "確認は手動で行われ、GitHubに接続します。",
+    "autoUpdateCheck": "自動アップデートチェック",
+    "autoUpdateCheckHelp": "1日1回、新しいリリースがないかGitHubを確認し、通知を表示します。既定では無効です。",
     "openReleases": "GitHub Releasesを開く",
     "restartAfterUpdate": "ビルド完了後にFreeLLMAPIを再起動してください。"
   },

@@ -159,6 +159,8 @@
     "notGitInstall": "Wannan shigarwar ba ta ƙunshi bayanan commit ba.",
     "checkFailed": "Ba a iya bincika sabuntawa ba.",
     "contactsGithub": "Ana yin dubawa da hannu kuma ana tuntuɓar GitHub.",
+    "autoUpdateCheck": "Duba sabuntawa ta atomatik",
+    "autoUpdateCheckHelp": "Yana duba GitHub sau ɗaya a rana don sabon fitowa kuma yana nuna tunatarwa. A kashe ta tsohuwa.",
     "openReleases": "Buɗe sakin GitHub",
     "restartAfterUpdate": "Sake kunna FreeLLMAPI bayan an gama build ɗin."
   },

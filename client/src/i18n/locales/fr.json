@@ -159,6 +159,8 @@
     "notGitInstall": "Cette installation ne contient aucune information de commit.",
     "checkFailed": "Impossible de rechercher les mises à jour.",
     "contactsGithub": "Les vérifications sont effectuées manuellement et contactent GitHub.",
+    "autoUpdateCheck": "Vérification automatique des mises à jour",
+    "autoUpdateCheckHelp": "Consulte GitHub une fois par jour pour détecter une nouvelle version et affiche un rappel. Désactivé par défaut.",
     "openReleases": "Ouvrir les versions GitHub",
     "restartAfterUpdate": "Redémarrez FreeLLMAPI une fois le build terminé."
   },

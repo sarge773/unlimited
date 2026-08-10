@@ -159,6 +159,8 @@
     "notGitInstall": "Această instalare nu include informații despre commit.",
     "checkFailed": "Nu s-au putut verifica actualizările.",
     "contactsGithub": "Verificările sunt inițiate manual și contactează GitHub.",
+    "autoUpdateCheck": "Verificare automată a actualizărilor",
+    "autoUpdateCheckHelp": "Verifică GitHub o dată pe zi dacă există o versiune nouă și afișează o notificare. Dezactivat implicit.",
     "openReleases": "Deschide versiunile GitHub",
     "restartAfterUpdate": "Repornește FreeLLMAPI după finalizarea compilării."
   },

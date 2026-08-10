@@ -159,6 +159,8 @@
     "notGitInstall": "ဤထည့်သွင်းမှုတွင် commit အချက်အလက် မပါဝင်ပါ။",
     "checkFailed": "အပ်ဒိတ်များကို စစ်ဆေး၍ မရပါ။",
     "contactsGithub": "စစ်ဆေးမှုများကို ကိုယ်တိုင်လုပ်ဆောင်ရပြီး GitHub သို့ ဆက်သွယ်သည်။",
+    "autoUpdateCheck": "အလိုအလျောက် အပ်ဒိတ်စစ်ဆေးမှု",
+    "autoUpdateCheckHelp": "တစ်ရက်လျှင် တစ်ကြိမ် ဗားရှင်းအသစ်အတွက် GitHub ကို စစ်ဆေးပြီး သတိပေးချက် ပြသသည်။ မူရင်းအတိုင်း ပိတ်ထားသည်။",
     "openReleases": "GitHub Releases ကို ဖွင့်ရန်",
     "restartAfterUpdate": "build ပြီးဆုံးပြီးနောက် FreeLLMAPI ကို ပြန်လည်စတင်ပါ။"
   },

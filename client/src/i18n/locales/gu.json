@@ -159,6 +159,8 @@
     "notGitInstall": "આ ઇન્સ્ટોલેશનમાં કમિટની માહિતી શામેલ નથી.",
     "checkFailed": "અપડેટ્સ તપાસી શકાયા નથી.",
     "contactsGithub": "તપાસો મેન્યુઅલી કરવામાં આવે છે અને GitHubનો સંપર્ક કરે છે.",
+    "autoUpdateCheck": "આપમેળે અપડેટ તપાસ",
+    "autoUpdateCheckHelp": "દિવસમાં એક વાર નવા રિલીઝ માટે GitHub તપાસે છે અને રિમાઇન્ડર બતાવે છે. મૂળભૂત રીતે બંધ.",
     "openReleases": "GitHub રિલીઝ ખોલો",
     "restartAfterUpdate": "બિલ્ડ પૂર્ણ થયા પછી FreeLLMAPI ફરી શરૂ કરો."
   },

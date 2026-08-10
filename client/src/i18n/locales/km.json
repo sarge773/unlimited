@@ -159,6 +159,8 @@
     "notGitInstall": "ការដំឡើងនេះមិនមានព័ត៌មាន commit ទេ។",
     "checkFailed": "មិនអាចពិនិត្យរកការអាប់ដេតបានទេ។",
     "contactsGithub": "ការពិនិត្យធ្វើឡើងដោយដៃ និងភ្ជាប់ទៅ GitHub។",
+    "autoUpdateCheck": "ការពិនិត្យអាប់ដេតដោយស្វ័យប្រវត្តិ",
+    "autoUpdateCheckHelp": "ពិនិត្យ GitHub ម្ដងក្នុងមួយថ្ងៃរកមើលការចេញផ្សាយថ្មី ហើយបង្ហាញការរំលឹក។ បិទតាមលំនាំដើម។",
     "openReleases": "បើក GitHub Releases",
     "restartAfterUpdate": "ចាប់ផ្តើម FreeLLMAPI ឡើងវិញ បន្ទាប់ពីការបង្កើតបានបញ្ចប់។"
   },

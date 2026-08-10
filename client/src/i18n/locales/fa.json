@@ -159,6 +159,8 @@
     "notGitInstall": "این نصب شامل اطلاعات commit نیست.",
     "checkFailed": "بررسی به‌روزرسانی‌ها ممکن نبود.",
     "contactsGithub": "بررسی‌ها دستی هستند و با GitHub ارتباط برقرار می‌کنند.",
+    "autoUpdateCheck": "بررسی خودکار به‌روزرسانی",
+    "autoUpdateCheckHelp": "روزی یک بار GitHub را برای انتشار نسخهٔ جدید بررسی می‌کند و یادآوری نشان می‌دهد. به‌طور پیش‌فرض خاموش است.",
     "openReleases": "باز کردن نسخه‌های منتشرشده در GitHub",
     "restartAfterUpdate": "پس از تکمیل بیلد، FreeLLMAPI را راه‌اندازی مجدد کنید."
   },

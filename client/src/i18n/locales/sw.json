@@ -159,6 +159,8 @@
     "notGitInstall": "Usakinishaji huu hauna taarifa za commit.",
     "checkFailed": "Imeshindikana kuangalia masasisho.",
     "contactsGithub": "Ukaguzi hufanywa mwenyewe na huwasiliana na GitHub.",
+    "autoUpdateCheck": "Ukaguzi wa masasisho otomatiki",
+    "autoUpdateCheckHelp": "Hukagua GitHub mara moja kwa siku kwa toleo jipya na kuonyesha ukumbusho. Imezimwa kwa chaguo-msingi.",
     "openReleases": "Fungua Matoleo ya GitHub",
     "restartAfterUpdate": "Anzisha upya FreeLLMAPI baada ya ujenzi kukamilika."
   },

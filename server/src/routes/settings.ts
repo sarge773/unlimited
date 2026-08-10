@@ -7,6 +7,7 @@ import { isUnifyEnabled, setUnifyEnabled, getUnifyOverrides, setUnifyOverrides, 
 import { getClaudeModelMap, setClaudeModelMap } from '../services/anthropic-map.js';
 import { getGeminiModelMap, setGeminiModelMap } from '../services/gemini-map.js';
 import { getOllamaEmulationMode } from './ollama.js';
+import { UPDATE_CHECK_SETTING, isAutoUpdateCheckEnabled } from './update.js';
 import { listUrlTokens, mintUrlToken, revokeUrlToken } from '../services/url-tokens.js';
 import {
   getRequestMaxTokensBudget,
@@ -36,6 +37,31 @@ export const settingsRouter = Router();
 // dashboard then shows nothing rather than a number that isn't the release.
 settingsRouter.get('/version', (_req: Request, res: Response) => {
   res.json({ version: getAppVersion() });
+});
+
+// Opt-in for the dashboard's automatic release reminder (#782). Off unless the
+// operator turns it on: a self-hosted install must not contact GitHub on page
+// load on behalf of someone who never asked it to. The manual checker in
+// Settings is a separate surface and is unaffected by this flag.
+const updateCheckSchema = z.object({ enabled: z.boolean() }).strict();
+
+settingsRouter.get('/update-check', (_req: Request, res: Response) => {
+  res.json({ enabled: isAutoUpdateCheckEnabled() });
+});
+
+settingsRouter.put('/update-check', (req: Request, res: Response) => {
+  const parsed = updateCheckSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: {
+        message: `Invalid update check setting: ${parsed.error.errors.map(error => error.message).join(', ')}`,
+        type: 'invalid_request_error',
+      },
+    });
+    return;
+  }
+  setSetting(UPDATE_CHECK_SETTING, parsed.data.enabled ? '1' : '0');
+  res.json({ enabled: isAutoUpdateCheckEnabled() });
 });
 
 settingsRouter.get('/compression', (_req: Request, res: Response) => {

@@ -159,6 +159,8 @@
     "notGitInstall": "Tämä asennus ei sisällä commit-tietoja.",
     "checkFailed": "Päivitysten tarkistaminen epäonnistui.",
     "contactsGithub": "Tarkistukset tehdään manuaalisesti ja ne ottavat yhteyden GitHubiin.",
+    "autoUpdateCheck": "Automaattinen päivitystarkistus",
+    "autoUpdateCheckHelp": "Tarkistaa GitHubista kerran päivässä, onko uutta julkaisua, ja näyttää muistutuksen. Oletuksena pois päältä.",
     "openReleases": "Avaa GitHub-julkaisut",
     "restartAfterUpdate": "Käynnistä FreeLLMAPI uudelleen koonnin valmistuttua."
   },

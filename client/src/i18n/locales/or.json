@@ -159,6 +159,8 @@
     "notGitInstall": "ଏହି ଇନ୍‌ଷ୍ଟଲେସନ୍‌ରେ commit ସୂଚନା ନାହିଁ।",
     "checkFailed": "ଅପଡେଟ୍ ଯାଞ୍ଚ କରାଯାଇପାରିଲା ନାହିଁ।",
     "contactsGithub": "ଯାଞ୍ଚଗୁଡ଼ିକ ମାନୁଆଲ୍ ଭାବେ କରାଯାଏ ଏବଂ GitHub ସହିତ ସଂଯୋଗ କରେ।",
+    "autoUpdateCheck": "ସ୍ୱୟଂଚାଳିତ ଅପଡେଟ୍ ଯାଞ୍ଚ",
+    "autoUpdateCheckHelp": "ଦିନକୁ ଥରେ ନୂଆ ରିଲିଜ୍ ପାଇଁ GitHub ଯାଞ୍ଚ କରେ ଏବଂ ଏକ ସ୍ମାରକ ଦେଖାଏ। ଡିଫଲ୍ଟ ଭାବେ ବନ୍ଦ।",
     "openReleases": "GitHub Releases ଖୋଲନ୍ତୁ",
     "restartAfterUpdate": "ବିଲ୍ଡ ସମ୍ପୂର୍ଣ୍ଣ ହେବା ପରେ FreeLLMAPI ପୁନଃ ଚାଲୁ କରନ୍ତୁ।"
   },

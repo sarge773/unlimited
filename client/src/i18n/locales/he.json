@@ -159,6 +159,8 @@
     "notGitInstall": "התקנה זו אינה כוללת מידע על קומיטים.",
     "checkFailed": "לא ניתן היה לבדוק אם קיימים עדכונים.",
     "contactsGithub": "הבדיקות מתבצעות ידנית ויוצרות קשר עם GitHub.",
+    "autoUpdateCheck": "בדיקת עדכונים אוטומטית",
+    "autoUpdateCheckHelp": "בודקת ב-GitHub פעם ביום אם יצאה גרסה חדשה ומציגה תזכורת. כבויה כברירת מחדל.",
     "openReleases": "פתיחת מהדורות GitHub",
     "restartAfterUpdate": "הפעל מחדש את FreeLLMAPI לאחר השלמת הבנייה."
   },

@@ -159,6 +159,8 @@
     "notGitInstall": "Šiame diegime nėra informacijos apie Git įrašus.",
     "checkFailed": "Nepavyko patikrinti, ar yra naujinių.",
     "contactsGithub": "Tikrinimas atliekamas rankiniu būdu ir susisiekiama su GitHub.",
+    "autoUpdateCheck": "Automatinis atnaujinimų tikrinimas",
+    "autoUpdateCheckHelp": "Kartą per dieną patikrina „GitHub“, ar yra nauja laida, ir parodo priminimą. Pagal numatytuosius nustatymus išjungta.",
     "openReleases": "Atverti GitHub leidimus",
     "restartAfterUpdate": "Baigę komponuoti paleiskite FreeLLMAPI iš naujo."
   },

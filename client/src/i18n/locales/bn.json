@@ -159,6 +159,8 @@
     "notGitInstall": "এই ইনস্টলেশনে কমিটের তথ্য নেই।",
     "checkFailed": "আপডেট পরীক্ষা করা যায়নি।",
     "contactsGithub": "পরীক্ষাগুলি ম্যানুয়ালি করা হয় এবং GitHub-এর সঙ্গে যোগাযোগ করে।",
+    "autoUpdateCheck": "স্বয়ংক্রিয় আপডেট পরীক্ষা",
+    "autoUpdateCheckHelp": "দিনে একবার নতুন রিলিজের জন্য GitHub পরীক্ষা করে এবং একটি অনুস্মারক দেখায়। ডিফল্টভাবে বন্ধ।",
     "openReleases": "GitHub রিলিজ খুলুন",
     "restartAfterUpdate": "বিল্ড সম্পূর্ণ হওয়ার পর FreeLLMAPI পুনরায় চালু করুন।"
   },

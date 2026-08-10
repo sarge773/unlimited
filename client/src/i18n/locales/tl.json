@@ -159,6 +159,8 @@
     "notGitInstall": "Walang impormasyon ng commit ang installation na ito.",
     "checkFailed": "Hindi masuri kung may mga update.",
     "contactsGithub": "Manu-mano ang mga pagsusuri at kumokonekta ang mga ito sa GitHub.",
+    "autoUpdateCheck": "Awtomatikong pagsusuri ng update",
+    "autoUpdateCheckHelp": "Sinusuri ang GitHub minsan sa isang araw para sa bagong release at nagpapakita ng paalala. Naka-off bilang default.",
     "openReleases": "Buksan ang GitHub Releases",
     "restartAfterUpdate": "I-restart ang FreeLLMAPI kapag natapos ang build."
   },

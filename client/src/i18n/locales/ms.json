@@ -159,6 +159,8 @@
     "notGitInstall": "Pemasangan ini tidak menyertakan maklumat komit.",
     "checkFailed": "Tidak dapat menyemak kemas kini.",
     "contactsGithub": "Semakan dijalankan secara manual dan menghubungi GitHub.",
+    "autoUpdateCheck": "Semakan kemas kini automatik",
+    "autoUpdateCheckHelp": "Menyemak GitHub sekali sehari untuk keluaran baharu dan memaparkan peringatan. Dimatikan secara lalai.",
     "openReleases": "Buka Keluaran GitHub",
     "restartAfterUpdate": "Mulakan semula FreeLLMAPI selepas binaan selesai."
   },

@@ -159,6 +159,8 @@
     "notGitInstall": "Bu kurulum commit bilgisi içermiyor.",
     "checkFailed": "Güncellemeler denetlenemedi.",
     "contactsGithub": "Denetimler elle yapılır ve GitHub ile iletişim kurar.",
+    "autoUpdateCheck": "Otomatik güncelleme denetimi",
+    "autoUpdateCheckHelp": "Yeni bir sürüm için günde bir kez GitHub'ı denetler ve bir hatırlatma gösterir. Varsayılan olarak kapalıdır.",
     "openReleases": "GitHub Sürümlerini Aç",
     "restartAfterUpdate": "Derleme tamamlandıktan sonra FreeLLMAPI'yi yeniden başlatın."
   },

@@ -159,6 +159,8 @@
     "notGitInstall": "Deze installatie bevat geen commitinformatie.",
     "checkFailed": "Kan niet controleren op updates.",
     "contactsGithub": "Controles worden handmatig uitgevoerd en maken contact met GitHub.",
+    "autoUpdateCheck": "Automatische updatecontrole",
+    "autoUpdateCheckHelp": "Controleert GitHub eenmaal per dag op een nieuwe release en toont een herinnering. Standaard uitgeschakeld.",
     "openReleases": "GitHub Releases openen",
     "restartAfterUpdate": "Start FreeLLMAPI opnieuw nadat de build is voltooid."
   },

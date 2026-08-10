@@ -159,6 +159,8 @@
     "notGitInstall": "Ova instalacija ne sadrži informacije o commitovima.",
     "checkFailed": "Nije moguće provjeriti ažuriranja.",
     "contactsGithub": "Provjere se pokreću ručno i kontaktiraju GitHub.",
+    "autoUpdateCheck": "Automatska provjera ažuriranja",
+    "autoUpdateCheckHelp": "Jednom dnevno provjerava GitHub za novo izdanje i prikazuje podsjetnik. Prema zadanome isključeno.",
     "openReleases": "Otvori izdanja na GitHubu",
     "restartAfterUpdate": "Ponovno pokrenite FreeLLMAPI nakon dovršetka izgradnje."
   },

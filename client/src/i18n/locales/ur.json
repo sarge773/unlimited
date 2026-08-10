@@ -159,6 +159,8 @@
     "notGitInstall": "اس انسٹالیشن میں commit کی معلومات شامل نہیں ہیں۔",
     "checkFailed": "اپ ڈیٹس کی جانچ نہیں ہو سکی۔",
     "contactsGithub": "جانچ دستی طور پر کی جاتی ہے اور GitHub سے رابطہ کرتی ہے۔",
+    "autoUpdateCheck": "خودکار اپ ڈیٹ جانچ",
+    "autoUpdateCheckHelp": "دن میں ایک بار نئی ریلیز کے لیے GitHub کی جانچ کرتا ہے اور یاد دہانی دکھاتا ہے۔ بطور ڈیفالٹ بند ہے۔",
     "openReleases": "GitHub ریلیزز کھولیں",
     "restartAfterUpdate": "بلڈ مکمل ہونے کے بعد FreeLLMAPI کو دوبارہ شروع کریں۔"
   },

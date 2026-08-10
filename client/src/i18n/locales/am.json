@@ -159,6 +159,8 @@
     "notGitInstall": "ይህ ጭነት የcommit መረጃን አያካትትም።",
     "checkFailed": "ዝማኔዎችን መፈተሽ አልተቻለም።",
     "contactsGithub": "ፍተሻዎች በእጅ የሚከናወኑ ሲሆን GitHubን ያገናኛሉ።",
+    "autoUpdateCheck": "ራስ-ሰር የዝማኔ ፍተሻ",
+    "autoUpdateCheckHelp": "በቀን አንድ ጊዜ ለአዲስ ልቀት GitHubን ይፈትሻል እና ማስታወሻ ያሳያል። በነባሪነት ጠፍቷል።",
     "openReleases": "የGitHub ልቀቶችን ክፈት",
     "restartAfterUpdate": "ግንባታው ከተጠናቀቀ በኋላ FreeLLMAPIን እንደገና ያስጀምሩ።"
   },

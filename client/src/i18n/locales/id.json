@@ -159,6 +159,8 @@
     "notGitInstall": "Instalasi ini tidak menyertakan informasi commit.",
     "checkFailed": "Tidak dapat memeriksa pembaruan.",
     "contactsGithub": "Pemeriksaan dilakukan secara manual dan menghubungi GitHub.",
+    "autoUpdateCheck": "Pemeriksaan pembaruan otomatis",
+    "autoUpdateCheckHelp": "Memeriksa GitHub sekali sehari untuk rilis baru dan menampilkan pengingat. Nonaktif secara bawaan.",
     "openReleases": "Buka Rilis GitHub",
     "restartAfterUpdate": "Mulai ulang FreeLLMAPI setelah proses build selesai."
   },

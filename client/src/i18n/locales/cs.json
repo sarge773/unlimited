@@ -159,6 +159,8 @@
     "notGitInstall": "Tato instalace neobsahuje informace o commitu.",
     "checkFailed": "Aktualizace se nepodařilo zkontrolovat.",
     "contactsGithub": "Kontroly se spouštějí ručně a kontaktují GitHub.",
+    "autoUpdateCheck": "Automatická kontrola aktualizací",
+    "autoUpdateCheckHelp": "Jednou denně zkontroluje na GitHubu novou verzi a zobrazí připomenutí. Ve výchozím nastavení vypnuto.",
     "openReleases": "Otevřít vydání na GitHubu",
     "restartAfterUpdate": "Po dokončení sestavení restartujte FreeLLMAPI."
   },

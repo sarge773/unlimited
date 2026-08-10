@@ -159,6 +159,8 @@
     "notGitInstall": "Bản cài đặt này không có thông tin commit.",
     "checkFailed": "Không thể kiểm tra bản cập nhật.",
     "contactsGithub": "Việc kiểm tra được thực hiện thủ công và có kết nối với GitHub.",
+    "autoUpdateCheck": "Tự động kiểm tra cập nhật",
+    "autoUpdateCheckHelp": "Kiểm tra GitHub mỗi ngày một lần để tìm bản phát hành mới và hiển thị lời nhắc. Mặc định tắt.",
     "openReleases": "Mở GitHub Releases",
     "restartAfterUpdate": "Khởi động lại FreeLLMAPI sau khi hoàn tất bản dựng."
   },

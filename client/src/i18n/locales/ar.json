@@ -159,6 +159,8 @@
     "notGitInstall": "لا يتضمن هذا التثبيت معلومات الالتزام.",
     "checkFailed": "تعذر التحقق من وجود تحديثات.",
     "contactsGithub": "تُجرى عمليات التحقق يدويًا وتتصل بـ GitHub.",
+    "autoUpdateCheck": "التحقق التلقائي من التحديثات",
+    "autoUpdateCheckHelp": "يتحقق من GitHub مرة واحدة يوميًا بحثًا عن إصدار جديد ويعرض تذكيرًا. مُعطَّل افتراضيًا.",
     "openReleases": "فتح إصدارات GitHub",
     "restartAfterUpdate": "أعد تشغيل FreeLLMAPI بعد اكتمال البنية."
   },

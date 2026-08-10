@@ -159,6 +159,8 @@
     "notGitInstall": "Den här installationen innehåller ingen commit-information.",
     "checkFailed": "Det gick inte att söka efter uppdateringar.",
     "contactsGithub": "Kontroller görs manuellt och kontaktar GitHub.",
+    "autoUpdateCheck": "Automatisk uppdateringskontroll",
+    "autoUpdateCheckHelp": "Kontrollerar GitHub en gång om dagen efter en ny version och visar en påminnelse. Av som standard.",
     "openReleases": "Öppna GitHub Releases",
     "restartAfterUpdate": "Starta om FreeLLMAPI när bygget är klart."
   },

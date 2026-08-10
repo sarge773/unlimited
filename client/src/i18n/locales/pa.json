@@ -159,6 +159,8 @@
     "notGitInstall": "ਇਸ ਇੰਸਟਾਲੇਸ਼ਨ ਵਿੱਚ commit ਜਾਣਕਾਰੀ ਸ਼ਾਮਲ ਨਹੀਂ ਹੈ।",
     "checkFailed": "ਅੱਪਡੇਟਾਂ ਦੀ ਜਾਂਚ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕੀ।",
     "contactsGithub": "ਜਾਂਚਾਂ ਹੱਥੀਂ ਚਲਾਈਆਂ ਜਾਂਦੀਆਂ ਹਨ ਅਤੇ GitHub ਨਾਲ ਸੰਪਰਕ ਕਰਦੀਆਂ ਹਨ।",
+    "autoUpdateCheck": "ਆਪਣੇ-ਆਪ ਅੱਪਡੇਟ ਜਾਂਚ",
+    "autoUpdateCheckHelp": "ਦਿਨ ਵਿੱਚ ਇੱਕ ਵਾਰ ਨਵੀਂ ਰਿਲੀਜ਼ ਲਈ GitHub ਦੀ ਜਾਂਚ ਕਰਦਾ ਹੈ ਅਤੇ ਯਾਦ-ਦਹਾਨੀ ਦਿਖਾਉਂਦਾ ਹੈ। ਮੂਲ ਰੂਪ ਵਿੱਚ ਬੰਦ।",
     "openReleases": "GitHub Releases ਖੋਲ੍ਹੋ",
     "restartAfterUpdate": "ਬਿਲਡ ਪੂਰਾ ਹੋਣ ਤੋਂ ਬਾਅਦ FreeLLMAPI ਨੂੰ ਮੁੜ ਚਾਲੂ ਕਰੋ।"
   },
