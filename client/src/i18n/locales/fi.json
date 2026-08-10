@@ -517,7 +517,15 @@
     "cpCreate": "Luo profiili",
     "cpRotate": "Vaihda avain",
     "cpKeyOnce": "Kopioi tämä avain nyt — sitä ei näytetä uudelleen.",
-    "cpEnabledAria": "Profiili käytössä"
+    "cpEnabledAria": "Profiili käytössä",
+    "selectKey": "Valitse tämä avain",
+    "bulkSelected": "{count} valittu",
+    "bulkEnable": "Ota kaikki käyttöön",
+    "bulkDisable": "Poista kaikki käytöstä",
+    "bulkDelete": "Poista kaikki",
+    "bulkDeleteConfirm": "Poistetaanko {count}?",
+    "bulkResult": "Päivitetty {done}; epäonnistui {failed}.",
+    "bulkDeleteResult": "Poistettu {done}; epäonnistui {failed}."
   },
   "status": {
     "healthy": "terve",

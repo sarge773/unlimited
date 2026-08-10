@@ -517,7 +517,15 @@
     "cpCreate": "ਪ੍ਰੋਫਾਈਲ ਬਣਾਓ",
     "cpRotate": "ਕੁੰਜੀ ਬਦਲੋ",
     "cpKeyOnce": "ਇਹ ਕੁੰਜੀ ਹੁਣੇ ਕਾਪੀ ਕਰੋ — ਇਹ ਦੁਬਾਰਾ ਨਹੀਂ ਦਿਖਾਈ ਜਾਵੇਗੀ।",
-    "cpEnabledAria": "ਪ੍ਰੋਫਾਈਲ ਚਾਲੂ"
+    "cpEnabledAria": "ਪ੍ਰੋਫਾਈਲ ਚਾਲੂ",
+    "selectKey": "ਇਹ ਕੁੰਜੀ ਚੁਣੋ",
+    "bulkSelected": "{count} ਚੁਣੇ ਗਏ",
+    "bulkEnable": "ਸਾਰੇ ਯੋਗ ਕਰੋ",
+    "bulkDisable": "ਸਾਰੇ ਅਯੋਗ ਕਰੋ",
+    "bulkDelete": "ਸਾਰੇ ਮਿਟਾਓ",
+    "bulkDeleteConfirm": "{count} ਮਿਟਾਉਣੇ ਹਨ?",
+    "bulkResult": "{done} ਅੱਪਡੇਟ ਹੋਏ; {failed} ਅਸਫਲ।",
+    "bulkDeleteResult": "{done} ਮਿਟਾਏ ਗਏ; {failed} ਅਸਫਲ।"
   },
   "status": {
     "healthy": "ਸਿਹਤਮੰਦ",

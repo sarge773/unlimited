@@ -517,7 +517,15 @@
     "cpCreate": "Създай профил",
     "cpRotate": "Смени ключа",
     "cpKeyOnce": "Копирайте този ключ сега — няма да бъде показан отново.",
-    "cpEnabledAria": "Профилът е активиран"
+    "cpEnabledAria": "Профилът е активиран",
+    "selectKey": "Изберете този ключ",
+    "bulkSelected": "{count} избрани",
+    "bulkEnable": "Включи всички",
+    "bulkDisable": "Изключи всички",
+    "bulkDelete": "Изтрий всички",
+    "bulkDeleteConfirm": "Да се изтрият ли {count}?",
+    "bulkResult": "Обновени {done}; неуспешни {failed}.",
+    "bulkDeleteResult": "Изтрити {done}; неуспешни {failed}."
   },
   "status": {
     "healthy": "здравословно",

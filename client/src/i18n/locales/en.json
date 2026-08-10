@@ -522,7 +522,10 @@
     "bulkSelected": "{count} selected",
     "bulkEnable": "Enable all",
     "bulkDisable": "Disable all",
-    "bulkDelete": "Delete all"
+    "bulkDelete": "Delete all",
+    "bulkDeleteConfirm": "Delete {count}?",
+    "bulkResult": "Updated {done}; failed {failed}.",
+    "bulkDeleteResult": "Deleted {done}; failed {failed}."
   },
   "status": {
     "healthy": "healthy",

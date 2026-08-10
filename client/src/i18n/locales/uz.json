@@ -517,7 +517,15 @@
     "cpCreate": "Profil yaratish",
     "cpRotate": "Kalitni almashtirish",
     "cpKeyOnce": "Bu kalitni hozir nusxalang — u boshqa ko'rsatilmaydi.",
-    "cpEnabledAria": "Profil yoqilgan"
+    "cpEnabledAria": "Profil yoqilgan",
+    "selectKey": "Bu kalitni tanlang",
+    "bulkSelected": "{count} tanlandi",
+    "bulkEnable": "Hammasini yoqish",
+    "bulkDisable": "Hammasini faolsizlantirish",
+    "bulkDelete": "Hammasini oʻchirish",
+    "bulkDeleteConfirm": "{count} ta oʻchirilsinmi?",
+    "bulkResult": "Yangilandi {done}; muvaffaqiyatsiz {failed}.",
+    "bulkDeleteResult": "Oʻchirildi {done}; muvaffaqiyatsiz {failed}."
   },
   "status": {
     "healthy": "sog'lom",

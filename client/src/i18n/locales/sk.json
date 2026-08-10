@@ -517,7 +517,15 @@
     "cpCreate": "Vytvoriť profil",
     "cpRotate": "Obmeniť kľúč",
     "cpKeyOnce": "Skopírujte tento kľúč hneď — už sa znova nezobrazí.",
-    "cpEnabledAria": "Profil povolený"
+    "cpEnabledAria": "Profil povolený",
+    "selectKey": "Vybrať tento kľúč",
+    "bulkSelected": "{count} vybraných",
+    "bulkEnable": "Povoliť všetky",
+    "bulkDisable": "Zakázať všetky",
+    "bulkDelete": "Vymazať všetky",
+    "bulkDeleteConfirm": "Vymazať {count}?",
+    "bulkResult": "Aktualizované {done}; zlyhalo {failed}.",
+    "bulkDeleteResult": "Vymazané {done}; zlyhalo {failed}."
   },
   "status": {
     "healthy": "zdravé",

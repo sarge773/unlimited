@@ -517,7 +517,15 @@
     "cpCreate": "Crea profilo",
     "cpRotate": "Ruota chiave",
     "cpKeyOnce": "Copia questa chiave adesso — non verrà più mostrata.",
-    "cpEnabledAria": "Profilo abilitato"
+    "cpEnabledAria": "Profilo abilitato",
+    "selectKey": "Seleziona questa chiave",
+    "bulkSelected": "{count} selezionate",
+    "bulkEnable": "Abilita tutte",
+    "bulkDisable": "Disabilita tutte",
+    "bulkDelete": "Elimina tutte",
+    "bulkDeleteConfirm": "Eliminare {count}?",
+    "bulkResult": "Aggiornate {done}; fallite {failed}.",
+    "bulkDeleteResult": "Eliminate {done}; fallite {failed}."
   },
   "status": {
     "healthy": "funzionante",

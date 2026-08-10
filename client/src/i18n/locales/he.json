@@ -517,7 +517,15 @@
     "cpCreate": "יצירת פרופיל",
     "cpRotate": "החלפת מפתח",
     "cpKeyOnce": "העתיקו את המפתח עכשיו — הוא לא יוצג שוב.",
-    "cpEnabledAria": "הפרופיל מופעל"
+    "cpEnabledAria": "הפרופיל מופעל",
+    "selectKey": "בחר מפתח זה",
+    "bulkSelected": "{count} נבחרו",
+    "bulkEnable": "הפעל הכול",
+    "bulkDisable": "השבת הכול",
+    "bulkDelete": "מחק הכול",
+    "bulkDeleteConfirm": "למחוק {count}?",
+    "bulkResult": "עודכנו {done}; נכשלו {failed}.",
+    "bulkDeleteResult": "נמחקו {done}; נכשלו {failed}."
   },
   "status": {
     "healthy": "בריא",

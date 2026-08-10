@@ -517,7 +517,15 @@
     "cpCreate": "Создать профиль",
     "cpRotate": "Сменить ключ",
     "cpKeyOnce": "Скопируйте этот ключ сейчас — он больше не будет показан.",
-    "cpEnabledAria": "Профиль включён"
+    "cpEnabledAria": "Профиль включён",
+    "selectKey": "Выбрать этот ключ",
+    "bulkSelected": "Выбрано {count}",
+    "bulkEnable": "Включить все",
+    "bulkDisable": "Отключить все",
+    "bulkDelete": "Удалить все",
+    "bulkDeleteConfirm": "Удалить {count}?",
+    "bulkResult": "Обновлено {done}; не удалось {failed}.",
+    "bulkDeleteResult": "Удалено {done}; не удалось {failed}."
   },
   "status": {
     "healthy": "здоровый",

@@ -517,7 +517,15 @@
     "cpCreate": "പ്രൊഫൈൽ സൃഷ്ടിക്കുക",
     "cpRotate": "കീ മാറ്റുക",
     "cpKeyOnce": "ഈ കീ ഇപ്പോൾതന്നെ പകർത്തുക — ഇത് വീണ്ടും കാണിക്കില്ല.",
-    "cpEnabledAria": "പ്രൊഫൈൽ പ്രവർത്തനക്ഷമം"
+    "cpEnabledAria": "പ്രൊഫൈൽ പ്രവർത്തനക്ഷമം",
+    "selectKey": "ഈ കീ തിരഞ്ഞെടുക്കുക",
+    "bulkSelected": "{count} തിരഞ്ഞെടുത്തു",
+    "bulkEnable": "എല്ലാം പ്രവർത്തനക്ഷമമാക്കുക",
+    "bulkDisable": "എല്ലാം പ്രവർത്തനരഹിതമാക്കുക",
+    "bulkDelete": "എല്ലാം ഇല്ലാതാക്കുക",
+    "bulkDeleteConfirm": "{count} ഇല്ലാതാക്കണോ?",
+    "bulkResult": "{done} അപ്‌ഡേറ്റ് ചെയ്തു; {failed} പരാജയപ്പെട്ടു.",
+    "bulkDeleteResult": "{done} ഇല്ലാതാക്കി; {failed} പരാജയപ്പെട്ടു."
   },
   "status": {
     "healthy": "ആരോഗ്യമുള്ള",

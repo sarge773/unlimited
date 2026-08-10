@@ -517,7 +517,15 @@
     "cpCreate": "Unda wasifu",
     "cpRotate": "Badilisha ufunguo",
     "cpKeyOnce": "Nakili ufunguo huu sasa — hautaonyeshwa tena.",
-    "cpEnabledAria": "Wasifu umewashwa"
+    "cpEnabledAria": "Wasifu umewashwa",
+    "selectKey": "Chagua ufunguo huu",
+    "bulkSelected": "{count} zimechaguliwa",
+    "bulkEnable": "Wezesha zote",
+    "bulkDisable": "Zima zote",
+    "bulkDelete": "Futa zote",
+    "bulkDeleteConfirm": "Futa {count}?",
+    "bulkResult": "Zimesasishwa {done}; zimeshindwa {failed}.",
+    "bulkDeleteResult": "Zimefutwa {done}; zimeshindwa {failed}."
   },
   "status": {
     "healthy": "afya",

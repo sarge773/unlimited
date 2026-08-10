@@ -517,7 +517,15 @@
     "cpCreate": "መገለጫ ፍጠር",
     "cpRotate": "ቁልፍ ቀይር",
     "cpKeyOnce": "ይህን ቁልፍ አሁን ቅዱ — ዳግም አይታይም።",
-    "cpEnabledAria": "መገለጫ ነቅቷል"
+    "cpEnabledAria": "መገለጫ ነቅቷል",
+    "selectKey": "ይህን ቁልፍ ይምረጡ",
+    "bulkSelected": "{count} ተመርጧል",
+    "bulkEnable": "ሁሉንም አንቃ",
+    "bulkDisable": "ሁሉንም አሰናክል",
+    "bulkDelete": "ሁሉንም ሰርዝ",
+    "bulkDeleteConfirm": "{count} ይሰረዙ?",
+    "bulkResult": "{done} ተዘምኗል፤ {failed} አልተሳካም።",
+    "bulkDeleteResult": "{done} ተሰርዟል፤ {failed} አልተሳካም።"
   },
   "status": {
     "healthy": "ጤናማ",

@@ -517,7 +517,15 @@
     "cpCreate": "Gumawa ng profile",
     "cpRotate": "I-rotate ang key",
     "cpKeyOnce": "Kopyahin ang key na ito ngayon — hindi na ito ipapakita muli.",
-    "cpEnabledAria": "Naka-enable ang profile"
+    "cpEnabledAria": "Naka-enable ang profile",
+    "selectKey": "Piliin ang key na ito",
+    "bulkSelected": "{count} napili",
+    "bulkEnable": "Paganahin lahat",
+    "bulkDisable": "I-disable lahat",
+    "bulkDelete": "Tanggalin lahat",
+    "bulkDeleteConfirm": "Tanggalin ang {count}?",
+    "bulkResult": "Na-update {done}; nabigo {failed}.",
+    "bulkDeleteResult": "Natanggal {done}; nabigo {failed}."
   },
   "status": {
     "healthy": "malusog",

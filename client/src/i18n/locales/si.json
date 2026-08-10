@@ -517,7 +517,15 @@
     "cpCreate": "පැතිකඩ සාදන්න",
     "cpRotate": "යතුර මාරු කරන්න",
     "cpKeyOnce": "මෙම යතුර දැන්ම පිටපත් කරන්න — එය නැවත නොපෙන්වයි.",
-    "cpEnabledAria": "පැතිකඩ සක්‍රීයයි"
+    "cpEnabledAria": "පැතිකඩ සක්‍රීයයි",
+    "selectKey": "මෙම යතුර තෝරන්න",
+    "bulkSelected": "{count} තෝරා ඇත",
+    "bulkEnable": "සියල්ල සබල කරන්න",
+    "bulkDisable": "සියල්ල අබල කරන්න",
+    "bulkDelete": "සියල්ල මකන්න",
+    "bulkDeleteConfirm": "{count} මකන්නද?",
+    "bulkResult": "{done} යාවත්කාලීන කළා; {failed} අසාර්ථකයි.",
+    "bulkDeleteResult": "{done} මකා දැමුවා; {failed} අසාර්ථකයි."
   },
   "status": {
     "healthy": "සෞඛ්ය සම්පන්න",

@@ -517,7 +517,15 @@
     "cpCreate": "Profiel aanmaken",
     "cpRotate": "Sleutel rouleren",
     "cpKeyOnce": "Kopieer deze sleutel nu — hij wordt niet opnieuw getoond.",
-    "cpEnabledAria": "Profiel ingeschakeld"
+    "cpEnabledAria": "Profiel ingeschakeld",
+    "selectKey": "Selecteer deze sleutel",
+    "bulkSelected": "{count} geselecteerd",
+    "bulkEnable": "Alles inschakelen",
+    "bulkDisable": "Alles uitschakelen",
+    "bulkDelete": "Alles verwijderen",
+    "bulkDeleteConfirm": "{count} verwijderen?",
+    "bulkResult": "Bijgewerkt {done}; mislukt {failed}.",
+    "bulkDeleteResult": "Verwijderd {done}; mislukt {failed}."
   },
   "status": {
     "healthy": "Gezond",

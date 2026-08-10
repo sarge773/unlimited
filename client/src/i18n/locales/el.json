@@ -517,7 +517,15 @@
     "cpCreate": "Δημιουργία προφίλ",
     "cpRotate": "Εναλλαγή κλειδιού",
     "cpKeyOnce": "Αντιγράψτε αυτό το κλειδί τώρα — δεν θα εμφανιστεί ξανά.",
-    "cpEnabledAria": "Προφίλ ενεργό"
+    "cpEnabledAria": "Προφίλ ενεργό",
+    "selectKey": "Επιλογή αυτού του κλειδιού",
+    "bulkSelected": "{count} επιλεγμένα",
+    "bulkEnable": "Ενεργοποίηση όλων",
+    "bulkDisable": "Απενεργοποίηση όλων",
+    "bulkDelete": "Διαγραφή όλων",
+    "bulkDeleteConfirm": "Διαγραφή {count};",
+    "bulkResult": "Ενημερώθηκαν {done}· απέτυχαν {failed}.",
+    "bulkDeleteResult": "Διαγράφηκαν {done}· απέτυχαν {failed}."
   },
   "status": {
     "healthy": "υγιής",

@@ -517,7 +517,15 @@
     "cpCreate": "Ƙirƙiri bayanin martaba",
     "cpRotate": "Canza maɓalli",
     "cpKeyOnce": "Kwafi wannan maɓallin yanzu — ba za a sake nuna shi ba.",
-    "cpEnabledAria": "An kunna bayanin martaba"
+    "cpEnabledAria": "An kunna bayanin martaba",
+    "selectKey": "Zaɓi wannan maɓalli",
+    "bulkSelected": "{count} zaɓaɓɓu",
+    "bulkEnable": "Kunna duka",
+    "bulkDisable": "Kashe duka",
+    "bulkDelete": "Share duka",
+    "bulkDeleteConfirm": "A share {count}?",
+    "bulkResult": "An sabunta {done}; ya kasa {failed}.",
+    "bulkDeleteResult": "An share {done}; ya kasa {failed}."
   },
   "status": {
     "healthy": "lafiya",

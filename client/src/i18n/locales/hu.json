@@ -517,7 +517,15 @@
     "cpCreate": "Profil létrehozása",
     "cpRotate": "Kulcs cseréje",
     "cpKeyOnce": "Másolja ki most ezt a kulcsot — többé nem jelenik meg.",
-    "cpEnabledAria": "Profil engedélyezve"
+    "cpEnabledAria": "Profil engedélyezve",
+    "selectKey": "Válaszd ki ezt a kulcsot",
+    "bulkSelected": "{count} kiválasztva",
+    "bulkEnable": "Összes engedélyezése",
+    "bulkDisable": "Összes letiltása",
+    "bulkDelete": "Összes törlése",
+    "bulkDeleteConfirm": "{count} törlése?",
+    "bulkResult": "Frissítve {done}; {failed} sikertelen.",
+    "bulkDeleteResult": "Törölve {done}; {failed} sikertelen."
   },
   "status": {
     "healthy": "egészséges",
