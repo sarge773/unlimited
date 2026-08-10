@@ -233,6 +233,7 @@ export async function runInboundChat(
       state.skipModels.size ? state.skipModels : undefined,
       pin.strictChain,
       input.responseFormat !== undefined,
+      state.skipPlatforms.size ? state.skipPlatforms : undefined,
     ),
     dispatch: async (route, attempt) => {
       if (!input.stream) {
