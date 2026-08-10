@@ -16,12 +16,13 @@
 // the fire-and-forget key revalidation kicked off on an upstream 401 (below).
 
 import type { RouteResult } from '../services/router.js';
-import { recordRateLimitHit, recordSuccess, hasOtherUsableKey, formatResetEta } from '../services/router.js';
+import { recordRateLimitHit, recordModelFailure, recordSuccess, hasOtherUsableKey, routableKeyIdsForModel, formatResetEta } from '../services/router.js';
 import { safeHeaderValue } from './header-value.js';
 import {
   recordRequest,
   recordTokens,
   setCooldown,
+  getActiveCooldownsForKeys,
   getCooldownDecisionForLimit,
   getSoonestCooldownExpiry,
   PAYMENT_REQUIRED_COOLDOWN_MS,
@@ -40,6 +41,7 @@ import {
   isModelAccessForbiddenError,
   isProviderBadRequestError,
   isProviderDegradedError,
+  isProviderLevelError,
   isContextTooLargeError,
   isTimeoutErrorText,
 } from './error-classify.js';
@@ -48,11 +50,66 @@ import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js
 import { noteModelRetirementSignal } from '../services/model-retirement.js';
 import { getSetting } from '../db/index.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
-import { getRequestTrace, newRequestTrace, runWithRequestTrace, type AttemptOutcome, type RequestTrace } from './attempt-trace.js';
+import { getRequestTrace, newRequestTrace, runWithRequestTrace, type AttemptOutcome, type AttemptTraceRecord, type RequestTrace } from './attempt-trace.js';
 import { logRequest, persistRequestAttempts } from './request-log.js';
 
 // Every surface caps failover hops at the same number.
 export const FALLBACK_MAX_RETRIES = 20;
+
+// ── Model-level failure benching ─────────────────────────────────────────────
+// A model that keeps failing upstream (401/429/5xx/empty-stream/timeout) must
+// not keep being picked by auto-routing: every dead-end attempt wastes seconds
+// of user-visible latency. The per-key cooldown above benches the *key*; this
+// is the model-level counterpart — a sliding window of failures *across keys*
+// that benches the whole MODEL once the streak is convincing. The window counts
+// across keys, so the bench must span keys too: benching only the key that
+// happened to fail last leaves every sibling key serving the same sick model
+// until each one trips its own streak. Recovery stays automatic: the bench is
+// 'heuristic', the only source the cooldown-probe job may clear early, and it
+// re-validates each benched key once half the bench has been served (the probe
+// exercises the credential, not the model, so a model still sick behind a good
+// key simply re-trips the streak). Client-cancels never reach
+// recordRetryableFailure (the loop returns on isClientAbortError before this
+// bookkeeping), so they don't count.
+const MODEL_FAILURE_WINDOW_MS = 15 * 60 * 1000;   // sliding window: 15 min
+export const MODEL_FAILURE_THRESHOLD = 3;         // failures within window
+export const MODEL_FAILURE_COOLDOWN_MS = 10 * 60 * 1000; // bench duration: 10 min
+const modelFailureTimestamps = new Map<number, number[]>(); // model_db_id → times
+
+/** Record one retryable upstream failure for a model. Once the sliding window
+ *  holds ≥ MODEL_FAILURE_THRESHOLD failures, bench the model on EVERY key that
+ *  can route to it so the model sinks out of routing until upstream heals, then
+ *  reset the counter (one bench per streak). */
+function noteModelFailure(route: RouteResult): void {
+  const now = Date.now();
+  const window = (modelFailureTimestamps.get(route.modelDbId) ?? [])
+    .filter(t => now - t < MODEL_FAILURE_WINDOW_MS);
+  window.push(now);
+  modelFailureTimestamps.set(route.modelDbId, window);
+  if (window.length < MODEL_FAILURE_THRESHOLD) return;
+  // Fall back to the failing key alone when the model's key set can't be read
+  // (model row gone, DB unavailable) — a narrower bench beats none.
+  const keyIds = routableKeyIdsForModel(route.modelDbId);
+  const targets = keyIds.length > 0 ? keyIds : [route.keyId];
+  const benchUntil = now + MODEL_FAILURE_COOLDOWN_MS;
+  const active = getActiveCooldownsForKeys(targets, now);
+  for (const keyId of targets) {
+    // Never SHORTEN an existing bench: a provider-stated reset or an escalated
+    // ladder step outlasting this window knows more than this heuristic does,
+    // and overwriting it would also drop its non-probeable provenance.
+    const current = active.get(keyId)
+      ?.find(c => c.platform === route.platform && c.modelId === route.modelId);
+    if (current && current.expiresAtMs >= benchUntil) continue;
+    setCooldown(route.platform, route.modelId, keyId, MODEL_FAILURE_COOLDOWN_MS, 'heuristic');
+  }
+  modelFailureTimestamps.delete(route.modelDbId);
+}
+
+/** A served request is the strongest counter-evidence: clear the failure
+ *  window so a recovered model is not benched for a stale streak. */
+function clearModelFailure(route: RouteResult): void {
+  modelFailureTimestamps.delete(route.modelDbId);
+}
 
 // ── Wall-clock retry budget ──────────────────────────────────────────────────
 // Serial failover has no time bound of its own: the observed worst case was a
@@ -90,14 +147,18 @@ export function getFallbackTimeBudgetMs(): number {
 // Mutable per-request skip state threaded through the loop and mutated by
 // recordRetryableFailure / recordAuthFailure. skipKeys entries are
 // "platform:modelId:keyId"; skipModels holds model_db_ids ruled out for the
-// rest of this request.
+// rest of this request; skipPlatforms holds platforms ruled out wholesale
+// (#788) — every model and every key of them — for the rest of this request.
+// All three are request-scoped only: nothing here outlives the response, so a
+// provider that blipped once is a fresh candidate on the very next request.
 export interface FallbackState {
   skipKeys: Set<string>;
   skipModels: Set<number>;
+  skipPlatforms: Set<string>;
 }
 
 export function newFallbackState(): FallbackState {
-  return { skipKeys: new Set<string>(), skipModels: new Set<number>() };
+  return { skipKeys: new Set<string>(), skipModels: new Set<number>(), skipPlatforms: new Set<string>() };
 }
 
 // Milliseconds until the next UTC midnight — when most providers' daily free
@@ -238,12 +299,32 @@ export function recordRetryableFailure(route: RouteResult, err: any, state: Fall
   // sibling keys counts as the single observation it is.
   noteModelRetirementSignal(route, err, getRequestTrace());
   state.skipKeys.add(`${route.platform}:${route.modelId}:${route.keyId}`);
+  // #788: provider-level failures (5xx / timeout / transport / degraded) mean
+  // the PROVIDER is sick, not this key — every key AND every model of that
+  // platform would fail identically. Rule out the whole platform for this
+  // request so the loop moves to the NEXT provider instead of burning one
+  // failover hop per key. Key-scoped failures (auth/quota) stay on the
+  // single-key path, and the per-key cooldown below is still the only thing
+  // that outlives the request.
+  if (isProviderLevelError(err)) {
+    state.skipPlatforms.add(route.platform);
+  }
   if (consumeSkipBenchExemption(route, err)) return true;
   const decision = cooldownDecisionForError(route, err);
   setCooldown(route.platform, route.modelId, route.keyId, decision.durationMs, decision.source);
+  // Model-level failure benching: a model failing across keys (or repeatedly on
+  // one key) must sink out of routing instead of being re-picked every request.
+  noteModelFailure(route);
   // Model-level penalty only when no sibling key can still serve (#454).
   if (!hasOtherUsableKey(route.modelDbId, route.keyId, state.skipKeys)) {
-    recordRateLimitHit(route.modelDbId);
+    // Hard limit signals (429/402) carry the heavier demotion; ordinary
+    // upstream failures (5xx/timeout/empty stream) get a lighter one so the
+    // model sinks gradually instead of being banished on a single blip.
+    if (isRateLimitSignal(err)) {
+      recordRateLimitHit(route.modelDbId);
+    } else {
+      recordModelFailure(route.modelDbId);
+    }
   }
   learnLimitFromError(route.modelDbId, err);
   return false;
@@ -300,6 +381,9 @@ export function recordUpstreamSuccess(route: RouteResult, rateLimitTokens: numbe
   // A served request proves the model+key can complete: the empty-completion
   // streak (#751) starts over.
   emptyCompletionStreaks.delete(`${route.platform}:${route.modelId}:${route.keyId}`);
+  // A served request is the strongest possible evidence the model works, so
+  // clear any model-level failure streak that could bench it later.
+  clearModelFailure(route);
   // A served request is the strongest possible evidence the key works, so clear
   // any stale 'error' status left by an earlier transport blip instead of waiting
   // for the next health pass to make the key routable again.
@@ -365,6 +449,69 @@ export function classifyAttemptError(err: any): AttemptErrorClass {
 const TRAIL_MAX_SHOWN = 10;
 const TRAIL_HEADER_MAX_LENGTH = 1024;
 
+// ── Detailed failover trace header (opt-in) ──────────────────────────────────
+// X-Fallback-Trail already tells a caller WHICH hops burned and WHY, but not
+// how long they cost. That is the part an agent cannot reconstruct: a request
+// answered in 40s reads identically whether one provider stalled for 39s or
+// four failed fast. The per-hop timings and the redacted provider message are
+// already collected for the request_attempts table; this exposes them on the
+// response so the caller sees them without a dashboard round trip.
+//
+// Off by default. It widens what an already-loopback-ish surface reveals —
+// hop timings plus provider error text — so it is opt-in like the discovery
+// aliases, not something a default install starts emitting. Precedence matches
+// the failover budget above: settings-table value, then env var, then off.
+export const EXPOSE_FALLBACK_DETAIL_SETTING = 'expose_fallback_detail_header';
+
+// Ten hops of "platform/model keyN=class t=…+…ms msg=…" with a capped message
+// each. Kept well under the 8 KB total header budget that proxies commonly
+// enforce, since this rides alongside X-Fallback-Trail's own 1 KB.
+const DETAIL_HEADER_MAX_LENGTH = 2048;
+// summarizeAttemptError caps at 200; the header wants a tighter budget so ten
+// hops still fit. The full text remains in request_attempts either way.
+const DETAIL_SUMMARY_MAX_LENGTH = 120;
+
+export function isFallbackDetailHeaderEnabled(): boolean {
+  let stored: string | undefined;
+  try {
+    stored = getSetting(EXPOSE_FALLBACK_DETAIL_SETTING);
+  } catch {
+    stored = undefined; // DB not ready — never throw on the proxy hot path
+  }
+  for (const raw of [stored, process.env.FALLBACK_DETAIL_HEADER]) {
+    if (raw === undefined || raw.trim() === '') continue;
+    const value = raw.trim().toLowerCase();
+    return value === '1' || value === 'true';
+  }
+  return false;
+}
+
+/**
+ * One `platform/model keyN=outcome t=<start>+<duration>ms msg=<summary>` segment
+ * per hop, `; `-joined — the same leading shape as X-Fallback-Trail so the two
+ * headers line up when read together.
+ *
+ * The summary is the already-redacted `errorSummary`, never `err.message`. Its
+ * semicolons become commas because `; ` is the record separator; nothing else
+ * is escaped, which keeps the value readable, and `safeHeaderValue` handles any
+ * non-ASCII on the way out.
+ */
+export function formatAttemptDetail(records: AttemptTraceRecord[]): string {
+  const shown = records.slice(0, TRAIL_MAX_SHOWN).map(r => {
+    const parts = [
+      `${r.platform}/${r.modelId}`,
+      `key${r.keyOrdinal}=${r.outcome}`,
+      `t=${r.startOffsetMs}+${r.durationMs}ms`,
+    ];
+    if (r.errorSummary) {
+      parts.push(`msg=${r.errorSummary.slice(0, DETAIL_SUMMARY_MAX_LENGTH).replace(/;/g, ',')}`);
+    }
+    return parts.join(' ');
+  });
+  const extra = records.length - shown.length;
+  return shown.join('; ') + (extra > 0 ? `; +${extra} more` : '');
+}
+
 export function formatAttemptTrail(attempts: AttemptRecord[]): string {
   const shown = attempts
     .slice(0, TRAIL_MAX_SHOWN)
@@ -382,6 +529,17 @@ export function formatAttemptTrail(attempts: AttemptRecord[]): string {
  * exactly the case an operator wants to notice. Values go through
  * safeHeaderValue so a non-ASCII or control-laden model id can neither inject
  * header lines nor make Node reject the response outright (#619).
+ *
+ * When EXPOSE_FALLBACK_DETAIL_SETTING is on, X-Fallback-Detail joins them with
+ * per-hop timings and the redacted provider message. Every caller runs inside
+ * the request's AsyncLocalStorage scope, so the trace is readable here without
+ * threading it through all five surfaces.
+ *
+ * Note what the detail header can and cannot contain: at flush time the trace
+ * holds exactly the hops that already FAILED, each with final timings. The hop
+ * currently being served is recorded only after dispatch returns — after
+ * res.json(), or after the whole stream has finished — so its duration is not
+ * knowable while headers are still open, on either path.
  */
 export function setFallbackHeaders(
   res: { setHeader(name: string, value: string): void },
@@ -397,6 +555,13 @@ export function setFallbackHeaders(
     // Ten hops of "platform/model keyN=class" outgrow the default cap, so the
     // trail gets its own budget.
     res.setHeader('X-Fallback-Trail', safeHeaderValue(value, TRAIL_HEADER_MAX_LENGTH));
+  }
+
+  // Checked before the setting so the overwhelmingly common no-failover request
+  // never pays for a settings read.
+  const records = getRequestTrace()?.records;
+  if (records && records.length > 0 && isFallbackDetailHeaderEnabled()) {
+    res.setHeader('X-Fallback-Detail', safeHeaderValue(formatAttemptDetail(records), DETAIL_HEADER_MAX_LENGTH));
   }
 }
 
@@ -744,7 +909,8 @@ export interface FallbackHooks {
   state: FallbackState;
 
   /**
-   * Pick a route for this attempt. Reads state.skipKeys / state.skipModels.
+   * Pick a route for this attempt. Reads state.skipKeys / state.skipModels /
+   * state.skipPlatforms.
    * Throws the router's RouteError when the pool is exhausted before any
    * upstream is tried (caught by the loop → onRoutingExhausted).
    */
