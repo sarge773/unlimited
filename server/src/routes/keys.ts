@@ -18,6 +18,7 @@ import { probeEmbeddingDimensions, registerCustomEmbeddingModel } from '../servi
 import { endpointScopeForBaseUrl, normalizeBaseUrl } from '../lib/endpoint-scope.js';
 import type { Db } from '../db/types.js';
 import { parseModelScope } from '../lib/model-scope.js';
+import { KEY_PROXY_URL_ERROR, KEY_PROXY_URL_MAX, decryptProxyUrl, encryptProxyUrl, isValidKeyProxyUrl, maskProxyUrl } from '../lib/key-proxy.js';
 
 export const keysRouter = Router();
 
@@ -49,13 +50,17 @@ const upload = multer({
 
 // `key` is optional so keyless providers (Kilo's anonymous gateway) can be added
 // without one; the handler enforces a non-empty key for everyone else.
+// #590 (per-key proxy): an optional per-key proxy override. Only schemes the
+// proxy layer can actually dispatch through are accepted — an unvalidated
+// string would be stored, encrypted, and only surface as a failed dispatcher
+// at request time, one attempt at a time. '' = no override (global proxy).
+const proxyUrlSchema = z.string().max(KEY_PROXY_URL_MAX).refine(isValidKeyProxyUrl, { message: KEY_PROXY_URL_ERROR });
+
 const addKeySchema = z.object({
   platform: z.enum(PLATFORMS),
   key: z.string().optional(),
   label: z.string().optional(),
-  // #590 (per-key proxy): optional per-key proxy override (http/https/socks4/
-  // socks5/socks5h). Empty/absent = fall back to the global proxy.
-  proxyUrl: z.string().optional(),
+  proxyUrl: proxyUrlSchema.optional(),
 });
 
 // `modelScope` (#657): the model_id list this key may serve — relay stations
@@ -66,7 +71,7 @@ const updateKeySchema = z.object({
   label: z.string().optional(),
   modelScope: z.array(z.string().trim().min(1).max(200)).max(100).nullable().optional(),
   // #590: '' clears the per-key proxy; absent leaves it unchanged.
-  proxyUrl: z.string().optional(),
+  proxyUrl: proxyUrlSchema.optional(),
 }).refine(data => data.enabled !== undefined || data.label !== undefined || data.modelScope !== undefined || data.proxyUrl !== undefined, {
   message: 'At least one of enabled, label, modelScope or proxyUrl must be provided',
 });
@@ -317,6 +322,10 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       lastHealthError: row.last_health_error ?? null,
       // The model_id list this key is limited to; null = serves everything (#657).
       modelScope: scope ? [...scope] : null,
+      // The per-key proxy override with its password masked (#590). '' = no
+      // override. Enough for the dashboard to show that a key routes through
+      // its own exit, without handing the proxy credentials back out.
+      maskedProxyUrl: maskProxyUrl(decryptProxyUrl(row)),
       models: row.platform === 'custom' ? (modelsByEndpoint.get(endpointOf(Number(row.id))) ?? []) : undefined,
       cooldowns: cooldowns.map(c => ({
         modelId: c.modelId,
@@ -572,17 +581,22 @@ keysRouter.post('/', (req: Request, res: Response) => {
   }
 
   const { encrypted, iv, authTag } = encrypt(keyToStore);
+  // #590: the proxy URL is encrypted like the key itself — it usually embeds
+  // `user:pass@` credentials. Absent/'' stores NULLs = no override.
   const proxyUrl = parsed.data.proxyUrl?.trim() ?? '';
+  const proxy = encryptProxyUrl(proxyUrl);
   const result = db.prepare(`
-    INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled, proxy_url)
-    VALUES (?, ?, ?, ?, ?, 'unknown', 1, ?)
-  `).run(platform, label ?? '', encrypted, iv, authTag, proxyUrl);
+    INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled, proxy_encrypted, proxy_iv, proxy_auth_tag)
+    VALUES (?, ?, ?, ?, ?, 'unknown', 1, ?, ?, ?)
+  `).run(platform, label ?? '', encrypted, iv, authTag, proxy.encrypted, proxy.iv, proxy.authTag);
 
   res.status(201).json({
     id: result.lastInsertRowid,
     platform,
     label: label ?? '',
-    proxyUrl,
+    // Echoed back masked, never in the clear — the response body ends up in
+    // logs and dev tools.
+    maskedProxyUrl: maskProxyUrl(proxyUrl),
     maskedKey: maskKey(keyToStore),
     status: 'unknown',
     enabled: true,
@@ -1489,9 +1503,12 @@ keysRouter.patch('/:id', (req: Request, res: Response) => {
     updates.push('label = ?');
     values.push(label);
   }
+  // #590: stored encrypted (credentials), so a change rewrites all three
+  // columns; '' clears them to NULL.
   if (proxyUrl !== undefined) {
-    updates.push('proxy_url = ?');
-    values.push(proxyUrl.trim());
+    const proxy = encryptProxyUrl(proxyUrl);
+    updates.push('proxy_encrypted = ?', 'proxy_iv = ?', 'proxy_auth_tag = ?');
+    values.push(proxy.encrypted, proxy.iv, proxy.authTag);
   }
   // Deduped; an empty result stores NULL, which the router reads as "unscoped".
   const scopeIds = modelScope == null ? [] : [...new Set(modelScope)];
@@ -1513,7 +1530,7 @@ keysRouter.patch('/:id', (req: Request, res: Response) => {
   const response: Record<string, unknown> = { success: true };
   if (enabled !== undefined) response.enabled = enabled;
   if (label !== undefined) response.label = label;
-  if (proxyUrl !== undefined) response.proxyUrl = proxyUrl.trim();
+  if (proxyUrl !== undefined) response.maskedProxyUrl = maskProxyUrl(proxyUrl);
   if (modelScope !== undefined) response.modelScope = scopeIds.length > 0 ? scopeIds : null;
   res.json(response);
 });
