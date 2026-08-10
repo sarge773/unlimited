@@ -878,6 +878,8 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
       false,
       state.skipModels.size > 0 ? state.skipModels : undefined,
       groupChain ?? resolvedChain?.chain,
+      false,
+      state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined,
     ),
     dispatch: async (route, attempt) => {
       traceRouteEvent('Proxy', {
@@ -1647,7 +1649,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       // model is on record). Turns where injection can't happen — every turn 1, and
       // sessions that never switched — pay no headroom tax.
       const routingEstimate = handoffPossible ? estimatedTotal + HANDOFF_MAX_TOKENS : estimatedTotal;
-      return routeRequest(routingEstimate, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, groupChain ?? resolvedChain?.chain, samplingParams.response_format !== undefined);
+      return routeRequest(routingEstimate, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, groupChain ?? resolvedChain?.chain, samplingParams.response_format !== undefined, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined);
     },
     dispatch: async (route, attempt) => {
     const modelKey = `${route.platform}:${route.modelId}`;

@@ -556,7 +556,7 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
     state,
     attemptLog,
     clientGone: () => clientGone,
-    route: () => routeRequest(estimatedTotal, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined),
+    route: () => routeRequest(estimatedTotal, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, undefined, false, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined),
     dispatch: async (route, attempt) => {
       if (stream) {
         try {

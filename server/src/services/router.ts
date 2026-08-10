@@ -869,6 +869,7 @@ function orderChain(chain: ChainRow[], strategy: RoutingStrategy, sampled = true
  * @param preferredModelDbId - try this model first (sticky session)
  * @param requireVision - only consider models that accept image input (#118)
  * @param requireTools - only consider models that emit structured tool_calls
+ * @param skipPlatforms - platforms ruled out for the rest of this request (#788)
  */
 export interface ResolvedChain {
   chain: ChainRow[];
@@ -1474,7 +1475,7 @@ export function resolveFusionCandidate(modelId: string): FusionCandidate | null 
   return null;
 }
 
-export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, preferredModelDbId?: number, requireVision = false, requireTools = false, skipModels?: Set<number>, prefetchedChain?: ChainRow[], requireStructured = false): RouteResult {
+export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, preferredModelDbId?: number, requireVision = false, requireTools = false, skipModels?: Set<number>, prefetchedChain?: ChainRow[], requireStructured = false, skipPlatforms?: Set<string>): RouteResult {
   const db = getDb();
 
   const strategy = getRoutingStrategy();
@@ -1545,6 +1546,13 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
     // model again on a different key would just burn another attempt on the
     // same dead route (PR #111, credits @barbotkonv).
     if (skipModels?.has(entry.model_db_id)) { diag.push(`${label}: ruled out earlier this request`); continue; }
+
+    // Platforms the caller has ruled out wholesale (#788): a provider-level
+    // failure this request — a 5xx, a timeout, a dead socket — is about the
+    // PROVIDER, so its other keys and its other models would fail the same way.
+    // Skipping the platform moves failover to the next provider instead of
+    // burning one hop per key. Request-scoped; nothing is benched by this.
+    if (skipPlatforms?.has(entry.platform)) { diag.push(`${label}: provider ruled out earlier this request`); continue; }
 
     // Vision requests skip text-only models — including a sticky/preferred one,
     // which is correct: don't pin an image turn to a model that can't see it.
