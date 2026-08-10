@@ -240,6 +240,34 @@ export function isProviderDegradedError(err: any): boolean {
   return msg.includes('degraded');
 }
 
+// #788: provider-level failures — 5xx, timeouts, transport/network errors, a
+// degraded deployment — are symptoms of the PROVIDER being sick, not of this
+// particular key. Retrying the same provider with a sibling key would fail
+// identically, so the fallback loop must skip the WHOLE platform for the
+// request instead of burning one failover hop per key. Key-scoped failures
+// (auth, quota, 403 tier) stay out of here so a dead key can still rotate to
+// a healthy sibling on the same platform.
+//
+// Classified on the STRUCTURED status — every adapter attaches one to an HTTP
+// failure (providerHttpError in providers/base.ts) — plus the two families that
+// carry no status at all: a timeout and a transport-level failure. Deliberately
+// NO bare '500' / '503' / 'unavailable' / 'internal server error' substrings: a
+// token count, a duration ("… took 5003ms") or a key-scoped message naming an
+// unavailable model would each condemn a healthy platform for the whole request.
+// A message check therefore only runs when there is no status to trust.
+export function isProviderLevelError(err: any): boolean {
+  const status = typeof err?.status === 'number' ? err.status : 0;
+  if (status >= 500) return true;
+  // A DEGRADED hosted deployment (NVIDIA NIM, #522) is provider health wearing
+  // a 400 — same source of truth as everywhere else, not a second substring.
+  if (isProviderDegradedError(err)) return true;
+  if (status !== 0) return false;
+  const msg = (err?.message ?? '').toLowerCase();
+  return isTimeoutErrorText(msg)
+    || msg.includes('econnrefused') || msg.includes('econnreset')
+    || msg.includes('fetch failed');   // undici transport error (DNS/TLS/proxy down)
+}
+
 // Provider-side 400s are retryable because another provider may accept the same
 // request shape. If every routed provider rejects it, however, the client should
 // see an invalid-request error rather than a misleading rate-limit exhaustion.
