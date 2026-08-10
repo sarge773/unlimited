@@ -148,6 +148,85 @@ export { exhaustedRetryError };
 const stickySessionMap = new Map<string, { modelDbId: number; lastUsed: number }>();
 const STICKY_TTL_MS = 30 * 60 * 1000; // 30 min session TTL
 
+// #797: per-session memory of the last assistant turn's thinking trace.
+// DeepSeek thinking models on OpenCode Zen 400 on a follow-up turn unless the
+// prior `reasoning_content` is replayed; opencode (and other AI-SDK clients)
+// strip the field when re-serializing history, so the proxy restores what it
+// itself returned last turn. Non-thinking sessions never record an entry.
+// The trace is stored WITH the model key that produced it: a remembered trace
+// is only ever replayed to that same platform+model, so a session that fails
+// over (or auto-routes elsewhere on the next turn) never carries one model's
+// thinking into another provider's payload.
+const reasoningMemory = new Map<string, { reasoning: string; modelKey: string; lastUsed: number }>();
+const REASONING_TTL_MS = 30 * 60 * 1000; // 30 min, matching sticky sessions
+
+// Platforms that reject an assistant turn WITHOUT `reasoning_content` once the
+// conversation is in thinking mode, i.e. where the field has to be present on
+// every assistant message and older turns need an empty-string filler. Only
+// OpenCode Zen is on record for this (the DeepSeek thinking semantics behind
+// #255/#797); everywhere else only the turn we actually have a trace for is
+// touched, so no other provider's bytes change.
+const PLATFORMS_REQUIRING_REASONING_ECHO = new Set(['opencode']);
+
+function rememberReasoning(sessionKey: string | undefined, modelKey: string, reasoning: string) {
+  if (!sessionKey || !reasoning) return;
+  reasoningMemory.set(sessionKey, { reasoning, modelKey, lastUsed: Date.now() });
+  if (reasoningMemory.size > 500) {
+    const now = Date.now();
+    for (const [key, entry] of reasoningMemory) {
+      if (now - entry.lastUsed > REASONING_TTL_MS) reasoningMemory.delete(key);
+    }
+
+    // Hard cap: traces are far bigger than a sticky entry, so an all-fresh map
+    // must not grow without bound. Evict oldest by lastUsed, as setStickyModel does.
+    if (reasoningMemory.size > 1000) {
+      const entries = [...reasoningMemory.entries()].sort((a, b) => a[1].lastUsed - b[1].lastUsed);
+      const toEvict = reasoningMemory.size - 1000;
+      for (let i = 0; i < toEvict; i++) reasoningMemory.delete(entries[i][0]);
+    }
+  }
+}
+
+// The remembered trace for this session, or undefined when there is none, it
+// expired, or it came from a different model than the one about to be called.
+// An expired entry is dropped on read rather than left for the size sweep.
+function rememberedReasoningFor(sessionKey: string, modelKey: string): string | undefined {
+  if (!sessionKey) return undefined;
+  const entry = reasoningMemory.get(sessionKey);
+  if (!entry) return undefined;
+  if (Date.now() - entry.lastUsed > REASONING_TTL_MS) {
+    reasoningMemory.delete(sessionKey);
+    return undefined;
+  }
+  return entry.modelKey === modelKey ? entry.reasoning : undefined;
+}
+
+// Put the remembered trace back on the newest assistant turn that lost it.
+// Returns a NEW array (with new objects for the messages it changes) whenever
+// it changes anything — the caller's `messages` are what handoff recording,
+// logging, compression and the response cache already saw, and must not move
+// under them. Returns the input untouched when there is nothing to restore.
+function restoreSessionReasoning(messages: ChatMessage[], reasoning: string, platform: string): ChatMessage[] {
+  // Older assistant turns get "" — DeepSeek requires the field on every
+  // assistant message, and an empty string satisfies it (see opencode issue
+  // #24104). Only for platforms that actually enforce that; elsewhere just the
+  // one turn we have a real trace for is touched.
+  const fillOlderTurns = PLATFORMS_REQUIRING_REASONING_ECHO.has(platform);
+  let restored: ChatMessage[] | undefined;
+  let restoredLatest = false;
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const m = messages[i];
+    if (m.role !== 'assistant') continue;
+    // The client kept the field — nothing was dropped, leave it alone.
+    if (typeof m.reasoning_content === 'string' && m.reasoning_content.length > 0) continue;
+    restored ??= [...messages];
+    restored[i] = { ...m, reasoning_content: restoredLatest ? '' : reasoning };
+    if (!restoredLatest && !fillOlderTurns) break;
+    restoredLatest = true;
+  }
+  return restored ?? messages;
+}
+
 function getSessionKey(messages: ChatMessage[], sessionIdHeader?: string, strategyKey?: string): string {
   if (sessionIdHeader) {
     return strategyKey ? `hdr:${sessionIdHeader}::${strategyKey}` : `hdr:${sessionIdHeader}`;
@@ -878,6 +957,8 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
       false,
       state.skipModels.size > 0 ? state.skipModels : undefined,
       groupChain ?? resolvedChain?.chain,
+      false,
+      state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined,
     ),
     dispatch: async (route, attempt) => {
       traceRouteEvent('Proxy', {
@@ -1521,6 +1602,20 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   if (handoffMode !== 'off' && sessionKey) {
     recordIncomingMessages(sessionKey, messages);
   }
+
+  // #797: key for the per-session thinking-trace memory. Read and written
+  // inside the dispatch loop, where the routed platform/model is known — the
+  // restore only ever touches the OUTBOUND copy, never `messages`, so handoff
+  // recording above, request logging, compression and the response cache all
+  // keep seeing exactly what the client sent.
+  //
+  // Header-less clients are covered: without x-session-id, getSessionKey hashes
+  // the FIRST user message, which does not change as the conversation grows —
+  // the same stability sticky sessions already rely on. Its known weakness is
+  // shared here: two conversations opening with identical text share a key, so
+  // the same-model + field-actually-missing gates below are what keep a
+  // mis-keyed restore from reaching a payload it does not belong in.
+  const reasoningSessionKey = getSessionKey(messages, sessionIdHeader, strategyKey);
   // A handoff can only fire when a prior model is on record for this session.
   // Check after recordIncomingMessages, which clears the prior model on a
   // fresh conversation. Stable across the retry loop (the prior model only
@@ -1647,7 +1742,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       // model is on record). Turns where injection can't happen — every turn 1, and
       // sessions that never switched — pay no headroom tax.
       const routingEstimate = handoffPossible ? estimatedTotal + HANDOFF_MAX_TOKENS : estimatedTotal;
-      return routeRequest(routingEstimate, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, groupChain ?? resolvedChain?.chain, samplingParams.response_format !== undefined);
+      return routeRequest(routingEstimate, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, groupChain ?? resolvedChain?.chain, samplingParams.response_format !== undefined, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined);
     },
     dispatch: async (route, attempt) => {
     const modelKey = `${route.platform}:${route.modelId}`;
@@ -1660,6 +1755,10 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       requestedModel: attempt === 0 ? requestedModelLabel : undefined,
     });
     let outboundMessages = messages;
+    // #797: thinking trace accumulated from this turn's streamed deltas, then
+    // remembered per-session so a follow-up whose client stripped the field
+    // can have it restored (see restore block above).
+    let streamReasoning = '';
     // Extra input tokens the injected handoff adds on this turn (0 when not
     // injected). Folded into the streaming success accounting, where token
     // counts are estimated; the non-stream path uses the provider's usage,
@@ -1670,6 +1769,15 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       if (handoff.injected) console.log(`[Proxy] Context handoff injected (session ${sessionKey.slice(0, 8)}…, model switch detected)`);
       outboundMessages = handoff.messages;
       injectedHandoffTokens = handoff.injectedTokens;
+    }
+
+    // #797: restore the thinking trace this proxy emitted last turn, for THIS
+    // model, when the client dropped it on replay. Scoped to the outbound copy
+    // and to the model that produced the trace, so a failover hop and every
+    // provider that never needed the field send the client's bytes unchanged.
+    const rememberedReasoning = rememberedReasoningFor(reasoningSessionKey, modelKey);
+    if (rememberedReasoning) {
+      outboundMessages = restoreSessionReasoning(outboundMessages, rememberedReasoning, route.platform);
     }
 
       if (stream) {
@@ -1785,6 +1893,14 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
             }
 
             if (choice.finish_reason) upstreamFinish = choice.finish_reason;
+
+            // #797: accumulate this turn's thinking trace (native
+            // reasoning_content deltas; the <think> extractor in base.ts has
+            // already normalized inline tags into the same field) so a
+            // follow-up request whose client stripped it can have it restored
+            // from session memory.
+            const reasoningDelta = choice.delta?.reasoning_content;
+            if (typeof reasoningDelta === 'string' && reasoningDelta.length > 0) streamReasoning += reasoningDelta;
 
             // Buffer tool_call deltas — emitted complete + repaired at end.
             for (const tc of choice.delta?.tool_calls ?? []) {
@@ -1915,6 +2031,9 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           recordUpstreamSuccess(route, estimatedInputTokens + injectedHandoffTokens + totalOutputTokens);
           setStickyModel(messages, route.modelDbId, sessionIdHeader, stickyStrategyKey);
           if (handoffMode !== 'off' && sessionKey) recordSuccessfulModel({ sessionKey, modelKey });
+          // #797: remember this turn's thinking trace so the next request from
+          // the same session can restore it (clients strip it on replay).
+          if (streamReasoning.length > 0) rememberReasoning(reasoningSessionKey, modelKey, streamReasoning);
           traceRouteEvent('Proxy', {
             event: 'ok',
             requestId: requestGroupId,
@@ -2061,6 +2180,13 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           ?? Math.ceil((contentToString(respMsg?.content ?? '').length + respToolArgChars) / 4);
         const totalTokens = result.usage?.total_tokens ?? (promptTokens + completionTokens);
         recordUpstreamSuccess(route, totalTokens);
+        // #797: remember this turn's thinking trace so the next request from
+        // the same session can restore it (clients strip it on replay).
+        // normalizeChoices keeps reasoning_content on the message even when it
+        // folds the trace into an otherwise-empty content field.
+        if (typeof respMsg?.reasoning_content === 'string' && respMsg.reasoning_content.length > 0) {
+          rememberReasoning(reasoningSessionKey, modelKey, respMsg.reasoning_content);
+        }
         // Use stickyStrategyKey (not the global strategyKey) so a group-pinned
         // request writes its sticky entry under the SAME key the next turn reads
         // from (set to the requested model id at the top of the loop). Matches the
