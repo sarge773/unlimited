@@ -215,8 +215,8 @@ export interface PlatformParamPolicy {
   // experience as a broken stream rather than as a truncation. A
   // client-supplied value always wins, larger or smaller. Applied by the
   // adapters through resolveMaxTokens(), so a platform added here only takes
-  // effect once its adapter routes max_tokens through that helper
-  // (openai-compat + cloudflare already do).
+  // effect once its adapter routes max_tokens through that helper (they all
+  // do).
   defaultMaxTokens?: number;
 }
 
@@ -316,10 +316,15 @@ export function defaultMaxTokensFor(platform: string): number | undefined {
 
 /**
  * The max_tokens to put on the wire for one request: whatever the client asked
- * for, or the platform's floor when the client asked for nothing (#553).
- * Never clamps — a client-set value passes through untouched in both
- * directions, and the gateway's own guardrails (token budget, routing reserve)
- * have already had their say by the time an adapter calls this.
+ * for, or the platform's floor when the client asked for nothing (#553), then
+ * lowered to the unified output cap when the operator configured one. With the
+ * cap off (the default) nothing is clamped — a client-set value passes through
+ * untouched in both directions, and the gateway's own guardrails (token budget,
+ * routing reserve) have already had their say by the time an adapter calls this.
+ *
+ * EVERY adapter must send max_tokens through here, or the cap is not unified:
+ * openai-compat (and its subclasses), cloudflare, cohere, google and aihorde
+ * all do.
  */
 export function resolveMaxTokens(platform: string, requested: number | undefined): number | undefined {
   const resolved = requested ?? defaultMaxTokensFor(platform);
@@ -331,9 +336,9 @@ export function resolveMaxTokens(platform: string, requested: number | undefined
 // ── Unified output-token cap ─────────────────────────────────────────────────
 // Optional operator-level ceiling on max_tokens for EVERY client. Aggressive
 // clients (Open WebUI sends max_tokens=65536 by default) 400 against free
-// models whose output limit is 32768 (CF qwen3-30b, zhipu glm), and because
-// resolveMaxTokens never clamps, the same invalid value rides every fallback
-// candidate — the chain cannot rescue the request. The cap only LOWERS an
+// models whose output limit is 32768 (CF qwen3-30b, zhipu glm), and without a
+// ceiling the same invalid value rides every fallback candidate — the chain
+// cannot rescue the request. The cap only LOWERS an
 // excessive value; a client value at or below it is untouched, and clients that
 // send nothing still get today's platform floor. 'off' (default) keeps the
 // historical pass-through behaviour.
