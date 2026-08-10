@@ -195,16 +195,22 @@ settingsRouter.delete('/url-tokens/:id', (req: Request, res: Response) => {
   res.status(204).end();
 });
 
+// The unified output-token cap as the dashboard sees it. `mode` is exactly
+// what PUT accepts back — 'off', 'auto', or the integer itself, never a
+// stringified number — so a read/modify/write round trip can't 400 on its own
+// output. A stored value that unifiedMaxTokensCap() doesn't understand is
+// reported as 'off', which is how it actually behaves (effectiveCap null).
+function outputLimitState(): { mode: 'off' | 'auto' | number; effectiveCap: number | null; autoValue: number } {
+  const raw = (getSetting(UNIFIED_MAX_TOKENS_SETTING) ?? '').trim().toLowerCase();
+  const effectiveCap = unifiedMaxTokensCap();
+  const mode = raw === 'auto' ? 'auto' as const : (effectiveCap ?? 'off' as const);
+  return { mode, effectiveCap, autoValue: UNIFIED_MAX_TOKENS_AUTO };
+}
+
 // Get the unified output-token cap ('off' = disabled, 'auto' = 32768, or an
 // explicit integer). See lib/sampling-params.ts unifiedMaxTokensCap().
 settingsRouter.get('/output-limit', (_req: Request, res: Response) => {
-  const cap = unifiedMaxTokensCap();
-  const raw = getSetting(UNIFIED_MAX_TOKENS_SETTING) ?? 'off';
-  res.json({
-    mode: raw.trim().toLowerCase() === '' ? 'off' : raw.trim().toLowerCase(),
-    effectiveCap: cap,
-    autoValue: UNIFIED_MAX_TOKENS_AUTO,
-  });
+  res.json(outputLimitState());
 });
 
 const outputLimitPutSchema = z.object({
@@ -228,10 +234,8 @@ settingsRouter.put('/output-limit', (req: Request, res: Response) => {
     res.status(400).json({ error: { message: `Invalid output limit: ${detail}`, type: 'invalid_request_error' } });
     return;
   }
-  const mode = parsed.data.mode;
-  setSetting(UNIFIED_MAX_TOKENS_SETTING, mode === 'off' ? 'off' : String(mode));
-  const cap = unifiedMaxTokensCap();
-  res.json({ mode: String(mode), effectiveCap: cap, autoValue: UNIFIED_MAX_TOKENS_AUTO });
+  setSetting(UNIFIED_MAX_TOKENS_SETTING, String(parsed.data.mode));
+  res.json(outputLimitState());
 });
 
 // Get the request guardrails (per-request token budget + failover circuit
