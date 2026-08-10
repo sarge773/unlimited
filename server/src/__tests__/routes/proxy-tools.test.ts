@@ -220,4 +220,59 @@ describe('Proxy tool-calling support', () => {
     expect(providerBody.messages[1].role).toBe('assistant');
     expect(providerBody.messages[1].reasoning_content).toBe('Let me reason about this step by step...');
   });
+
+  it('restores session reasoning_content the client dropped on replay (#797)', async () => {
+    const origFetch = global.fetch;
+    let turn = 0;
+    let providerBody: any = null;
+
+    vi.spyOn(global, 'fetch').mockImplementation(async (url, init) => {
+      const urlStr = typeof url === 'string' ? url : url.toString();
+      if (urlStr.includes('api.groq.com/openai/v1/chat/completions')) {
+        turn += 1;
+        if (turn === 2) providerBody = JSON.parse((init as any).body);
+        return {
+          ok: true,
+          json: () => Promise.resolve({
+            id: 'chatcmpl-r', object: 'chat.completion', created: 1, model: 'm',
+            choices: [{
+              index: 0,
+              message: {
+                role: 'assistant',
+                content: turn === 1 ? 'first answer' : 'second answer',
+                // Turn 1 is a thinking turn: the provider returns a trace the
+                // proxy must remember for the session.
+                ...(turn === 1 ? { reasoning_content: 'session trace from turn one' } : {}),
+              },
+              finish_reason: 'stop',
+            }],
+            usage: { prompt_tokens: 5, completion_tokens: 2, total_tokens: 7 },
+          }),
+        } as any;
+      }
+      return origFetch(url, init);
+    });
+
+    const sessHeaders = { ...authHeaders(), 'x-session-id': 'sess-797' };
+
+    // Turn 1: thinking model returns reasoning_content → proxy records it.
+    const first = await request(app, 'POST', '/v1/chat/completions', {
+      messages: [{ role: 'user', content: 'think then answer' }],
+    }, sessHeaders);
+    expect(first.status).toBe(200);
+
+    // Turn 2: same session; opencode-style replay strips reasoning_content
+    // (AI-SDK convertToOpenAICompatibleChatMessages). The proxy must restore
+    // the trace it returned last turn or OpenCode Zen 400s.
+    const second = await request(app, 'POST', '/v1/chat/completions', {
+      messages: [
+        { role: 'user', content: 'think then answer' },
+        { role: 'assistant', content: 'first answer' },
+        { role: 'user', content: 'continue' },
+      ],
+    }, sessHeaders);
+    expect(second.status).toBe(200);
+    expect(providerBody.messages[1].role).toBe('assistant');
+    expect(providerBody.messages[1].reasoning_content).toBe('session trace from turn one');
+  });
 });
