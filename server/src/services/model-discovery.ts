@@ -42,6 +42,11 @@ export interface DiscoveredModel {
   isFree?: boolean;
   /** True when the upstream advertises image input (modalities/vision). */
   vision?: boolean;
+  /** Model aliases advertised by the upstream (OpenRouter's `aliases`, etc.):
+   *  alternative ids for the SAME model. Requests for the primary id can be
+   *  served through these aliases, so they are expanded into additional
+   *  catalog entries (#790). */
+  aliases?: string[];
 }
 
 /** Carries the HTTP status the route should answer with, so a relay's 401 stays
@@ -61,6 +66,9 @@ const LIST_KEYS = ['data', 'models', 'result', 'results', 'items'] as const;
 // Id aliases: `id` (OpenAI), `name`/`model` (Ollama), plus the snake/camel and
 // slug spellings assorted relays ship.
 const ID_KEYS = ['id', 'name', 'model', 'model_id', 'modelId', 'slug'] as const;
+// Model aliases: OpenRouter ships `aliases`, some relays `alias`/`id_aliases` —
+// an array (or comma-separated string) of alternative ids for the SAME model.
+const ALIAS_KEYS = ['aliases', 'alias', 'id_aliases', 'ids'] as const;
 const OWNER_KEYS = ['owned_by', 'ownedBy', 'organization', 'owner', 'provider', 'publisher'] as const;
 // Context-window spellings seen on OpenAI-style /models (OpenRouter), Ollama
 // /api/tags (ctx_len), and assorted relays. Only present on some envelopes;
@@ -227,7 +235,33 @@ function toDiscovered(entry: unknown): DiscoveredModel | null {
   }
   const vision = visionOf(record);
   if (vision !== undefined) model.vision = vision;
+  const aliases = aliasesOf(record);
+  if (aliases.length > 0) model.aliases = aliases;
   return model;
+}
+
+/** Model aliases out of an entry: an `aliases` array, or a comma-separated
+ *  string under `aliases`/`alias`/`id_aliases`. Empty when the upstream ships
+ *  none. */
+function aliasesOf(record: Record<string, unknown>): string[] {
+  const out = new Set<string>();
+  for (const key of ALIAS_KEYS) {
+    const value = record[key];
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (typeof item === 'string') {
+          const t = item.trim();
+          if (t) out.add(t);
+        }
+      }
+    } else if (typeof value === 'string') {
+      for (const part of value.split(',')) {
+        const t = part.trim();
+        if (t) out.add(t);
+      }
+    }
+  }
+  return [...out];
 }
 
 /** Whether this payload carries a model list at all — the difference between
@@ -250,6 +284,20 @@ export function parseModelCatalog(payload: unknown): DiscoveredModel[] {
   for (const entry of entries) {
     const model = toDiscovered(entry);
     if (!model || model.id.length > MAX_MODEL_ID_LENGTH) continue;
+    // #790: the upstream advertises aliases for the SAME model (OpenRouter
+    // `aliases`, etc.). Expand each alias into its own catalog entry so a
+    // request for the primary id can be served through the alias — both ids
+    // resolve to the same underlying model on this endpoint. The first
+    // spelling wins when an alias collides with a primary id already seen.
+    if (model.aliases?.length) {
+      for (const alias of model.aliases) {
+        if (!alias || alias.length > MAX_MODEL_ID_LENGTH) continue;
+        if (!byId.has(alias)) {
+          byId.set(alias, { ...model, id: alias, aliases: undefined });
+        }
+      }
+      delete model.aliases;
+    }
     if (!byId.has(model.id)) byId.set(model.id, model);
   }
 
