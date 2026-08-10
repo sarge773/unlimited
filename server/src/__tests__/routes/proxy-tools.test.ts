@@ -275,4 +275,100 @@ describe('Proxy tool-calling support', () => {
     expect(providerBody.messages[1].role).toBe('assistant');
     expect(providerBody.messages[1].reasoning_content).toBe('session trace from turn one');
   });
+
+  it('sends the client\'s messages untouched when the session remembers no reasoning (#797)', async () => {
+    const origFetch = global.fetch;
+    let providerBody: any = null;
+
+    vi.spyOn(global, 'fetch').mockImplementation(async (url, init) => {
+      const urlStr = typeof url === 'string' ? url : url.toString();
+      if (urlStr.includes('api.groq.com/openai/v1/chat/completions')) {
+        providerBody = JSON.parse((init as any).body);
+        return {
+          ok: true,
+          json: () => Promise.resolve({
+            id: 'chatcmpl-p', object: 'chat.completion', created: 1, model: 'm',
+            // No reasoning_content anywhere in this session.
+            choices: [{ index: 0, message: { role: 'assistant', content: 'plain answer 2' }, finish_reason: 'stop' }],
+            usage: { prompt_tokens: 5, completion_tokens: 2, total_tokens: 7 },
+          }),
+        } as any;
+      }
+      return origFetch(url, init);
+    });
+
+    const sent = [
+      { role: 'user', content: 'no thinking in this session' },
+      { role: 'assistant', content: 'plain answer' },
+      { role: 'user', content: 'continue' },
+    ];
+
+    const { status } = await request(app, 'POST', '/v1/chat/completions', { messages: sent },
+      { ...authHeaders(), 'x-session-id': 'sess-797-plain' });
+
+    expect(status).toBe(200);
+    // Byte-identical: no restore, no empty-string filler, no reordering.
+    expect(providerBody.messages).toEqual(sent);
+    expect(providerBody.messages.some((m: any) => 'reasoning_content' in m)).toBe(false);
+  });
+
+  it('restores only into the outbound copy, so a failover hop still sends the client\'s bytes (#797)', async () => {
+    const origFetch = global.fetch;
+    const calls: any[] = [];
+
+    vi.spyOn(global, 'fetch').mockImplementation(async (url, init) => {
+      const urlStr = typeof url === 'string' ? url : url.toString();
+      if (urlStr.includes('api.groq.com/openai/v1/chat/completions')) {
+        calls.push(JSON.parse((init as any).body));
+        // Call 1 is turn 1 (records the trace). Call 2 is turn 2's first
+        // attempt — rate-limited so the request fails over to another model.
+        if (calls.length === 2) {
+          return new Response(JSON.stringify({ error: { message: 'rate limited' } }), { status: 429 }) as any;
+        }
+        return {
+          ok: true,
+          json: () => Promise.resolve({
+            id: 'chatcmpl-f', object: 'chat.completion', created: 1, model: 'm',
+            choices: [{
+              index: 0,
+              message: {
+                role: 'assistant',
+                content: 'answer',
+                ...(calls.length === 1 ? { reasoning_content: 'trace bound to the first model' } : {}),
+              },
+              finish_reason: 'stop',
+            }],
+            usage: { prompt_tokens: 5, completion_tokens: 2, total_tokens: 7 },
+          }),
+        } as any;
+      }
+      return origFetch(url, init);
+    });
+
+    const sessHeaders = { ...authHeaders(), 'x-session-id': 'sess-797-failover' };
+
+    const first = await request(app, 'POST', '/v1/chat/completions', {
+      messages: [{ role: 'user', content: 'think then answer' }],
+    }, sessHeaders);
+    expect(first.status).toBe(200);
+
+    const second = await request(app, 'POST', '/v1/chat/completions', {
+      messages: [
+        { role: 'user', content: 'think then answer' },
+        { role: 'assistant', content: 'answer' },
+        { role: 'user', content: 'continue' },
+      ],
+    }, sessHeaders);
+    expect(second.status).toBe(200);
+    expect(calls).toHaveLength(3);
+
+    // Attempt 1 goes to the model that produced the trace — restored.
+    expect(calls[1].messages[1].reasoning_content).toBe('trace bound to the first model');
+    // Attempt 2 is a different model. The restore lived on the outbound copy
+    // only, so this hop carries exactly what the client sent — no leaked
+    // reasoning_content from the mutated request body.
+    expect(calls[2].model).not.toBe(calls[1].model);
+    expect(calls[2].messages[1].reasoning_content).toBeUndefined();
+    expect(calls[2].messages.some((m: any) => 'reasoning_content' in m)).toBe(false);
+  });
 });
