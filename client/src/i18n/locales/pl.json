@@ -319,6 +319,8 @@
     "tabProviders": "Dostawcy",
     "checklistSummary": "Skonfigurowano {configured} z {total} dostawców",
     "checklistKeyless": "klucz niepotrzebny",
+    "checklistNoKeyTip": "Nie dodano jeszcze klucza. Kliknij, aby dodać.",
+    "checklistKeylessTip": "Działa bez klucza.",
     "tabQuotaSignals": "Sygnały kwotowe",
     "tabApiKey": "Ujednolicony klucz API",
     "tabAnthropic": "Anthropic",

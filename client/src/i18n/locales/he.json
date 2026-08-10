@@ -319,6 +319,8 @@
     "tabProviders": "ספקים",
     "checklistSummary": "{configured} מתוך {total} ספקים הוגדרו",
     "checklistKeyless": "אין צורך במפתח",
+    "checklistNoKeyTip": "עדיין לא נוסף מפתח. לחץ כדי להוסיף.",
+    "checklistKeylessTip": "עובד ללא מפתח.",
     "tabQuotaSignals": "אותות מכסה",
     "tabApiKey": "מפתח API מאוחד",
     "tabAnthropic": "Anthropic",

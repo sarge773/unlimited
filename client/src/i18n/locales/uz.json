@@ -319,6 +319,8 @@
     "tabProviders": "Provayderlar",
     "checklistSummary": "{total} ta provayderdan {configured} tasi sozlangan",
     "checklistKeyless": "kalit kerak emas",
+    "checklistNoKeyTip": "Hali kalit qo'shilmagan. Qo'shish uchun bosing.",
+    "checklistKeylessTip": "Kalitsiz ishlaydi.",
     "tabQuotaSignals": "Kvota signallari",
     "tabApiKey": "Birlashtirilgan API kaliti",
     "tabAnthropic": "Anthropic",

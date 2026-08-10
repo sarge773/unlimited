@@ -319,6 +319,8 @@
     "tabProviders": "Furnizori",
     "checklistSummary": "{configured} din {total} furnizori configurați",
     "checklistKeyless": "nu necesită cheie",
+    "checklistNoKeyTip": "Nicio cheie adăugată încă. Faceți clic pentru a adăuga una.",
+    "checklistKeylessTip": "Funcționează fără cheie.",
     "tabQuotaSignals": "Semnale de cotă",
     "tabApiKey": "Cheia API unificată",
     "tabAnthropic": "Anthropic",

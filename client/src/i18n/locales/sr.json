@@ -319,6 +319,8 @@
     "tabProviders": "Провајдери",
     "checklistSummary": "Подешено {configured} од {total} провајдера",
     "checklistKeyless": "кључ није потребан",
+    "checklistNoKeyTip": "Кључ још није додат. Кликните да бисте га додали.",
+    "checklistKeylessTip": "Ради без кључа.",
     "tabQuotaSignals": "Квотни сигнали",
     "tabApiKey": "Обједињени кључ API",
     "tabAnthropic": "Anthropic",

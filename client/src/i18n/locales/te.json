@@ -319,6 +319,8 @@
     "tabProviders": "ప్రొవైడర్లు",
     "checklistSummary": "{total}లో {configured} ప్రొవైడర్లు కాన్ఫిగర్ చేయబడ్డాయి",
     "checklistKeyless": "కీ అవసరం లేదు",
+    "checklistNoKeyTip": "ఇంకా కీ జోడించలేదు. జోడించడానికి క్లిక్ చేయండి.",
+    "checklistKeylessTip": "కీ లేకుండా పనిచేస్తుంది.",
     "tabQuotaSignals": "కోటా సంకేతాలు",
     "tabApiKey": "ఏకీకృత API కీ",
     "tabAnthropic": "Anthropic",

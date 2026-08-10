@@ -319,6 +319,8 @@
     "tabProviders": "Fornitori",
     "checklistSummary": "{configured} fornitori su {total} configurati",
     "checklistKeyless": "nessuna chiave richiesta",
+    "checklistNoKeyTip": "Nessuna chiave aggiunta. Clicca per aggiungerne una.",
+    "checklistKeylessTip": "Funziona senza chiave.",
     "tabQuotaSignals": "Segnali quota",
     "tabApiKey": "Chiave API unificata",
     "tabAnthropic": "Anthropic",

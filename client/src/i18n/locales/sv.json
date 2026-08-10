@@ -319,6 +319,8 @@
     "tabProviders": "Leverantörer",
     "checklistSummary": "{configured} av {total} leverantörer konfigurerade",
     "checklistKeyless": "ingen nyckel krävs",
+    "checklistNoKeyTip": "Ingen nyckel har lagts till än. Klicka för att lägga till en.",
+    "checklistKeylessTip": "Fungerar utan nyckel.",
     "tabQuotaSignals": "Kvotsignaler",
     "tabApiKey": "Enhetlig API nyckel",
     "tabAnthropic": "Anthropic",

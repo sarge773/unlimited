@@ -319,6 +319,8 @@
     "tabProviders": "አቅራቢዎች",
     "checklistSummary": "ከ{total} አቅራቢዎች {configured} ተዋቅረዋል",
     "checklistKeyless": "ቁልፍ አያስፈልግም",
+    "checklistNoKeyTip": "እስካሁን ቁልፍ አልታከለም። ለመጨመር ጠቅ ያድርጉ።",
+    "checklistKeylessTip": "ያለ ቁልፍ ይሠራል።",
     "tabQuotaSignals": "የኮታ ምልክቶች",
     "tabApiKey": "የተዋሃደ API ቁልፍ",
     "tabAnthropic": "Anthropic",

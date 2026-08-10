@@ -319,6 +319,8 @@
     "tabProviders": "Providers",
     "checklistSummary": "{configured} of {total} providers configured",
     "checklistKeyless": "no key needed",
+    "checklistNoKeyTip": "No key added yet. Click to add one.",
+    "checklistKeylessTip": "Works without a key.",
     "tabQuotaSignals": "Quota signals",
     "tabApiKey": "Unified API key",
     "tabAnthropic": "Anthropic",

@@ -319,6 +319,8 @@
     "tabProviders": "Ndị na-enye ihe",
     "checklistSummary": "Ahaziela {configured} n'ime {total} ndị na-enye ihe",
     "checklistKeyless": "achọghị igodo",
+    "checklistNoKeyTip": "Etinyebeghị igodo. Pịa iji tinye otu.",
+    "checklistKeylessTip": "Ọ na-arụ ọrụ na-enweghị igodo.",
     "tabQuotaSignals": "Ngosipụta oke",
     "tabApiKey": "Igodo API jikọtara ọnụ",
     "tabAnthropic": "Anthropic",

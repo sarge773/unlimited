@@ -319,6 +319,8 @@
     "tabProviders": "Masu bayarwa",
     "checklistSummary": "An saita {configured} daga cikin {total} masu bayarwa",
     "checklistKeyless": "ba a buƙatar maɓalli",
+    "checklistNoKeyTip": "Ba a ƙara maɓalli ba tukuna. Danna don ƙarawa.",
+    "checklistKeylessTip": "Yana aiki ba tare da maɓalli ba.",
     "tabQuotaSignals": "Alamun ƙididdiga",
     "tabApiKey": "Maɓallin API haɗe",
     "tabAnthropic": "Saukewa: Anthropic",

@@ -319,6 +319,8 @@
     "tabProviders": "Pružatelji usluga",
     "checklistSummary": "Konfigurirano {configured} od {total} pružatelja usluga",
     "checklistKeyless": "ključ nije potreban",
+    "checklistNoKeyTip": "Ključ još nije dodan. Kliknite za dodavanje.",
+    "checklistKeylessTip": "Radi bez ključa.",
     "tabQuotaSignals": "Kvotni signali",
     "tabApiKey": "Ujedinjeni API ključ",
     "tabAnthropic": "Anthropic",

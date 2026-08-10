@@ -319,6 +319,8 @@
     "tabProviders": "Poskytovatelé",
     "checklistSummary": "Nastaveno {configured} z {total} poskytovatelů",
     "checklistKeyless": "klíč není potřeba",
+    "checklistNoKeyTip": "Zatím nebyl přidán žádný klíč. Kliknutím jej přidáte.",
+    "checklistKeylessTip": "Funguje bez klíče.",
     "tabQuotaSignals": "Kvótové signály",
     "tabApiKey": "Sjednocený API klíč",
     "tabAnthropic": "Anthropic",

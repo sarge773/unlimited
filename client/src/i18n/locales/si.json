@@ -319,6 +319,8 @@
     "tabProviders": "සපයන්නන්",
     "checklistSummary": "සපයන්නන් {total} දෙනාගෙන් {configured} ක් වින්‍යාස කර ඇත",
     "checklistKeyless": "යතුරක් අවශ්‍ය නැත",
+    "checklistNoKeyTip": "තවම යතුරක් එක් කර නැත. එක් කිරීමට ක්ලික් කරන්න.",
+    "checklistKeylessTip": "යතුරක් නොමැතිව ක්‍රියා කරයි.",
     "tabQuotaSignals": "කෝටා සංඥා",
     "tabApiKey": "ඒකාබද්ධ API යතුර",
     "tabAnthropic": "Anthropic",

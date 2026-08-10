@@ -319,6 +319,8 @@
     "tabProviders": "អ្នកផ្តល់សេវា",
     "checklistSummary": "បានកំណត់រចនាសម្ព័ន្ធអ្នកផ្តល់សេវា {configured} ក្នុងចំណោម {total}",
     "checklistKeyless": "មិនត្រូវការសោ",
+    "checklistNoKeyTip": "មិនទាន់បានបន្ថែមសោនៅឡើយទេ។ ចុចដើម្បីបន្ថែម។",
+    "checklistKeylessTip": "ដំណើរការដោយមិនចាំបាច់ប្រើសោ។",
     "tabQuotaSignals": "សញ្ញាកូតា",
     "tabApiKey": "កូនសោ API រួម",
     "tabAnthropic": "Anthropic",

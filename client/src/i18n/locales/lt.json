@@ -319,6 +319,8 @@
     "tabProviders": "Tiekėjai",
     "checklistSummary": "Sukonfigūruota {configured} iš {total} tiekėjų",
     "checklistKeyless": "rakto nereikia",
+    "checklistNoKeyTip": "Raktas dar nepridėtas. Spustelėkite, kad pridėtumėte.",
+    "checklistKeylessTip": "Veikia be rakto.",
     "tabQuotaSignals": "Kvotų signalai",
     "tabApiKey": "Vieningas API raktas",
     "tabAnthropic": "Anthropic",

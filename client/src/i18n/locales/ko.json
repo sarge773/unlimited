@@ -319,6 +319,8 @@
     "tabProviders": "공급자",
     "checklistSummary": "{total}개 공급자 중 {configured}개 설정됨",
     "checklistKeyless": "키 필요 없음",
+    "checklistNoKeyTip": "아직 키를 추가하지 않았습니다. 클릭하여 추가하세요.",
+    "checklistKeylessTip": "키 없이 작동합니다.",
     "tabQuotaSignals": "할당량 신호",
     "tabApiKey": "통합 API 키",
     "tabAnthropic": "Anthropic",

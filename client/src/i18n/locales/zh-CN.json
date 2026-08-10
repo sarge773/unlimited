@@ -319,6 +319,8 @@
     "tabProviders": "提供方",
     "checklistSummary": "已配置 {configured}/{total} 个提供方",
     "checklistKeyless": "无需密钥",
+    "checklistNoKeyTip": "尚未添加密钥。点击添加一个。",
+    "checklistKeylessTip": "无需密钥即可使用。",
     "tabQuotaSignals": "配额信号",
     "tabApiKey": "统一 API 密钥",
     "tabAnthropic": "Anthropic",

@@ -319,6 +319,8 @@
     "tabProviders": "プロバイダー",
     "checklistSummary": "{total}件中{configured}件のプロバイダーを設定済み",
     "checklistKeyless": "キー不要",
+    "checklistNoKeyTip": "キーがまだ追加されていません。クリックして追加します。",
+    "checklistKeylessTip": "キーなしで利用できます。",
     "tabQuotaSignals": "クォータ信号",
     "tabApiKey": "統一されたAPIキー",
     "tabAnthropic": "Anthropic",

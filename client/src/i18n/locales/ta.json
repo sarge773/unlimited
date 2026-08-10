@@ -319,6 +319,8 @@
     "tabProviders": "வழங்குபவர்கள்",
     "checklistSummary": "{total} இல் {configured} வழங்குபவர்கள் உள்ளமைக்கப்பட்டுள்ளனர்",
     "checklistKeyless": "விசை தேவையில்லை",
+    "checklistNoKeyTip": "இன்னும் விசை எதுவும் சேர்க்கப்படவில்லை. சேர்க்க கிளிக் செய்யவும்.",
+    "checklistKeylessTip": "விசை இல்லாமல் செயல்படும்.",
     "tabQuotaSignals": "ஒதுக்கீடு சமிக்ஞைகள்",
     "tabApiKey": "ஒருங்கிணைந்த API விசை",
     "tabAnthropic": "Anthropic",

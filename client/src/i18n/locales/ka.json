@@ -319,6 +319,8 @@
     "tabProviders": "პროვაიდერები",
     "checklistSummary": "{total}-დან {configured} პროვაიდერი კონფიგურირებულია",
     "checklistKeyless": "გასაღები არ არის საჭირო",
+    "checklistNoKeyTip": "გასაღები ჯერ არ დამატებულა. დააწკაპუნეთ დასამატებლად.",
+    "checklistKeylessTip": "მუშაობს გასაღების გარეშე.",
     "tabQuotaSignals": "კვოტის სიგნალები",
     "tabApiKey": "ერთიანი API გასაღები",
     "tabAnthropic": "Anthropic",

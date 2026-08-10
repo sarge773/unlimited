@@ -319,6 +319,8 @@
     "tabProviders": "Penyedia",
     "checklistSummary": "{configured} dari {total} penyedia telah dikonfigurasi",
     "checklistKeyless": "tidak perlu kunci",
+    "checklistNoKeyTip": "Belum ada kunci yang ditambahkan. Klik untuk menambahkan.",
+    "checklistKeylessTip": "Berfungsi tanpa kunci.",
     "tabQuotaSignals": "Sinyal kuota",
     "tabApiKey": "Kunci API terpadu",
     "tabAnthropic": "Anthropic",

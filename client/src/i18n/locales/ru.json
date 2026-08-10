@@ -319,6 +319,8 @@
     "tabProviders": "Провайдеры",
     "checklistSummary": "Настроено {configured} из {total} провайдеров",
     "checklistKeyless": "ключ не нужен",
+    "checklistNoKeyTip": "Ключ ещё не добавлен. Нажмите, чтобы добавить.",
+    "checklistKeylessTip": "Работает без ключа.",
     "tabQuotaSignals": "Сигналы квоты",
     "tabApiKey": "Единый ключ API",
     "tabAnthropic": "Anthropic",

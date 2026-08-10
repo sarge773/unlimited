@@ -319,6 +319,8 @@
     "tabProviders": "Təchizatçılar",
     "checklistSummary": "{total} təchizatçıdan {configured} qurulub",
     "checklistKeyless": "açar tələb olunmur",
+    "checklistNoKeyTip": "Hələ açar əlavə edilməyib. Əlavə etmək üçün klikləyin.",
+    "checklistKeylessTip": "Açarsız işləyir.",
     "tabQuotaSignals": "Kvota siqnalları",
     "tabApiKey": "Birləşmiş API açarı",
     "tabAnthropic": "Anthropic",

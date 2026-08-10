@@ -319,6 +319,8 @@
     "tabProviders": "فراہم کرنے والے",
     "checklistSummary": "{total} میں سے {configured} فراہم کنندگان ترتیب دیے گئے",
     "checklistKeyless": "کلید کی ضرورت نہیں",
+    "checklistNoKeyTip": "ابھی تک کوئی کلید شامل نہیں کی گئی۔ شامل کرنے کے لیے کلک کریں۔",
+    "checklistKeylessTip": "کلید کے بغیر کام کرتا ہے۔",
     "tabQuotaSignals": "کوٹہ سگنلز",
     "tabApiKey": "متحد API کلید",
     "tabAnthropic": "Anthropic",
