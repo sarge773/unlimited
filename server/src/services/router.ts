@@ -1,6 +1,7 @@
 import { getDb, getSetting, setSetting } from '../db/index.js';
 import { getProvider, hasProvider, resolveProvider } from '../providers/index.js';
 import { decrypt } from '../lib/crypto.js';
+import { decryptProxyUrl } from '../lib/key-proxy.js';
 import {
   canMakeRequest,
   canUseTokens,
@@ -121,6 +122,10 @@ interface KeyRow {
   // Optional JSON array of model_id strings this key may serve; NULL = every
   // model of its platform (#657).
   model_scope_json: string | null;
+  // Encrypted per-key proxy override (#590); all NULL = no override.
+  proxy_encrypted: string | null;
+  proxy_iv: string | null;
+  proxy_auth_tag: string | null;
 }
 
 // Chain row joined with the model fields the bandit needs to score it.
@@ -173,6 +178,17 @@ export interface RouteResult {
    * to ONE relay instead of every relay serving the same model id.
    */
   endpointScope: string;
+  /**
+   * This key's own proxy URL, already decrypted, '' when it has none (#590).
+   *
+   * It rides the route rather than being looked up at dispatch time on
+   * purpose: selectKeyForModel already reads the whole api_keys row and
+   * already decrypts on it, so the override costs one extra AES-GCM open per
+   * ROUTE — not a prepared SELECT plus a decrypt per ATTEMPT, on the hot path
+   * of every request. Optional so test doubles and any future construction
+   * path simply mean "no override".
+   */
+  proxyUrl?: string;
   // Daily limits for this model, so a 429 handler can tell a genuine daily
   // exhaustion (escalate the cooldown) from a transient per-minute spike.
   rpdLimit: number | null;
@@ -1174,6 +1190,8 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
       modelDbId: entry.model_db_id,
       apiKey: decryptedKey,
       keyId: key.id,
+      // Decrypted once here, at the point the row is already in hand (#590).
+      proxyUrl: decryptProxyUrl(key),
       platform: entry.platform,
       displayName: entry.display_name,
       endpointScope: entry.endpoint_scope ?? '',

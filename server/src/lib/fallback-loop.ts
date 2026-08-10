@@ -52,6 +52,7 @@ import { getSetting } from '../db/index.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
 import { getRequestTrace, newRequestTrace, runWithRequestTrace, type AttemptOutcome, type AttemptTraceRecord, type RequestTrace } from './attempt-trace.js';
 import { logRequest, persistRequestAttempts } from './request-log.js';
+import { withKeyProxy } from './proxy.js';
 
 // Every surface caps failover hops at the same number.
 export const FALLBACK_MAX_RETRIES = 20;
@@ -406,6 +407,7 @@ export type AttemptErrorClass =
   | 'provider_bad_request'
   | 'empty_completion'
   | 'format_ignored'
+  | 'invalid_tool_arguments'
   | 'timeout'
   | 'rate_limited'
   | 'upstream_error'
@@ -435,6 +437,9 @@ export function classifyAttemptError(err: any): AttemptErrorClass {
   const msg = (err?.message ?? '').toLowerCase();
   if (msg.includes('empty completion')) return 'empty_completion';
   if (msg.includes('ignored response_format') || msg.includes('truncated json')) return 'format_ignored';
+  // Before the generic classes so the trail names the real cause rather than
+  // booking a schema violation as a bare 'error'.
+  if (msg.includes('invalid tool arguments')) return 'invalid_tool_arguments';
   if (isTimeoutErrorText(msg)) return 'timeout';
   if (msg.includes('429') || msg.includes('rate limit') || msg.includes('too many requests') || msg.includes('quota')) return 'rate_limited';
   const status = typeof err?.status === 'number' ? err.status : 0;
@@ -1076,7 +1081,12 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
     try {
     let outcome: DispatchOutcome;
     try {
-      outcome = await hooks.dispatch(route, attempt);
+      // #590 (per-key proxy): if THIS key carries its own proxy URL, route the
+      // attempt through it (withKeyProxy → proxyFetch reads the ALS store);
+      // otherwise the global proxy / direct path applies as before. The URL
+      // arrives already decrypted on the route (services/router.ts), so an
+      // attempt costs nothing extra — no query, no decrypt.
+      outcome = await withKeyProxy(route.proxyUrl, () => hooks.dispatch(route, attempt));
     } catch (err: any) {
       // Client-caused abort: the composed fetch signal fired because OUR
       // client hung up mid-attempt (see newClientAbortError). Not a
