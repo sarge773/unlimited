@@ -16,12 +16,13 @@
 // the fire-and-forget key revalidation kicked off on an upstream 401 (below).
 
 import type { RouteResult } from '../services/router.js';
-import { recordRateLimitHit, recordSuccess, hasOtherUsableKey, formatResetEta } from '../services/router.js';
+import { recordRateLimitHit, recordModelFailure, recordSuccess, hasOtherUsableKey, routableKeyIdsForModel, formatResetEta } from '../services/router.js';
 import { safeHeaderValue } from './header-value.js';
 import {
   recordRequest,
   recordTokens,
   setCooldown,
+  getActiveCooldownsForKeys,
   getCooldownDecisionForLimit,
   getSoonestCooldownExpiry,
   PAYMENT_REQUIRED_COOLDOWN_MS,
@@ -40,6 +41,7 @@ import {
   isModelAccessForbiddenError,
   isProviderBadRequestError,
   isProviderDegradedError,
+  isProviderLevelError,
   isContextTooLargeError,
   isTimeoutErrorText,
 } from './error-classify.js';
@@ -53,6 +55,61 @@ import { logRequest, persistRequestAttempts } from './request-log.js';
 
 // Every surface caps failover hops at the same number.
 export const FALLBACK_MAX_RETRIES = 20;
+
+// ── Model-level failure benching ─────────────────────────────────────────────
+// A model that keeps failing upstream (401/429/5xx/empty-stream/timeout) must
+// not keep being picked by auto-routing: every dead-end attempt wastes seconds
+// of user-visible latency. The per-key cooldown above benches the *key*; this
+// is the model-level counterpart — a sliding window of failures *across keys*
+// that benches the whole MODEL once the streak is convincing. The window counts
+// across keys, so the bench must span keys too: benching only the key that
+// happened to fail last leaves every sibling key serving the same sick model
+// until each one trips its own streak. Recovery stays automatic: the bench is
+// 'heuristic', the only source the cooldown-probe job may clear early, and it
+// re-validates each benched key once half the bench has been served (the probe
+// exercises the credential, not the model, so a model still sick behind a good
+// key simply re-trips the streak). Client-cancels never reach
+// recordRetryableFailure (the loop returns on isClientAbortError before this
+// bookkeeping), so they don't count.
+const MODEL_FAILURE_WINDOW_MS = 15 * 60 * 1000;   // sliding window: 15 min
+export const MODEL_FAILURE_THRESHOLD = 3;         // failures within window
+export const MODEL_FAILURE_COOLDOWN_MS = 10 * 60 * 1000; // bench duration: 10 min
+const modelFailureTimestamps = new Map<number, number[]>(); // model_db_id → times
+
+/** Record one retryable upstream failure for a model. Once the sliding window
+ *  holds ≥ MODEL_FAILURE_THRESHOLD failures, bench the model on EVERY key that
+ *  can route to it so the model sinks out of routing until upstream heals, then
+ *  reset the counter (one bench per streak). */
+function noteModelFailure(route: RouteResult): void {
+  const now = Date.now();
+  const window = (modelFailureTimestamps.get(route.modelDbId) ?? [])
+    .filter(t => now - t < MODEL_FAILURE_WINDOW_MS);
+  window.push(now);
+  modelFailureTimestamps.set(route.modelDbId, window);
+  if (window.length < MODEL_FAILURE_THRESHOLD) return;
+  // Fall back to the failing key alone when the model's key set can't be read
+  // (model row gone, DB unavailable) — a narrower bench beats none.
+  const keyIds = routableKeyIdsForModel(route.modelDbId);
+  const targets = keyIds.length > 0 ? keyIds : [route.keyId];
+  const benchUntil = now + MODEL_FAILURE_COOLDOWN_MS;
+  const active = getActiveCooldownsForKeys(targets, now);
+  for (const keyId of targets) {
+    // Never SHORTEN an existing bench: a provider-stated reset or an escalated
+    // ladder step outlasting this window knows more than this heuristic does,
+    // and overwriting it would also drop its non-probeable provenance.
+    const current = active.get(keyId)
+      ?.find(c => c.platform === route.platform && c.modelId === route.modelId);
+    if (current && current.expiresAtMs >= benchUntil) continue;
+    setCooldown(route.platform, route.modelId, keyId, MODEL_FAILURE_COOLDOWN_MS, 'heuristic');
+  }
+  modelFailureTimestamps.delete(route.modelDbId);
+}
+
+/** A served request is the strongest counter-evidence: clear the failure
+ *  window so a recovered model is not benched for a stale streak. */
+function clearModelFailure(route: RouteResult): void {
+  modelFailureTimestamps.delete(route.modelDbId);
+}
 
 // ── Wall-clock retry budget ──────────────────────────────────────────────────
 // Serial failover has no time bound of its own: the observed worst case was a
@@ -90,14 +147,18 @@ export function getFallbackTimeBudgetMs(): number {
 // Mutable per-request skip state threaded through the loop and mutated by
 // recordRetryableFailure / recordAuthFailure. skipKeys entries are
 // "platform:modelId:keyId"; skipModels holds model_db_ids ruled out for the
-// rest of this request.
+// rest of this request; skipPlatforms holds platforms ruled out wholesale
+// (#788) — every model and every key of them — for the rest of this request.
+// All three are request-scoped only: nothing here outlives the response, so a
+// provider that blipped once is a fresh candidate on the very next request.
 export interface FallbackState {
   skipKeys: Set<string>;
   skipModels: Set<number>;
+  skipPlatforms: Set<string>;
 }
 
 export function newFallbackState(): FallbackState {
-  return { skipKeys: new Set<string>(), skipModels: new Set<number>() };
+  return { skipKeys: new Set<string>(), skipModels: new Set<number>(), skipPlatforms: new Set<string>() };
 }
 
 // Milliseconds until the next UTC midnight — when most providers' daily free
@@ -238,12 +299,32 @@ export function recordRetryableFailure(route: RouteResult, err: any, state: Fall
   // sibling keys counts as the single observation it is.
   noteModelRetirementSignal(route, err, getRequestTrace());
   state.skipKeys.add(`${route.platform}:${route.modelId}:${route.keyId}`);
+  // #788: provider-level failures (5xx / timeout / transport / degraded) mean
+  // the PROVIDER is sick, not this key — every key AND every model of that
+  // platform would fail identically. Rule out the whole platform for this
+  // request so the loop moves to the NEXT provider instead of burning one
+  // failover hop per key. Key-scoped failures (auth/quota) stay on the
+  // single-key path, and the per-key cooldown below is still the only thing
+  // that outlives the request.
+  if (isProviderLevelError(err)) {
+    state.skipPlatforms.add(route.platform);
+  }
   if (consumeSkipBenchExemption(route, err)) return true;
   const decision = cooldownDecisionForError(route, err);
   setCooldown(route.platform, route.modelId, route.keyId, decision.durationMs, decision.source);
+  // Model-level failure benching: a model failing across keys (or repeatedly on
+  // one key) must sink out of routing instead of being re-picked every request.
+  noteModelFailure(route);
   // Model-level penalty only when no sibling key can still serve (#454).
   if (!hasOtherUsableKey(route.modelDbId, route.keyId, state.skipKeys)) {
-    recordRateLimitHit(route.modelDbId);
+    // Hard limit signals (429/402) carry the heavier demotion; ordinary
+    // upstream failures (5xx/timeout/empty stream) get a lighter one so the
+    // model sinks gradually instead of being banished on a single blip.
+    if (isRateLimitSignal(err)) {
+      recordRateLimitHit(route.modelDbId);
+    } else {
+      recordModelFailure(route.modelDbId);
+    }
   }
   learnLimitFromError(route.modelDbId, err);
   return false;
@@ -300,6 +381,9 @@ export function recordUpstreamSuccess(route: RouteResult, rateLimitTokens: numbe
   // A served request proves the model+key can complete: the empty-completion
   // streak (#751) starts over.
   emptyCompletionStreaks.delete(`${route.platform}:${route.modelId}:${route.keyId}`);
+  // A served request is the strongest possible evidence the model works, so
+  // clear any model-level failure streak that could bench it later.
+  clearModelFailure(route);
   // A served request is the strongest possible evidence the key works, so clear
   // any stale 'error' status left by an earlier transport blip instead of waiting
   // for the next health pass to make the key routable again.
@@ -821,7 +905,8 @@ export interface FallbackHooks {
   state: FallbackState;
 
   /**
-   * Pick a route for this attempt. Reads state.skipKeys / state.skipModels.
+   * Pick a route for this attempt. Reads state.skipKeys / state.skipModels /
+   * state.skipPlatforms.
    * Throws the router's RouteError when the pool is exhausted before any
    * upstream is tried (caught by the loop → onRoutingExhausted).
    */

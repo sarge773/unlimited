@@ -225,14 +225,19 @@ const rateLimitPenalties = new Map<number, { count: number; lastHit: number; pen
 
 // Penalty decays over time so models recover
 const PENALTY_PER_429 = 3;        // each 429 adds this many priority positions
+const PENALTY_PER_FAIL = 1;       // each non-limit upstream failure (5xx/timeout/empty stream)
 const MAX_PENALTY = 10;            // cap so a model doesn't sink forever
 const DECAY_INTERVAL_MS = 2 * 60 * 1000; // penalty decays every 2 minutes
 const DECAY_AMOUNT = 1;            // remove this much penalty per decay interval
 
 /**
- * Record a 429 for a model — increases its penalty so it sinks in priority.
+ * Record an upstream failure for a model — increases its penalty so it sinks in
+ * priority. Default weight is the LIGHT one for ordinary upstream failures
+ * (5xx/timeout/empty stream, +1); callers that know they saw a hard limit
+ * signal (429/402) pass the heavier weight — a quota limit is the stronger,
+ * longer-lived health cue.
  */
-export function recordRateLimitHit(modelDbId: number) {
+export function recordModelFailure(modelDbId: number, weight = PENALTY_PER_FAIL) {
   const existing = rateLimitPenalties.get(modelDbId);
   const now = Date.now();
   if (existing) {
@@ -240,10 +245,18 @@ export function recordRateLimitHit(modelDbId: number) {
     existing.penalty = Math.max(0, existing.penalty - decaySteps * DECAY_AMOUNT);
     existing.count++;
     existing.lastHit = now;
-    existing.penalty = Math.min(existing.penalty + PENALTY_PER_429, MAX_PENALTY);
+    existing.penalty = Math.min(existing.penalty + weight, MAX_PENALTY);
   } else {
-    rateLimitPenalties.set(modelDbId, { count: 1, lastHit: now, penalty: PENALTY_PER_429 });
+    rateLimitPenalties.set(modelDbId, { count: 1, lastHit: now, penalty: weight });
   }
+}
+
+/**
+ * Record a 429 for a model — heavier penalty (priority demotion) than ordinary
+ * failures, since a rate-limit signal is the strongest short-term health cue.
+ */
+export function recordRateLimitHit(modelDbId: number) {
+  recordModelFailure(modelDbId, PENALTY_PER_429);
 }
 
 /**
@@ -869,6 +882,7 @@ function orderChain(chain: ChainRow[], strategy: RoutingStrategy, sampled = true
  * @param preferredModelDbId - try this model first (sticky session)
  * @param requireVision - only consider models that accept image input (#118)
  * @param requireTools - only consider models that emit structured tool_calls
+ * @param skipPlatforms - platforms ruled out for the rest of this request (#788)
  */
 export interface ResolvedChain {
   chain: ChainRow[];
@@ -1237,6 +1251,34 @@ export function hasOtherUsableKey(modelDbId: number, excludingKeyId: number, ski
 }
 
 /**
+ * Every key that can be ROUTED to this model: enabled + healthy/unknown, not
+ * scoped away from the model (#657), and — for a custom model — belonging to
+ * the model's own endpoint (#212, #619). Deliberately ignores the transient
+ * gates hasOtherUsableKey applies (cooldown, quotas): the caller here is the
+ * model-level bench, which needs the full key set to take a sick model out of
+ * rotation, not "who could serve the next request".
+ */
+export function routableKeyIdsForModel(modelDbId: number): number[] {
+  const db = getDb();
+  const m = db.prepare('SELECT platform, model_id, key_id FROM models WHERE id = ?')
+    .get(modelDbId) as { platform: string; model_id: string; key_id: number | null } | undefined;
+  if (!m) return [];
+
+  const keys = db.prepare(
+    "SELECT id, model_scope_json FROM api_keys WHERE platform = ? AND enabled = 1 AND status IN ('healthy', 'unknown')"
+  ).all(m.platform) as { id: number; model_scope_json: string | null }[];
+
+  const endpointKeyIds = m.platform === 'custom' && m.key_id != null
+    ? customEndpointKeyIds(db, m.key_id)
+    : null;
+
+  return keys
+    .filter(k => !endpointKeyIds || endpointKeyIds.has(k.id))
+    .filter(k => scopeAllows(parseModelScope(k.model_scope_json), m.model_id))
+    .map(k => k.id);
+}
+
+/**
  * Fetch a single enabled model's chain row by its db id.
  */
 function getModelChainRow(db: Db, modelDbId: number): ChainRow | undefined {
@@ -1474,7 +1516,7 @@ export function resolveFusionCandidate(modelId: string): FusionCandidate | null 
   return null;
 }
 
-export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, preferredModelDbId?: number, requireVision = false, requireTools = false, skipModels?: Set<number>, prefetchedChain?: ChainRow[], requireStructured = false): RouteResult {
+export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, preferredModelDbId?: number, requireVision = false, requireTools = false, skipModels?: Set<number>, prefetchedChain?: ChainRow[], requireStructured = false, skipPlatforms?: Set<string>): RouteResult {
   const db = getDb();
 
   const strategy = getRoutingStrategy();
@@ -1545,6 +1587,13 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
     // model again on a different key would just burn another attempt on the
     // same dead route (PR #111, credits @barbotkonv).
     if (skipModels?.has(entry.model_db_id)) { diag.push(`${label}: ruled out earlier this request`); continue; }
+
+    // Platforms the caller has ruled out wholesale (#788): a provider-level
+    // failure this request — a 5xx, a timeout, a dead socket — is about the
+    // PROVIDER, so its other keys and its other models would fail the same way.
+    // Skipping the platform moves failover to the next provider instead of
+    // burning one hop per key. Request-scoped; nothing is benched by this.
+    if (skipPlatforms?.has(entry.platform)) { diag.push(`${label}: provider ruled out earlier this request`); continue; }
 
     // Vision requests skip text-only models — including a sticky/preferred one,
     // which is correct: don't pin an image turn to a model that can't see it.
