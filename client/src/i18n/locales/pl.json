@@ -517,7 +517,15 @@
     "cpCreate": "Utwórz profil",
     "cpRotate": "Wymień klucz",
     "cpKeyOnce": "Skopiuj ten klucz teraz — nie zostanie ponownie wyświetlony.",
-    "cpEnabledAria": "Profil włączony"
+    "cpEnabledAria": "Profil włączony",
+    "selectKey": "Wybierz ten klucz",
+    "bulkSelected": "Wybrano {count}",
+    "bulkEnable": "Włącz wszystkie",
+    "bulkDisable": "Wyłącz wszystkie",
+    "bulkDelete": "Usuń wszystkie",
+    "bulkDeleteConfirm": "Usunąć {count}?",
+    "bulkResult": "Zaktualizowano {done}; nie powiodło się {failed}.",
+    "bulkDeleteResult": "Usunięto {done}; nie powiodło się {failed}."
   },
   "status": {
     "healthy": "zdrowy",

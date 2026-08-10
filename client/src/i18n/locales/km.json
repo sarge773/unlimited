@@ -517,7 +517,15 @@
     "cpCreate": "បង្កើតប្រវត្តិរូប",
     "cpRotate": "ប្ដូរសោ",
     "cpKeyOnce": "ចម្លងសោនេះឥឡូវនេះ — វានឹងមិនបង្ហាញម្ដងទៀតទេ។",
-    "cpEnabledAria": "ប្រវត្តិរូបបានបើក"
+    "cpEnabledAria": "ប្រវត្តិរូបបានបើក",
+    "selectKey": "ជ្រើសរើសកូនសោនេះ",
+    "bulkSelected": "បានជ្រើសរើស {count}",
+    "bulkEnable": "បើកទាំងអស់",
+    "bulkDisable": "បិទទាំងអស់",
+    "bulkDelete": "លុបទាំងអស់",
+    "bulkDeleteConfirm": "លុប {count}?",
+    "bulkResult": "បានធ្វើបច្ចុប្បន្នភាព {done}; បរាជ័យ {failed}។",
+    "bulkDeleteResult": "បានលុប {done}; បរាជ័យ {failed}។"
   },
   "status": {
     "healthy": "មានសុខភាពល្អ",

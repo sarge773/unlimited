@@ -13,6 +13,7 @@ import { routeRequest, resolveStickyPreference, routingReserveTokens, type Route
 import { getSetting, getUnifiedApiKey } from '../db/index.js';
 import { contentToString } from '../lib/content.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
+import { invalidToolArgumentsError, invalidToolCallReasons, isToolArgumentValidationEnabled } from '../lib/tool-validate.js';
 import { rescueInlineToolCalls, startsWithDialectMarker, couldBecomeDialectMarker, containsDialectMarker } from '../lib/tool-call-rescue.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
 import { convertDocumentBlock, documentRejectionMessage } from '../lib/anthropic-documents.js';
@@ -617,6 +618,14 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
             tc.function.arguments = repairToolArguments(tc.function.arguments, schemas.get(tc.function.name));
           }
         }
+        // Opt-in schema verdict on what the repair could not fix. This surface
+        // is where the silent failure was worst: parseToolInput turns
+        // unparseable arguments into `input: {}`, so the client sees a tool_use
+        // block with nothing in it and no indication anything went wrong.
+        if (isToolArgumentValidationEnabled()) {
+          const invalid = invalidToolCallReasons(respToolCalls, schemas);
+          if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
+        }
       }
 
       const promptTokens = result.usage?.prompt_tokens ?? estimatedInputTokens;
@@ -861,6 +870,20 @@ async function streamCompletion(
         emitText(heldText);
       }
       heldText = '';
+    }
+
+    // Opt-in schema verdict, same rule as the non-streaming surface above and
+    // as /chat/completions: this is the surface the silent failure hurt most,
+    // and Claude Code streams. Placed after the dialect rescue so a rescued
+    // call is judged too, and gated on `!messageStarted` — once message_start
+    // has gone out there is no failing over, and tearing the SSE stream down
+    // would be worse for the client than a tool_use the schema dislikes.
+    if (isToolArgumentValidationEnabled() && !messageStarted && completedCalls.length > 0) {
+      const invalid = invalidToolCallReasons(
+        completedCalls.map(c => ({ function: { name: c.name, arguments: c.arguments } })),
+        schemas,
+      );
+      if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
     }
 
     // Nothing usable came out — fail over (message_start was never sent, so the

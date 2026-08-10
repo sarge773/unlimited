@@ -517,7 +517,15 @@
     "cpCreate": "プロファイルを作成",
     "cpRotate": "キーをローテーション",
     "cpKeyOnce": "このキーを今すぐコピーしてください。二度と表示されません。",
-    "cpEnabledAria": "プロファイル有効"
+    "cpEnabledAria": "プロファイル有効",
+    "selectKey": "このキーを選択",
+    "bulkSelected": "{count} 件選択中",
+    "bulkEnable": "すべて有効にする",
+    "bulkDisable": "すべて無効にする",
+    "bulkDelete": "すべて削除",
+    "bulkDeleteConfirm": "{count} 件を削除しますか？",
+    "bulkResult": "{done} 件を更新しました。{failed} 件が失敗しました。",
+    "bulkDeleteResult": "{done} 件を削除しました。{failed} 件が失敗しました。"
   },
   "status": {
     "healthy": "健康な",

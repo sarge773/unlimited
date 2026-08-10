@@ -517,7 +517,15 @@
     "cpCreate": "Profil yarat",
     "cpRotate": "Açarı dəyiş",
     "cpKeyOnce": "Bu açarı indi kopyalayın — bir daha göstərilməyəcək.",
-    "cpEnabledAria": "Profil aktivdir"
+    "cpEnabledAria": "Profil aktivdir",
+    "selectKey": "Bu açarı seçin",
+    "bulkSelected": "{count} seçildi",
+    "bulkEnable": "Hamısını aktiv et",
+    "bulkDisable": "Hamısını deaktiv et",
+    "bulkDelete": "Hamısını sil",
+    "bulkDeleteConfirm": "{count} silinsin?",
+    "bulkResult": "Yeniləndi {done}; uğursuz {failed}.",
+    "bulkDeleteResult": "Silindi {done}; uğursuz {failed}."
   },
   "status": {
     "healthy": "sağlam",

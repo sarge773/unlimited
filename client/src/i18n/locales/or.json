@@ -517,7 +517,15 @@
     "cpCreate": "ପ୍ରୋଫାଇଲ୍ ତିଆରି କରନ୍ତୁ",
     "cpRotate": "କି ବଦଳାନ୍ତୁ",
     "cpKeyOnce": "ଏହି କି ବର୍ତ୍ତମାନ କପି କରନ୍ତୁ — ଏହା ପୁଣି ଦେଖାଯିବ ନାହିଁ।",
-    "cpEnabledAria": "ପ୍ରୋଫାଇଲ୍ ସକ୍ଷମ"
+    "cpEnabledAria": "ପ୍ରୋଫାଇଲ୍ ସକ୍ଷମ",
+    "selectKey": "ଏହି ଚାବି ଚୟନ କରନ୍ତୁ",
+    "bulkSelected": "{count} ଚୟନ କରାଯାଇଛି",
+    "bulkEnable": "ସବୁ ସକ୍ଷମ କରନ୍ତୁ",
+    "bulkDisable": "ସବୁ ଅକ୍ଷମ କରନ୍ତୁ",
+    "bulkDelete": "ସବୁ ବିଲୋପ କରନ୍ତୁ",
+    "bulkDeleteConfirm": "{count} ବିଲୋପ କରିବେ?",
+    "bulkResult": "{done} ଅଦ୍ୟତନ ହୋଇଛି; {failed} ବିଫଳ ହୋଇଛି।",
+    "bulkDeleteResult": "{done} ବିଲୋପ ହୋଇଛି; {failed} ବିଫଳ ହୋଇଛି।"
   },
   "status": {
     "healthy": "ସୁସ୍ଥ",

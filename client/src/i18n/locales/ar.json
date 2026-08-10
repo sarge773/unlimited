@@ -517,7 +517,15 @@
     "cpCreate": "إنشاء ملف تعريف",
     "cpRotate": "تدوير المفتاح",
     "cpKeyOnce": "انسخ هذا المفتاح الآن — لن يظهر مرة أخرى.",
-    "cpEnabledAria": "الملف مفعّل"
+    "cpEnabledAria": "الملف مفعّل",
+    "selectKey": "حدد هذا المفتاح",
+    "bulkSelected": "تم تحديد {count}",
+    "bulkEnable": "تمكين الكل",
+    "bulkDisable": "تعطيل الكل",
+    "bulkDelete": "حذف الكل",
+    "bulkDeleteConfirm": "حذف {count}؟",
+    "bulkResult": "تم تحديث {done}؛ فشل {failed}.",
+    "bulkDeleteResult": "تم حذف {done}؛ فشل {failed}."
   },
   "status": {
     "healthy": "صحي",

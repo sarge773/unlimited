@@ -517,7 +517,15 @@
     "cpCreate": "Mepụta profaịlụ",
     "cpRotate": "Gbanwee igodo",
     "cpKeyOnce": "Detuo igodo a ugbu a — agaghị egosi ya ọzọ.",
-    "cpEnabledAria": "Profaịlụ na-arụ ọrụ"
+    "cpEnabledAria": "Profaịlụ na-arụ ọrụ",
+    "selectKey": "Họrọ igodo a",
+    "bulkSelected": "{count} ahọpụtara",
+    "bulkEnable": "Kwado ha niile",
+    "bulkDisable": "Gbanyụọ ha niile",
+    "bulkDelete": "Hichapụ ha niile",
+    "bulkDeleteConfirm": "Hichapụ {count}?",
+    "bulkResult": "Emelitere {done}; {failed} dara.",
+    "bulkDeleteResult": "Ehichapụrụ {done}; {failed} dara."
   },
   "status": {
     "healthy": "ahụike",

@@ -517,7 +517,15 @@
     "cpCreate": "Cipta profil",
     "cpRotate": "Putar kunci",
     "cpKeyOnce": "Salin kunci ini sekarang — ia tidak akan dipaparkan lagi.",
-    "cpEnabledAria": "Profil diaktifkan"
+    "cpEnabledAria": "Profil diaktifkan",
+    "selectKey": "Pilih kunci ini",
+    "bulkSelected": "{count} dipilih",
+    "bulkEnable": "Aktifkan semua",
+    "bulkDisable": "Nyahaktifkan semua",
+    "bulkDelete": "Padam semua",
+    "bulkDeleteConfirm": "Padam {count}?",
+    "bulkResult": "Dikemas kini {done}; gagal {failed}.",
+    "bulkDeleteResult": "Dipadam {done}; gagal {failed}."
   },
   "status": {
     "healthy": "sihat",

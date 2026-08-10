@@ -517,7 +517,15 @@
     "cpCreate": "प्रोफ़ाइल बनाएँ",
     "cpRotate": "कुंजी बदलें",
     "cpKeyOnce": "इस कुंजी को अभी कॉपी करें — यह दोबारा नहीं दिखाई जाएगी।",
-    "cpEnabledAria": "प्रोफ़ाइल सक्षम"
+    "cpEnabledAria": "प्रोफ़ाइल सक्षम",
+    "selectKey": "यह कुंजी चुनें",
+    "bulkSelected": "{count} चयनित",
+    "bulkEnable": "सभी सक्षम करें",
+    "bulkDisable": "सभी अक्षम करें",
+    "bulkDelete": "सभी हटाएँ",
+    "bulkDeleteConfirm": "{count} हटाएँ?",
+    "bulkResult": "{done} अपडेट हुए; {failed} विफल।",
+    "bulkDeleteResult": "{done} हटाए गए; {failed} विफल।"
   },
   "status": {
     "healthy": "स्वस्थ",

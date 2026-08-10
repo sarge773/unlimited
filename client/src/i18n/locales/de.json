@@ -517,7 +517,15 @@
     "cpCreate": "Profil erstellen",
     "cpRotate": "Schlüssel rotieren",
     "cpKeyOnce": "Kopiere diesen Schlüssel jetzt — er wird nicht erneut angezeigt.",
-    "cpEnabledAria": "Profil aktiviert"
+    "cpEnabledAria": "Profil aktiviert",
+    "selectKey": "Diesen Schlüssel auswählen",
+    "bulkSelected": "{count} ausgewählt",
+    "bulkEnable": "Alle aktivieren",
+    "bulkDisable": "Alle deaktivieren",
+    "bulkDelete": "Alle löschen",
+    "bulkDeleteConfirm": "{count} löschen?",
+    "bulkResult": "Aktualisiert {done}; fehlgeschlagen {failed}.",
+    "bulkDeleteResult": "Gelöscht {done}; fehlgeschlagen {failed}."
   },
   "status": {
     "healthy": "gesund",

@@ -517,7 +517,15 @@
     "cpCreate": "สร้างโปรไฟล์",
     "cpRotate": "หมุนเวียนคีย์",
     "cpKeyOnce": "คัดลอกคีย์นี้ตอนนี้ — จะไม่แสดงอีก",
-    "cpEnabledAria": "เปิดใช้งานโปรไฟล์"
+    "cpEnabledAria": "เปิดใช้งานโปรไฟล์",
+    "selectKey": "เลือกคีย์นี้",
+    "bulkSelected": "เลือก {count} แล้ว",
+    "bulkEnable": "เปิดใช้งานทั้งหมด",
+    "bulkDisable": "ปิดใช้งานทั้งหมด",
+    "bulkDelete": "ลบทั้งหมด",
+    "bulkDeleteConfirm": "ลบ {count} รายการ?",
+    "bulkResult": "อัปเดต {done}; ล้มเหลว {failed}",
+    "bulkDeleteResult": "ลบ {done}; ล้มเหลว {failed}"
   },
   "status": {
     "healthy": "มีสุขภาพดี",

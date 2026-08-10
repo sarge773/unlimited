@@ -517,7 +517,15 @@
     "cpCreate": "Creează profil",
     "cpRotate": "Rotește cheia",
     "cpKeyOnce": "Copiază această cheie acum — nu va mai fi afișată.",
-    "cpEnabledAria": "Profil activat"
+    "cpEnabledAria": "Profil activat",
+    "selectKey": "Selectează această cheie",
+    "bulkSelected": "{count} selectate",
+    "bulkEnable": "Activează toate",
+    "bulkDisable": "Dezactivează toate",
+    "bulkDelete": "Șterge toate",
+    "bulkDeleteConfirm": "Ștergi {count}?",
+    "bulkResult": "Actualizate {done}; eșuate {failed}.",
+    "bulkDeleteResult": "Șterse {done}; eșuate {failed}."
   },
   "status": {
     "healthy": "Sănătos",

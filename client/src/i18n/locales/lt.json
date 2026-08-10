@@ -517,7 +517,15 @@
     "cpCreate": "Sukurti profilį",
     "cpRotate": "Pakeisti raktą",
     "cpKeyOnce": "Nukopijuokite šį raktą dabar — jis daugiau nebus rodomas.",
-    "cpEnabledAria": "Profilis įjungtas"
+    "cpEnabledAria": "Profilis įjungtas",
+    "selectKey": "Pasirinkti šį raktą",
+    "bulkSelected": "Pasirinkta {count}",
+    "bulkEnable": "Įjungti visus",
+    "bulkDisable": "Išjungti visus",
+    "bulkDelete": "Ištrinti visus",
+    "bulkDeleteConfirm": "Ištrinti {count}?",
+    "bulkResult": "Atnaujinta {done}; nepavyko {failed}.",
+    "bulkDeleteResult": "Ištrinta {done}; nepavyko {failed}."
   },
   "status": {
     "healthy": "Sveika",

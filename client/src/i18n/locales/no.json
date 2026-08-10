@@ -517,7 +517,15 @@
     "cpCreate": "Opprett profil",
     "cpRotate": "Roter nøkkel",
     "cpKeyOnce": "Kopier denne nøkkelen nå — den vises ikke igjen.",
-    "cpEnabledAria": "Profil aktivert"
+    "cpEnabledAria": "Profil aktivert",
+    "selectKey": "Velg denne nøkkelen",
+    "bulkSelected": "{count} valgt",
+    "bulkEnable": "Aktiver alle",
+    "bulkDisable": "Deaktiver alle",
+    "bulkDelete": "Slett alle",
+    "bulkDeleteConfirm": "Slette {count}?",
+    "bulkResult": "Oppdaterte {done}; mislyktes {failed}.",
+    "bulkDeleteResult": "Slettet {done}; mislyktes {failed}."
   },
   "status": {
     "healthy": "Sunt",

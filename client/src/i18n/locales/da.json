@@ -517,7 +517,15 @@
     "cpCreate": "Opret profil",
     "cpRotate": "Rotér nøgle",
     "cpKeyOnce": "Kopiér denne nøgle nu — den vises ikke igen.",
-    "cpEnabledAria": "Profil aktiveret"
+    "cpEnabledAria": "Profil aktiveret",
+    "selectKey": "Vælg denne nøgle",
+    "bulkSelected": "{count} valgt",
+    "bulkEnable": "Aktivér alle",
+    "bulkDisable": "Deaktivér alle",
+    "bulkDelete": "Slet alle",
+    "bulkDeleteConfirm": "Slet {count}?",
+    "bulkResult": "Opdaterede {done}; fejlede {failed}.",
+    "bulkDeleteResult": "Slettede {done}; fejlede {failed}."
   },
   "status": {
     "healthy": "sundt",
