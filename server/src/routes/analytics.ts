@@ -522,26 +522,28 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
   const db = getDb();
 
   const filterSql =
-    (status !== undefined ? ' AND status = ?' : '') +
-    (platform !== undefined ? ' AND platform = ?' : '');
+    (status !== undefined ? ' AND r.status = ?' : '') +
+    (platform !== undefined ? ' AND r.platform = ?' : '');
   const filterParams = [
     ...(status !== undefined ? [status] : []),
     ...(platform !== undefined ? [platform] : []),
   ];
 
   const total = (db.prepare(
-    `SELECT COUNT(*) as c FROM requests WHERE created_at >= ?${filterSql}`
+    `SELECT COUNT(*) as c FROM requests r WHERE r.created_at >= ?${filterSql}`
   ).get(since, ...filterParams) as { c: number }).c;
 
   const rows = db.prepare(`
-    SELECT id, platform, model_id, requested_model, request_type, status,
-           input_tokens, output_tokens, latency_ms, error,
-           client_ip, client_user_agent, client_agent,
-           strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso,
-           (SELECT COUNT(*) FROM request_attempts a WHERE a.request_id = requests.id) as attempt_count
-    FROM requests
-    WHERE created_at >= ?${filterSql}
-    ORDER BY created_at DESC, id DESC
+    SELECT r.id, r.platform, r.model_id, r.requested_model, r.request_type, r.status,
+           r.input_tokens, r.output_tokens, r.latency_ms, r.error,
+           r.client_ip, r.client_user_agent, r.client_agent,
+           strftime('%Y-%m-%dT%H:%M:%SZ', r.created_at) as created_at_iso,
+           (SELECT COUNT(*) FROM request_attempts a WHERE a.request_id = r.id) as attempt_count,
+           k.label as key_label
+    FROM requests r
+    LEFT JOIN api_keys k ON k.id = r.key_id
+    WHERE r.created_at >= ?${filterSql}
+    ORDER BY r.created_at DESC, r.id DESC
     LIMIT ? OFFSET ?
   `).all(since, ...filterParams, limit, offset) as any[];
 
@@ -562,6 +564,11 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
       clientUserAgent: r.client_user_agent,
       clientAgent: r.client_agent,
       createdAt: r.created_at_iso,
+      // #785: custom endpoints all share the generic 'custom' platform id, so
+      // the user's key label ("Ollama box") rides along to name the real
+      // provider in the recent-calls list. Null when the key was deleted or
+      // never labelled.
+      keyLabel: r.key_label ?? null,
       // Failover-ladder length for this row. Attempts hang off the TERMINAL
       // row of a proxied request; mid-ladder failure rows report 0.
       attemptCount: r.attempt_count,

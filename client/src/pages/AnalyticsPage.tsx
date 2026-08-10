@@ -160,6 +160,10 @@ interface RecentCallRow {
   clientIp: string | null
   clientUserAgent: string | null
   createdAt: string
+  // #785: custom endpoints all share the generic 'custom' platform id; the
+  // user's key label ("Ollama box") names the real provider. Null when the
+  // key was deleted or never labelled.
+  keyLabel: string | null
   // Failover-ladder length: attempts hang off the TERMINAL row of a proxied
   // request, so mid-ladder failure rows report 0.
   attemptCount: number
@@ -836,7 +840,9 @@ export default function AnalyticsPage() {
                             {r.modelId}
                             {r.requestedModel && r.requestedModel !== r.modelId ? ' *' : ''}
                           </TableCell>
-                          <TableCell className="text-xs text-muted-foreground">{r.platform}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {r.platform === 'custom' && r.keyLabel ? r.keyLabel : r.platform}
+                          </TableCell>
                           <TableCell className={`text-xs ${statusTextClass(r.status)}`} title={r.error ?? undefined}>
                             {r.status}
                           </TableCell>
