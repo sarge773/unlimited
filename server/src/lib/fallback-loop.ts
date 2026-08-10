@@ -40,13 +40,14 @@ import {
   isModelAccessForbiddenError,
   isProviderBadRequestError,
   isProviderDegradedError,
+  isProviderLevelError,
   isContextTooLargeError,
   isTimeoutErrorText,
 } from './error-classify.js';
 import { sanitizeProviderErrorMessage, summarizeAttemptError } from './error-redaction.js';
 import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js';
 import { noteModelRetirementSignal } from '../services/model-retirement.js';
-import { getSetting } from '../db/index.js';
+import { getSetting, getDb } from '../db/index.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
 import { getRequestTrace, newRequestTrace, runWithRequestTrace, type AttemptOutcome, type RequestTrace } from './attempt-trace.js';
 import { logRequest, persistRequestAttempts } from './request-log.js';
@@ -238,6 +239,19 @@ export function recordRetryableFailure(route: RouteResult, err: any, state: Fall
   // sibling keys counts as the single observation it is.
   noteModelRetirementSignal(route, err, getRequestTrace());
   state.skipKeys.add(`${route.platform}:${route.modelId}:${route.keyId}`);
+  // #788: provider-level failures (5xx / timeout / transport / degraded) mean
+  // the PROVIDER is sick, not this key — a sibling key on the same platform
+  // would fail identically. Skip every key of the platform for this request
+  // so the loop moves to the NEXT provider instead of burning one failover
+  // hop per key. Key-scoped failures (auth/quota) stay on the single-key path.
+  if (isProviderLevelError(err)) {
+    const platformKeys = getDb().prepare(
+      'SELECT id FROM api_keys WHERE platform = ?',
+    ).all(route.platform) as Array<{ id: number }>;
+    for (const k of platformKeys) {
+      state.skipKeys.add(`${route.platform}:${route.modelId}:${k.id}`);
+    }
+  }
   if (consumeSkipBenchExemption(route, err)) return true;
   const decision = cooldownDecisionForError(route, err);
   setCooldown(route.platform, route.modelId, route.keyId, decision.durationMs, decision.source);

@@ -240,6 +240,24 @@ export function isProviderDegradedError(err: any): boolean {
   return msg.includes('degraded');
 }
 
+// #788: provider-level failures — 5xx, timeouts, transport/network errors,
+// "degraded"/"unavailable" — are symptoms of the PROVIDER being sick, not of
+// this particular key. Retrying the same provider with a sibling key would
+// fail identically, so the fallback loop must skip the WHOLE platform for the
+// request instead of burning one failover hop per key. Key-scoped failures
+// (auth, quota, 403 tier) stay out of here so a dead key can still rotate to
+// a healthy sibling on the same platform.
+export function isProviderLevelError(err: any): boolean {
+  const status = typeof err?.status === 'number' ? err.status : 0;
+  if (status >= 500) return true;
+  const msg = (err?.message ?? '').toLowerCase();
+  return isTimeoutErrorText(msg)
+    || msg.includes('econnrefused') || msg.includes('econnreset')
+    || msg.includes('fetch failed')    // undici transport error (DNS/TLS/proxy down)
+    || msg.includes('unavailable') || msg.includes('503')
+    || msg.includes('degraded') || msg.includes('internal server error') || msg.includes('500');
+}
+
 // Provider-side 400s are retryable because another provider may accept the same
 // request shape. If every routed provider rejects it, however, the client should
 // see an invalid-request error rather than a misleading rate-limit exhaustion.
