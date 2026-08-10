@@ -517,7 +517,15 @@
     "cpCreate": "Направи профил",
     "cpRotate": "Ротирај кључ",
     "cpKeyOnce": "Копирајте овај кључ одмах — неће бити поново приказан.",
-    "cpEnabledAria": "Профил омогућен"
+    "cpEnabledAria": "Профил омогућен",
+    "selectKey": "Изабери овај кључ",
+    "bulkSelected": "{count} изабрано",
+    "bulkEnable": "Омогући све",
+    "bulkDisable": "Онемогући све",
+    "bulkDelete": "Избриши све",
+    "bulkDeleteConfirm": "Избрисати {count}?",
+    "bulkResult": "Ажурирано {done}; неуспешно {failed}.",
+    "bulkDeleteResult": "Избрисано {done}; неуспешно {failed}."
   },
   "status": {
     "healthy": "здраво",

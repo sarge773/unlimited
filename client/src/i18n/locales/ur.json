@@ -517,7 +517,15 @@
     "cpCreate": "پروفائل بنائیں",
     "cpRotate": "کلید تبدیل کریں",
     "cpKeyOnce": "یہ کلید ابھی کاپی کریں — یہ دوبارہ نہیں دکھائی جائے گی۔",
-    "cpEnabledAria": "پروفائل فعال"
+    "cpEnabledAria": "پروفائل فعال",
+    "selectKey": "یہ کلید منتخب کریں۔",
+    "bulkSelected": "{count} منتخب",
+    "bulkEnable": "سب فعال کریں۔",
+    "bulkDisable": "سب غیر فعال کریں۔",
+    "bulkDelete": "سب حذف کریں۔",
+    "bulkDeleteConfirm": "{count} حذف کریں؟",
+    "bulkResult": "{done} اپ ڈیٹ ہوئے؛ {failed} ناکام۔",
+    "bulkDeleteResult": "{done} حذف ہوئے؛ {failed} ناکام۔"
   },
   "status": {
     "healthy": "صحت مند",

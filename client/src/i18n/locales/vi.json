@@ -517,7 +517,15 @@
     "cpCreate": "Tạo hồ sơ",
     "cpRotate": "Xoay khóa",
     "cpKeyOnce": "Sao chép khóa này ngay — nó sẽ không được hiển thị lại.",
-    "cpEnabledAria": "Hồ sơ đang bật"
+    "cpEnabledAria": "Hồ sơ đang bật",
+    "selectKey": "Chọn khóa này",
+    "bulkSelected": "{count} đã chọn",
+    "bulkEnable": "Bật tất cả",
+    "bulkDisable": "Tắt tất cả",
+    "bulkDelete": "Xóa tất cả",
+    "bulkDeleteConfirm": "Xóa {count}?",
+    "bulkResult": "Đã cập nhật {done}; {failed} không thành công.",
+    "bulkDeleteResult": "Đã xóa {done}; {failed} không thành công."
   },
   "status": {
     "healthy": "khỏe mạnh",

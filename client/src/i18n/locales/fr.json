@@ -517,7 +517,15 @@
     "cpCreate": "Créer le profil",
     "cpRotate": "Renouveler la clé",
     "cpKeyOnce": "Copiez cette clé maintenant — elle ne sera plus affichée.",
-    "cpEnabledAria": "Profil activé"
+    "cpEnabledAria": "Profil activé",
+    "selectKey": "Sélectionner cette clé",
+    "bulkSelected": "{count} sélectionnées",
+    "bulkEnable": "Tout activer",
+    "bulkDisable": "Tout désactiver",
+    "bulkDelete": "Tout supprimer",
+    "bulkDeleteConfirm": "Supprimer {count} ?",
+    "bulkResult": "Mises à jour : {done}. Échecs : {failed}.",
+    "bulkDeleteResult": "Supprimées : {done}. Échecs : {failed}."
   },
   "status": {
     "healthy": "sain",

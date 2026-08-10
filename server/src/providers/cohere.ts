@@ -5,7 +5,7 @@ import type {
   ChatToolDefinition,
 } from '@freellmapi/shared/types.js';
 import { BaseProvider, providerHttpError, type CompletionOptions, type KeyValidationResult } from './base.js';
-import { extendedBodyParams } from '../lib/sampling-params.js';
+import { extendedBodyParams, resolveMaxTokens } from '../lib/sampling-params.js';
 import { flattenMessageContent } from '../lib/content.js';
 import { recordQuotaObservationsFromResponse, type QuotaObservationContext } from '../services/provider-quota.js';
 import { stripSchemaKeys } from '../lib/tool-args.js';
@@ -44,7 +44,7 @@ export class CohereProvider extends BaseProvider {
       model: modelId,
       messages: flattenMessageContent(messages),
       temperature: options?.temperature,
-      max_tokens: options?.max_tokens,
+      max_tokens: resolveMaxTokens(this.platform, options?.max_tokens),
       top_p: options?.top_p,
       stop: options?.stop,
       tools: sanitizeCohereTools(options?.tools),
@@ -92,7 +92,7 @@ export class CohereProvider extends BaseProvider {
       model: modelId,
       messages: flattenMessageContent(messages),
       temperature: options?.temperature,
-      max_tokens: options?.max_tokens,
+      max_tokens: resolveMaxTokens(this.platform, options?.max_tokens),
       top_p: options?.top_p,
       stop: options?.stop,
       tools: sanitizeCohereTools(options?.tools),

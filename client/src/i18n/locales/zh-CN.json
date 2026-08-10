@@ -517,7 +517,15 @@
     "cpCreate": "创建配置文件",
     "cpRotate": "轮换密钥",
     "cpKeyOnce": "请立即复制此密钥——之后将不再显示。",
-    "cpEnabledAria": "配置文件已启用"
+    "cpEnabledAria": "配置文件已启用",
+    "selectKey": "选择此密钥",
+    "bulkSelected": "已选择 {count} 个密钥",
+    "bulkEnable": "批量启用",
+    "bulkDisable": "批量禁用",
+    "bulkDelete": "批量删除",
+    "bulkDeleteConfirm": "删除 {count} 个？",
+    "bulkResult": "已更新 {done} 个；失败 {failed} 个。",
+    "bulkDeleteResult": "已删除 {done} 个；失败 {failed} 个。"
   },
   "status": {
     "healthy": "健康",

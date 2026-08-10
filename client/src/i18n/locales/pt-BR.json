@@ -517,7 +517,15 @@
     "cpCreate": "Criar perfil",
     "cpRotate": "Rotacionar chave",
     "cpKeyOnce": "Copie esta chave agora — ela não será mostrada novamente.",
-    "cpEnabledAria": "Perfil habilitado"
+    "cpEnabledAria": "Perfil habilitado",
+    "selectKey": "Selecionar esta chave",
+    "bulkSelected": "{count} selecionadas",
+    "bulkEnable": "Habilitar todas",
+    "bulkDisable": "Desabilitar todas",
+    "bulkDelete": "Excluir todas",
+    "bulkDeleteConfirm": "Excluir {count}?",
+    "bulkResult": "Atualizadas {done}; falharam {failed}.",
+    "bulkDeleteResult": "Excluídas {done}; falharam {failed}."
   },
   "status": {
     "healthy": "saudável",

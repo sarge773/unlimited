@@ -517,7 +517,15 @@
     "cpCreate": "프로필 만들기",
     "cpRotate": "키 교체",
     "cpKeyOnce": "지금 이 키를 복사하세요. 다시 표시되지 않습니다.",
-    "cpEnabledAria": "프로필 활성화됨"
+    "cpEnabledAria": "프로필 활성화됨",
+    "selectKey": "이 키 선택",
+    "bulkSelected": "{count}개 선택됨",
+    "bulkEnable": "모두 활성화",
+    "bulkDisable": "모두 비활성화",
+    "bulkDelete": "모두 삭제",
+    "bulkDeleteConfirm": "{count}개를 삭제할까요?",
+    "bulkResult": "{done}개 업데이트됨, {failed}개 실패.",
+    "bulkDeleteResult": "{done}개 삭제됨, {failed}개 실패."
   },
   "status": {
     "healthy": "건강한",

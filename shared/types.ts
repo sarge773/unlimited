@@ -60,6 +60,11 @@ export type Platform =
   | 'google'
   | 'groq'
   | 'cerebras'
+  // AnyAPI — OpenAI-compatible gateway. Free tier is $0/no card/recurring but
+  // capped at 100K tokens/day over "free and basic" models only; no RPM/RPD is
+  // published. Catalog rows live in the hosted catalog (premium now, free after
+  // 30 days).
+  | 'anyapi'
   | 'nvidia'
   | 'mistral'
   | 'sambanova'

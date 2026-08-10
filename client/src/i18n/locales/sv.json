@@ -517,7 +517,15 @@
     "cpCreate": "Skapa profil",
     "cpRotate": "Rotera nyckel",
     "cpKeyOnce": "Kopiera nyckeln nu — den visas inte igen.",
-    "cpEnabledAria": "Profil aktiverad"
+    "cpEnabledAria": "Profil aktiverad",
+    "selectKey": "Välj den här nyckeln",
+    "bulkSelected": "{count} valda",
+    "bulkEnable": "Aktivera alla",
+    "bulkDisable": "Inaktivera alla",
+    "bulkDelete": "Radera alla",
+    "bulkDeleteConfirm": "Radera {count}?",
+    "bulkResult": "Uppdaterade {done}; misslyckades {failed}.",
+    "bulkDeleteResult": "Raderade {done}; misslyckades {failed}."
   },
   "status": {
     "healthy": "Hälsosamt",
