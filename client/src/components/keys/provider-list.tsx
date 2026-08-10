@@ -65,6 +65,8 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
   const [copyKey, setCopyKey] = useState<{ id: number; maskedKey: string } | null>(null)
   // Key whose model scope is being edited (#657).
   const [scopeKeyId, setScopeKeyId] = useState<number | null>(null)
+  // #787: keys selected for bulk enable/disable/delete within a group.
+  const [selectedKeyIds, setSelectedKeyIds] = useState<Set<number>>(new Set())
   const editInputRef = useRef<HTMLInputElement>(null)
 
   const { data: keys = [], isLoading } = useQuery<ApiKey[]>({
@@ -397,6 +399,40 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                   </button>
                 </div>
 
+                {/* #787: batch bar — appears only while keys of THIS group are
+                    selected. One mutation per key (the per-key endpoint), which
+                    keeps the router and health caches consistent. */}
+                {(() => {
+                  const groupSelected = group.keys.filter(k => selectedKeyIds.has(k.id))
+                  if (groupSelected.length === 0) return null
+                  const clearGroup = () => setSelectedKeyIds(prev => {
+                    const next = new Set(prev)
+                    groupSelected.forEach(k => next.delete(k.id))
+                    return next
+                  })
+                  const bulk = (fn: (k: ApiKey) => void) => {
+                    groupSelected.forEach(fn)
+                    clearGroup()
+                  }
+                  return (
+                    <div className="mb-2 flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-1.5 text-xs">
+                      <span className="text-muted-foreground">{t('keys.bulkSelected', { count: groupSelected.length })}</span>
+                      <Button size="xs" variant="outline" onClick={() => bulk(k => setKeyEnabled.mutate({ id: k.id, enabled: true }))}>
+                        {t('keys.bulkEnable')}
+                      </Button>
+                      <Button size="xs" variant="outline" onClick={() => bulk(k => setKeyEnabled.mutate({ id: k.id, enabled: false }))}>
+                        {t('keys.bulkDisable')}
+                      </Button>
+                      <Button size="xs" variant="outline" onClick={() => bulk(k => deleteKey.mutate(k.id))}>
+                        {t('keys.bulkDelete')}
+                      </Button>
+                      <Button size="xs" variant="ghost" onClick={clearGroup}>
+                        {t('common.dismiss')}
+                      </Button>
+                    </div>
+                  )
+                })()}
+
                 {expanded && (
                   <div className="rounded-2xl border divide-y bg-card overflow-hidden">
                     {group.keys.map(k => {
@@ -412,6 +448,23 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                       return (
                         <div key={k.id} className="bg-card">
                           <div className="group/krow flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition-colors">
+                            {/* #787: bulk-select checkbox — enabling the row-level
+                                batch bar below. Deliberately secondary: the switch
+                                stays the primary per-key control. */}
+                            <input
+                              type="checkbox"
+                              checked={selectedKeyIds.has(k.id)}
+                              onChange={(e) => {
+                                setSelectedKeyIds(prev => {
+                                  const next = new Set(prev)
+                                  if (e.target.checked) next.add(k.id)
+                                  else next.delete(k.id)
+                                  return next
+                                })
+                              }}
+                              aria-label={t('keys.selectKey')}
+                              className="size-3.5 accent-foreground cursor-pointer"
+                            />
                             {/* Per-key switch (#705). The group switch writes every key of the
                                 platform at once, which for the Custom group meant every endpoint
                                 you run. The API has taken a per-key `enabled` all along and the

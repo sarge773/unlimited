@@ -517,7 +517,12 @@
     "cpCreate": "Create profile",
     "cpRotate": "Rotate key",
     "cpKeyOnce": "Copy this key now — it won't be shown again.",
-    "cpEnabledAria": "Profile enabled"
+    "cpEnabledAria": "Profile enabled",
+    "selectKey": "Select this key",
+    "bulkSelected": "{count} selected",
+    "bulkEnable": "Enable all",
+    "bulkDisable": "Disable all",
+    "bulkDelete": "Delete all"
   },
   "status": {
     "healthy": "healthy",
