@@ -401,6 +401,22 @@ const gridStyle = 'var(--border)'
 const primaryFill = 'var(--foreground)'
 const tooltipStyle = { backgroundColor: 'var(--popover)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 } as const
 
+// The timeline endpoint returns UTC timestamps without a zone suffix
+// ("2026-08-10T14:00:00" hourly, "2026-08-10" daily). Parse them as UTC and
+// render in the viewer's local timezone; without this the x-axis showed UTC
+// wall-clock times that disagreed with every other timestamp on the page.
+function formatTimelineTick(value: string): string {
+  if (!value) return ''
+  const iso = value.includes('T') ? `${value}Z` : `${value}T00:00:00Z`
+  const date = new Date(iso)
+  if (isNaN(date.getTime())) return value
+  return date.toLocaleString([], {
+    month: 'short',
+    day: 'numeric',
+    ...(value.includes('T') ? { hour: '2-digit', minute: '2-digit' } : {}),
+  })
+}
+
 // Two categorical series hues, validated against the app's actual chart
 // surfaces (light card #ffffff, dark card #101010) with the dataviz palette
 // checker. Slot A (blue) = the "average / input" series; slot B (aqua) = the
@@ -591,7 +607,7 @@ export default function AnalyticsPage() {
                 <ResponsiveContainer width="100%" height={240}>
                   <LineChart data={timeline} margin={{ top: 6, right: 6, left: -12, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="2 4" stroke={gridStyle} />
-                    <XAxis dataKey="timestamp" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
+                    <XAxis dataKey="timestamp" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} tickFormatter={formatTimelineTick} />
                     <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
                     <Tooltip contentStyle={tooltipStyle} />
                     <Legend wrapperStyle={{ fontSize: 12 }} iconType="line" />
@@ -612,7 +628,7 @@ export default function AnalyticsPage() {
                 <ResponsiveContainer width="100%" height={240}>
                   <LineChart data={timeline} margin={{ top: 6, right: 6, left: -12, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="2 4" stroke={gridStyle} />
-                    <XAxis dataKey="timestamp" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
+                    <XAxis dataKey="timestamp" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} tickFormatter={formatTimelineTick} />
                     <YAxis tick={axisStyle} tickLine={false} axisLine={false} tickFormatter={(v: number) => formatTokens(v)} />
                     <Tooltip contentStyle={tooltipStyle} formatter={(value) => formatTokens(Number(value))} />
                     <Legend wrapperStyle={{ fontSize: 12 }} iconType="line" />
