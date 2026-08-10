@@ -42,6 +42,7 @@ function readAggregateSince(since: string) {
     SELECT
       COALESCE(SUM(total_requests), 0) as total_requests,
       COALESCE(SUM(success_count), 0) as success_count,
+      COALESCE(SUM(error_count), 0) as error_count,
       COALESCE(SUM(input_tokens), 0) as total_input_tokens,
       COALESCE(SUM(output_tokens), 0) as total_output_tokens,
       MIN(hour) as first_request_at
@@ -50,6 +51,7 @@ function readAggregateSince(since: string) {
   `).get(aggregateSince) as {
     total_requests: number;
     success_count: number;
+    error_count: number;
     total_input_tokens: number;
     total_output_tokens: number;
     first_request_at: string | null;
@@ -80,7 +82,11 @@ analyticsRouter.get('/summary', (req: Request, res: Response) => {
   // is the source of truth for headline numbers.
   const aggregate = readAggregateSince(since);
   const totalRequests = aggregate.total_requests ?? 0;
-  const successRate = totalRequests > 0 ? (aggregate.success_count / totalRequests) * 100 : 0;
+  // Success rate over success+error only: a 'canceled' request (#752 — client
+  // hung up) still counts in the totals but is neither a success nor a
+  // failure, so it must not dilute the rate.
+  const decidedRequests = (aggregate.success_count ?? 0) + (aggregate.error_count ?? 0);
+  const successRate = decidedRequests > 0 ? (aggregate.success_count / decidedRequests) * 100 : 0;
 
   // Avg latency is only meaningful at the raw row level; the hourly bucket
   // doesn't preserve it. Fall back to a 0/null when no recent raw rows exist.
@@ -201,7 +207,8 @@ analyticsRouter.get('/by-model', (req: Request, res: Response) => {
       r.model_id,
       m.display_name,
       COUNT(*) as requests,
-      SUM(CASE WHEN r.status = 'success' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as success_rate,
+      -- Rate over success+error only: 'canceled' (#752) is neither.
+      SUM(CASE WHEN r.status = 'success' THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN r.status <> 'canceled' THEN 1 ELSE 0 END), 0) as success_rate,
       AVG(r.latency_ms) as avg_latency_ms,
       SUM(r.input_tokens) as total_input_tokens,
       SUM(r.output_tokens) as total_output_tokens,
@@ -222,7 +229,8 @@ analyticsRouter.get('/by-model', (req: Request, res: Response) => {
     modelId: r.model_id,
     displayName: r.display_name ?? r.model_id,
     requests: r.requests,
-    successRate: Math.round(r.success_rate * 10) / 10,
+    // success_rate is NULL when every row in the group was canceled.
+    successRate: Math.round((r.success_rate ?? 0) * 10) / 10,
     avgLatencyMs: Math.round(r.avg_latency_ms),
     totalInputTokens: r.total_input_tokens ?? 0,
     totalOutputTokens: r.total_output_tokens ?? 0,
@@ -243,7 +251,7 @@ analyticsRouter.get('/by-platform', (req: Request, res: Response) => {
       platform,
       COUNT(*) as requests,
       COUNT(latency_ms) as latency_count,
-      SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as success_rate,
+      SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN status <> 'canceled' THEN 1 ELSE 0 END), 0) as success_rate,
       AVG(latency_ms) as avg_latency_ms,
       AVG(ttfb_ms) as avg_ttfb_ms,
       SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as error_count,
@@ -279,7 +287,7 @@ analyticsRouter.get('/by-platform', (req: Request, res: Response) => {
     return {
       platform: r.platform,
       requests: r.requests,
-      successRate: Math.round(r.success_rate * 10) / 10,
+      successRate: Math.round((r.success_rate ?? 0) * 10) / 10,
       avgLatencyMs: Math.round(r.avg_latency_ms),
       p95LatencyMs: p95Row ? Math.round(p95Row.latency_ms) : null,
       avgTtfbMs: r.avg_ttfb_ms != null ? Math.round(r.avg_ttfb_ms) : null,
@@ -300,7 +308,7 @@ analyticsRouter.get('/by-client', (req: Request, res: Response) => {
     SELECT
       COALESCE(client_agent, 'unknown') AS client_agent,
       COUNT(*) AS requests,
-      SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS success_rate,
+      SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN status <> 'canceled' THEN 1 ELSE 0 END), 0) AS success_rate,
       AVG(latency_ms) AS avg_latency_ms,
       SUM(input_tokens) AS total_input_tokens,
       SUM(output_tokens) AS total_output_tokens,
@@ -336,7 +344,7 @@ analyticsRouter.get('/by-key', (req: Request, res: Response) => {
       k.label as label,
       k.platform as platform,
       COUNT(*) as requests,
-      SUM(CASE WHEN r.status = 'success' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as success_rate,
+      SUM(CASE WHEN r.status = 'success' THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN r.status <> 'canceled' THEN 1 ELSE 0 END), 0) as success_rate,
       AVG(r.latency_ms) as avg_latency_ms,
       SUM(r.input_tokens) as total_input_tokens,
       SUM(r.output_tokens) as total_output_tokens
@@ -355,7 +363,7 @@ analyticsRouter.get('/by-key', (req: Request, res: Response) => {
     label: r.label ?? null,
     platform: r.platform ?? null,
     requests: r.requests,
-    successRate: Math.round(r.success_rate * 10) / 10,
+    successRate: Math.round((r.success_rate ?? 0) * 10) / 10,
     avgLatencyMs: Math.round(r.avg_latency_ms),
     totalInputTokens: r.total_input_tokens ?? 0,
     totalOutputTokens: r.total_output_tokens ?? 0,
@@ -500,8 +508,8 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
   // Optional filters. Both are validated (whitelist / shape) and applied as
   // bound parameters; absent filters keep the default behavior identical.
   const status = req.query.status as string | undefined;
-  if (status !== undefined && status !== 'success' && status !== 'error') {
-    res.status(400).json({ error: "invalid status filter (expected 'success' or 'error')" });
+  if (status !== undefined && status !== 'success' && status !== 'error' && status !== 'canceled') {
+    res.status(400).json({ error: "invalid status filter (expected 'success', 'error' or 'canceled')" });
     return;
   }
   // Platform ids are short slugs ('groq', 'pt-custom_1'); anything else is a
@@ -514,26 +522,28 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
   const db = getDb();
 
   const filterSql =
-    (status !== undefined ? ' AND status = ?' : '') +
-    (platform !== undefined ? ' AND platform = ?' : '');
+    (status !== undefined ? ' AND r.status = ?' : '') +
+    (platform !== undefined ? ' AND r.platform = ?' : '');
   const filterParams = [
     ...(status !== undefined ? [status] : []),
     ...(platform !== undefined ? [platform] : []),
   ];
 
   const total = (db.prepare(
-    `SELECT COUNT(*) as c FROM requests WHERE created_at >= ?${filterSql}`
+    `SELECT COUNT(*) as c FROM requests r WHERE r.created_at >= ?${filterSql}`
   ).get(since, ...filterParams) as { c: number }).c;
 
   const rows = db.prepare(`
-    SELECT id, platform, model_id, requested_model, request_type, status,
-           input_tokens, output_tokens, latency_ms, error,
-           client_ip, client_user_agent, client_agent,
-           strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at_iso,
-           (SELECT COUNT(*) FROM request_attempts a WHERE a.request_id = requests.id) as attempt_count
-    FROM requests
-    WHERE created_at >= ?${filterSql}
-    ORDER BY created_at DESC, id DESC
+    SELECT r.id, r.platform, r.model_id, r.requested_model, r.request_type, r.status,
+           r.input_tokens, r.output_tokens, r.latency_ms, r.error,
+           r.client_ip, r.client_user_agent, r.client_agent,
+           strftime('%Y-%m-%dT%H:%M:%SZ', r.created_at) as created_at_iso,
+           (SELECT COUNT(*) FROM request_attempts a WHERE a.request_id = r.id) as attempt_count,
+           k.label as key_label
+    FROM requests r
+    LEFT JOIN api_keys k ON k.id = r.key_id
+    WHERE r.created_at >= ?${filterSql}
+    ORDER BY r.created_at DESC, r.id DESC
     LIMIT ? OFFSET ?
   `).all(since, ...filterParams, limit, offset) as any[];
 
@@ -554,6 +564,11 @@ analyticsRouter.get('/requests', (req: Request, res: Response) => {
       clientUserAgent: r.client_user_agent,
       clientAgent: r.client_agent,
       createdAt: r.created_at_iso,
+      // #785: custom endpoints all share the generic 'custom' platform id, so
+      // the user's key label ("Ollama box") rides along to name the real
+      // provider in the recent-calls list. Null when the key was deleted or
+      // never labelled.
+      keyLabel: r.key_label ?? null,
       // Failover-ladder length for this row. Attempts hang off the TERMINAL
       // row of a proxied request; mid-ladder failure rows report 0.
       attemptCount: r.attempt_count,
