@@ -46,30 +46,36 @@ describe('database runtime hardening', () => {
     expect(jmValue.toLowerCase()).toBe('wal');
   });
 
-  it('restricts the database file to the owner', () => {
-    const dbPath = tempDbPath();
-    connectDb(dbPath);
+  it.skipIf(process.platform === 'win32', 'POSIX permission bits are not enforceable on Windows')(
+    'restricts the database file to the owner',
+    () => {
+      const dbPath = tempDbPath();
+      connectDb(dbPath);
 
-    // The DB holds encrypted provider keys and the dashboard password hash.
-    const mode = fs.statSync(dbPath).mode & 0o777;
-    expect(mode & 0o077).toBe(0);
-  });
-
-  it('restricts the WAL sidecars once they exist', () => {
-    const dbPath = tempDbPath();
-    const db = connectDb(dbPath);
-    // Force a write so -wal/-shm are created, then reconnect to chmod them.
-    db.exec('CREATE TABLE IF NOT EXISTS probe (id INTEGER PRIMARY KEY)');
-    db.exec('INSERT INTO probe (id) VALUES (1)');
-    connectDb(dbPath);
-
-    for (const suffix of ['-wal', '-shm']) {
-      const target = `${dbPath}${suffix}`;
-      if (!fs.existsSync(target)) continue;
-      const mode = fs.statSync(target).mode & 0o777;
+      // The DB holds encrypted provider keys and the dashboard password hash.
+      const mode = fs.statSync(dbPath).mode & 0o777;
       expect(mode & 0o077).toBe(0);
-    }
-  });
+    },
+  );
+
+  it.skipIf(process.platform === 'win32', 'POSIX permission bits are not enforceable on Windows')(
+    'restricts the WAL sidecars once they exist',
+    () => {
+      const dbPath = tempDbPath();
+      const db = connectDb(dbPath);
+      // Force a write so -wal/-shm are created, then reconnect to chmod them.
+      db.exec('CREATE TABLE IF NOT EXISTS probe (id INTEGER PRIMARY KEY)');
+      db.exec('INSERT INTO probe (id) VALUES (1)');
+      connectDb(dbPath);
+
+      for (const suffix of ['-wal', '-shm']) {
+        const target = `${dbPath}${suffix}`;
+        if (!fs.existsSync(target)) continue;
+        const mode = fs.statSync(target).mode & 0o777;
+        expect(mode & 0o077).toBe(0);
+      }
+    },
+  );
 
   it('works for an in-memory database without touching the filesystem', () => {
     expect(() => connectDb(':memory:')).not.toThrow();
