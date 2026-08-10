@@ -16,12 +16,13 @@
 // the fire-and-forget key revalidation kicked off on an upstream 401 (below).
 
 import type { RouteResult } from '../services/router.js';
-import { recordRateLimitHit, recordModelFailure, recordSuccess, hasOtherUsableKey, formatResetEta } from '../services/router.js';
+import { recordRateLimitHit, recordModelFailure, recordSuccess, hasOtherUsableKey, routableKeyIdsForModel, formatResetEta } from '../services/router.js';
 import { safeHeaderValue } from './header-value.js';
 import {
   recordRequest,
   recordTokens,
   setCooldown,
+  getActiveCooldownsForKeys,
   getCooldownDecisionForLimit,
   getSoonestCooldownExpiry,
   PAYMENT_REQUIRED_COOLDOWN_MS,
@@ -59,18 +60,25 @@ export const FALLBACK_MAX_RETRIES = 20;
 // not keep being picked by auto-routing: every dead-end attempt wastes seconds
 // of user-visible latency. The per-key cooldown above benches the *key*; this
 // is the model-level counterpart — a sliding window of failures *across keys*
-// that benches the model+key for a while once the streak is convincing. The
-// existing cooldown-probe re-validates benched keys early, so recovery stays
-// automatic. Client-cancels never reach recordRetryableFailure (the loop
-// returns on isClientAbortError before this bookkeeping), so they don't count.
+// that benches the whole MODEL once the streak is convincing. The window counts
+// across keys, so the bench must span keys too: benching only the key that
+// happened to fail last leaves every sibling key serving the same sick model
+// until each one trips its own streak. Recovery stays automatic: the bench is
+// 'heuristic', the only source the cooldown-probe job may clear early, and it
+// re-validates each benched key once half the bench has been served (the probe
+// exercises the credential, not the model, so a model still sick behind a good
+// key simply re-trips the streak). Client-cancels never reach
+// recordRetryableFailure (the loop returns on isClientAbortError before this
+// bookkeeping), so they don't count.
 const MODEL_FAILURE_WINDOW_MS = 15 * 60 * 1000;   // sliding window: 15 min
-const MODEL_FAILURE_THRESHOLD = 3;                // failures within window
-const MODEL_FAILURE_COOLDOWN_MS = 10 * 60 * 1000; // bench duration: 10 min
+export const MODEL_FAILURE_THRESHOLD = 3;         // failures within window
+export const MODEL_FAILURE_COOLDOWN_MS = 10 * 60 * 1000; // bench duration: 10 min
 const modelFailureTimestamps = new Map<number, number[]>(); // model_db_id → times
 
 /** Record one retryable upstream failure for a model. Once the sliding window
- *  holds ≥ MODEL_FAILURE_THRESHOLD failures, bench the model+key so routing
- *  skips it until upstream heals, then reset the counter (one bench per streak). */
+ *  holds ≥ MODEL_FAILURE_THRESHOLD failures, bench the model on EVERY key that
+ *  can route to it so the model sinks out of routing until upstream heals, then
+ *  reset the counter (one bench per streak). */
 function noteModelFailure(route: RouteResult): void {
   const now = Date.now();
   const window = (modelFailureTimestamps.get(route.modelDbId) ?? [])
@@ -78,7 +86,21 @@ function noteModelFailure(route: RouteResult): void {
   window.push(now);
   modelFailureTimestamps.set(route.modelDbId, window);
   if (window.length < MODEL_FAILURE_THRESHOLD) return;
-  setCooldown(route.platform, route.modelId, route.keyId, MODEL_FAILURE_COOLDOWN_MS, 'heuristic');
+  // Fall back to the failing key alone when the model's key set can't be read
+  // (model row gone, DB unavailable) — a narrower bench beats none.
+  const keyIds = routableKeyIdsForModel(route.modelDbId);
+  const targets = keyIds.length > 0 ? keyIds : [route.keyId];
+  const benchUntil = now + MODEL_FAILURE_COOLDOWN_MS;
+  const active = getActiveCooldownsForKeys(targets, now);
+  for (const keyId of targets) {
+    // Never SHORTEN an existing bench: a provider-stated reset or an escalated
+    // ladder step outlasting this window knows more than this heuristic does,
+    // and overwriting it would also drop its non-probeable provenance.
+    const current = active.get(keyId)
+      ?.find(c => c.platform === route.platform && c.modelId === route.modelId);
+    if (current && current.expiresAtMs >= benchUntil) continue;
+    setCooldown(route.platform, route.modelId, keyId, MODEL_FAILURE_COOLDOWN_MS, 'heuristic');
+  }
   modelFailureTimestamps.delete(route.modelDbId);
 }
 

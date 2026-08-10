@@ -1250,6 +1250,34 @@ export function hasOtherUsableKey(modelDbId: number, excludingKeyId: number, ski
 }
 
 /**
+ * Every key that can be ROUTED to this model: enabled + healthy/unknown, not
+ * scoped away from the model (#657), and — for a custom model — belonging to
+ * the model's own endpoint (#212, #619). Deliberately ignores the transient
+ * gates hasOtherUsableKey applies (cooldown, quotas): the caller here is the
+ * model-level bench, which needs the full key set to take a sick model out of
+ * rotation, not "who could serve the next request".
+ */
+export function routableKeyIdsForModel(modelDbId: number): number[] {
+  const db = getDb();
+  const m = db.prepare('SELECT platform, model_id, key_id FROM models WHERE id = ?')
+    .get(modelDbId) as { platform: string; model_id: string; key_id: number | null } | undefined;
+  if (!m) return [];
+
+  const keys = db.prepare(
+    "SELECT id, model_scope_json FROM api_keys WHERE platform = ? AND enabled = 1 AND status IN ('healthy', 'unknown')"
+  ).all(m.platform) as { id: number; model_scope_json: string | null }[];
+
+  const endpointKeyIds = m.platform === 'custom' && m.key_id != null
+    ? customEndpointKeyIds(db, m.key_id)
+    : null;
+
+  return keys
+    .filter(k => !endpointKeyIds || endpointKeyIds.has(k.id))
+    .filter(k => scopeAllows(parseModelScope(k.model_scope_json), m.model_id))
+    .map(k => k.id);
+}
+
+/**
  * Fetch a single enabled model's chain row by its db id.
  */
 function getModelChainRow(db: Db, modelDbId: number): ChainRow | undefined {
