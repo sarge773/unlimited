@@ -46,10 +46,11 @@ import {
 import { sanitizeProviderErrorMessage, summarizeAttemptError } from './error-redaction.js';
 import { checkKeyHealth, markKeyHealthyFromRequest } from '../services/health.js';
 import { noteModelRetirementSignal } from '../services/model-retirement.js';
-import { getSetting } from '../db/index.js';
+import { getSetting, getDb } from '../db/index.js';
 import { newBreaker, recordBreakerFailure } from './guardrails.js';
 import { getRequestTrace, newRequestTrace, runWithRequestTrace, type AttemptOutcome, type RequestTrace } from './attempt-trace.js';
 import { logRequest, persistRequestAttempts } from './request-log.js';
+import { withKeyProxy } from './proxy.js';
 
 // Every surface caps failover hops at the same number.
 export const FALLBACK_MAX_RETRIES = 20;
@@ -910,7 +911,20 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
     try {
     let outcome: DispatchOutcome;
     try {
-      outcome = await hooks.dispatch(route, attempt);
+      // #590 (per-key proxy): if THIS key carries its own proxy_url, route the
+      // attempt through it (withKeyProxy → proxyFetch reads the ALS store);
+      // otherwise the global proxy / direct path applies as before. The lookup
+      // is a cheap indexed SELECT per attempt; keys with no override store ''.
+      const proxyUrl = (() => {
+        try {
+          const row = getDb().prepare('SELECT proxy_url FROM api_keys WHERE id = ?')
+            .get(route.keyId) as { proxy_url?: string } | undefined;
+          return row?.proxy_url?.trim() ?? '';
+        } catch {
+          return '';
+        }
+      })();
+      outcome = await withKeyProxy(proxyUrl, () => hooks.dispatch(route, attempt));
     } catch (err: any) {
       // Client-caused abort: the composed fetch signal fired because OUR
       // client hung up mid-attempt (see newClientAbortError). Not a

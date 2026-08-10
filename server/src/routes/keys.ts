@@ -53,6 +53,9 @@ const addKeySchema = z.object({
   platform: z.enum(PLATFORMS),
   key: z.string().optional(),
   label: z.string().optional(),
+  // #590 (per-key proxy): optional per-key proxy override (http/https/socks4/
+  // socks5/socks5h). Empty/absent = fall back to the global proxy.
+  proxyUrl: z.string().optional(),
 });
 
 // `modelScope` (#657): the model_id list this key may serve — relay stations
@@ -62,8 +65,10 @@ const updateKeySchema = z.object({
   enabled: z.boolean().optional(),
   label: z.string().optional(),
   modelScope: z.array(z.string().trim().min(1).max(200)).max(100).nullable().optional(),
-}).refine(data => data.enabled !== undefined || data.label !== undefined || data.modelScope !== undefined, {
-  message: 'At least one of enabled, label or modelScope must be provided',
+  // #590: '' clears the per-key proxy; absent leaves it unchanged.
+  proxyUrl: z.string().optional(),
+}).refine(data => data.enabled !== undefined || data.label !== undefined || data.modelScope !== undefined || data.proxyUrl !== undefined, {
+  message: 'At least one of enabled, label, modelScope or proxyUrl must be provided',
 });
 
 const importKeySchema = z.object({
@@ -538,15 +543,17 @@ keysRouter.post('/', (req: Request, res: Response) => {
   }
 
   const { encrypted, iv, authTag } = encrypt(keyToStore);
+  const proxyUrl = parsed.data.proxyUrl?.trim() ?? '';
   const result = db.prepare(`
-    INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled)
-    VALUES (?, ?, ?, ?, ?, 'unknown', 1)
-  `).run(platform, label ?? '', encrypted, iv, authTag);
+    INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled, proxy_url)
+    VALUES (?, ?, ?, ?, ?, 'unknown', 1, ?)
+  `).run(platform, label ?? '', encrypted, iv, authTag, proxyUrl);
 
   res.status(201).json({
     id: result.lastInsertRowid,
     platform,
     label: label ?? '',
+    proxyUrl,
     maskedKey: maskKey(keyToStore),
     status: 'unknown',
     enabled: true,
@@ -1441,7 +1448,7 @@ keysRouter.patch('/:id', (req: Request, res: Response) => {
     return;
   }
 
-  const { enabled, label, modelScope } = parsed.data;
+  const { enabled, label, modelScope, proxyUrl } = parsed.data;
   const updates: string[] = [];
   const values: (string | number | null)[] = [];
 
@@ -1452,6 +1459,10 @@ keysRouter.patch('/:id', (req: Request, res: Response) => {
   if (label !== undefined) {
     updates.push('label = ?');
     values.push(label);
+  }
+  if (proxyUrl !== undefined) {
+    updates.push('proxy_url = ?');
+    values.push(proxyUrl.trim());
   }
   // Deduped; an empty result stores NULL, which the router reads as "unscoped".
   const scopeIds = modelScope == null ? [] : [...new Set(modelScope)];
@@ -1473,6 +1484,7 @@ keysRouter.patch('/:id', (req: Request, res: Response) => {
   const response: Record<string, unknown> = { success: true };
   if (enabled !== undefined) response.enabled = enabled;
   if (label !== undefined) response.label = label;
+  if (proxyUrl !== undefined) response.proxyUrl = proxyUrl.trim();
   if (modelScope !== undefined) response.modelScope = scopeIds.length > 0 ? scopeIds : null;
   res.json(response);
 });
