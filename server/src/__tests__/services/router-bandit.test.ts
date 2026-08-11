@@ -4,6 +4,7 @@ import {
   getCustomWeights, setCustomWeights, getExploreEnabled, setExploreEnabled,
   getCommunityPrior, setCommunityPriors, getCommunityPriorEnabled, setCommunityPriorEnabled,
 } from '../../services/router.js';
+import { resetModelWeightOverrides } from '../../services/model-weight-overrides.js';
 import * as ratelimit from '../../services/ratelimit.js';
 import { getDb, initDb } from '../../db/index.js';
 
@@ -223,6 +224,30 @@ describe('bandit router', () => {
     setExploreEnabled(true);
     const withExplore = pickCounts(500);
     expect(withExplore['new'] ?? 0).toBeGreaterThan(0);
+  });
+
+  it('exploration never probes a model zeroed out via MODEL_ROUTING_OVERRIDES (#738)', () => {
+    // A weight-0 model never wins a bandit draw, so it never accumulates the
+    // samples that would graduate it out of the unmeasured pool — without the
+    // probe exclusion it would receive explore traffic forever.
+    addModel({ platform: 'google', modelId: 'old', name: 'Old', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
+    addModel({ platform: 'groq', modelId: 'new', name: 'New', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 2 });
+    addHistory('google', 'old', { successes: 500, failures: 0, outTokens: 1000, latencyMs: 300, ttfbMs: 100 });
+    setRoutingStrategy('balanced');
+    refreshStatsCache(getDb(), true);
+    setExploreEnabled(true);
+
+    const prev = process.env.MODEL_ROUTING_OVERRIDES;
+    process.env.MODEL_ROUTING_OVERRIDES = '{"new": 0}';
+    resetModelWeightOverrides();
+    try {
+      const counts = pickCounts(500);
+      expect(counts['new'] ?? 0).toBe(0);
+    } finally {
+      if (prev === undefined) delete process.env.MODEL_ROUTING_OVERRIDES;
+      else process.env.MODEL_ROUTING_OVERRIDES = prev;
+      resetModelWeightOverrides();
+    }
   });
 
   it('community priors persist, drop invalid entries, and cap effective sample size (#685)', () => {

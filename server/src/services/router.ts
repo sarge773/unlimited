@@ -21,7 +21,7 @@ import {
   observedSpeedRank, TIMEOUT_LATENCY_CAP_MS,
 } from './scoring.js';
 import { TIMEOUT_ERROR_MARKERS } from '../lib/error-classify.js';
-import { applyModelWeightOverride } from './model-weight-overrides.js';
+import { applyModelWeightOverride, getModelWeightOverrides } from './model-weight-overrides.js';
 import { modelsWithOverriddenField } from './model-state.js';
 import { parseBudget } from '../lib/budget.js';
 import { platformDropsResponseFormat } from '../lib/sampling-params.js';
@@ -1558,7 +1558,12 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
   // fails, the loop falls through to the scored order as usual. Only for
   // bandit strategies — Manual is the operator's explicit order.
   if (strategy !== 'priority' && getExploreEnabled() && Math.random() < EXPLORE_CHANCE) {
+    // A model the operator zeroed out via MODEL_ROUTING_OVERRIDES never wins a
+    // bandit draw, so it would stay under EXPLORE_MIN_SAMPLES forever and become
+    // a perpetual probe target — the explicit ban outranks exploration.
+    const overrides = getModelWeightOverrides();
     const unmeasured = sortedChain.filter(e => {
+      if (overrides.get(e.model_id) === 0) return false;
       const stats = statsCache?.get(modelStatsKey(e.platform, e.model_id, e.endpoint_scope));
       return (stats?.successes ?? 0) + (stats?.failures ?? 0) < EXPLORE_MIN_SAMPLES;
     });
