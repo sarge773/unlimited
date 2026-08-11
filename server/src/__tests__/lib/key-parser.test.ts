@@ -58,6 +58,7 @@ describe('key parser', () => {
     expect(detectPlatform('MODELSCOPE_')).toBe('modelscope');
     expect(detectPlatform('ANYAPI_')).toBe('anyapi');
     expect(detectPlatform('ANY_API_')).toBe('anyapi');
+    expect(detectPlatform('ORCAROUTER_')).toBe('orcarouter');
     expect(detectPlatform('SAMBANOVA_')).toBeNull();
   });
 
@@ -70,6 +71,8 @@ describe('key parser', () => {
     expect(AUTH_JSON_PROVIDER_MAP['sea-lion']).toBe('sealion');
     expect(AUTH_JSON_PROVIDER_MAP['model-scope']).toBe('modelscope');
     expect(AUTH_JSON_PROVIDER_MAP['any-api']).toBe('anyapi');
+    expect(AUTH_JSON_PROVIDER_MAP['orcarouter']).toBe('orcarouter');
+    expect(AUTH_JSON_PROVIDER_MAP['orca-router']).toBe('orcarouter');
     const result = parseAuthJson(JSON.stringify({
       credential_pool: {
         gemini: [{ id: '1', label: 'Gemini', auth_type: 'api_key', access_token: 'AIza-test' }],

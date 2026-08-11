@@ -92,6 +92,25 @@ register(new OpenAICompatProvider({
   },
 }));
 
+// OrcaRouter — OpenAI-compatible routing gateway (api.orcarouter.ai/v1). Free
+// "Hacker" plan: no card, free forever, 3 API keys, 0% token markup (checked
+// against orcarouter.ai 2026-08-12). Free chat models are the
+// `orcarouter/fusion*` family — live 200 on 2026-08-12 — while
+// `orcarouter/free` and `deepseek/deepseek-v4-{pro,flash}-free` are $0 in the
+// pricing API but were capacity-limited (429) on the same probe, so expect
+// intermittent 429s across the free pool. Attribution headers mirror
+// OpenRouter. Model rows are NOT seeded here or in migrations — authored in
+// the hosted catalog and gated by hasProvider (catalog-sync).
+register(new OpenAICompatProvider({
+  platform: 'orcarouter',
+  name: 'OrcaRouter',
+  baseUrl: 'https://api.orcarouter.ai/v1',
+  extraHeaders: {
+    'HTTP-Referer': 'http://localhost:3001',
+    'X-Title': 'FreeLLMAPI',
+  },
+}));
+
 // GitHub Models — OpenAI-compatible. Catalog uses `<publisher>/<model>` ids
 // (e.g. `openai/gpt-4.1`); the old Azure endpoint rejects that prefix with
 // "Unknown model", so route to the current models.github.ai endpoint.

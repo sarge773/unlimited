@@ -45,6 +45,10 @@ describe('provider-quota: pool inference', () => {
     // the platform shares a single pool.
     expect(inferQuotaPoolKey('anyapi')).toBe('anyapi::free');
     expect(inferQuotaPoolKey('anyapi', 'qwen/qwen3-coder:free')).toBe('anyapi::free');
+    // OrcaRouter's free tier (orcarouter/fusion*, *-free) shares one capacity
+    // pool, so free model ids bucket together under orcarouter::free.
+    expect(inferQuotaPoolKey('orcarouter')).toBe('orcarouter::free');
+    expect(inferQuotaPoolKey('orcarouter', 'orcarouter/fusion-flash')).toBe('orcarouter::free');
     // Unknown platform falls back to platform::model or platform::account.
     expect(inferQuotaPoolKey('acme' as any, 'x')).toBe('acme::x');
     expect(inferQuotaPoolKey('acme' as any)).toBe('acme::account');

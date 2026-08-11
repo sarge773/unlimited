@@ -32,6 +32,7 @@ export const PLATFORMS: { value: Platform; label: string; url: string; keyless?:
   { value: 'nvidia', label: 'NVIDIA NIM', url: 'https://build.nvidia.com/settings/api-keys' },
   { value: 'mistral', label: 'Mistral', url: 'https://console.mistral.ai/api-keys/' },
   { value: 'openrouter', label: 'OpenRouter', url: 'https://openrouter.ai/keys' },
+  { value: 'orcarouter', label: 'OrcaRouter (free key)', url: 'https://www.orcarouter.ai/console' },
   { value: 'github', label: 'GitHub Models', url: 'https://github.com/settings/tokens' },
   { value: 'cohere', label: 'Cohere', url: 'https://dashboard.cohere.com/api-keys' },
   { value: 'cloudflare', label: 'Cloudflare Workers AI', url: 'https://dash.cloudflare.com' },

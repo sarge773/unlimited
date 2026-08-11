@@ -287,6 +287,7 @@ export const platformColors: Record<string, string> = {
   nvidia:      '#76b900',
   mistral:     '#f59e0b',
   openrouter:  '#ec4899',
+  orcarouter:  '#0160e6',
   github:      '#6e7b8b',
   cohere:      '#d946ef',
   cloudflare:  '#f38020',

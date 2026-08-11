@@ -69,6 +69,12 @@ export type Platform =
   | 'mistral'
   | 'sambanova'
   | 'openrouter'
+  // OrcaRouter — OpenAI-compatible routing gateway. Free "Hacker" plan is
+  // no-card and free forever (3 API keys, 0% token markup); free chat models
+  // are the `orcarouter/fusion*` family (live $0 on 2026-08-12), with
+  // `*-free` variants capacity-gated. Catalog rows live in the hosted catalog
+  // (premium now, free after the 30-day model-age gate).
+  | 'orcarouter'
   | 'github'
   | 'cohere'
   | 'cloudflare'
