@@ -4,7 +4,9 @@ import {
   applyModelWeightOverride,
   getModelWeightOverrides,
   resetModelWeightOverrides,
+  warnOnRoutingOverrideDrift,
 } from '../../services/model-weight-overrides.js';
+import { initDb, getDb } from '../../db/index.js';
 
 const ORIGINAL_ENV = process.env.MODEL_ROUTING_OVERRIDES;
 
@@ -74,5 +76,66 @@ describe('model weight overrides', () => {
     // ...and the test seam forgets it so a new value takes effect.
     resetModelWeightOverrides();
     expect(getModelWeightOverrides().get('other')).toBe(0.9);
+  });
+
+  // Every rejection path above is silent by design so a bad variable cannot
+  // break boot. That is the right call for routing and the wrong one for the
+  // operator who just wrote the variable: a typo'd model id, an out-of-range
+  // multiplier and a stray comma are all indistinguishable from not setting it.
+  describe('warnOnRoutingOverrideDrift', () => {
+    const warnings: string[] = [];
+    const logger = { warn: (m: string) => { warnings.push(m); } };
+
+    beforeEach(() => {
+      warnings.length = 0;
+      process.env.ENCRYPTION_KEY = '0'.repeat(64);
+      initDb(':memory:');
+    });
+
+    it('says nothing when the variable is unset or empty', () => {
+      delete process.env.MODEL_ROUTING_OVERRIDES;
+      expect(warnOnRoutingOverrideDrift(logger)).toBeNull();
+      process.env.MODEL_ROUTING_OVERRIDES = '   ';
+      expect(warnOnRoutingOverrideDrift(logger)).toBeNull();
+      expect(warnings).toEqual([]);
+    });
+
+    it('reports unparsable JSON instead of ignoring it silently', () => {
+      process.env.MODEL_ROUTING_OVERRIDES = '{"gpt-4o": 0.2,}';
+      const drift = warnOnRoutingOverrideDrift(logger)!;
+      expect(drift.malformed).toBe(true);
+      expect(warnings.join()).toContain('not valid JSON');
+    });
+
+    it('reports a non-object value', () => {
+      process.env.MODEL_ROUTING_OVERRIDES = '["gpt-4o"]';
+      const drift = warnOnRoutingOverrideDrift(logger)!;
+      expect(drift.malformed).toBe(true);
+      expect(warnings.join()).toContain('must be a JSON object');
+    });
+
+    it('names entries dropped for an out-of-range or non-numeric multiplier', () => {
+      const real = (getDb().prepare('SELECT model_id FROM models LIMIT 1').get() as { model_id: string }).model_id;
+      process.env.MODEL_ROUTING_OVERRIDES = JSON.stringify({ [real]: 5, ['x-' + real]: 'fast' });
+      const drift = warnOnRoutingOverrideDrift(logger)!;
+      expect(drift.rejectedValues).toContain(real);
+      expect(drift.rejectedValues).toContain('x-' + real);
+      expect(warnings.join()).toContain('not a finite multiplier');
+    });
+
+    it('names an override that matches no model in the catalog', () => {
+      process.env.MODEL_ROUTING_OVERRIDES = '{"gpt-4o-typo-not-real": 0.2}';
+      const drift = warnOnRoutingOverrideDrift(logger)!;
+      expect(drift.unknownModels).toEqual(['gpt-4o-typo-not-real']);
+      expect(warnings.join()).toContain('not a model id in this catalog');
+    });
+
+    it('stays quiet for a well-formed override naming a real model', () => {
+      const real = (getDb().prepare('SELECT model_id FROM models LIMIT 1').get() as { model_id: string }).model_id;
+      process.env.MODEL_ROUTING_OVERRIDES = JSON.stringify({ [real]: 0.2 });
+      const drift = warnOnRoutingOverrideDrift(logger)!;
+      expect(drift).toEqual({ malformed: false, rejectedValues: [], unknownModels: [] });
+      expect(warnings).toEqual([]);
+    });
   });
 });
