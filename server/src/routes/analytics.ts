@@ -213,6 +213,10 @@ analyticsRouter.get('/by-model', (req: Request, res: Response) => {
       SUM(r.input_tokens) as total_input_tokens,
       SUM(r.output_tokens) as total_output_tokens,
       SUM(CASE WHEN r.requested_model = r.model_id THEN 1 ELSE 0 END) as pinned_requests,
+      -- #760 P1 benchmarks: time-to-first-byte (streaming) and latency spread.
+      AVG(r.ttfb_ms) as avg_ttfb_ms,
+      MIN(r.latency_ms) as min_latency_ms,
+      MAX(r.latency_ms) as max_latency_ms,
       SUM(CASE WHEN r.status = 'success' THEN
         r.input_tokens  * COALESCE(m.paid_input_per_m,  ?) / 1000000.0 +
         r.output_tokens * COALESCE(m.paid_output_per_m, ?) / 1000000.0
@@ -232,6 +236,11 @@ analyticsRouter.get('/by-model', (req: Request, res: Response) => {
     // success_rate is NULL when every row in the group was canceled.
     successRate: Math.round((r.success_rate ?? 0) * 10) / 10,
     avgLatencyMs: Math.round(r.avg_latency_ms),
+    // #760 P1: benchmark surface — stream TTFB plus the latency spread so the
+    // UI can answer "is this model slow today" without digging into traces.
+    avgTtfbMs: Math.round(r.avg_ttfb_ms ?? 0),
+    minLatencyMs: Math.round(r.min_latency_ms ?? 0),
+    maxLatencyMs: Math.round(r.max_latency_ms ?? 0),
     totalInputTokens: r.total_input_tokens ?? 0,
     totalOutputTokens: r.total_output_tokens ?? 0,
     // Requests this model served because the client pinned it by name.

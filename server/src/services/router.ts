@@ -18,7 +18,7 @@ import {
   BANDIT_PRESETS, DEFAULT_STRATEGY, type RoutingStrategy, type RoutingWeights,
   reliabilityPosterior, expectedReliability, sampleBeta,
   speedScore, intelligenceScore, intelligenceComposite, headroomFactor, rateLimitFactor, combineScore,
-  observedSpeedRank, TIMEOUT_LATENCY_CAP_MS,
+  timeOfDayWeights, observedSpeedRank, TIMEOUT_LATENCY_CAP_MS,
 } from './scoring.js';
 import { TIMEOUT_ERROR_MARKERS } from '../lib/error-classify.js';
 import { applyModelWeightOverride, getModelWeightOverrides } from './model-weight-overrides.js';
@@ -840,11 +840,11 @@ function scoreChainEntry(
   const headroom = headroomFactor(stats?.monthlyUsedTokens ?? 0, budget);
   const rl = rateLimitFactor(getPenalty(entry.model_db_id));
 
-  // Per-model env overrides (#738) scale the final score so a slow or
-  // poor-quality model is demoted without being disabled outright — a manual
-  // 'priority' chain can still select it.
+  // #760 P2: dynamic ranking — shift speed→reliability weight during local
+  // peak hours (18:00–06:00) when free relays are congested.
   const score = applyModelWeightOverride(
-    combineScore({ reliability, speed, intelligence, headroom, rateLimit: rl }, weights),
+    combineScore({ reliability, speed, intelligence, headroom, rateLimit: rl },
+      timeOfDayWeights(weights, new Date().getHours())),
     entry.model_id,
   );
   return { axes: { reliability, speed, intelligence }, headroom, rateLimit: rl, score };

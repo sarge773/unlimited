@@ -14,6 +14,7 @@ import {
 } from '../services/auth.js';
 import { setupCodeMatches, clearSetupCode } from '../lib/setup-code.js';
 import { generateResetCode, resetCodeMatches, clearResetCode } from '../lib/reset-code.js';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 export const authRouter = Router();
 
@@ -273,4 +274,28 @@ authRouter.post('/reset-password', (req: Request, res: Response) => {
   }
   clearResetCode();
   res.json({ success: true });
+});
+
+// ── Multi-user (#267): add additional dashboard accounts ────────────────────
+// The first account is claimed via /setup (one-time). Any further account is
+// created here by an already-authenticated user, so a family/NAS install can
+// hand each member their own login instead of sharing one dashboard session.
+// Minimal viable slice: accounts only (each user gets their own session on
+// login); per-user unified API keys / workspaces are the next increment.
+authRouter.post('/users', requireAuth, (req: Request, res: Response) => {
+  const parsed = credentialsSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: { message: parsed.error.errors.map(e => e.message).join(', ') } });
+    return;
+  }
+  try {
+    const user = createUser(parsed.data.email, parsed.data.password);
+    res.status(201).json({ id: user.userId, email: user.email, message: 'Account created. They can sign in with these credentials.' });
+  } catch (err: any) {
+    if (err?.code === 'email_taken') {
+      res.status(409).json({ error: { message: err.message, type: 'email_taken' } });
+      return;
+    }
+    res.status(500).json({ error: { message: err?.message ?? 'Failed to create account', type: 'server_error' } });
+  }
 });

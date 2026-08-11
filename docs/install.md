@@ -271,3 +271,23 @@ and `config.json` (window/theme/port/LAN preferences). Copy both to move an
 install. For the server (non-desktop) deployment, the equivalent state is the
 `.env` file and the SQLite DB at `server/data/freeapi.db` (or wherever
 `FREEAPI_DB_PATH` points).
+
+## FAQ: password reset and logs
+
+**Where are the logs?**
+The router writes to stdout of the process that runs it — the terminal you
+launched `freellmapi` / the server in, or the desktop app's own console. The
+one-time codes described below appear there.
+
+**I forgot my password — how do I reset it?**
+On the login screen, click **Forgot password?** to generate a reset code. The
+code is printed to the **server logs** (see above) — open them, copy the code,
+paste it into the form, and set a new password. The dashboard account is the
+email + password you chose during the initial setup.
+
+**Desktop app: there is no password.**
+The desktop build has no user-set password — it signs the dashboard in
+automatically with a hidden local account, so you are never prompted for one.
+If you still see a password prompt for exporting or copying a full key, update
+to a build that includes PR #810 (the desktop server skips that re-verification
+for local requests).

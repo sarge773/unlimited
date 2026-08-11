@@ -275,3 +275,26 @@ export function combineScore(inputs: ScoreInputs, weights: RoutingWeights): numb
       weights.intelligence * inputs.intelligence) / wSum;
   return base * inputs.headroom * inputs.rateLimit;
 }
+
+// #760 P2: dynamic ranking — time-of-day-aware weight adjustment.
+//
+// Free-tier relays are most congested in the local evening; a raw speed score
+// measured off-peak can claim a model is "fastest" when it is the slowest at
+// 20:00. During peak hours we shift weight from speed to reliability so the
+// ranking reflects the measured reliability-weighted choice instead of a
+// stale off-peak snapshot. `hour` is 0-23 local time. Returns the original
+// weights unchanged outside peak hours (so tests and off-peak behaviour are
+// unaffected).
+export function timeOfDayWeights(weights: RoutingWeights, hour: number): RoutingWeights {
+  const peak = hour >= 18 || hour < 6; // 18:00–06:00 local
+  if (!peak) return weights;
+  const speedCut = weights.speed * 0.4;
+  if (speedCut <= 0) return weights;
+  // Move the cut weight to reliability (it is what guards against a congested
+  // relay); intelligence stays untouched.
+  return {
+    reliability: weights.reliability + speedCut,
+    speed: weights.speed - speedCut,
+    intelligence: weights.intelligence,
+  };
+}

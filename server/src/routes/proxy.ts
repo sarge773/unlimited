@@ -18,6 +18,7 @@ import { rescueInlineToolCalls, startsWithDialectMarker, couldBecomeDialectMarke
 import { getContextHandoffMode, recordIncomingMessages, maybeInjectContextHandoff, recordSuccessfulModel, hasPriorModel, HANDOFF_MAX_TOKENS } from '../services/context-handoff.js';
 import { isFusionModel, runFusion, fusionConfigSchema, FusionError, FUSION_MODEL_ID } from '../services/fusion.js';
 import { isRetryableError, isPaymentRequiredError, isModelNotFoundError, isModelAccessForbiddenError, isClientAbortError, newClientAbortError } from '../lib/error-classify.js';
+import { fallbackAnalyzeImages } from '../lib/vision-fallback.js';
 import { logRequest } from '../lib/request-log.js';
 import { observeServedModel } from '../lib/served-model.js';
 import { parseCacheDirective, cacheActive, isCacheableTemperature, computeCacheKey, getCachedResponse, storeCachedResponse } from '../services/cache.js';
@@ -1406,14 +1407,24 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   // heuristic above (text-only) can't see.
   const hasImage = messageHasImage(messages);
   if (hasImage && !hasEnabledVisionModel()) {
-    res.status(422).json({
-      error: {
-        message: 'This request includes an image, but no vision-capable model is enabled. Enable a vision model (e.g. Gemini 2.5 Flash, Llama 4 Scout) in the Fallback Chain.',
-        type: 'invalid_request_error',
-        code: 'no_vision_model',
-      },
-    });
-    return;
+    // #812: capability-aware multimodal fallback — before rejecting, try a
+    // Qwen VL pre-analysis of the image and forward only its text to the
+    // originally requested (non-visual) model. When the analysis succeeds the
+    // target call never receives image blocks; otherwise keep the existing
+    // no-vision error.
+    const analyzed = await fallbackAnalyzeImages(messages);
+    if (analyzed !== messages) {
+      messages = analyzed;
+    } else {
+      res.status(422).json({
+        error: {
+          message: 'This request includes an image, but no vision-capable model is enabled. Enable a vision model (e.g. Gemini 2.5 Flash, Llama 4 Scout) in the Fallback Chain.',
+          type: 'invalid_request_error',
+          code: 'no_vision_model',
+        },
+      });
+      return;
+    }
   }
   const IMAGE_TOKEN_ESTIMATE = 1000;
   const imageCount = messages.reduce((n, m) =>
