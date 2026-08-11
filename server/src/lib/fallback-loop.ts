@@ -72,7 +72,7 @@ export const FALLBACK_MAX_RETRIES = 20;
 // key simply re-trips the streak). Client-cancels never reach
 // recordRetryableFailure (the loop returns on isClientAbortError before this
 // bookkeeping), so they don't count.
-const MODEL_FAILURE_WINDOW_MS = 15 * 60 * 1000;   // sliding window: 15 min
+export const MODEL_FAILURE_WINDOW_MS = 15 * 60 * 1000;   // sliding window: 15 min
 export const MODEL_FAILURE_THRESHOLD = 3;         // failures within window
 export const MODEL_FAILURE_COOLDOWN_MS = 10 * 60 * 1000; // bench duration: 10 min
 const modelFailureTimestamps = new Map<number, number[]>(); // model_db_id → times
@@ -81,8 +81,7 @@ const modelFailureTimestamps = new Map<number, number[]>(); // model_db_id → t
  *  holds ≥ MODEL_FAILURE_THRESHOLD failures, bench the model on EVERY key that
  *  can route to it so the model sinks out of routing until upstream heals, then
  *  reset the counter (one bench per streak). */
-function noteModelFailure(route: RouteResult): void {
-  const now = Date.now();
+function noteModelFailure(route: RouteResult, now: number): void {
   const window = (modelFailureTimestamps.get(route.modelDbId) ?? [])
     .filter(t => now - t < MODEL_FAILURE_WINDOW_MS);
   window.push(now);
@@ -235,6 +234,14 @@ export function resetEmptyCompletionStreaks(): void {
   emptyCompletionStreaks.clear();
 }
 
+/** Drop every model's sliding failure window. Module state outlives a test
+ *  case, so without this a case inherits the previous one's failure counts and
+ *  trips the threshold early — clearing `rate_limit_cooldowns` alone does not
+ *  reach it. */
+export function resetModelFailureWindows(): void {
+  modelFailureTimestamps.clear();
+}
+
 // Advance (or break) the streak for this failure and report whether the
 // skipBench exemption still holds. Called exactly once per retryable failure,
 // from recordRetryableFailure; the loop reuses its returned decision for the
@@ -282,7 +289,7 @@ function consumeSkipBenchExemption(route: RouteResult, err: any): boolean {
  *
  * Callers add the just-failed key to skipKeys via this function (do not pre-add).
  */
-export function recordRetryableFailure(route: RouteResult, err: any, state: FallbackState): boolean {
+export function recordRetryableFailure(route: RouteResult, err: any, state: FallbackState, now: number = Date.now()): boolean {
   // `skipModelForRequest: true` = the failure is MODEL behavior, not key
   // state (ignored response_format, JSON truncated at max_tokens): a sibling
   // key would reproduce it exactly, so rule out the whole model for this
@@ -315,7 +322,7 @@ export function recordRetryableFailure(route: RouteResult, err: any, state: Fall
   setCooldown(route.platform, route.modelId, route.keyId, decision.durationMs, decision.source);
   // Model-level failure benching: a model failing across keys (or repeatedly on
   // one key) must sink out of routing instead of being re-picked every request.
-  noteModelFailure(route);
+  noteModelFailure(route, now);
   // Model-level penalty only when no sibling key can still serve (#454).
   if (!hasOtherUsableKey(route.modelDbId, route.keyId, state.skipKeys)) {
     // Hard limit signals (429/402) carry the heavier demotion; ordinary
