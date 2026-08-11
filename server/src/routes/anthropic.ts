@@ -851,7 +851,7 @@ async function streamCompletion(
     // committed). A rescued dialect becomes tool_use blocks; leftover clean text
     // is emitted as a text block first.
     if (heldText.length > 0) {
-      const rescue = (dialectMode === 'dialect' || containsDialectMarker(heldText))
+      const rescue = ((ctx.tools?.length ?? 0) > 0 && (dialectMode === 'dialect' || containsDialectMarker(heldText)))
         ? rescueInlineToolCalls(heldText, new Set((ctx.tools ?? []).map(t => t.function.name)))
         : { detected: false as const, calls: null, cleanText: heldText };
       if (rescue.detected && !rescue.calls) {

@@ -861,7 +861,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
           // Held text was never emitted, so a dead dialect turn can still fail
           // over on the same SSE stream (nothing has been committed yet).
           if (heldText.length > 0) {
-            const rescue = (dialectMode === 'dialect' || containsDialectMarker(heldText))
+            const rescue = (wantsTools && (dialectMode === 'dialect' || containsDialectMarker(heldText)))
               ? rescueInlineToolCalls(heldText, new Set((tools ?? []).map(t => t.function.name)))
               : { detected: false as const, calls: null, cleanText: heldText };
             if (rescue.detected && !rescue.calls) {

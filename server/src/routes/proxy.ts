@@ -1995,9 +1995,9 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
             if (mode === 'dialect') continue;
 
             const probe = heldText.trimStart();
-            if (startsWithDialectMarker(probe)) {
+            if (wantsTools && startsWithDialectMarker(probe)) {
               mode = 'dialect';
-            } else if (!couldBecomeDialectMarker(probe) || probe.length > 256) {
+            } else if (!wantsTools || !couldBecomeDialectMarker(probe) || probe.length > 256) {
               mode = 'passthrough';
               flushHeaders();
               writeChunk(mkChunk({ content: heldText }, null));
@@ -2022,25 +2022,11 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
             }))
             .filter(c => { try { JSON.parse(c.function.arguments); return c.function.name.length > 0; } catch { return false; } });
 
-          // Opt-in schema verdict. `!headerSent` is the whole licence to throw
-          // here: the commit point is held until the first meaningful content,
-          // so the common tool-call turn (no prose before the call) has sent no
-          // bytes yet and can still fail over invisibly. A turn that already
-          // flushed prose is past the point of no return — the catch below
-          // would have to tear the SSE stream down with a `stream_error`, which
-          // is strictly worse for the client than forwarding a tool call the
-          // schema dislikes. Off-by-default or not, this check must never turn
-          // a served answer into a broken one.
-          if (isToolArgumentValidationEnabled() && !headerSent && completedCalls.length > 0) {
-            const invalid = invalidToolCallReasons(completedCalls, schemas);
-            if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
-          }
-
           // Dialect rescue: the held text is an inline tool call in some
           // model's private syntax. Parse it into structured calls or treat
           // the turn as dead (headers were never sent in dialect mode, so
           // failing over is free).
-          if (mode === 'dialect' || (mode === 'undecided' && heldText.length > 0 && containsDialectMarker(heldText))) {
+          if (wantsTools && (mode === 'dialect' || (mode === 'undecided' && heldText.length > 0 && containsDialectMarker(heldText)))) {
             const rescue = rescueInlineToolCalls(heldText, new Set((tools ?? []).map(t => t.function.name)));
             if (rescue.detected) {
               if (!rescue.calls) throw new Error(`unparseable inline tool-call dialect from ${route.displayName}: ${heldText.slice(0, 120)}`);
@@ -2051,6 +2037,23 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
               heldText = rescue.cleanText;
               console.log(`[Proxy] Rescued ${rescuedIds} inline tool call(s) from ${route.displayName} into structured tool_calls`);
             }
+          }
+
+          // Opt-in schema verdict, taken AFTER the rescue so it covers the
+          // calls the rescue reconstructed from prose — those are the ones
+          // most likely to be malformed, and running first exempted exactly
+          // them. `!headerSent` is the whole licence to throw here: the commit
+          // point is held until the first meaningful content, so the common
+          // tool-call turn (no prose before the call) has sent no bytes yet and
+          // can still fail over invisibly. A turn that already flushed prose is
+          // past the point of no return — the catch below would have to tear
+          // the SSE stream down with a `stream_error`, which is strictly worse
+          // for the client than forwarding a tool call the schema dislikes.
+          // Off-by-default or not, this check must never turn a served answer
+          // into a broken one.
+          if (isToolArgumentValidationEnabled() && !headerSent && completedCalls.length > 0) {
+            const invalid = invalidToolCallReasons(completedCalls, schemas);
+            if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
           }
 
           // Disconnect before the commit point: nothing usable was (or will
