@@ -449,7 +449,13 @@ export function modelRetirementSignal(err: any): ModelRetirementConfidence | nul
   const msg = (err?.message ?? '').toLowerCase();
   const status = typeof err?.status === 'number' ? err.status : 0;
   const gone = status === 410 || /\berror 410\b/.test(msg) || /\b410 gone\b/.test(msg);
-  if (gone || END_OF_LIFE_PHRASES.some(phrase => msg.includes(phrase))) return 'definitive';
+  // An end-of-life phrase is only definitive when the status agrees the model
+  // is not there. On its own it is just text, and 'definitive' skips the
+  // corroboration gate in noteModelRetirementSignal — so a 429 or 500 whose
+  // body happens to mention a retirement (an advisory notice, a status-page
+  // quote, a message about a DIFFERENT model) disabled a live model on one
+  // response. Unmatched here means it falls through and teaches nothing.
+  if (gone || (isModelNotFoundError(err) && END_OF_LIFE_PHRASES.some(phrase => msg.includes(phrase)))) return 'definitive';
   if (!isModelNotFoundError(err)) return null;
   return MODEL_GONE_PHRASES.some(phrase => msg.includes(phrase)) ? 'probable' : null;
 }
