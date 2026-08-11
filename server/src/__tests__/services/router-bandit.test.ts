@@ -131,19 +131,31 @@ describe('bandit router', () => {
     expect(counts['y'] ?? 0).toBeGreaterThan(0);
   });
 
-  it('vision requests never route to a text-only model, even with exploration on', () => {
+  it('exploration draws are never wasted on a model that cannot serve the request', () => {
+    // vision-a is measured and wins every ordinary bandit draw. text-b and
+    // vision-c are both unmeasured, but only vision-c can serve a vision
+    // request. The pre-fix router put BOTH in the explore pool, so ~half the
+    // explore draws promoted text-b, which the main loop's vision gate then
+    // skipped — a wasted draw. With the pool filtered, vision-c receives
+    // every explore draw (~10% of requests); unfixed it got only ~5%, far
+    // below the 150/2000 bound asserted here.
     setExploreEnabled(true);
-    addModel({ platform: 'google', modelId: 'vision-a', name: 'Vision A', intelligenceRank: 3, sizeLabel: 'Large', budget: '~50M', priority: 1, vision: true });
-    addModel({ platform: 'groq', modelId: 'text-b', name: 'Text B', intelligenceRank: 3, sizeLabel: 'Large', budget: '~50M', priority: 2 });
+    addModel({ platform: 'google', modelId: 'vision-a', name: 'Vision A', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1, vision: true });
+    addModel({ platform: 'groq', modelId: 'text-b', name: 'Text B', intelligenceRank: 2, sizeLabel: 'Frontier', budget: '~50M', priority: 2 });
+    addModel({ platform: 'google', modelId: 'vision-c', name: 'Vision C', intelligenceRank: 30, sizeLabel: 'Small', budget: '~50M', priority: 3, vision: true });
+    addHistory('google', 'vision-a', { successes: 500, failures: 0, outTokens: 1000, latencyMs: 300, ttfbMs: 100 });
     setRoutingStrategy('balanced');
     refreshStatsCache(getDb(), true);
+
     const counts: Record<string, number> = {};
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 2000; i++) {
       const r = routeRequest(100, undefined, undefined, /*requireVision=*/ true);
       counts[r.modelId] = (counts[r.modelId] ?? 0) + 1;
     }
+    // The loop gate already guarantees this half; the pool filter is what the
+    // vision-c bound below actually pins down.
     expect(counts['text-b'] ?? 0).toBe(0);
-    expect(counts['vision-a'] ?? 0).toBe(300);
+    expect(counts['vision-c'] ?? 0).toBeGreaterThan(150);
   });
 
   it('smartest vs fastest flips which model wins, at equal reliability', () => {

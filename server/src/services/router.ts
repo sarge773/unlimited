@@ -1575,6 +1575,7 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
       // Mirror the main loop's gates below so exploration only samples
       // candidates that can actually serve this request.
       if (skipModels?.has(e.model_db_id)) return false;
+      if (skipPlatforms?.has(e.platform)) return false;
       if (requireVision && !e.supports_vision) return false;
       if (requireTools && !e.supports_tools) return false;
       if (requireStructured && platformDropsResponseFormat(e.platform)) return false;
