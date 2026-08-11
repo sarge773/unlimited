@@ -13,8 +13,10 @@ import { routeRequest, resolveStickyPreference, routingReserveTokens, type Route
 import { getSetting, getUnifiedApiKey } from '../db/index.js';
 import { contentToString } from '../lib/content.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
+import { invalidToolArgumentsError, invalidToolCallReasons, isToolArgumentValidationEnabled } from '../lib/tool-validate.js';
 import { rescueInlineToolCalls, startsWithDialectMarker, couldBecomeDialectMarker, containsDialectMarker } from '../lib/tool-call-rescue.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
+import { convertDocumentBlock, documentRejectionMessage } from '../lib/anthropic-documents.js';
 import { isClientAbortError, newClientAbortError } from '../lib/error-classify.js';
 import { logRequest } from '../lib/request-log.js';
 import { extractApiToken, timingSafeStringEqual, getStickyModel, setStickyModel } from './proxy.js';
@@ -253,10 +255,14 @@ interface ConvertedRequest {
   tool_choice?: ChatToolChoice;
   hasImage: boolean;
   wantsTools: boolean;
+  /** Reasons the request carried documents we cannot convert. Non-empty means
+   *  the caller must be told, not served — see the rejection below. */
+  documentRejections: string[];
 }
 
 function convertRequest(input: AnthropicRequest): ConvertedRequest {
   const messages: ChatMessage[] = [];
+  const documentRejections: string[] = [];
   let hasImage = false;
 
   const system = flattenSystem(input.system);
@@ -307,8 +313,15 @@ function convertRequest(input: AnthropicRequest): ConvertedRequest {
           tool_call_id: String((block as any).tool_use_id ?? ''),
           content: flattenToolResult((block as any).content),
         });
+      } else if (type === 'document') {
+        // A document that is already text costs nothing to inline. One that
+        // needs decoding cannot be served by any provider here, and dropping
+        // it would answer confidently about a document the model never saw.
+        const result = convertDocumentBlock(block);
+        if (result.ok) textParts.push(result.text);
+        else documentRejections.push(result.reason);
       }
-      // Unknown block types (thinking, document, …) are intentionally dropped.
+      // Other unknown block types (thinking, …) are intentionally dropped.
     }
 
     const text = textParts.join('\n');
@@ -346,6 +359,7 @@ function convertRequest(input: AnthropicRequest): ConvertedRequest {
     tool_choice: convertToolChoice(input.tool_choice),
     hasImage,
     wantsTools: (tools?.length ?? 0) > 0,
+    documentRejections,
   };
 }
 
@@ -447,6 +461,15 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
   const { temperature, top_p, stream } = body;
 
   const converted = convertRequest(body);
+  // Rejected before routing, and before compression: this is our verdict, not
+  // a provider's. Entering the failover loop would spend quota on a request
+  // every candidate would fail identically, and book it as provider failure.
+  if (converted.documentRejections.length > 0) {
+    const message = documentRejectionMessage(converted.documentRejections);
+    console.warn(`[anthropic] 400 unsupported document block: ${converted.documentRejections.join('; ')}`);
+    sendError(res, 400, 'invalid_request_error', message);
+    return;
+  }
   let { messages } = converted;
   const { tools, tool_choice, hasImage, wantsTools } = converted;
   const systemHasCacheControl = Array.isArray(body.system)
@@ -534,7 +557,7 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
     state,
     attemptLog,
     clientGone: () => clientGone,
-    route: () => routeRequest(estimatedTotal, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined),
+    route: () => routeRequest(estimatedTotal, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, undefined, false, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined),
     dispatch: async (route, attempt) => {
       if (stream) {
         try {
@@ -594,6 +617,14 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
           if (tc?.function?.arguments != null) {
             tc.function.arguments = repairToolArguments(tc.function.arguments, schemas.get(tc.function.name));
           }
+        }
+        // Opt-in schema verdict on what the repair could not fix. This surface
+        // is where the silent failure was worst: parseToolInput turns
+        // unparseable arguments into `input: {}`, so the client sees a tool_use
+        // block with nothing in it and no indication anything went wrong.
+        if (isToolArgumentValidationEnabled()) {
+          const invalid = invalidToolCallReasons(respToolCalls, schemas);
+          if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
         }
       }
 
@@ -841,6 +872,20 @@ async function streamCompletion(
       heldText = '';
     }
 
+    // Opt-in schema verdict, same rule as the non-streaming surface above and
+    // as /chat/completions: this is the surface the silent failure hurt most,
+    // and Claude Code streams. Placed after the dialect rescue so a rescued
+    // call is judged too, and gated on `!messageStarted` — once message_start
+    // has gone out there is no failing over, and tearing the SSE stream down
+    // would be worse for the client than a tool_use the schema dislikes.
+    if (isToolArgumentValidationEnabled() && !messageStarted && completedCalls.length > 0) {
+      const invalid = invalidToolCallReasons(
+        completedCalls.map(c => ({ function: { name: c.name, arguments: c.arguments } })),
+        schemas,
+      );
+      if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
+    }
+
     // Nothing usable came out — fail over (message_start was never sent, so the
     // client never saw this attempt).
     if (!messageStarted && completedCalls.length === 0) {
@@ -925,7 +970,15 @@ anthropicRouter.post('/messages/count_tokens', (req: Request, res: Response) => 
     sendError(res, 400, 'invalid_request_error', 'Invalid request');
     return;
   }
-  const { messages, tools } = convertRequest(parsed.data);
+  const converted = convertRequest(parsed.data);
+  // Same verdict as POST /messages, so a client sizing a context window learns
+  // the document is unusable here rather than getting a count for a prompt we
+  // would go on to refuse.
+  if (converted.documentRejections.length > 0) {
+    sendError(res, 400, 'invalid_request_error', documentRejectionMessage(converted.documentRejections));
+    return;
+  }
+  const { messages, tools } = converted;
   const compressionResult = compressRequest(messages, {
     header: req.headers['x-freellm-compress'],
     tools,

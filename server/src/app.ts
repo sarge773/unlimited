@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { keysRouter } from './routes/keys.js';
+import { clientProfilesRouter } from './routes/client-profiles.js';
 import { modelsRouter } from './routes/models.js';
 import { proxyRouter } from './routes/proxy.js';
 import { responsesRouter } from './routes/responses.js';
@@ -26,6 +27,7 @@ import { statusRouter, providersRouter } from './routes/status.js';
 import { geminiRouter } from './routes/gemini.js';
 import { ollamaRouter } from './routes/ollama.js';
 import { urlTokenRouter } from './routes/url-tokens.js';
+import { updateRouter } from './routes/update.js';
 import { requireAuth } from './middleware/requireAuth.js';
 import { createProxyRateLimiter, createAdminRateLimiter } from './middleware/rateLimit.js';
 
@@ -210,6 +212,10 @@ export function createApp(config?: Config) {
   app.use('/api/keys/export', createAdminRateLimiter(EXPORT_RATE_LIMIT_RPM));
 
   app.use('/api/keys', requireAuth, keysRouter);
+  // Per-client key management (#411). Dashboard-session gated like the rest of
+  // /api — the profile keys it mints authenticate only the /v1 inference
+  // surface and are never valid here.
+  app.use('/api/client-profiles', requireAuth, clientProfilesRouter);
   app.use('/api/models', requireAuth, modelsRouter);
   app.use('/api/profiles', requireAuth, profilesRouter);
   app.use('/api/fallback', requireAuth, fallbackRouter);
@@ -221,6 +227,7 @@ export function createApp(config?: Config) {
   app.use('/api/premium', requireAuth, premiumRouter);
   app.use('/api/cache', requireAuth, cacheRouter);
   app.use('/api/compression', requireAuth, compressionRouter);
+  app.use('/api/update', requireAuth, updateRouter);
 
   // Health check — no auth required.
   app.get('/api/ping', (_req, res) => {

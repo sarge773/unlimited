@@ -14,6 +14,7 @@ import {
   PROXY_SCHEMES,
   proxyFetch,
   describeAbort,
+  withKeyProxy,
 } from '../../lib/proxy.js';
 
 // Every env var the proxy config reads, in both the upper- and lower-case
@@ -154,6 +155,66 @@ describe('proxyFetch dispatcher selection for SOCKS schemes (#630)', () => {
       expect(agent?.proxy?.port).toBe(1080);
     });
   }
+});
+
+// #666: the SOCKS fallback hardcoded a 120s socket timeout, so a user with
+// PROVIDER_TIMEOUT_CUSTOM=600000 still lost the request at 120s. The fix only
+// ever RAISES that guard — it never lowers it to the caller's timeout, because
+// http.request's `timeout` is a socket inactivity timer armed across the whole
+// streaming body while timeoutMs is a header deadline disarmed at headers
+// (#553/#584 hand mid-stream time to the stall watchdog).
+describe('SOCKS socket timeout guard (#666)', () => {
+  const socketTimeoutOf = (spy: ReturnType<typeof stubHttpsRequest>): unknown =>
+    (spy.mock.calls[0][0] as any).timeout;
+
+  beforeEach(() => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+  });
+
+  it('raises the guard past 120s for a long caller timeout, with a grace margin', async () => {
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq', 'chat', 600_000);
+
+    // +30s so the caller's own abort deadline always fires first and the
+    // tagged AbortError survives instead of the bare socket 'timeout'.
+    expect(socketTimeoutOf(reqSpy)).toBe(630_000);
+  });
+
+  it('never drops below 120s for a platform with a short chat timeout', async () => {
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq', 'chat', 15_000);
+
+    // A 15s socket idle timer would kill a healthy stream mid-prefill; the
+    // ~90s stall watchdog stays the governing mid-stream budget.
+    expect(socketTimeoutOf(reqSpy)).toBe(120_000);
+  });
+
+  it('keeps the historical 120s guard when no timeout is passed', async () => {
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq');
+
+    expect(socketTimeoutOf(reqSpy)).toBe(120_000);
+  });
+
+  it('disables the socket timer when the caller timeout is 0 (no timeout)', async () => {
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq', 'chat', 0);
+
+    expect(socketTimeoutOf(reqSpy)).toBe(0);
+  });
+
+  it('falls back to the 120s guard for malformed timeouts instead of disabling it', async () => {
+    for (const bad of [NaN, -1, Infinity, '300000' as unknown as number]) {
+      const reqSpy = stubHttpsRequest();
+      await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq', 'chat', bad);
+      expect(socketTimeoutOf(reqSpy)).toBe(120_000);
+      vi.restoreAllMocks();
+    }
+  });
 });
 
 // #353: HTTPS_PROXY / HTTP_PROXY / ALL_PROXY / NO_PROXY are the de-facto
@@ -506,5 +567,133 @@ describe('proxyFetch abort error enrichment', () => {
     await expect(
       proxyFetch('https://api.example.com/v1', undefined, 'groq', 'chat', 15_000),
     ).rejects.toBe(typeErr);
+  });
+});
+
+// Per-key proxy override (#590). The fallback loop wraps each dispatch in
+// withKeyProxy(route.proxyUrl, ...), which parks the URL in AsyncLocalStorage;
+// dispatchFetch reads it there and prefers it over the global proxy. Providers
+// are process singletons, so ALS is what makes "this key exits from there"
+// possible without threading a proxy argument through every provider call.
+//
+// Assertions ride the SOCKS path: the agent handed to https.request carries the
+// proxy host/port, so which dispatcher was chosen is directly observable
+// (undici's ProxyAgent is opaque by comparison, and the port makes global vs
+// per-key unambiguous).
+describe('per-key proxy override (#590)', () => {
+  const agentPortOf = (spy: ReturnType<typeof stubHttpsRequest>, call = 0): unknown =>
+    ((spy.mock.calls[call]?.[0] as any)?.agent)?.proxy?.port;
+
+  it('routes the attempt through the key\'s own proxy instead of the global one', async () => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    const reqSpy = stubHttpsRequest();
+
+    await withKeyProxy('socks5://127.0.0.1:1081', () =>
+      proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+
+    expect(agentPortOf(reqSpy)).toBe(1081);
+  });
+
+  it('proxies through the key\'s proxy even when no global proxy is configured', async () => {
+    applyProxyUrl('');
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const reqSpy = stubHttpsRequest();
+
+    await withKeyProxy('socks5h://127.0.0.1:1082', () =>
+      proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+
+    expect(agentPortOf(reqSpy)).toBe(1082);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('an empty override falls through to the global proxy', async () => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    const reqSpy = stubHttpsRequest();
+
+    await withKeyProxy('', () => proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+    await withKeyProxy(undefined, () => proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+
+    expect(agentPortOf(reqSpy, 0)).toBe(1080);
+    expect(agentPortOf(reqSpy, 1)).toBe(1080);
+  });
+
+  it('the override does not outlive the call it was set for', async () => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    const reqSpy = stubHttpsRequest();
+
+    await withKeyProxy('socks5://127.0.0.1:1083', () =>
+      proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+    // Next request, no override in scope: back to the global proxy.
+    await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq');
+
+    expect(agentPortOf(reqSpy, 0)).toBe(1083);
+    expect(agentPortOf(reqSpy, 1)).toBe(1080);
+  });
+
+  it('keeps concurrent attempts on their own key\'s proxy', async () => {
+    applyProxyUrl('');
+    const reqSpy = stubHttpsRequest();
+
+    await Promise.all([
+      withKeyProxy('socks5://127.0.0.1:1084', () => proxyFetch('https://a.example.com/v1', undefined, 'groq')),
+      withKeyProxy('socks5://127.0.0.1:1085', () => proxyFetch('https://b.example.com/v1', undefined, 'groq')),
+    ]);
+
+    const ports = reqSpy.mock.calls.map(call => ((call[0] as any).agent)?.proxy?.port).sort();
+    expect(ports).toEqual([1084, 1085]);
+  });
+
+  it('still honors NO_PROXY for the upstream host', async () => {
+    process.env.NO_PROXY = 'api.example.com';
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+    const reqSpy = stubHttpsRequest();
+
+    await withKeyProxy('socks5://127.0.0.1:1086', () =>
+      proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+
+    expect(reqSpy).not.toHaveBeenCalled();
+    expect((fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher).toBeUndefined();
+  });
+
+  it('still honors the per-platform bypass list', async () => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    applyProxyBypass('groq');
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+    const reqSpy = stubHttpsRequest();
+
+    await withKeyProxy('socks5://127.0.0.1:1087', () =>
+      proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+
+    expect(reqSpy).not.toHaveBeenCalled();
+    expect((fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher).toBeUndefined();
+  });
+
+  it('still honors the global proxy off switch', async () => {
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    applyProxyEnabled(false);
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+    const reqSpy = stubHttpsRequest();
+
+    await withKeyProxy('socks5://127.0.0.1:1088', () =>
+      proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+
+    expect(reqSpy).not.toHaveBeenCalled();
+    expect((fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher).toBeUndefined();
+  });
+
+  it('falls back to the global proxy when the key\'s proxy cannot be built, without logging its credentials', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    applyProxyUrl('socks5://127.0.0.1:1080');
+    const reqSpy = stubHttpsRequest();
+
+    // A port outside the valid range makes SocksProxyAgent throw on construction.
+    await withKeyProxy('socks5h://alice:hunter2@proxy.internal:not-a-port', () =>
+      proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq'));
+
+    expect(agentPortOf(reqSpy)).toBe(1080);
+    const logged = errSpy.mock.calls.flat().join(' ');
+    expect(logged).toContain('per-key dispatcher');
+    expect(logged).not.toContain('hunter2');
   });
 });
