@@ -103,9 +103,67 @@ const functionCallOutputItemSchema = z.object({
   output: z.union([z.string(), z.array(contentPartSchema), z.record(z.string(), z.unknown())]),
 });
 
+// Remaining official ResponseInputItemParam kinds. Codex computer-use round-trips
+// `computer_call` (the model's action request) and `computer_call_output` (the
+// harness's result, incl. screenshots); multi-turn sessions also replay
+// `reasoning` / `local_shell_call` items. We accept them all so validation never
+// 400s on a standard payload; each is then either mapped (below) or dropped
+// because chat-completions upstreams have no equivalent (computer/local_shell).
+// Each schema is permissive — we only consume the fields that matter.
+const computerCallItemSchema = z.object({
+  type: z.literal('computer_call'),
+  call_id: z.string(),
+  action: z.record(z.string(), z.unknown()).optional(),
+  id: z.string().optional(),
+}).passthrough();
+
+const computerCallOutputItemSchema = z.object({
+  type: z.literal('computer_call_output'),
+  call_id: z.string(),
+  output: z.union([
+    z.string(),
+    z.array(contentPartSchema),
+    z.record(z.string(), z.unknown()),
+  ]).optional(),
+  id: z.string().optional(),
+}).passthrough();
+
+const reasoningItemSchema = z.object({
+  type: z.literal('reasoning'),
+  summary: z.union([z.string(), z.array(contentPartSchema)]).optional(),
+  content: z.union([z.string(), z.array(contentPartSchema)]).optional(),
+  id: z.string().optional(),
+}).passthrough();
+
+const localShellCallItemSchema = z.object({
+  type: z.literal('local_shell_call'),
+  call_id: z.string().optional(),
+  action: z.record(z.string(), z.unknown()).optional(),
+  id: z.string().optional(),
+}).passthrough();
+
+// The rest of the official ResponseInputItemParam union: built-in tool calls
+// (web_search, file_search, code interpreter, image generation), MCP items,
+// and item references. None has a chat-completions equivalent — validated
+// loosely so a standard replay never 400s, then skipped at conversion like
+// the kinds above.
+const otherKnownItemSchema = z.object({
+  type: z.enum([
+    'web_search_call', 'file_search_call', 'code_interpreter_call',
+    'image_generation_call', 'mcp_call', 'mcp_list_tools',
+    'mcp_approval_request', 'mcp_approval_response', 'item_reference',
+  ]),
+  id: z.string().optional(),
+}).passthrough();
+
 const inputItemSchema = z.union([
   functionCallItemSchema,
   functionCallOutputItemSchema,
+  computerCallItemSchema,
+  computerCallOutputItemSchema,
+  reasoningItemSchema,
+  localShellCallItemSchema,
+  otherKnownItemSchema,
   messageItemSchema,
 ]);
 
@@ -170,56 +228,142 @@ export function responsesInputHasImage(req: ResponsesRequest): boolean {
   if (typeof req.input === 'string') return false;
   for (const item of req.input) {
     const content = (item as { content?: unknown }).content;
-    if (!Array.isArray(content)) continue;
-    if (content.some((p) => {
+    if (Array.isArray(content) && content.some((p) => {
       const type = (p as { type?: string })?.type;
       return type === 'input_image' || type === 'image_url' || type === 'image';
+    })) return true;
+    // computer_call_output carries screenshots under `output`, not `content`.
+    const output = (item as { output?: unknown }).output;
+    if (Array.isArray(output) && output.some((p) => {
+      const type = (p as { type?: string })?.type;
+      return type === 'input_image' || type === 'computer_screenshot' || type === 'image_url';
     })) return true;
   }
   return false;
 }
 
+// Computer use (the Responses `computer` / `computer_use_preview` tool + its
+// computer_call/computer_call_output items) has no chat-completions equivalent:
+// the harness loop needs the model's computer_actions and screenshot context,
+// neither of which survives translation. Fail clearly (mirroring the image 422)
+// rather than silently dropping the calls and breaking the tool loop.
+export function responsesInputRequestsComputerUse(req: ResponsesRequest): boolean {
+  if ((req.tools ?? []).some((t) => t.type === 'computer' || t.type === 'computer_use_preview')) return true;
+  if (typeof req.input === 'string' || req.input == null) return false;
+  return req.input.some((item) => {
+    const type = (item as { type?: string })?.type;
+    return type === 'computer_call' || type === 'computer_call_output';
+  });
+}
+
 // ── Translate a Responses request → internal chat messages + options ──────
 export function toChatMessages(req: ResponsesRequest): ChatMessage[] {
-  const messages: ChatMessage[] = [];
+  const systemMessages: ChatMessage[] = [];
 
   if (req.instructions) {
-    messages.push({ role: 'system', content: req.instructions });
+    systemMessages.push({ role: 'system', content: req.instructions });
   }
 
   if (typeof req.input === 'string') {
-    messages.push({ role: 'user', content: req.input });
-    return messages;
+    const messages = [{ role: 'user' as const, content: req.input }];
+    return [...systemMessages, ...messages];
   }
 
-  for (const item of req.input) {
+  const messages: ChatMessage[] = [];
+
+  const items = req.input;
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
     if ('type' in item && item.type === 'function_call') {
-      messages.push({
-        role: 'assistant',
-        content: null,
-        tool_calls: [{
-          id: item.call_id,
+      // Parallel tool calls replay as consecutive standalone function_call
+      // items (no preceding assistant message item). Fold the run into one
+      // assistant turn, for the same reason as the message+function_call
+      // merge below: consecutive assistant turns 400 on strict upstreams.
+      const toolCalls: ChatToolCall[] = [];
+      let j = i;
+      while (j < items.length && (items[j] as { type?: string }).type === 'function_call') {
+        const fc = items[j] as z.infer<typeof functionCallItemSchema>;
+        toolCalls.push({
+          id: fc.call_id,
           type: 'function',
-          function: { name: item.name, arguments: item.arguments },
-        }],
-      });
-    } else if ('type' in item && item.type === 'function_call_output') {
+          function: { name: fc.name, arguments: fc.arguments },
+        });
+        j++;
+      }
+      messages.push({ role: 'assistant', content: null, tool_calls: toolCalls });
+      i = j - 1;
+      continue;
+    }
+
+    if ('type' in item && item.type === 'function_call_output') {
       const output = typeof item.output === 'string'
         ? item.output
         : Array.isArray(item.output)
           ? partsToString(item.output as any)
           : JSON.stringify(item.output);
       messages.push({ role: 'tool', tool_call_id: item.call_id, content: output });
-    } else {
-      // message item
-      const m = item as z.infer<typeof messageItemSchema>;
-      // 'developer' is the Responses-era system role.
-      const role = m.role === 'developer' ? 'system' : m.role;
-      messages.push({ role, content: partsToString(m.content) });
+      continue;
     }
+
+    if ('type' in item && item.type !== 'message') {
+      // computer_call / computer_call_output / reasoning / local_shell_call:
+      // no chat-message equivalent (the route 422s computer use up front).
+      // Skip rather than mis-parse as a message item.
+      continue;
+    }
+
+    // message item
+    const m = item as z.infer<typeof messageItemSchema>;
+    // 'developer' is the Responses-era system role.
+    const role = m.role === 'developer' ? 'system' : m.role;
+    const content = partsToString(m.content);
+
+    if (role === 'system') {
+      // Hoist system/developer messages to the start of the conversation:
+      // chat providers (Gemini, Claude, Mistral) reject a system message that
+      // appears after a user turn. Codex history replay often emits developer
+      // items mid-conversation.
+      systemMessages.push({ role: 'system', content });
+      continue;
+    }
+
+    if (role === 'assistant') {
+      // A Responses assistant turn is a message item followed by its
+      // function_call items. Merge them into a single chat assistant message
+      // (content + tool_calls); emitting consecutive assistant turns makes
+      // Gemini map them to consecutive model turns and strict upstreams
+      // (Mistral/Cohere) 400. Drop empty assistant items — an empty turn means
+      // nothing to a chat provider. (#96)
+      const toolCalls: ChatToolCall[] = [];
+      let j = i + 1;
+      while (j < items.length && (items[j] as { type?: string }).type === 'function_call') {
+        const fc = items[j] as z.infer<typeof functionCallItemSchema>;
+        toolCalls.push({
+          id: fc.call_id,
+          type: 'function',
+          function: { name: fc.name, arguments: fc.arguments },
+        });
+        j++;
+      }
+      if (toolCalls.length > 0) {
+        messages.push({
+          role: 'assistant',
+          content: content.length > 0 ? content : null,
+          tool_calls: toolCalls,
+        });
+        i = j - 1;
+        continue;
+      }
+      if (content.length === 0) continue;
+      messages.push({ role: 'assistant', content });
+      continue;
+    }
+
+    messages.push({ role, content });
   }
 
-  return messages;
+  return [...systemMessages, ...messages];
 }
 
 export function toChatTools(tools?: ResponsesRequest['tools']): ChatToolDefinition[] | undefined {
@@ -344,6 +488,20 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
         message: 'Image input is not yet supported on /v1/responses. Use /v1/chat/completions with an image_url content part instead.',
         type: 'invalid_request_error',
         code: 'no_vision_model',
+      },
+    });
+    return;
+  }
+
+  // Computer use can't survive the chat-completions translation either (no
+  // computer tool, no screenshot context). Fail clearly instead of silently
+  // dropping the calls and breaking Codex's computer-use tool loop.
+  if (responsesInputRequestsComputerUse(reqData)) {
+    res.status(422).json({
+      error: {
+        message: 'Computer use is not yet supported on /v1/responses (the computer / computer_use_preview tool and computer_call items have no chat-completions equivalent).',
+        type: 'invalid_request_error',
+        code: 'no_computer_use_model',
       },
     });
     return;
@@ -534,9 +692,16 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
         requestedModel: attempt === 0 ? requestedModelLabel : undefined,
       });
       if (stream) {
+        // Every output item (message text + each function_call) claims the next
+        // free index. OpenAI's streaming SDK indexes snapshot.output by
+        // output_index, so indices MUST be dense & unique — reusing 0 for the
+        // text item after a tool-call item had already taken it makes the SDK
+        // crash on `snapshot.output[output_index]` (#96, Codex computer-use).
         let outputIndex = 0;
         let msgItemId: string | null = null;
         let msgText = '';
+        // output_index of the open text item (valid while msgItemId !== null).
+        let textOutputIndex = 0;
         // tool-call accumulator keyed by the provider's tool_call index
         const toolAcc = new Map<number, { outputIndex: number; itemId: string; callId: string; name: string; args: string }>();
         let totalOutputTokens = 0;
@@ -578,19 +743,24 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
         };
 
         // Open the text output item and stream `text` as its first delta.
+        // The text item takes the next free output index (it is NOT always 0 —
+        // when the model emits tool_calls first, the function_call items own
+        // the low indices). Every later text delta/done must reference this
+        // same index or the SDK snapshot lookup misroutes the deltas.
         const openTextItem = (text: string) => {
           commit();
           msgItemId = newId('msg');
+          textOutputIndex = outputIndex++;
           sse('response.output_item.added', {
-            output_index: outputIndex,
+            output_index: textOutputIndex,
             item: { id: msgItemId, type: 'message', status: 'in_progress', role: 'assistant', content: [] },
           });
           sse('response.content_part.added', {
-            item_id: msgItemId, output_index: outputIndex, content_index: 0,
+            item_id: msgItemId, output_index: textOutputIndex, content_index: 0,
             part: { type: 'output_text', text: '', annotations: [] },
           });
           if (text) {
-            sse('response.output_text.delta', { item_id: msgItemId, output_index: outputIndex, content_index: 0, delta: text });
+            sse('response.output_text.delta', { item_id: msgItemId, output_index: textOutputIndex, content_index: 0, delta: text });
             msgText += text;
           }
         };
@@ -636,7 +806,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
               if (dialectMode === 'passthrough') {
                 if (msgItemId === null) openTextItem('');
                 sse('response.output_text.delta', {
-                  item_id: msgItemId, output_index: 0, content_index: 0, delta: text,
+                  item_id: msgItemId, output_index: textOutputIndex, content_index: 0, delta: text,
                 });
                 msgText += text;
               } else {
@@ -665,14 +835,13 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
                 // First time we see this tool call: open a new output item.
                 commit();
                 if (msgItemId !== null && msgText.length > 0) {
-                  // close the text item (always output index 0) before starting a function_call item
-                  sse('response.output_text.done', { item_id: msgItemId, output_index: 0, content_index: 0, text: msgText });
-                  sse('response.content_part.done', { item_id: msgItemId, output_index: 0, content_index: 0, part: { type: 'output_text', text: msgText, annotations: [] } });
-                  sse('response.output_item.done', { output_index: 0, item: { id: msgItemId, type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: msgText, annotations: [] }] } });
+                  // close the text item (at its own output index) before starting a function_call item
+                  sse('response.output_text.done', { item_id: msgItemId, output_index: textOutputIndex, content_index: 0, text: msgText });
+                  sse('response.content_part.done', { item_id: msgItemId, output_index: textOutputIndex, content_index: 0, part: { type: 'output_text', text: msgText, annotations: [] } });
+                  sse('response.output_item.done', { output_index: textOutputIndex, item: { id: msgItemId, type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: msgText, annotations: [] }] } });
                   msgItemId = null;
                 }
-                outputIndex = toolAcc.size + (msgText.length > 0 ? 1 : 0);
-                acc = { outputIndex, itemId: newId('fc'), callId: tc.id || newId('call'), name: tc.function?.name ?? '', args: '' };
+                acc = { outputIndex: outputIndex++, itemId: newId('fc'), callId: tc.id || newId('call'), name: tc.function?.name ?? '', args: '' };
                 toolAcc.set(idx, acc);
                 sse('response.output_item.added', {
                   output_index: acc.outputIndex,
@@ -710,7 +879,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
                 const idx = 1000 + rescuedIdx++; // synthetic accumulator keys, past any provider index
                 commit();
                 const acc = {
-                  outputIndex: toolAcc.size + (msgText.length > 0 ? 1 : 0),
+                  outputIndex: outputIndex++,
                   itemId: newId('fc'), callId: newId('call'), name: c.name, args: c.arguments,
                 };
                 toolAcc.set(idx, acc);
@@ -752,9 +921,9 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
 
           // Finalize any open text item.
           if (msgItemId !== null) {
-            sse('response.output_text.done', { item_id: msgItemId, output_index: 0, content_index: 0, text: msgText });
-            sse('response.content_part.done', { item_id: msgItemId, output_index: 0, content_index: 0, part: { type: 'output_text', text: msgText, annotations: [] } });
-            sse('response.output_item.done', { output_index: 0, item: { id: msgItemId, type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: msgText, annotations: [] }] } });
+            sse('response.output_text.done', { item_id: msgItemId, output_index: textOutputIndex, content_index: 0, text: msgText });
+            sse('response.content_part.done', { item_id: msgItemId, output_index: textOutputIndex, content_index: 0, part: { type: 'output_text', text: msgText, annotations: [] } });
+            sse('response.output_item.done', { output_index: textOutputIndex, item: { id: msgItemId, type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: msgText, annotations: [] }] } });
           }
           // Finalize tool-call items. Arguments are repaired against the tool's
           // parameter schema at this point (after the full string accumulated):

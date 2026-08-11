@@ -4,6 +4,8 @@ import {
   toChatTools,
   toChatToolChoice,
   buildResponseObject,
+  responsesInputHasImage,
+  responsesInputRequestsComputerUse,
 } from '../../routes/responses.js';
 
 describe('Responses → chat translation (#96)', () => {
@@ -43,11 +45,139 @@ describe('Responses → chat translation (#96)', () => {
     });
   });
 
+  it('folds consecutive standalone function_call items into one assistant turn', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'function_call', call_id: 'call_1', name: 'get_weather', arguments: '{"city":"SF"}' },
+        { type: 'function_call', call_id: 'call_2', name: 'get_time', arguments: '{"tz":"PST"}' },
+        { type: 'function_call_output', call_id: 'call_1', output: 'sunny' },
+      ],
+    } as any);
+    expect(msgs).toEqual([
+      {
+        role: 'assistant',
+        content: null,
+        tool_calls: [
+          { id: 'call_1', type: 'function', function: { name: 'get_weather', arguments: '{"city":"SF"}' } },
+          { id: 'call_2', type: 'function', function: { name: 'get_time', arguments: '{"tz":"PST"}' } },
+        ],
+      },
+      { role: 'tool', tool_call_id: 'call_1', content: 'sunny' },
+    ]);
+  });
+
   it('maps a function_call_output item to a tool message', () => {
     const msgs = toChatMessages({
       input: [{ type: 'function_call_output', call_id: 'call_1', output: 'sunny' }],
     } as any);
     expect(msgs[0]).toEqual({ role: 'tool', tool_call_id: 'call_1', content: 'sunny' });
+  });
+
+  it('merges an assistant message item with its following function_call items into one turn', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'message', role: 'assistant', content: 'Let me check.' },
+        { type: 'function_call', call_id: 'call_1', name: 'get_weather', arguments: '{"city":"SF"}' },
+        { type: 'function_call', call_id: 'call_2', name: 'get_time', arguments: '{}' },
+      ],
+    } as any);
+    expect(msgs).toEqual([
+      {
+        role: 'assistant',
+        content: 'Let me check.',
+        tool_calls: [
+          { id: 'call_1', type: 'function', function: { name: 'get_weather', arguments: '{"city":"SF"}' } },
+          { id: 'call_2', type: 'function', function: { name: 'get_time', arguments: '{}' } },
+        ],
+      },
+    ]);
+  });
+
+  it('merges an empty assistant item with its following function_call items (content null)', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'message', role: 'assistant', content: [] },
+        { type: 'function_call', call_id: 'call_1', name: 'get_weather', arguments: '{}' },
+      ],
+    } as any);
+    expect(msgs).toEqual([
+      {
+        role: 'assistant',
+        content: null,
+        tool_calls: [{ id: 'call_1', type: 'function', function: { name: 'get_weather', arguments: '{}' } }],
+      },
+    ]);
+  });
+
+  it('drops empty assistant message items (no tool_calls)', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'message', role: 'assistant', content: [] },
+        { type: 'message', role: 'user', content: 'hi' },
+      ],
+    } as any);
+    expect(msgs).toEqual([{ role: 'user', content: 'hi' }]);
+  });
+
+  it('hoists system/developer messages to the start of the conversation', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'message', role: 'user', content: 'hi' },
+        { type: 'message', role: 'developer', content: 'mid-conversation system' },
+        { type: 'message', role: 'user', content: 'again' },
+      ],
+    } as any);
+    expect(msgs).toEqual([
+      { role: 'system', content: 'mid-conversation system' },
+      { role: 'user', content: 'hi' },
+      { role: 'user', content: 'again' },
+    ]);
+  });
+
+  it('keeps instructions first, then hoisted system messages in order', () => {
+    const msgs = toChatMessages({
+      instructions: 'You are terse.',
+      input: [
+        { type: 'message', role: 'user', content: 'hi' },
+        { type: 'message', role: 'developer', content: 'rule 2' },
+        { type: 'message', role: 'developer', content: 'rule 3' },
+      ],
+    } as any);
+    expect(msgs).toEqual([
+      { role: 'system', content: 'You are terse.' },
+      { role: 'system', content: 'rule 2' },
+      { role: 'system', content: 'rule 3' },
+      { role: 'user', content: 'hi' },
+    ]);
+  });
+
+  it('skips computer_call / computer_call_output / reasoning / local_shell_call input items', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'computer_call', call_id: 'cc_1', action: { type: 'click', coordinate: [1, 2] } },
+        { type: 'computer_call_output', call_id: 'cc_1', output: [{ type: 'computer_screenshot', image_url: 'data:image/png;base64,AA==' }] },
+        { type: 'reasoning', summary: [{ type: 'summary_text', text: 'thinking' }] },
+        { type: 'local_shell_call', call_id: 'ls_1', action: { type: 'bash', command: 'ls' } },
+        { type: 'message', role: 'user', content: 'what now?' },
+      ],
+    } as any);
+    expect(msgs).toEqual([{ role: 'user', content: 'what now?' }]);
+  });
+
+  it('detects computer-use requests from tools and computer_call items', () => {
+    expect(responsesInputRequestsComputerUse({ tools: [{ type: 'computer' }] } as any)).toBe(true);
+    expect(responsesInputRequestsComputerUse({ tools: [{ type: 'computer_use_preview' }] } as any)).toBe(true);
+    expect(responsesInputRequestsComputerUse({ tools: [{ type: 'function', name: 'f' }] } as any)).toBe(false);
+    expect(responsesInputRequestsComputerUse({
+      input: [{ type: 'computer_call', call_id: 'cc_1', action: { type: 'click' } }],
+    } as any)).toBe(true);
+    expect(responsesInputRequestsComputerUse({ input: 'plain text' } as any)).toBe(false);
+  });
+
+  it('detects screenshots inside computer_call_output.output as image input', () => {
+    expect(responsesInputHasImage({
+      input: [{ type: 'computer_call_output', call_id: 'cc_1', output: [{ type: 'computer_screenshot', image_url: 'data:image/png;base64,AA==' }] }],
+    } as any)).toBe(true);
   });
 
   it('converts flat Responses tools to nested chat tools', () => {
