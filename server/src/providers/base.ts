@@ -160,6 +160,9 @@ export interface CompletionOptions extends ExtendedSamplingOptions {
   tools?: ChatToolDefinition[];
   tool_choice?: ChatToolChoice;
   parallel_tool_calls?: boolean;
+  stream_options?: {
+    include_usage?: boolean;
+  };
   /** Per-call HTTP timeout override. Not part of the OpenAI wire format (it is
    * stripped before the request body is built); used by the probe script so
    * NVIDIA's 15-60s serverless cold starts don't read as failures. */

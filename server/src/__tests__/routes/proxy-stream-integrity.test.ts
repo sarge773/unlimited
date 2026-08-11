@@ -49,7 +49,7 @@ const TOOLS = [{ type: 'function', function: { name: 'Read', description: 'read 
 function mockUpstream(script: Array<{ body: string; status?: number }>) {
   const origFetch = global.fetch;
   let call = 0;
-  const seen: Array<{ model: string }> = [];
+  const seen: Array<{ model: string; streamOptions?: { include_usage?: boolean } }> = [];
   vi.spyOn(global, 'fetch').mockImplementation(async (url, init) => {
     const urlStr = typeof url === 'string' ? url : url.toString();
     // Only intercept provider upstreams; the test's own localhost request
@@ -58,7 +58,7 @@ function mockUpstream(script: Array<{ body: string; status?: number }>) {
       return origFetch(url as any, init);
     }
     const reqBody = JSON.parse(String((init as RequestInit).body));
-    seen.push({ model: reqBody.model });
+    seen.push({ model: reqBody.model, streamOptions: reqBody.stream_options });
     const step = script[Math.min(call++, script.length - 1)];
     return new Response(step.body, {
       status: step.status ?? 200,
@@ -266,6 +266,39 @@ describe('proxy stream turn-integrity', () => {
     // instead identify the concrete model selected by the router (#568).
     expect(fs.every(f => f.error || f.model === up.seen[0].model)).toBe(true);
     expect(r.text.trim().endsWith('data: [DONE]')).toBe(true);
+  });
+
+  it('forwards stream_options.include_usage and records upstream token usage', async () => {
+    const usage = { prompt_tokens: 3263, completion_tokens: 15, total_tokens: 3278 };
+    const up = mockUpstream([{
+      body: sse(
+        roleChunk,
+        textChunk('Hello'),
+        finishChunk('stop'),
+        { id: 'c1', object: 'chat.completion.chunk', created: 1, model: 'm', choices: [], usage },
+        '[DONE]',
+      ),
+    }]);
+
+    const r = await request(app, '/v1/chat/completions', {
+      stream: true,
+      stream_options: { include_usage: true },
+      messages: [{ role: 'user', content: 'real streaming usage test' }],
+    });
+
+    expect(r.status).toBe(200);
+    expect(up.seen[0].streamOptions).toEqual({ include_usage: true });
+    expect(frames(r.text).find(f => f.usage)?.usage).toEqual(usage);
+
+    const row = getDb().prepare(
+      "SELECT input_tokens, output_tokens FROM requests WHERE status = 'success' ORDER BY id DESC LIMIT 1",
+    ).get() as { input_tokens: number; output_tokens: number };
+    expect(row).toEqual({ input_tokens: 3263, output_tokens: 15 });
+
+    const ledger = getDb().prepare(
+      "SELECT COALESCE(SUM(tokens), 0) AS total FROM rate_limit_usage WHERE kind = 'tokens'",
+    ).get() as { total: number };
+    expect(ledger.total).toBe(3278);
   });
 
   it('rescues a non-streaming inline dialect answer into structured tool_calls', async () => {

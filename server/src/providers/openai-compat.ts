@@ -314,6 +314,7 @@ export class OpenAICompatProvider extends BaseProvider {
         parallel_tool_calls: this.resolveParallelToolCalls(options),
         ...extendedBodyParams(this.platform, options),
         stream: true,
+        stream_options: options?.stream_options,
       }),
       // Default 'headers' bounds: the deadline dies at response headers, and
       // the client signal + stall watchdog own the stream from there.

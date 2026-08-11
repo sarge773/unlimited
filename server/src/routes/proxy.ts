@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import type { ChatMessage, ChatToolCall, ModelListRow } from '@freellmapi/shared/types.js';
+import type { ChatMessage, ChatToolCall, ModelListRow, TokenUsage } from '@freellmapi/shared/types.js';
 import { routeRequest, resolveRoutingChain, resolveModelGroupCandidates, resolveStickyPreference, recordRateLimitHit, recordSuccess, hasEnabledVisionModel, hasEnabledToolsModel, hasOtherUsableKey, routingReserveTokens, type RouteResult, type ResolvedChain, type ChainRow } from '../services/router.js';
 import { recordRequest, recordTokens, setCooldown, getCooldownDurationForLimit, PAYMENT_REQUIRED_COOLDOWN_MS, MODEL_FORBIDDEN_COOLDOWN_MS, learnLimitFromError } from '../services/ratelimit.js';
 import { runEmbeddings, EmbeddingsError } from '../services/embeddings.js';
@@ -500,6 +500,9 @@ const chatCompletionSchema = z.object({
   top_p: z.number().min(0).max(1).optional(),
   stop: stopSchema.optional(),
   stream: z.boolean().optional(),
+  stream_options: z.object({
+    include_usage: z.boolean().optional(),
+  }).optional(),
   // Top-level tool knobs may arrive as explicit nulls from clients that
   // serialize every field of their request struct; all treated as absent
   // and never forwarded as null. (#200)
@@ -1388,9 +1391,9 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   // Token estimation is intentionally a heuristic (~4 chars per token). Used
   // for routing decisions (skip a model whose budget is too small) and for
   // streaming bookkeeping where the provider doesn't echo a final usage count.
-  // Non-streaming requests reconcile against the provider's real `usage` block
-  // (see line ~340). Streaming will drift from real consumption — accepted
-  // tradeoff because per-request usage isn't always returned mid-stream.
+  // Non-streaming requests reconcile against the provider's real `usage` block;
+  // streaming does the same when stream_options.include_usage produces a final
+  // usage frame, and otherwise falls back to this estimate.
   const estimatedInputTokens = messages.reduce((sum, m) => {
     const text = contentToString(m.content);
     return sum + Math.ceil(text.length / 4);
@@ -1880,7 +1883,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
         try {
           const gen = route.provider.streamChatCompletion(
             route.apiKey, outboundMessages, route.modelId,
-            { temperature, max_tokens, top_p, stop, tools, tool_choice, parallel_tool_calls, ...samplingParams, signal: clientAbort.signal },
+            { temperature, max_tokens, top_p, stop, tools, tool_choice, parallel_tool_calls, stream_options: parsed.data.stream_options, ...samplingParams, signal: clientAbort.signal },
             quotaContextForRoute(route, 'chat/completions'),
           );
 
@@ -2094,7 +2097,11 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           res.write('data: [DONE]\n\n');
           res.end();
 
-          recordUpstreamSuccess(route, estimatedInputTokens + injectedHandoffTokens + totalOutputTokens);
+          const upstreamUsage = (usageChunk as { usage?: TokenUsage } | null)?.usage;
+          const inputTokens = upstreamUsage?.prompt_tokens ?? (estimatedInputTokens + injectedHandoffTokens);
+          const outputTokens = upstreamUsage?.completion_tokens ?? totalOutputTokens;
+          const totalTokens = upstreamUsage?.total_tokens ?? (inputTokens + outputTokens);
+          recordUpstreamSuccess(route, totalTokens);
           setStickyModel(messages, route.modelDbId, sessionIdHeader, stickyStrategyKey);
           if (handoffMode !== 'off' && sessionKey) recordSuccessfulModel({ sessionKey, modelKey });
           // #797: remember this turn's thinking trace so the next request from
@@ -2107,10 +2114,10 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
             platform: route.platform,
             model: route.modelId,
             latencyMs: Date.now() - start,
-            inputTokens: estimatedInputTokens + injectedHandoffTokens,
-            outputTokens: totalOutputTokens,
+            inputTokens,
+            outputTokens,
           });
-          logRequest(route.platform, route.modelId, route.keyId, 'success', estimatedInputTokens + injectedHandoffTokens, totalOutputTokens, Date.now() - start, null, ttfbMs, pinnedModelId,
+          logRequest(route.platform, route.modelId, route.keyId, 'success', inputTokens, outputTokens, Date.now() - start, null, ttfbMs, pinnedModelId,
             observeServedModel({ platform: route.platform, requestedModel: route.modelId, servedModel: upstreamModel }));
           return 'done';
         } catch (streamErr: any) {
