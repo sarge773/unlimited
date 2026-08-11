@@ -100,10 +100,21 @@ const functionCallOutputItemSchema = z.object({
   output: z.union([z.string(), z.array(contentPartSchema), z.record(z.string(), z.unknown())]),
 });
 
+// #842: the official ResponseInputItemParam union also includes
+// computer_call / computer_call_output / reasoning / local_shell_call /
+// web_search_call. Agent harnesses round-trip these items and a strict union
+// rejected the whole request with a 400 before routing. We accept them loosely
+// (only the type is checked) and ignore them at conversion — the shim only
+// consumes message / function_call / function_call_output.
+const otherItemSchema = z.object({
+  type: z.enum(['computer_call', 'computer_call_output', 'reasoning', 'local_shell_call', 'web_search_call']),
+}).passthrough();
+
 const inputItemSchema = z.union([
   functionCallItemSchema,
   functionCallOutputItemSchema,
   messageItemSchema,
+  otherItemSchema,
 ]);
 
 // Accept ANY tool type, not just 'function'. Codex (Responses API) sends
@@ -531,7 +542,12 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
         requestedModel: attempt === 0 ? requestedModelLabel : undefined,
       });
       if (stream) {
-        let outputIndex = 0;
+        // #842: output_index must be dense and unique across ALL output items.
+        // A single monotonic counter (instead of hardcoded 0 for text and
+        // toolAcc.size for tool calls) keeps indices unique when tool_calls
+        // stream BEFORE any closing text — the common GLM/Qwen ordering.
+        let nextOutputIndex = 0;
+        let msgOutputIndex = 0;
         let msgItemId: string | null = null;
         let msgText = '';
         // tool-call accumulator keyed by the provider's tool_call index
@@ -571,17 +587,18 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
         // Open the text output item and stream `text` as its first delta.
         const openTextItem = (text: string) => {
           commit();
+          msgOutputIndex = nextOutputIndex++;
           msgItemId = newId('msg');
           sse('response.output_item.added', {
-            output_index: outputIndex,
+            output_index: msgOutputIndex,
             item: { id: msgItemId, type: 'message', status: 'in_progress', role: 'assistant', content: [] },
           });
           sse('response.content_part.added', {
-            item_id: msgItemId, output_index: outputIndex, content_index: 0,
+            item_id: msgItemId, output_index: msgOutputIndex, content_index: 0,
             part: { type: 'output_text', text: '', annotations: [] },
           });
           if (text) {
-            sse('response.output_text.delta', { item_id: msgItemId, output_index: outputIndex, content_index: 0, delta: text });
+            sse('response.output_text.delta', { item_id: msgItemId, output_index: msgOutputIndex, content_index: 0, delta: text });
             msgText += text;
           }
         };
@@ -619,7 +636,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
               if (dialectMode === 'passthrough') {
                 if (msgItemId === null) openTextItem('');
                 sse('response.output_text.delta', {
-                  item_id: msgItemId, output_index: 0, content_index: 0, delta: text,
+                  item_id: msgItemId, output_index: msgOutputIndex, content_index: 0, delta: text,
                 });
                 msgText += text;
               } else {
@@ -645,14 +662,13 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
                 // First time we see this tool call: open a new output item.
                 commit();
                 if (msgItemId !== null && msgText.length > 0) {
-                  // close the text item (always output index 0) before starting a function_call item
-                  sse('response.output_text.done', { item_id: msgItemId, output_index: 0, content_index: 0, text: msgText });
-                  sse('response.content_part.done', { item_id: msgItemId, output_index: 0, content_index: 0, part: { type: 'output_text', text: msgText, annotations: [] } });
-                  sse('response.output_item.done', { output_index: 0, item: { id: msgItemId, type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: msgText, annotations: [] }] } });
+                  // close the text item before starting a function_call item
+                  sse('response.output_text.done', { item_id: msgItemId, output_index: msgOutputIndex, content_index: 0, text: msgText });
+                  sse('response.content_part.done', { item_id: msgItemId, output_index: msgOutputIndex, content_index: 0, part: { type: 'output_text', text: msgText, annotations: [] } });
+                  sse('response.output_item.done', { output_index: msgOutputIndex, item: { id: msgItemId, type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: msgText, annotations: [] }] } });
                   msgItemId = null;
                 }
-                outputIndex = toolAcc.size + (msgText.length > 0 ? 1 : 0);
-                acc = { outputIndex, itemId: newId('fc'), callId: tc.id || newId('call'), name: tc.function?.name ?? '', args: '' };
+                acc = { outputIndex: nextOutputIndex++, itemId: newId('fc'), callId: tc.id || newId('call'), name: tc.function?.name ?? '', args: '' };
                 toolAcc.set(idx, acc);
                 sse('response.output_item.added', {
                   output_index: acc.outputIndex,
@@ -690,7 +706,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
                 const idx = 1000 + rescuedIdx++; // synthetic accumulator keys, past any provider index
                 commit();
                 const acc = {
-                  outputIndex: toolAcc.size + (msgText.length > 0 ? 1 : 0),
+                  outputIndex: nextOutputIndex++,
                   itemId: newId('fc'), callId: newId('call'), name: c.name, args: c.arguments,
                 };
                 toolAcc.set(idx, acc);
@@ -732,9 +748,9 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
 
           // Finalize any open text item.
           if (msgItemId !== null) {
-            sse('response.output_text.done', { item_id: msgItemId, output_index: 0, content_index: 0, text: msgText });
-            sse('response.content_part.done', { item_id: msgItemId, output_index: 0, content_index: 0, part: { type: 'output_text', text: msgText, annotations: [] } });
-            sse('response.output_item.done', { output_index: 0, item: { id: msgItemId, type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: msgText, annotations: [] }] } });
+            sse('response.output_text.done', { item_id: msgItemId, output_index: msgOutputIndex, content_index: 0, text: msgText });
+            sse('response.content_part.done', { item_id: msgItemId, output_index: msgOutputIndex, content_index: 0, part: { type: 'output_text', text: msgText, annotations: [] } });
+            sse('response.output_item.done', { output_index: msgOutputIndex, item: { id: msgItemId, type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: msgText, annotations: [] }] } });
           }
           // Finalize tool-call items. Arguments are repaired against the tool's
           // parameter schema at this point (after the full string accumulated):
