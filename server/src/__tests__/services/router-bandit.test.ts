@@ -303,4 +303,37 @@ describe('bandit router', () => {
     expect(withPrior).toBeGreaterThan(0.9);
     expect(Math.abs(localOnly - withPrior)).toBeLessThan(0.03);
   });
+
+  it('a saved intelligence_rank override visibly moves the axis (#673)', () => {
+    // Regression for #673. A realistic chain: a Frontier flagship on top, a
+    // Medium model at the bottom, and the Large model in between — the one the
+    // user re-ranks from 6 to 1 ("this is actually the best model I have").
+    //
+    // Under the old LINEAR rank term that edit shifted the Large model's
+    // normalized axis by ~0.25 points out of 100, i.e. the dashboard rendered
+    // the SAME integer before and after and the edit looked like a no-op. The
+    // sqrt-compressed term moves it ~2 points, which is visible.
+    addModel({ platform: 'google', modelId: 'flagship', name: 'Flagship', intelligenceRank: 1, sizeLabel: 'Frontier', budget: '~50M', priority: 1 });
+    addModel({ platform: 'groq', modelId: 'workhorse', name: 'Workhorse', intelligenceRank: 6, sizeLabel: 'Large', budget: '~50M', priority: 2 });
+    addModel({ platform: 'meta', modelId: 'compact', name: 'Compact', intelligenceRank: 50, sizeLabel: 'Medium', budget: '~50M', priority: 3 });
+    setRoutingStrategy('balanced');
+    refreshStatsCache(getDb(), true);
+
+    const before = getRoutingScores().scores.find(s => s.modelId === 'workhorse')!;
+
+    // PATCH /api/models/:id { intelligenceRank: 1 } bottoms out in exactly this
+    // UPDATE (routes/models.ts maps intelligenceRank → the intelligence_rank
+    // column); this suite drives the router directly and has no HTTP harness,
+    // so write the column and refresh the cache the same way the route does.
+    const row = getDb().prepare('SELECT id FROM models WHERE platform = ? AND model_id = ?').get('groq', 'workhorse') as { id: number };
+    getDb().prepare('UPDATE models SET intelligence_rank = 1 WHERE id = ?').run(row.id);
+    refreshStatsCache(getDb(), true);
+
+    const after = getRoutingScores().scores.find(s => s.modelId === 'workhorse')!;
+
+    // The dashboard renders Math.round(value * 100) (client AxisBar), so assert
+    // on the number the user actually sees: it must move by at least 2 points.
+    const shown = (v: number) => Math.round(v * 100);
+    expect(shown(after.intelligence)).toBeGreaterThanOrEqual(shown(before.intelligence) + 2);
+  });
 });
