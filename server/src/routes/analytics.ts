@@ -386,6 +386,8 @@ analyticsRouter.get('/timeline', (req: Request, res: Response) => {
   // never interpolated into SQL.
   const rawOffset = Number(req.query.tzOffset);
   const tzOffset = Number.isInteger(rawOffset) && rawOffset >= -720 && rawOffset <= 840 ? rawOffset : 0;
+  // The single current offset applies to the whole range (SQLite has no tz
+  // database), so buckets on the far side of a DST transition sit 1h off.
   const tzModifier = `${tzOffset >= 0 ? '+' : '-'}${Math.abs(tzOffset)} minutes`;
 
   // Read from request_hourly (hour-bucketed) for both 'hour' and 'day'

@@ -405,13 +405,13 @@ const gridStyle = 'var(--border)'
 const primaryFill = 'var(--foreground)'
 const tooltipStyle = { backgroundColor: 'var(--popover)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 } as const
 
-// The timeline endpoint returns UTC timestamps without a zone suffix
-// ("2026-08-10T14:00:00" hourly, "2026-08-10" daily). Parse them as UTC and
-// render in the viewer's local timezone; without this the x-axis showed UTC
-// wall-clock times that disagreed with every other timestamp on the page.
+// The timeline endpoint buckets on the viewer's wall clock (the query sends
+// the browser's tzOffset), so its zone-less timestamps ("2026-08-10T14:00:00"
+// hourly, "2026-08-10" daily) are already local time. Parse them as local —
+// re-interpreting them as UTC here would shift every tick a second time.
 function formatTimelineTick(value: string): string {
   if (!value) return ''
-  const iso = value.includes('T') ? `${value}Z` : `${value}T00:00:00Z`
+  const iso = value.includes('T') ? value : `${value}T00:00:00`
   const date = new Date(iso)
   if (isNaN(date.getTime())) return value
   return date.toLocaleString([], {
