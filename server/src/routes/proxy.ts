@@ -17,7 +17,7 @@ import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
 import { rescueInlineToolCalls, startsWithDialectMarker, couldBecomeDialectMarker, containsDialectMarker } from '../lib/tool-call-rescue.js';
 import { getContextHandoffMode, recordIncomingMessages, maybeInjectContextHandoff, recordSuccessfulModel, hasPriorModel, HANDOFF_MAX_TOKENS } from '../services/context-handoff.js';
 import { isFusionModel, runFusion, fusionConfigSchema, FusionError, FUSION_MODEL_ID } from '../services/fusion.js';
-import { isRetryableError, isPaymentRequiredError, isModelNotFoundError, isModelAccessForbiddenError, isClientAbortError, newClientAbortError } from '../lib/error-classify.js';
+import { isRetryableError, isPaymentRequiredError, isModelNotFoundError, isModelAccessForbiddenError, isClientAbortError, newClientAbortError, isUpstreamClassificationOutput } from '../lib/error-classify.js';
 import { logRequest } from '../lib/request-log.js';
 import { observeServedModel } from '../lib/served-model.js';
 import { parseCacheDirective, cacheActive, isCacheableTemperature, computeCacheKey, getCachedResponse, storeCachedResponse } from '../services/cache.js';
@@ -1138,6 +1138,15 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
           result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},
         );
       }
+      // #809: a bare "safe"/"unsafe" classification word from a relay is an
+      // upstream filter, not the requested model — fail over like an empty
+      // completion.
+      if (isUpstreamClassificationOutput(text)) {
+        throw Object.assign(
+          new Error(`empty completion from ${route.displayName} (upstream classification output)`),
+          result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},
+        );
+      }
 
       // Usage fallback: providers that omit `usage` used to be logged as 0
       // tokens, silently undercounting analytics and the rate-limit ledger.
@@ -2077,6 +2086,15 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
               upstreamFinish === 'length' ? { skipBench: true } : {},
             );
           }
+          // #809: a bare "safe"/"unsafe" classification word streamed by a
+          // relay is an upstream filter, not the requested model — fail over
+          // like an empty completion.
+          if (isUpstreamClassificationOutput(heldText) && completedCalls.length === 0) {
+            throw Object.assign(
+              new Error(`empty completion from ${route.displayName} (upstream classification output)`),
+              upstreamFinish === 'length' ? { skipBench: true } : {},
+            );
+          }
 
           flushHeaders();
           if (heldText.length > 0) {
@@ -2186,6 +2204,15 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           // loop not to cooldown/penalize a healthy model for a truncated turn.
           throw Object.assign(
             new Error(`empty completion from ${route.displayName}`),
+            result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},
+          );
+        }
+        // #809: a bare "safe"/"unsafe" classification word from a relay is an
+        // upstream filter, not the requested model — fail over like an empty
+        // completion.
+        if (isUpstreamClassificationOutput(respText) && (respMsg?.tool_calls?.length ?? 0) === 0) {
+          throw Object.assign(
+            new Error(`empty completion from ${route.displayName} (upstream classification output)`),
             result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},
           );
         }

@@ -17,7 +17,7 @@ import { invalidToolArgumentsError, invalidToolCallReasons, isToolArgumentValida
 import { rescueInlineToolCalls, startsWithDialectMarker, couldBecomeDialectMarker, containsDialectMarker } from '../lib/tool-call-rescue.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
 import { convertDocumentBlock, documentRejectionMessage } from '../lib/anthropic-documents.js';
-import { isClientAbortError, newClientAbortError } from '../lib/error-classify.js';
+import { isClientAbortError, newClientAbortError, isUpstreamClassificationOutput } from '../lib/error-classify.js';
 import { logRequest } from '../lib/request-log.js';
 import { extractApiToken, timingSafeStringEqual, getStickyModel, setStickyModel } from './proxy.js';
 import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, type ExhaustionBody, setFallbackHeaders, setExhaustionHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
@@ -585,6 +585,15 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
       if (!respText && respToolCalls.length === 0) {
         throw Object.assign(
           new Error(`empty completion from ${route.displayName}`),
+          result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},
+        );
+      }
+      // #809: bare "safe"/"unsafe" classification output from a relay is an
+      // upstream filter, not the requested model — fail over like an empty
+      // completion.
+      if (isUpstreamClassificationOutput(respText) && respToolCalls.length === 0) {
+        throw Object.assign(
+          new Error(`empty completion from ${route.displayName} (upstream classification output)`),
           result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},
         );
       }
