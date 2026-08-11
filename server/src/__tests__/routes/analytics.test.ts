@@ -169,6 +169,27 @@ describe('Analytics API', () => {
     expect(body.lifetimeTotalRequests).toBe(3);
   });
 
+  it("counts 'canceled' rows in totals but in no success/error rate (#752)", async () => {
+    vi.useRealTimers();
+    logRequest('groq', 'llama-3.3-70b-versatile', 0, 'success', 100, 50, 12, null);
+    logRequest('groq', 'llama-3.3-70b-versatile', 0, 'error', 30, 0, 9, 'boom');
+    logRequest('groq', 'llama-3.3-70b-versatile', 0, 'canceled', 0, 0, 800,
+      'client disconnected after 0.8s; upstream request canceled');
+
+    const summary = await request(app, '/api/analytics/summary?range=24h');
+    expect(summary.status).toBe(200);
+    expect(summary.body.totalRequests).toBe(3); // the canceled request happened
+    expect(summary.body.successRate).toBe(50);  // 1 of 2 decided — not 1 of 3
+
+    const byModel = await request(app, '/api/analytics/by-model?range=24h');
+    expect(byModel.body[0].requests).toBe(3);
+    expect(byModel.body[0].successRate).toBe(50);
+
+    const byPlatform = await request(app, '/api/analytics/by-platform?range=24h');
+    expect(byPlatform.body[0].successRate).toBe(50);
+    expect(byPlatform.body[0].errorCount).toBe(1); // canceled is not an error
+  });
+
   it('prices savings at the served model paid-equivalent rate', async () => {
     // groq/llama-3.3-70b-versatile is mapped at $0.10/M in, $0.32/M out
     // (db/model-pricing.ts): 10M in + 5M out → 1.00 + 1.60 = $2.60
@@ -395,6 +416,40 @@ describe('Analytics API', () => {
       expect(k99.label).toBeNull();
       expect(k99.platform).toBeNull();
       expect(k99.requests).toBe(2);
+    });
+  });
+
+  describe('timeline tzOffset', () => {
+    it('buckets timeline days by the viewer timezone instead of UTC', async () => {
+      insertRequest('2026-05-28 15:30:00'); // UTC day 05-28; UTC+8 23:30, still day 05-28
+      insertRequest('2026-05-28 17:30:00'); // UTC day 05-28; UTC+8 01:30 on day 05-29
+
+      const utc = await request(app, '/api/analytics/timeline?range=7d');
+      expect(utc.status).toBe(200);
+      expect(utc.body.map((b: any) => b.timestamp)).toEqual(['2026-05-28']);
+
+      const local = await request(app, '/api/analytics/timeline?range=7d&tzOffset=480');
+      expect(local.status).toBe(200);
+      expect(local.body.map((b: any) => b.timestamp)).toEqual(['2026-05-28', '2026-05-29']);
+      expect(local.body.map((b: any) => b.requests)).toEqual([1, 1]);
+    });
+
+    it('shifts hour labels to the viewer timezone', async () => {
+      insertRequest('2026-05-28 17:30:00'); // UTC 17:00 → UTC+8 next-day 01:00
+
+      const { status, body } = await request(app, '/api/analytics/timeline?range=24h&tzOffset=480');
+      expect(status).toBe(200);
+      expect(body.map((b: any) => b.timestamp)).toEqual(['2026-05-29T01:00:00']);
+    });
+
+    it('falls back to UTC bucketing for an invalid tzOffset', async () => {
+      insertRequest('2026-05-28 17:30:00');
+
+      for (const bad of ['abc', '9999', '1.5', '480; DROP TABLE request_hourly']) {
+        const { status, body } = await request(app, `/api/analytics/timeline?range=7d&tzOffset=${encodeURIComponent(bad)}`);
+        expect(status).toBe(200);
+        expect(body.map((b: any) => b.timestamp)).toEqual(['2026-05-28']);
+      }
     });
   });
 

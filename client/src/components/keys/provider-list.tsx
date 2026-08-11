@@ -17,10 +17,11 @@ import {
   DropdownMenuItem,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown, CircleAlert, Copy, ExternalLink, KeyRound, ListPlus, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
+import { ChevronDown, CircleAlert, Copy, ExternalLink, KeyRound, ListFilter, ListPlus, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2, Zap } from 'lucide-react'
 import type { ApiKey, ApiKeyModel } from '../../../../shared/types'
 import { formatSqliteUtcToLocalTime } from '@/lib/utils'
 import { useI18n } from '@/i18n'
+import { toast } from '@/lib/toast'
 import {
   PLATFORMS,
   CUSTOM_GROUP,
@@ -34,8 +35,12 @@ import type { HealthData } from './shared'
 import { DiscoverModelsDialog } from './discover-models-dialog'
 import { AddEndpointKeyDialog } from './add-endpoint-key-dialog'
 import { CopyKeyDialog } from './copy-key-dialog'
+import { ModelScopeDialog } from './model-scope-dialog'
 
 type StatusFilter = 'all' | 'healthy' | 'issues' | 'disabled'
+
+// #787: what the batch bar can do to the selected keys of one group.
+type BulkAction = 'enable' | 'disable' | 'delete'
 
 // The Providers tab body: a filter toolbar over a list of collapsible provider
 // groups. Owns the keys/health/proxy queries and every per-key mutation so
@@ -61,6 +66,10 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
   // Key whose plaintext the operator asked to copy; re-authentication happens
   // in the dialog, not here (#705).
   const [copyKey, setCopyKey] = useState<{ id: number; maskedKey: string } | null>(null)
+  // Key whose model scope is being edited (#657).
+  const [scopeKeyId, setScopeKeyId] = useState<number | null>(null)
+  // #787: keys selected for bulk enable/disable/delete within a group.
+  const [selectedKeyIds, setSelectedKeyIds] = useState<Set<number>>(new Set())
   const editInputRef = useRef<HTMLInputElement>(null)
 
   const { data: keys = [], isLoading } = useQuery<ApiKey[]>({
@@ -86,6 +95,9 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keys'] })
       queryClient.invalidateQueries({ queryKey: ['health'] })
+      // Deleting the last key of a platform flips it back to unconfigured in
+      // the checklist strip.
+      queryClient.invalidateQueries({ queryKey: ['keys-providers'] })
     },
   })
 
@@ -106,6 +118,30 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['health'] })
       queryClient.invalidateQueries({ queryKey: ['keys'] })
+    },
+  })
+
+  // #685 follow-up: fire one real chat request at a custom endpoint so an
+  // unmeasured model gains a reliability/speed sample immediately instead of
+  // waiting for natural traffic. Only a successful probe records a sample.
+  const probeKey = useMutation({
+    // The global MutationCache toast would show the bare server message;
+    // silence it and toast a translated line that carries the reason instead.
+    meta: { silenceToast: true },
+    mutationFn: (keyId: number) =>
+      apiFetch<{ modelId: string; latencyMs: number }>(`/api/keys/custom/probe`, {
+        method: 'POST',
+        body: JSON.stringify({ keyId }),
+      }),
+    onSuccess: (data) => {
+      for (const key of ['keys', 'health', 'fallback']) {
+        queryClient.invalidateQueries({ queryKey: [key] })
+      }
+      queryClient.invalidateQueries({ queryKey: ['fallback', 'routing'] })
+      toast.success(t('keys.probeSuccess', { model: data.modelId, latency: data.latencyMs }))
+    },
+    onError: (error) => {
+      toast.error(t('keys.probeFailed', { reason: error instanceof Error ? error.message : String(error) }))
     },
   })
 
@@ -130,6 +166,45 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
       queryClient.invalidateQueries({ queryKey: ['keys'] })
       queryClient.invalidateQueries({ queryKey: ['health'] })
       queryClient.invalidateQueries({ queryKey: ['fallback'] })
+    },
+  })
+
+  // #787: the batch bar's one mutation. There is no bulk endpoint, so this is
+  // still one request per key against the per-key routes — but the outcome is
+  // reported once. Per-key mutations would each raise the global error toast,
+  // so a batch where key 3 of 8 failed left the user with a pile of unrelated
+  // messages and no count. Here the global toast is silenced, the requests are
+  // settled together, and a single summary carries how many landed and how many
+  // did not.
+  const bulkKeys = useMutation({
+    meta: { silenceToast: true },
+    mutationFn: async ({ ids, action }: { ids: number[]; action: BulkAction }) => {
+      const results = await Promise.allSettled(ids.map(id =>
+        action === 'delete'
+          ? apiFetch(`/api/keys/${id}`, { method: 'DELETE' })
+          : apiFetch(`/api/keys/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ enabled: action === 'enable' }),
+          }),
+      ))
+      return {
+        action,
+        done: results.filter(r => r.status === 'fulfilled').length,
+        failed: results.filter(r => r.status === 'rejected').length,
+      }
+    },
+    onSuccess: ({ action, done, failed }) => {
+      for (const key of ['keys', 'health', 'fallback']) {
+        queryClient.invalidateQueries({ queryKey: [key] })
+      }
+      // Deleting the last key of a platform flips it back to unconfigured in
+      // the checklist strip, same as the single-key delete above.
+      if (action === 'delete') queryClient.invalidateQueries({ queryKey: ['keys-providers'] })
+      const summary = action === 'delete'
+        ? t('keys.bulkDeleteResult', { done, failed })
+        : t('keys.bulkResult', { done, failed })
+      if (failed > 0) toast.error(summary)
+      else toast.success(summary)
     },
   })
 
@@ -296,6 +371,9 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
             const expanded = isGroupExpanded(group)
             const healthyCount = group.keys.filter(k => statusOf(k) === 'healthy').length
             const issueCount = group.keys.filter(k => statusOf(k) !== 'healthy').length
+            // #787: once a selection exists in this group the checkboxes stay
+            // visible, so the rest of the selection can be built without hunting.
+            const groupHasSelection = group.keys.some(k => selectedKeyIds.has(k.id))
             return (
               <div key={group.value}>
                 <div className="flex items-center gap-2 pb-2">
@@ -366,6 +444,50 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                   </button>
                 </div>
 
+                {/* #787: batch bar — appears only while keys of THIS group are
+                    selected. One mutation per key (the per-key endpoint), which
+                    keeps the router and health caches consistent. */}
+                {(() => {
+                  const groupSelected = group.keys.filter(k => selectedKeyIds.has(k.id))
+                  if (groupSelected.length === 0) return null
+                  const clearGroup = () => setSelectedKeyIds(prev => {
+                    const next = new Set(prev)
+                    groupSelected.forEach(k => next.delete(k.id))
+                    return next
+                  })
+                  const bulk = (action: BulkAction) => {
+                    bulkKeys.mutate({ ids: groupSelected.map(k => k.id), action })
+                    clearGroup()
+                  }
+                  return (
+                    <div className="mb-2 flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-1.5 text-xs">
+                      <span className="text-muted-foreground">{t('keys.bulkSelected', { count: groupSelected.length })}</span>
+                      <Button size="xs" variant="outline" disabled={bulkKeys.isPending} onClick={() => bulk('enable')}>
+                        {t('keys.bulkEnable')}
+                      </Button>
+                      <Button size="xs" variant="outline" disabled={bulkKeys.isPending} onClick={() => bulk('disable')}>
+                        {t('keys.bulkDisable')}
+                      </Button>
+                      {/* Delete takes the dashboard's arm-then-fire idiom, same as the
+                          per-key Remove below; the armed label names the count, since
+                          one misclick here would take out the whole selection. */}
+                      <ConfirmButton
+                        variant="outline"
+                        size="xs"
+                        className="text-muted-foreground hover:text-destructive"
+                        confirmLabel={t('keys.bulkDeleteConfirm', { count: groupSelected.length })}
+                        onConfirm={() => bulk('delete')}
+                        disabled={bulkKeys.isPending}
+                      >
+                        {t('keys.bulkDelete')}
+                      </ConfirmButton>
+                      <Button size="xs" variant="ghost" onClick={clearGroup}>
+                        {t('common.dismiss')}
+                      </Button>
+                    </div>
+                  )
+                })()}
+
                 {expanded && (
                   <div className="rounded-2xl border divide-y bg-card overflow-hidden">
                     {group.keys.map(k => {
@@ -381,6 +503,28 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                       return (
                         <div key={k.id} className="bg-card">
                           <div className="group/krow flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition-colors">
+                            {/* #787: bulk-select checkbox — enabling the row-level
+                                batch bar below. Deliberately secondary: the switch
+                                stays the primary per-key control, and a checkbox on
+                                every row at rest is chrome nobody asked for. It fades
+                                in on row hover, on keyboard focus, and for as long as
+                                the group holds a selection. Opacity, not display: the
+                                box keeps its width either way, so nothing in the row
+                                shifts when it appears. */}
+                            <input
+                              type="checkbox"
+                              checked={selectedKeyIds.has(k.id)}
+                              onChange={(e) => {
+                                setSelectedKeyIds(prev => {
+                                  const next = new Set(prev)
+                                  if (e.target.checked) next.add(k.id)
+                                  else next.delete(k.id)
+                                  return next
+                                })
+                              }}
+                              aria-label={t('keys.selectKey')}
+                              className={`size-3.5 flex-shrink-0 accent-foreground cursor-pointer transition-opacity focus-visible:opacity-100 ${groupHasSelection ? 'opacity-100' : 'opacity-0 group-hover/krow:opacity-100'}`}
+                            />
                             {/* Per-key switch (#705). The group switch writes every key of the
                                 platform at once, which for the Custom group meant every endpoint
                                 you run. The API has taken a per-key `enabled` all along and the
@@ -443,6 +587,16 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                               </>
                             )}
                             <span className={`text-xs text-muted-foreground ${k.enabled ? '' : 'opacity-50'}`}>{statusLabelKey[status] ? t(statusLabelKey[status]) : status}</span>
+                            {/* Only a SCOPED key shows anything (#657); an unscoped one stays as it always was. */}
+                            {(k.modelScope?.length ?? 0) > 0 && (
+                              <Badge
+                                variant="secondary"
+                                className={`text-[10px] text-muted-foreground ${k.enabled ? '' : 'opacity-50'}`}
+                                title={k.modelScope!.join(', ')}
+                              >
+                                {t(k.modelScope!.length === 1 ? 'keys.modelScopeBadgeOne' : 'keys.modelScopeBadgeOther', { count: k.modelScope!.length })}
+                              </Badge>
+                            )}
                             <div className="flex-1" />
                             {lastChecked && (
                               <span className="text-[11px] text-muted-foreground tabular-nums">
@@ -495,7 +649,32 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
                                       <ListPlus className="size-3" />
                                     </Button>
                                   </Tooltip>
+                                  <Tooltip text={t('keys.probeNow')}>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => probeKey.mutate(k.id)}
+                                      disabled={probeKey.isPending}
+                                      aria-label={t('keys.probeNow')}
+                                    >
+                                      <Zap className={`size-3 ${probeKey.isPending ? 'animate-pulse' : ''}`} />
+                                    </Button>
+                                  </Tooltip>
                                 </>
+                              )}
+                              {/* Deliberately secondary (#657): a small hover-cluster affordance,
+                                  not a first-fold control. */}
+                              {!k.keyless && (
+                                <Tooltip text={t('keys.modelScope')}>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={() => setScopeKeyId(k.id)}
+                                    aria-label={t('keys.modelScope')}
+                                  >
+                                    <ListFilter className="size-3" />
+                                  </Button>
+                                </Tooltip>
                               )}
                               <Tooltip text={t('keys.checkNow')}>
                                 <Button
@@ -594,6 +773,17 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
           onOpenChange={(open) => { if (!open) setCopyKey(null) }}
         />
       )}
+
+      {(() => {
+        // Resolved from the live query so a save re-seeds the next open (#657).
+        const scopeKey = scopeKeyId !== null ? keys.find(k => k.id === scopeKeyId) : undefined
+        return scopeKey ? (
+          <ModelScopeDialog
+            apiKey={scopeKey}
+            onOpenChange={(open) => { if (!open) setScopeKeyId(null) }}
+          />
+        ) : null
+      })()}
     </div>
   )
 }
