@@ -96,7 +96,13 @@ export function isRetryableError(err: any): boolean {
     // First-byte timeout (#584): the grace budget expired before ANY byte
     // reached the client, so the next candidate can serve it invisibly.
     || msg.includes('no first byte')
-    || msg.includes('unparseable inline tool-call dialect');
+    || msg.includes('unparseable inline tool-call dialect')
+    // The model emitted a tool call whose arguments violate the schema the
+    // caller declared (opt-in check, lib/tool-validate.ts). Thrown before any
+    // byte reached the client, and a different model usually gets the same
+    // call right — the thrower marks the model skipped for this request, since
+    // a sibling key would misbehave identically.
+    || msg.includes('invalid tool arguments');
 }
 
 // A genuine provider QUOTA signal: a structured 429 or rate-limit/quota wording.
@@ -238,6 +244,42 @@ export function isDailyQuotaExhaustedError(err: any): boolean {
 export function isProviderDegradedError(err: any): boolean {
   const msg = (err?.message ?? '').toLowerCase();
   return msg.includes('degraded');
+}
+
+// #788: provider-level failures — 5xx, timeouts, transport/network errors, a
+// degraded deployment — are symptoms of the PROVIDER being sick, not of this
+// particular key. Retrying the same provider with a sibling key would fail
+// identically, so the fallback loop must skip the WHOLE platform for the
+// request instead of burning one failover hop per key. Key-scoped failures
+// (auth, quota, 403 tier) stay out of here so a dead key can still rotate to
+// a healthy sibling on the same platform.
+//
+// Classified on the STRUCTURED status — every adapter attaches one to an HTTP
+// failure (providerHttpError in providers/base.ts) — plus the two families that
+// carry no status at all: a timeout and a transport-level failure. Deliberately
+// NO bare '500' / '503' / 'unavailable' / 'internal server error' substrings: a
+// token count, a duration ("… took 5003ms") or a key-scoped message naming an
+// unavailable model would each condemn a healthy platform for the whole request.
+// A message check therefore only runs when there is no status to trust.
+export function isProviderLevelError(err: any): boolean {
+  // A failure the thrower explicitly scoped to the MODEL (`skipModelForRequest`
+  // — an ignored response_format, invalid tool arguments) is never provider
+  // health, and its message quotes caller- and model-supplied text: a tool
+  // named `set_timeout`, or an Ajv complaint about an instance path `/timeout`,
+  // would otherwise trip the substring checks below and condemn a healthy
+  // platform for the whole request. The structured marker is authoritative;
+  // the text is not.
+  if (err?.skipModelForRequest === true) return false;
+  const status = typeof err?.status === 'number' ? err.status : 0;
+  if (status >= 500) return true;
+  // A DEGRADED hosted deployment (NVIDIA NIM, #522) is provider health wearing
+  // a 400 — same source of truth as everywhere else, not a second substring.
+  if (isProviderDegradedError(err)) return true;
+  if (status !== 0) return false;
+  const msg = (err?.message ?? '').toLowerCase();
+  return isTimeoutErrorText(msg)
+    || msg.includes('econnrefused') || msg.includes('econnreset')
+    || msg.includes('fetch failed');   // undici transport error (DNS/TLS/proxy down)
 }
 
 // Provider-side 400s are retryable because another provider may accept the same
