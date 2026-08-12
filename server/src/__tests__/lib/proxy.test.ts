@@ -15,6 +15,7 @@ import {
   proxyFetch,
   describeAbort,
   withKeyProxy,
+  probeProxyUrl,
 } from '../../lib/proxy.js';
 
 // Every env var the proxy config reads, in both the upper- and lower-case
@@ -695,5 +696,91 @@ describe('per-key proxy override (#590)', () => {
     const logged = errSpy.mock.calls.flat().join(' ');
     expect(logged).toContain('per-key dispatcher');
     expect(logged).not.toContain('hunter2');
+  });
+});
+
+// #863: the dashboard "Test" button for the outbound proxy. probeProxyUrl must
+// report reachability of a DRAFT proxy URL without persisting anything, fall
+// back to the saved URL when the input is empty, and never throw — network
+// failures and unbuildable agents come back as structured { ok: false, error }.
+describe('probeProxyUrl (#863)', () => {
+  it('runs direct and reports ok when no proxy URL is configured', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+
+    const result = await probeProxyUrl(undefined);
+
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe(200);
+    expect(typeof result.latencyMs).toBe('number');
+    expect((fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher).toBeUndefined();
+  });
+
+  it('reports a structured failure instead of throwing when direct fetch fails', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('ECONNREFUSED'));
+
+    const result = await probeProxyUrl(undefined);
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('ECONNREFUSED');
+  });
+
+  it('prefers the draft URL over the saved value, without persisting it', async () => {
+    applyProxyUrl('http://saved-proxy:8080');
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+
+    // Draft value wins: an HTTP(S) proxy URL builds an undici dispatcher, so
+    // the fetch call must carry that dispatcher rather than going direct.
+    const result = await probeProxyUrl('http://draft-proxy:8080');
+
+    expect(result.ok).toBe(true);
+    const dispatcher = (fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher;
+    expect(dispatcher).toBeDefined();
+    // The saved value must be untouched.
+    expect(getProxyUrl()).toBe('http://saved-proxy:8080');
+  });
+
+  it('falls back to the saved proxy URL when the draft is empty', async () => {
+    applyProxyUrl('http://saved-proxy:8080');
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+
+    const result = await probeProxyUrl('');
+
+    expect(result.ok).toBe(true);
+    expect((fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher).toBeDefined();
+  });
+
+  it('routes SOCKS draft URLs through socksFetch, not undici', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const reqSpy = stubHttpsRequest();
+
+    const result = await probeProxyUrl('socks5://127.0.0.1:1080');
+
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe(200);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    const agent = (reqSpy.mock.calls[0]?.[0] as any)?.agent;
+    expect(agent?.proxy?.type).toBe(5);
+  });
+
+  it('returns a structured failure when the proxy agent cannot be built', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // ftp:// is not an accepted proxy scheme — the agent constructor throws.
+    const result = await probeProxyUrl('ftp://127.0.0.1:21');
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('Failed to build a proxy agent');
+    errSpy.mockRestore();
+  });
+
+  it('treats any HTTP response as a working proxy route, even a 4xx', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue({ ok: false, status: 401 } as Response);
+
+    const result = await probeProxyUrl(undefined);
+
+    // 401 without a key still proves the proxy connected; only a
+    // network-level failure counts as a proxy failure.
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe(401);
   });
 });
