@@ -530,10 +530,9 @@
     "bulkDeleteConfirm": "Xóa {count}?",
     "bulkResult": "Đã cập nhật {done}; {failed} không thành công.",
     "bulkDeleteResult": "Đã xóa {done}; {failed} không thành công.",
-    "testProxy": "Test",
-    "testingProxy": "Testing…",
-    "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "bulkProxySelected": "{count} platform(s) selected for proxy routing",
+    "bulkRouteViaProxy": "Route via proxy",
+    "bulkBypassProxy": "Bypass proxy"
   },
   "status": {
     "healthy": "khỏe mạnh",

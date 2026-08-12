@@ -530,10 +530,9 @@
     "bulkDeleteConfirm": "{count}개를 삭제할까요?",
     "bulkResult": "{done}개 업데이트됨, {failed}개 실패.",
     "bulkDeleteResult": "{done}개 삭제됨, {failed}개 실패.",
-    "testProxy": "Test",
-    "testingProxy": "Testing…",
-    "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "bulkProxySelected": "{count} platform(s) selected for proxy routing",
+    "bulkRouteViaProxy": "Route via proxy",
+    "bulkBypassProxy": "Bypass proxy"
   },
   "status": {
     "healthy": "건강한",

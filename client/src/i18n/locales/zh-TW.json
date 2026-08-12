@@ -533,7 +533,10 @@
     "bulkDelete": "批次刪除",
     "bulkDeleteConfirm": "刪除 {count} 個？",
     "bulkResult": "已更新 {done} 個；失敗 {failed} 個。",
-    "bulkDeleteResult": "已刪除 {done} 個；失敗 {failed} 個。"
+    "bulkDeleteResult": "已刪除 {done} 個；失敗 {failed} 個。",
+    "bulkProxySelected": "{count} platform(s) selected for proxy routing",
+    "bulkRouteViaProxy": "Route via proxy",
+    "bulkBypassProxy": "Bypass proxy"
   },
   "status": {
     "healthy": "健康",

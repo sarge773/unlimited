@@ -530,10 +530,9 @@
     "bulkDeleteConfirm": "Paarẹ {count}?",
     "bulkResult": "Ṣe imudojuiwọn {done}; kuna {failed}.",
     "bulkDeleteResult": "Paarẹ {done}; kuna {failed}.",
-    "testProxy": "Test",
-    "testingProxy": "Testing…",
-    "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "bulkProxySelected": "{count} platform(s) selected for proxy routing",
+    "bulkRouteViaProxy": "Route via proxy",
+    "bulkBypassProxy": "Bypass proxy"
   },
   "status": {
     "healthy": "ni ilera",

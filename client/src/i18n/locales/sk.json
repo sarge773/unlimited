@@ -530,10 +530,9 @@
     "bulkDeleteConfirm": "Vymazať {count}?",
     "bulkResult": "Aktualizované {done}; zlyhalo {failed}.",
     "bulkDeleteResult": "Vymazané {done}; zlyhalo {failed}.",
-    "testProxy": "Test",
-    "testingProxy": "Testing…",
-    "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "bulkProxySelected": "{count} platform(s) selected for proxy routing",
+    "bulkRouteViaProxy": "Route via proxy",
+    "bulkBypassProxy": "Bypass proxy"
   },
   "status": {
     "healthy": "zdravé",

@@ -530,10 +530,9 @@
     "bulkDeleteConfirm": "A share {count}?",
     "bulkResult": "An sabunta {done}; ya kasa {failed}.",
     "bulkDeleteResult": "An share {done}; ya kasa {failed}.",
-    "testProxy": "Test",
-    "testingProxy": "Testing…",
-    "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "bulkProxySelected": "{count} platform(s) selected for proxy routing",
+    "bulkRouteViaProxy": "Route via proxy",
+    "bulkBypassProxy": "Bypass proxy"
   },
   "status": {
     "healthy": "lafiya",

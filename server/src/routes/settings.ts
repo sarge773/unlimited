@@ -379,6 +379,7 @@ settingsRouter.put('/proxy', (req: Request, res: Response) => {
   });
 });
 
+<<<<<<< HEAD
 // Test proxy connectivity WITHOUT saving (#863). The dashboard's "Test" button
 // sends the DRAFT value; an empty body falls back to the saved proxy URL. The
 // probe never persists anything — it only builds a throwaway dispatcher and
@@ -426,4 +427,45 @@ settingsRouter.post('/proxy/test', async (req: Request, res: Response) => {
   const { proxyUrl } = (req.body ?? {}) as { proxyUrl?: string };
   const result = await probeProxyUrl(proxyUrl, { targetUrl: proxyProbeTarget() });
   res.json(result);
+});
+
+// Batch routeViaProxy toggle (#865). One request moves MANY platforms at once:
+//   { platforms: ['groq', 'openrouter'], routeViaProxy: true }   → remove them
+//     from the bypass list (route through the proxy)
+//   { platforms: [...], routeViaProxy: false }                   → add them back
+//     to the bypass list (route directly, bypassing the proxy)
+// Kept as its own endpoint so the dashboard can flip a whole selection without
+// read-modify-write races or N sequential PUTs against /proxy.
+settingsRouter.patch('/proxy/bypass', (req: Request, res: Response) => {
+  const { platforms, routeViaProxy } = (req.body ?? {}) as {
+    platforms?: unknown;
+    routeViaProxy?: unknown;
+  };
+  if (!Array.isArray(platforms) || platforms.length === 0) {
+    res.status(400).json({
+      error: { message: 'platforms must be a non-empty array of platform names', type: 'invalid_request_error' },
+    });
+    return;
+  }
+  if (typeof routeViaProxy !== 'boolean') {
+    res.status(400).json({
+      error: { message: 'routeViaProxy must be a boolean', type: 'invalid_request_error' },
+    });
+    return;
+  }
+
+  const next = new Set(getProxyBypassPlatforms());
+  for (const platform of platforms as string[]) {
+    if (routeViaProxy) next.delete(platform);
+    else next.add(platform);
+  }
+  applyProxyBypass([...next].join(','));
+
+  res.json({
+    proxyUrl: getProxyUrl(),
+    enabled: isProxyEnabled(),
+    bypassPlatforms: getProxyBypassPlatforms(),
+    active: isProxyActive(),
+  });
+});
 });

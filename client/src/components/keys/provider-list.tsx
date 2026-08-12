@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown, CircleAlert, Copy, ExternalLink, KeyRound, ListFilter, ListPlus, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2, Zap } from 'lucide-react'
+import { ChevronDown, Check, CircleAlert, Copy, ExternalLink, KeyRound, ListFilter, ListPlus, MoreHorizontal, Pencil, Plus, RefreshCw, Search, Trash2, Zap } from 'lucide-react'
 import type { ApiKey, ApiKeyModel } from '../../../../shared/types'
 import { formatSqliteUtcToLocalTime } from '@/lib/utils'
 import { useI18n } from '@/i18n'
@@ -70,6 +70,9 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
   const [scopeKeyId, setScopeKeyId] = useState<number | null>(null)
   // #787: keys selected for bulk enable/disable/delete within a group.
   const [selectedKeyIds, setSelectedKeyIds] = useState<Set<number>>(new Set())
+  // #865: platforms selected for bulk routeViaProxy toggle. A separate selection
+  // from selectedKeyIds — the batch bar for proxy routing is platform-scoped.
+  const [selectedProxyPlatforms, setSelectedProxyPlatforms] = useState<Set<string>>(new Set())
   const editInputRef = useRef<HTMLInputElement>(null)
 
   const { data: keys = [], isLoading } = useQuery<ApiKey[]>({
@@ -231,6 +234,18 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['proxy-url'] }),
   })
 
+  // #865: one request toggles routeViaProxy for a whole platform selection.
+  // true = remove them from the bypass list (route through the proxy);
+  // false = add them back (route directly).
+  const bulkProxyToggle = useMutation({
+    mutationFn: ({ platforms, routeViaProxy }: { platforms: string[]; routeViaProxy: boolean }) =>
+      apiFetch('/api/settings/proxy/bypass', { method: 'PATCH', body: JSON.stringify({ platforms, routeViaProxy }) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['proxy-url'] })
+      setSelectedProxyPlatforms(new Set())
+    },
+  })
+
   function startEditing(key: ApiKey) {
     setEditingKeyId(key.id)
     setEditingLabel(key.label)
@@ -367,6 +382,25 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
         <EmptyState title={t('keys.noFilterMatch')} />
       ) : (
         <div className="space-y-4">
+          {/* #865: batch bar for proxy routing — appears once platforms are
+              selected via the routeViaProxy checkboxes. One PATCH flips the
+              whole selection, instead of N sequential PUTs. */}
+          {proxyEnabled && selectedProxyPlatforms.size > 0 && (
+            <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-1.5 text-xs">
+              <span className="text-muted-foreground">{t('keys.bulkProxySelected', { count: selectedProxyPlatforms.size })}</span>
+              <Button size="xs" variant="outline" disabled={bulkProxyToggle.isPending}
+                onClick={() => bulkProxyToggle.mutate({ platforms: [...selectedProxyPlatforms], routeViaProxy: true })}>
+                {t('keys.bulkRouteViaProxy')}
+              </Button>
+              <Button size="xs" variant="outline" disabled={bulkProxyToggle.isPending}
+                onClick={() => bulkProxyToggle.mutate({ platforms: [...selectedProxyPlatforms], routeViaProxy: false })}>
+                {t('keys.bulkBypassProxy')}
+              </Button>
+              <Button size="xs" variant="ghost" onClick={() => setSelectedProxyPlatforms(new Set())}>
+                {t('common.dismiss')}
+              </Button>
+            </div>
+          )}
           {visibleGroups.map(group => {
             const expanded = isGroupExpanded(group)
             const healthyCount = group.keys.filter(k => statusOf(k) === 'healthy').length
@@ -377,6 +411,34 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
             return (
               <div key={group.value}>
                 <div className="flex items-center gap-2 pb-2">
+                  {/* #865: visible routeViaProxy checkbox — state at a glance,
+                      no menu dive. Clicking toggles THIS platform (same behavior
+                      as the dropdown item) and adds it to the batch selection so
+                      more platforms can be flipped together below. */}
+                  {proxyEnabled && (
+                    <button
+                      type="button"
+                      role="checkbox"
+                      aria-checked={!bypassPlatforms.includes(group.value)}
+                      aria-label={t('keys.routeViaProxy')}
+                      onClick={() => {
+                        toggleBypass.mutate(group.value)
+                        setSelectedProxyPlatforms(prev => {
+                          const next = new Set(prev)
+                          if (next.has(group.value)) next.delete(group.value)
+                          else next.add(group.value)
+                          return next
+                        })
+                      }}
+                      className={`flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                        !bypassPlatforms.includes(group.value)
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-input bg-transparent hover:bg-accent'
+                      }`}
+                    >
+                      {!bypassPlatforms.includes(group.value) && <Check className="size-3.5" />}
+                    </button>
+                  )}
                   <Switch
                     checked={group.keys.some(k => k.enabled)}
                     onCheckedChange={(checked) =>

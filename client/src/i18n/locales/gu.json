@@ -530,10 +530,9 @@
     "bulkDeleteConfirm": "{count} કાઢી નાખવી?",
     "bulkResult": "{done} અપડેટ થયા; {failed} નિષ્ફળ.",
     "bulkDeleteResult": "{done} કાઢી નાખ્યા; {failed} નિષ્ફળ.",
-    "testProxy": "Test",
-    "testingProxy": "Testing…",
-    "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "bulkProxySelected": "{count} platform(s) selected for proxy routing",
+    "bulkRouteViaProxy": "Route via proxy",
+    "bulkBypassProxy": "Bypass proxy"
   },
   "status": {
     "healthy": "સ્વસ્થ",
