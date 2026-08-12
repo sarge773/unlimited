@@ -24,6 +24,12 @@ import { describe, expect, it } from 'vitest';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const LIB = path.resolve(here, '../../lib');
 
+// NEW PURE MODULES MUST BE ADDED HERE. This is not a convention you have to
+// remember: `every pure lib module is on the list` below fails until a module
+// with no value imports is listed, so the guard maintains itself rather than
+// silently covering less of lib/ as lib/ grows. A module deliberately left off
+// is a module being declared not-pure, which is a decision worth making out
+// loud in a diff.
 const PURE_MODULES = [
   'budget.ts',
   'error-classify.ts',
@@ -35,6 +41,27 @@ const PURE_MODULES = [
   'client-classifier.ts',
   'content.ts',
   'think-tags.ts',
+];
+
+// Pure in fact today, but NOT declared invariant: nothing in the codebase
+// depends on these staying import-free, and freezing a module nobody has argued
+// should be frozen buys a false failure the first time one legitimately needs a
+// dependency. They are listed only so the classification check below has an
+// answer for them — moving one up to PURE_MODULES is the way to promote it.
+const NOT_GUARDED = [
+  'config.ts',
+  'custom-provider-cleanup.ts',
+  'endpoint-scope.ts',
+  'error-redaction.ts',
+  'gemini-wire.ts',
+  'key-parser.ts',
+  'log-redaction.ts',
+  'model-scope.ts',
+  'process-safety-net.ts',
+  'provider-timeout.ts',
+  'scheduler.ts',
+  'served-model.ts',
+  'wake-detect.ts',
 ];
 
 /** True when every specifier inside `{...}` is type-only, so the whole
@@ -94,6 +121,40 @@ describe('pure lib modules stay pure', () => {
     // A rename that leaves the list behind would otherwise silently stop
     // guarding anything.
     for (const filename of PURE_MODULES) {
+      expect(fs.existsSync(path.join(LIB, filename)), `${filename} is listed but missing`).toBe(true);
+    }
+  });
+
+  it('every import-free lib module is classified, so the guard cannot drift', () => {
+    // What keeps this test honest as lib/ grows. A hardcoded list covers a
+    // smaller fraction of lib/ with every module added, and nothing says so:
+    // the suite stays green while protecting less and less of what it claims
+    // to. A new pure module now fails here until someone decides which list it
+    // belongs on.
+    //
+    // Impure modules need no bookkeeping — purity is computed from the source,
+    // so only a module that IS import-free has to be classified. Adding a
+    // module with dependencies costs nothing.
+    const unclassified = fs.readdirSync(LIB)
+      .filter(name => name.endsWith('.ts') && !name.endsWith('.d.ts'))
+      .filter(name => !PURE_MODULES.includes(name) && !NOT_GUARDED.includes(name))
+      .filter(name => valueImportsIn(fs.readFileSync(path.join(LIB, name), 'utf8')).length === 0);
+
+    expect(
+      unclassified,
+      `${unclassified.join(', ')} have no value imports, so they are pure in fact, but neither `
+      + 'list mentions them and nothing keeps them that way. Add each to PURE_MODULES to make '
+      + 'its purity an enforced invariant, or to NOT_GUARDED to record that it is pure today '
+      + 'by coincidence rather than by contract.',
+    ).toEqual([]);
+  });
+
+  it('the two lists stay disjoint and current', () => {
+    // A module that gains an import is no longer pure in fact; leaving it in
+    // NOT_GUARDED is harmless but stale, and leaving it in PURE_MODULES is
+    // caught by the per-module assertions above.
+    expect(PURE_MODULES.filter(name => NOT_GUARDED.includes(name))).toEqual([]);
+    for (const filename of NOT_GUARDED) {
       expect(fs.existsSync(path.join(LIB, filename)), `${filename} is listed but missing`).toBe(true);
     }
   });
