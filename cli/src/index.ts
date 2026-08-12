@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { applyGeneratedFiles, printDryRunDiff } from './config-files.js';
 import { getTool, tools } from './tools.js';
 import { resolveLaunchModel, type ResolvedModel } from './models.js';
+import { DOCTOR_TOOLS, diagnose, exitCodeFor, formatReport, type ToolReport } from './doctor.js';
 import type { CatalogModel, GenerateContext } from './types.js';
 
 interface CliOptions {
@@ -18,6 +19,9 @@ interface CliOptions {
   profile: string;
   model?: string;
   dryRun: boolean;
+  /** Positional arguments after the command. Only `doctor` takes any; every
+   *  other command still rejects a second positional as it always has. */
+  args: string[];
 }
 
 function rootUrl(url: string): string {
@@ -43,12 +47,20 @@ export function parseArgs(argv: string[]): { command?: string; options: CliOptio
     apiKey: process.env.FREELLMAPI_API_KEY,
     profile: 'default',
     dryRun: false,
+    args: [],
   };
   let command: string | undefined;
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (!arg.startsWith('-') && !command) {
       command = arg;
+      continue;
+    }
+    if (!arg.startsWith('-')) {
+      // Collected rather than rejected here so the parser stays generic; the
+      // dispatcher rejects extras for commands that take none, which keeps
+      // `setup-claude typo` an error instead of a silently ignored word.
+      options.args.push(arg);
       continue;
     }
     if (arg === '--dry-run') {
@@ -214,6 +226,7 @@ function help(): string {
     '',
     'Commands:',
     ...tools.map(tool => `  ${tool.command.padEnd(17)} ${tool.name}`),
+    '  doctor [tool…]    Check whether a tool\'s requests actually reach this gateway',
     '  launch            Run Claude Code with credentials injected into the child environment',
     '  launch-codex      Run Codex with provider overrides and injected credentials',
     '  list              List supported coding agents',
@@ -380,6 +393,18 @@ async function launchCodex(options: CliOptions): Promise<number> {
   return runChild('codex', args, env);
 }
 
+async function runDoctor(options: CliOptions): Promise<number> {
+  const requested = options.args.length ? options.args : DOCTOR_TOOLS;
+  const reports: ToolReport[] = [];
+  for (const tool of requested) {
+    reports.push(await diagnose(tool, { expectedUrl: rootUrl(options.url) }));
+  }
+  for (const report of reports) process.stdout.write(`${formatReport(report)}\n`);
+  // Nonzero when anything is not routed, so this is usable as a precondition
+  // in a script rather than only readable by eye.
+  return exitCodeFor(reports);
+}
+
 export async function main(argv = process.argv.slice(2)): Promise<number> {
   const { command, options } = parseArgs(argv);
   if (!command || command === 'help' || argv.includes('--help') || argv.includes('-h')) {
@@ -395,6 +420,10 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
   if (command.startsWith('setup-')) {
     await setup(command, options);
     return 0;
+  }
+  if (command === 'doctor') return runDoctor(options);
+  if (options.args.length) {
+    throw new Error(`Unknown option: ${options.args[0]}`);
   }
   if (command === 'launch') return launchClaude(options);
   if (command === 'launch-codex') return launchCodex(options);
