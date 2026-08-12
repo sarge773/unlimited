@@ -1,4 +1,9 @@
-import { getDb } from '../db/index.js';
+import { getDb, getSetting } from '../db/index.js';
+
+// Written by catalog-sync on every completed run (services/catalog-sync.ts).
+// Its presence is the only "the catalog is real, not just the migration seed"
+// signal available at boot.
+const CATALOG_LAST_SYNC_SETTING = 'catalog_last_sync_ms';
 
 // ── Per-model routing weight overrides (#738) ────────────────────────────────
 //
@@ -84,7 +89,8 @@ export interface RoutingOverrideDrift {
   malformed: boolean;
   /** Keys present in the JSON but dropped: not a finite number in [0, 2]. */
   rejectedValues: string[];
-  /** Keys that parsed fine but match no model_id in the catalog. */
+  /** Keys that parsed fine but match no model_id in the catalog. Always empty
+   *  when the catalog has not synced yet — see `warnOnRoutingOverrideDrift`. */
   unknownModels: string[];
 }
 
@@ -99,6 +105,16 @@ export interface RoutingOverrideDrift {
  *
  * Log-only, and never throws: an unreadable catalog just skips the model-id
  * check rather than failing a boot over a diagnostic.
+ *
+ * The unknown-model half is SKIPPED until the catalog has synced at least once.
+ * This runs at boot, before startCatalogSync, so on a first run the models table
+ * holds only what the migrations seeded (110 rows) against a real catalog of
+ * ~460: every override naming one of the ~350 not in the seed would be reported
+ * as bogus on exactly the boot an operator is most likely to be reading. A
+ * warning that cries wolf on its first outing teaches people to skip the line
+ * that would have caught the real typo, so it stays quiet until it can be
+ * right. The malformed-JSON and bad-multiplier halves need no catalog and
+ * always run.
  */
 export function warnOnRoutingOverrideDrift(
   logger: Pick<Console, 'warn'> = console,
@@ -140,18 +156,24 @@ export function warnOnRoutingOverrideDrift(
 
   if (accepted.size > 0) {
     try {
-      const known = new Set(
-        (getDb().prepare('SELECT DISTINCT model_id FROM models').all() as { model_id: string }[])
-          .map(r => r.model_id),
-      );
-      for (const modelId of accepted.keys()) {
-        if (known.has(modelId)) continue;
-        drift.unknownModels.push(modelId);
-        logger.warn(
-          `[config] MODEL_ROUTING_OVERRIDES names "${modelId}", which is not a model id in this `
-          + 'catalog — the override will never apply. Overrides match model_id alone, unqualified '
-          + 'by platform.',
+      // Read-only, and gated on a completed sync: before the first one the
+      // models table is just the migration seed, so "unknown" would mean
+      // "not seeded yet" rather than "wrong".
+      if (getSetting(CATALOG_LAST_SYNC_SETTING)) {
+        const known = new Set(
+          (getDb().prepare('SELECT DISTINCT model_id FROM models').all() as { model_id: string }[])
+            .map(r => r.model_id),
         );
+        for (const modelId of accepted.keys()) {
+          if (known.has(modelId)) continue;
+          drift.unknownModels.push(modelId);
+          logger.warn(
+            `[config] MODEL_ROUTING_OVERRIDES names "${modelId}", which is not a model id in this `
+            + "install's catalog, so the override is not applying. Overrides match model_id alone, "
+            + 'unqualified by platform, and the match is exact and case-sensitive. A model gated '
+            + 'behind a provider you have no key for appears once that key is added.',
+          );
+        }
       }
     } catch {
       // Catalog unreadable (DB not ready, mid-migration). The value half of the

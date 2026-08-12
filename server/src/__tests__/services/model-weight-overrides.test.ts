@@ -6,7 +6,7 @@ import {
   resetModelWeightOverrides,
   warnOnRoutingOverrideDrift,
 } from '../../services/model-weight-overrides.js';
-import { initDb, getDb } from '../../db/index.js';
+import { initDb, getDb, setSetting } from '../../db/index.js';
 
 const ORIGINAL_ENV = process.env.MODEL_ROUTING_OVERRIDES;
 
@@ -124,10 +124,34 @@ describe('model weight overrides', () => {
     });
 
     it('names an override that matches no model in the catalog', () => {
+      setSetting('catalog_last_sync_ms', String(Date.now()));
       process.env.MODEL_ROUTING_OVERRIDES = '{"gpt-4o-typo-not-real": 0.2}';
       const drift = warnOnRoutingOverrideDrift(logger)!;
       expect(drift.unknownModels).toEqual(['gpt-4o-typo-not-real']);
-      expect(warnings.join()).toContain('not a model id in this catalog');
+      expect(warnings.join()).toContain("not a model id in this install's catalog");
+    });
+
+    // This runs at boot, BEFORE startCatalogSync, so on a first run the models
+    // table holds only the migration seed (110 rows) against a real catalog of
+    // ~460. Without this gate every override naming one of the ~350 unseeded
+    // models is reported as bogus on exactly the boot someone is watching, and
+    // a warning that cries wolf first time out gets ignored forever after.
+    it('stays silent about unknown models until the catalog has synced once', () => {
+      // No catalog_last_sync_ms: a fresh install that has never synced.
+      process.env.MODEL_ROUTING_OVERRIDES = '{"a-real-model-not-yet-synced": 0.2}';
+      const drift = warnOnRoutingOverrideDrift(logger)!;
+      expect(drift.unknownModels).toEqual([]);
+      expect(warnings).toEqual([]);
+    });
+
+    it('still reports malformed JSON before the catalog has synced', () => {
+      // The value halves need no catalog, so the gate must not silence them.
+      process.env.MODEL_ROUTING_OVERRIDES = '{"gpt-4o": 0.2,}';
+      expect(warnOnRoutingOverrideDrift(logger)!.malformed).toBe(true);
+      warnings.length = 0;
+      process.env.MODEL_ROUTING_OVERRIDES = '{"gpt-4o": 5}';
+      expect(warnOnRoutingOverrideDrift(logger)!.rejectedValues).toEqual(['gpt-4o']);
+      expect(warnings.join()).toContain('not a finite multiplier');
     });
 
     it('stays quiet for a well-formed override naming a real model', () => {
