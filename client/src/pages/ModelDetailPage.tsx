@@ -122,6 +122,43 @@ export default function ModelDetailPage() {
     },
   })
 
+  // #790: merge a custom provider's model alias into THIS unified model, so a
+  // request for the primary model id is served through the alias too. Same
+  // whole-overrides PUT as splits; only the merges list changes.
+  const [aliasInput, setAliasInput] = useState('')
+  const mergeMutation = useMutation({
+    mutationFn: (keys: string[]) =>
+      apiFetch('/api/settings/unify', {
+        method: 'PUT',
+        body: JSON.stringify({ overrides: { merges: keys, splits: unify?.overrides.splits ?? [] } }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['unify'] })
+      queryClient.invalidateQueries({ queryKey: ['fallback'] })
+      queryClient.invalidateQueries({ queryKey: ['fallback', 'routing'] })
+      queryClient.invalidateQueries({ queryKey: ['models'] })
+      setAliasInput('')
+    },
+  })
+  // The merges entries that point INTO this group, keyed by their normalized
+  // target; `into` is the display name the group was built from.
+  const groupMerges = useMemo(() => {
+    const intoKey = (s: string) => s.trim().toLowerCase().replace(/[\s\-_]+/g, ' ')
+    const labelKey = intoKey(label)
+    return (unify?.overrides.merges ?? []).filter(m => intoKey(m.into) === labelKey)
+  }, [unify, label])
+  const addAlias = () => {
+    const key = aliasInput.trim()
+    if (!key) return
+    const others = (unify?.overrides.merges ?? []).filter(m => intoKeyOf(m.into) !== intoKeyOf(label))
+    mergeMutation.mutate([...others, { into: label, keys: [key] }])
+  }
+  const removeAlias = (index: number) => {
+    const rest = (unify?.overrides.merges ?? []).filter((_, i) => i !== index)
+    mergeMutation.mutate(rest)
+  }
+  function intoKeyOf(s: string): string { return s.trim().toLowerCase().replace(/[\s\-_]+/g, ' ') }
+
   const splits = unify?.overrides.splits ?? []
   // New splits are written against ONE row: an unqualified "platform:modelId"
   // matches every relay that serves the id, so splitting one relay's card used
@@ -267,6 +304,46 @@ export default function ModelDetailPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* #790: merge a custom provider's model alias into this unified
+                model, so requests for the primary model id are served through
+                the alias too. Same overrides store as the split control. */}
+            <div className="rounded-2xl border bg-card p-4">
+              <h2 className="text-sm font-medium">{t('models.aliasMergeHeading')}</h2>
+              <p className="mt-0.5 mb-3 text-xs text-muted-foreground">{t('models.aliasMergeHint')}</p>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={aliasInput}
+                  onChange={e => setAliasInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addAlias() } }}
+                  placeholder="custom:my-alias"
+                  className="font-mono text-xs"
+                  aria-label={t('models.aliasMergeHeading')}
+                />
+                <Button type="button" size="sm" disabled={mergeMutation.isPending || !aliasInput.trim()} onClick={addAlias}>
+                  {t('models.aliasMergeAdd')}
+                </Button>
+              </div>
+              {groupMerges.length > 0 && (
+                <div className="mt-3 space-y-1.5">
+                  {groupMerges.map((merge, gi) => (
+                    <div key={gi} className="flex items-center gap-2 text-xs">
+                      <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">{merge.keys.join(', ')}</code>
+                      <Button
+                        type="button"
+                        size="xs"
+                        variant="ghost"
+                        className="text-muted-foreground"
+                        disabled={mergeMutation.isPending}
+                        onClick={() => removeAlias(gi)}
+                      >
+                        {t('models.aliasMergeRemove')}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Ready-to-run snippet that references this model by its unified id. */}

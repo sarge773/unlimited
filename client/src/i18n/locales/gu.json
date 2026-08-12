@@ -261,7 +261,11 @@
     "limitHint": "કોઈ મર્યાદા ન રાખવા ખાલી છોડો.",
     "usageThisMonth": "માસિક વપરાશ",
     "usageEmpty": "આ મહિને હજી કોઈ વિનંતી નથી.",
-    "usageRequestsMonth": "આ મહિને {count} વિનંતી"
+    "usageRequestsMonth": "આ મહિને {count} વિનંતી",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "માપ્યા વગરના મોડલ્સ એક્સપ્લોર કરો",

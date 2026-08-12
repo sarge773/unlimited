@@ -261,7 +261,11 @@
     "limitHint": "ទុកឱ្យទទេ ដើម្បីគ្មានដែនកំណត់។",
     "usageThisMonth": "ការប្រើប្រាស់ប្រចាំខែ",
     "usageEmpty": "មិនទាន់មានសំណើនៅខែនេះទេ។",
-    "usageRequestsMonth": "ខែនេះ {count} សំណើ"
+    "usageRequestsMonth": "ខែនេះ {count} សំណើ",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "ស្វែងរកម៉ូដែលដែលមិនទាន់វាស់វែង",

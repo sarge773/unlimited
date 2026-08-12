@@ -261,7 +261,11 @@
     "limitHint": "Lämna tomt för ingen gräns.",
     "usageThisMonth": "Månatlig användning",
     "usageEmpty": "Inga förfrågningar denna månad än.",
-    "usageRequestsMonth": "{count} förfr. denna månad"
+    "usageRequestsMonth": "{count} förfr. denna månad",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "Utforska omätta modeller",

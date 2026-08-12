@@ -261,7 +261,11 @@
     "limitHint": "Iwanang blangko para walang limitasyon.",
     "usageThisMonth": "Buwanang paggamit",
     "usageEmpty": "Wala pang mga kahilingan ngayong buwan.",
-    "usageRequestsMonth": "{count} kahilingan ngayong buwan"
+    "usageRequestsMonth": "{count} kahilingan ngayong buwan",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "I-explore ang mga hindi pa nasusukat na modelo",

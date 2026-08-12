@@ -261,7 +261,11 @@
     "limitHint": "制限なしにするには空欄にします。",
     "usageThisMonth": "月間使用量",
     "usageEmpty": "今月はまだリクエストがありません。",
-    "usageRequestsMonth": "今月 {count} 件"
+    "usageRequestsMonth": "今月 {count} 件",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "未計測のモデルを探索",

@@ -261,7 +261,11 @@
     "limitHint": "ကန့်သတ်ချက်မလိုပါက ကွက်လပ်ထားပါ။",
     "usageThisMonth": "လစဉ်အသုံးပြုမှု",
     "usageEmpty": "ဤလတွင် တောင်းဆိုမှု မရှိသေးပါ။",
-    "usageRequestsMonth": "ဤလတွင် တောင်းဆိုမှု {count} ခု"
+    "usageRequestsMonth": "ဤလတွင် တောင်းဆိုမှု {count} ခု",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "မတိုင်းတာရသေးသော မော်ဒယ်များကို စူးစမ်းရန်",

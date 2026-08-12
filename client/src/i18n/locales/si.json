@@ -261,7 +261,11 @@
     "limitHint": "සීමාවක් නොමැති නම් හිස්ව තබන්න.",
     "usageThisMonth": "මාසික භාවිතය",
     "usageEmpty": "මෙම මාසයේ තවම ඉල්ලීම් නැත.",
-    "usageRequestsMonth": "මෙම මාසයේ ඉල්ලීම් {count}"
+    "usageRequestsMonth": "මෙම මාසයේ ඉල්ලීම් {count}",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "නොමැනූ ආකෘති ගවේෂණය කරන්න",

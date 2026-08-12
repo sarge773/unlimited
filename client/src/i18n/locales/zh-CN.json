@@ -261,7 +261,11 @@
     "limitHint": "留空表示不限制。",
     "usageThisMonth": "每月用量",
     "usageEmpty": "本月还没有请求。",
-    "usageRequestsMonth": "本月 {count} 次请求"
+    "usageRequestsMonth": "本月 {count} 次请求",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "探索未测模型",

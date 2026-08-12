@@ -261,7 +261,11 @@
     "limitHint": "Ostavite prazno za bez ograničenja.",
     "usageThisMonth": "Mjesečna potrošnja",
     "usageEmpty": "Ovog mjeseca još nema zahtjeva.",
-    "usageRequestsMonth": "{count} zaht. ovog mjeseca"
+    "usageRequestsMonth": "{count} zaht. ovog mjeseca",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "Istraži nemjerene modele",

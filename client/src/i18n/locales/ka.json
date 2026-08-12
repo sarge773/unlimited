@@ -261,7 +261,11 @@
     "limitHint": "დატოვეთ ცარიელი ლიმიტის გარეშე.",
     "usageThisMonth": "თვიური მოხმარება",
     "usageEmpty": "ამ თვეში ჯერ მოთხოვნები არ არის.",
-    "usageRequestsMonth": "{count} მოთხოვნა ამ თვეში"
+    "usageRequestsMonth": "{count} მოთხოვნა ამ თვეში",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "გაუზომავი მოდელების შესწავლა",

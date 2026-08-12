@@ -261,7 +261,11 @@
     "limitHint": "வரம்பு வேண்டாம் எனில் காலியாக விடவும்.",
     "usageThisMonth": "மாதாந்திர பயன்பாடு",
     "usageEmpty": "இந்த மாதம் இதுவரை கோரிக்கைகள் இல்லை.",
-    "usageRequestsMonth": "இந்த மாதம் {count} கோரிக்கை"
+    "usageRequestsMonth": "இந்த மாதம் {count} கோரிக்கை",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "அளவிடப்படாத மாதிரிகளை ஆராயுங்கள்",

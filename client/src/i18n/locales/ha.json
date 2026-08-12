@@ -261,7 +261,11 @@
     "limitHint": "Bar shi fanko domin babu iyaka.",
     "usageThisMonth": "Amfani na wata-wata",
     "usageEmpty": "Babu buƙatu tukuna wannan wata.",
-    "usageRequestsMonth": "buƙatu {count} wannan wata"
+    "usageRequestsMonth": "buƙatu {count} wannan wata",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "Bincika samfuran da ba a auna ba",

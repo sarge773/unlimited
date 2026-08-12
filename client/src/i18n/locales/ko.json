@@ -261,7 +261,11 @@
     "limitHint": "제한 없음으로 두려면 비워 두세요.",
     "usageThisMonth": "월간 사용량",
     "usageEmpty": "이번 달에는 아직 요청이 없습니다.",
-    "usageRequestsMonth": "이번 달 {count}건"
+    "usageRequestsMonth": "이번 달 {count}건",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "미측정 모델 탐색",

@@ -261,7 +261,11 @@
     "limitHint": "Cheklov boʻlmasligi uchun boʻsh qoldiring.",
     "usageThisMonth": "Oylik foydalanish",
     "usageEmpty": "Bu oyda hali so'rovlar yo'q.",
-    "usageRequestsMonth": "bu oyda {count} ta so'rov"
+    "usageRequestsMonth": "bu oyda {count} ta so'rov",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "O'lchanmagan modellarni o'rganish",

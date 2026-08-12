@@ -261,7 +261,11 @@
     "limitHint": "పరిమితి వద్దనుకుంటే ఖాళీగా వదిలేయండి.",
     "usageThisMonth": "నెలవారీ వినియోగం",
     "usageEmpty": "ఈ నెలలో ఇంకా అభ్యర్థనలు లేవు.",
-    "usageRequestsMonth": "ఈ నెలలో {count} అభ్యర్థనలు"
+    "usageRequestsMonth": "ఈ నెలలో {count} అభ్యర్థనలు",
+    "aliasMergeHeading": "Merge model aliases",
+    "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
+    "aliasMergeAdd": "Add",
+    "aliasMergeRemove": "Remove"
   },
   "strategies": {
     "explore": "కొలవని మోడల్స్‌ను అన్వేషించండి",
