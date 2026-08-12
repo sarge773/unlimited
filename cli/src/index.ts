@@ -9,7 +9,7 @@ import { Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { applyGeneratedFiles, printDryRunDiff } from './config-files.js';
 import { getTool, tools } from './tools.js';
-import { resolveLaunchModel } from './models.js';
+import { resolveLaunchModel, type ResolvedModel } from './models.js';
 import type { CatalogModel, GenerateContext } from './types.js';
 
 interface CliOptions {
@@ -132,6 +132,15 @@ async function catalog(url: string, apiKey: string, availableOnly = true): Promi
   return models;
 }
 
+export interface Catalogs {
+  available: CatalogModel[];
+  full: CatalogModel[];
+  /** Why the unfiltered fetch failed. Set means `full` is really the FILTERED
+   *  roster, so "unknown model" and "out of quota" can no longer be told
+   *  apart — the exact ambiguity this pair of fetches exists to remove. */
+  degradedReason?: string;
+}
+
 /**
  * The available-only roster plus the unfiltered one.
  *
@@ -139,18 +148,61 @@ async function catalog(url: string, apiKey: string, availableOnly = true): Promi
  * exists but is out of quota right now", and reporting the second as the first
  * turns a rate limit into a spurious typo error. The unfiltered fetch is
  * best-effort: an older gateway that ignores the parameter, or any failure,
- * degrades to the filtered roster rather than blocking a launch.
+ * degrades to the filtered roster rather than blocking a launch — but it
+ * RECORDS that it degraded, so the degradation can be reported instead of
+ * silently reinstating the ambiguity.
  */
-async function catalogs(
-  url: string,
-  apiKey: string,
-): Promise<{ available: CatalogModel[]; full: CatalogModel[] }> {
+export async function catalogs(url: string, apiKey: string): Promise<Catalogs> {
   const available = await catalog(url, apiKey);
   try {
     return { available, full: await catalog(url, apiKey, false) };
-  } catch {
-    return { available, full: available };
+  } catch (error) {
+    return {
+      available,
+      full: available,
+      degradedReason: error instanceof Error ? error.message : String(error),
+    };
   }
+}
+
+/**
+ * Resolve a pinned `--model` ONCE, and say out loud anything that makes the
+ * verdict less than certain.
+ *
+ * One resolution feeding both the id that gets pinned and the warning the user
+ * reads, so the two can never disagree. Returns undefined when nothing was
+ * pinned — the launcher then picks from the filtered roster, where there is no
+ * ambiguity to lose and so nothing to warn about.
+ */
+export function resolvePinnedModel(
+  requested: string | undefined,
+  rosters: Catalogs,
+  warn: (message: string) => void = message => process.stderr.write(message),
+): ResolvedModel | undefined {
+  if (!requested) return undefined;
+
+  // Reported, never silent: degrading to the filtered roster is exactly the
+  // state in which an out-of-quota model gets called a typo, so the user has
+  // to be told which roster the verdict below came from.
+  if (rosters.degradedReason) {
+    warn(
+      `freellmapi: could not fetch the unfiltered model catalog (${rosters.degradedReason}). `
+      + `Checking '${requested}' against the available-only roster instead — a model that `
+      + 'exists but is out of quota may be reported as unknown.\n',
+    );
+  }
+
+  const resolved = resolveLaunchModel(requested, rosters.available, rosters.full);
+  // A pinned model that is registered but not servable right now is a launch we
+  // should still make — the router may recover it mid-session — but never one
+  // we should make silently.
+  if (resolved.unavailable) {
+    warn(
+      `freellmapi: '${resolved.id}' is registered but not currently available `
+      + '(out of quota, cooling down, or its key is disabled). Launching anyway.\n',
+    );
+  }
+  return resolved;
 }
 
 function help(): string {
@@ -175,20 +227,17 @@ async function setup(command: string, options: CliOptions): Promise<void> {
   const tool = getTool(command.replace(/^setup-/, ''));
   if (!tool) throw new Error(`Unknown setup command '${command}'`);
   const apiKey = options.apiKey ?? await promptForKey();
-  const { available, full } = await catalogs(options.url, apiKey);
+  const rosters = await catalogs(options.url, apiKey);
   // --model was parsed but never reached the generators, so `setup-x --model y`
   // silently wrote whatever primaryModel() preferred. Validate it against the
   // unfiltered catalog (so an out-of-quota model is not reported as a typo)
   // and thread it through.
-  const requestedModelId = options.model
-    ? resolveLaunchModel(options.model, available, full).id
-    : undefined;
-  warnIfUnavailable(options.model, available, full);
+  const requestedModelId = resolvePinnedModel(options.model, rosters)?.id;
   const context: GenerateContext = {
     url: rootUrl(options.url),
     apiKey,
     profile: options.profile,
-    models: available,
+    models: rosters.available,
     homeDir: os.homedir(),
     requestedModelId,
   };
@@ -295,27 +344,16 @@ export function claudeLaunchEnv(
 
 async function launchClaude(options: CliOptions): Promise<number> {
   const apiKey = options.apiKey ?? await promptForKey();
-  const { available, full } = await catalogs(options.url, apiKey);
-  const env = claudeLaunchEnv(options, apiKey, available, process.env, os.homedir(), full);
-  warnIfUnavailable(options.model, available, full);
-  return runChild('claude', [], env);
-}
-
-/** A pinned model that is registered but not servable right now is a launch we
- *  should still make — the router may recover it mid-session — but never one we
- *  should make silently. */
-function warnIfUnavailable(
-  requested: string | undefined,
-  available: CatalogModel[],
-  full: CatalogModel[],
-): void {
-  if (!requested) return;
-  const resolved = resolveLaunchModel(requested, available, full);
-  if (!resolved.unavailable) return;
-  process.stderr.write(
-    `freellmapi: '${resolved.id}' is registered but not currently available `
-    + '(out of quota, cooling down, or its key is disabled). Launching anyway.\n',
+  const rosters = await catalogs(options.url, apiKey);
+  // Resolved here for the warning; claudeLaunchEnv resolves again to build the
+  // environment. Both are pure calls over the same two rosters, so they cannot
+  // reach different verdicts — keeping claudeLaunchEnv a side-effect-free env
+  // builder is worth more than eliding the second call.
+  resolvePinnedModel(options.model, rosters);
+  const env = claudeLaunchEnv(
+    options, apiKey, rosters.available, process.env, os.homedir(), rosters.full,
   );
+  return runChild('claude', [], env);
 }
 
 export function codexArgs(url: string, selected: string): string[] {
@@ -332,9 +370,11 @@ export function codexArgs(url: string, selected: string): string[] {
 
 async function launchCodex(options: CliOptions): Promise<number> {
   const apiKey = options.apiKey ?? await promptForKey();
-  const { available, full } = await catalogs(options.url, apiKey);
-  const selected = resolveLaunchModel(options.model, available, full).id;
-  warnIfUnavailable(options.model, available, full);
+  const rosters = await catalogs(options.url, apiKey);
+  const selected = (
+    resolvePinnedModel(options.model, rosters)
+    ?? resolveLaunchModel(undefined, rosters.available, rosters.full)
+  ).id;
   const env = { ...process.env, FREELLMAPI_API_KEY: apiKey };
   const args = codexArgs(options.url, selected);
   return runChild('codex', args, env);

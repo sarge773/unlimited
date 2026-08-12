@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { claudeLaunchEnv, codexArgs, parseArgs } from './index.js';
+import { claudeLaunchEnv, codexArgs, parseArgs, resolvePinnedModel } from './index.js';
+import { UnknownModelError } from './models.js';
 import type { CatalogModel } from './types.js';
 
 describe('CLI arguments and launchers', () => {
@@ -108,6 +109,58 @@ describe('CLI arguments and launchers', () => {
     expect(env.ANTHROPIC_AUTH_TOKEN).toBe('unified-key');
     expect(env.PATH).toBe('/usr/bin');
     expect(JSON.stringify(env)).not.toContain('real-anthropic');
+  });
+
+  describe('resolvePinnedModel', () => {
+    const available: CatalogModel[] = [{ id: 'auto' }, { id: 'fast-coder', available: true }];
+    const full: CatalogModel[] = [...available, { id: 'benched', available: false }];
+
+    function collect(): { warnings: string[]; warn: (message: string) => void } {
+      const warnings: string[] = [];
+      return { warnings, warn: message => { warnings.push(message); } };
+    }
+
+    it('is silent for an available pinned model', () => {
+      const { warnings, warn } = collect();
+      expect(resolvePinnedModel('fast-coder', { available, full }, warn)?.id).toBe('fast-coder');
+      expect(warnings).toEqual([]);
+    });
+
+    it('warns but still resolves a registered-but-unavailable model', () => {
+      const { warnings, warn } = collect();
+      expect(resolvePinnedModel('benched', { available, full }, warn))
+        .toMatchObject({ id: 'benched', unavailable: true });
+      expect(warnings.join()).toContain('not currently available');
+    });
+
+    it('WARNS when the unfiltered roster could not be fetched', () => {
+      // Silently degrading to the filtered roster would reinstate exactly the
+      // ambiguity this pair of fetches removes: the user would see a quota
+      // problem reported as a typo, with nothing saying the check was weaker.
+      const { warnings, warn } = collect();
+      resolvePinnedModel(
+        'fast-coder',
+        { available, full: available, degradedReason: 'HTTP 400' },
+        warn,
+      );
+      expect(warnings.join()).toContain('could not fetch the unfiltered model catalog');
+      expect(warnings.join()).toContain('HTTP 400');
+    });
+
+    it('still reports an id in neither roster as unknown, degraded or not', () => {
+      const { warn } = collect();
+      expect(() => resolvePinnedModel('nope', { available, full }, warn))
+        .toThrow(UnknownModelError);
+    });
+
+    it('does nothing at all when no model was pinned', () => {
+      // Nothing to warn about: the launcher picks from the filtered roster,
+      // where there is no unknown-vs-unavailable ambiguity to lose.
+      const { warnings, warn } = collect();
+      expect(resolvePinnedModel(undefined, { available, full, degradedReason: 'x' }, warn))
+        .toBeUndefined();
+      expect(warnings).toEqual([]);
+    });
   });
 
   it('passes a complete Responses provider to Codex', () => {
