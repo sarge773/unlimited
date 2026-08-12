@@ -306,6 +306,7 @@ export const platformColors: Record<string, string> = {
   sealion:     '#0ea5e9',
   modelscope:  '#624aff',
   aihorde:     '#dc2626',
+  agentrouter: '#7c3aed',
 }
 
 // ── Grouped (unified) rendering ──────────────────────────────────────────────

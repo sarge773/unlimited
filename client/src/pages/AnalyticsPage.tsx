@@ -1187,6 +1187,7 @@ export default function AnalyticsPage() {
           <div className="lg:col-span-2">
             <Panel
               title={`${t('analytics.comboAnalytics') || 'Combo Analytics'}`}
+              icon={GitBranch}
               actions={
                 <button
                   type="button"

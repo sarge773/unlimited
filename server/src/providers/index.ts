@@ -324,6 +324,29 @@ register(new OpenAICompatProvider({
   baseUrl: 'https://router.bynara.id/v1',
 }));
 
+// AgentRouter — OpenAI-compatible aggregator (agentrouter.org/v1). A New-API
+// gateway that whitelists clients by HTTP fingerprint: without the Roo Code
+// extension headers it answers 401 "unauthorized client detected" on chat,
+// stream, and /models alike (live-probed 2026-08-08). The strainless fingerprint
+// below is the only thing that gets requests accepted. Model ids are gateway
+// aliases; only gpt-5.6-sol and claude-opus-5 are confirmed usable on the
+// default group — catalog nothing else (others answer "no usable channel").
+register(new OpenAICompatProvider({
+  platform: 'agentrouter',
+  name: 'AgentRouter',
+  baseUrl: 'https://agentrouter.org/v1',
+  extraHeaders: {
+    'X-Title': 'Roo',
+    'User-Agent': 'RooCode/3.53.0',
+    'HTTP-Referer': 'https://github.com/RooVetGit/Roo-Cline',
+    'X-Stainless-OS': 'Linux',
+    'X-Stainless-Arch': 'x64',
+    'X-Stainless-Lang': 'js',
+    'X-Stainless-Runtime': 'node',
+    'X-Stainless-Runtime-Version': 'v22.22.1',
+  },
+}));
+
 // SEA-LION (AI Singapore) — OpenAI-compatible first-party API (api.sea-lion.ai/v1).
 // Free key from sea-lion.ai (Google sign-in, no card, no region wall); recurring
 // free tier at 10 RPM. Catalog rows live in the Oracle catalog (premium now, free
