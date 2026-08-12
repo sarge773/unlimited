@@ -9,6 +9,7 @@ import { Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { applyGeneratedFiles, printDryRunDiff } from './config-files.js';
 import { getTool, tools } from './tools.js';
+import { resolveLaunchModel } from './models.js';
 import type { CatalogModel, GenerateContext } from './types.js';
 
 interface CliOptions {
@@ -104,10 +105,10 @@ async function promptForKey(): Promise<string> {
   }
 }
 
-async function catalog(url: string, apiKey: string): Promise<CatalogModel[]> {
+async function catalog(url: string, apiKey: string, availableOnly = true): Promise<CatalogModel[]> {
   let response: Response;
   try {
-    response = await fetch(`${rootUrl(url)}/v1/models?available=true`, {
+    response = await fetch(`${rootUrl(url)}/v1/models${availableOnly ? '?available=true' : ''}`, {
       headers: { Authorization: `Bearer ${apiKey}` },
       signal: AbortSignal.timeout(10_000),
     });
@@ -129,6 +130,27 @@ async function catalog(url: string, apiKey: string): Promise<CatalogModel[]> {
   const models = body.data ?? [];
   if (!models.length) throw new Error('The live catalog returned no models');
   return models;
+}
+
+/**
+ * The available-only roster plus the unfiltered one.
+ *
+ * Only the unfiltered roster can distinguish "no such model" from "that model
+ * exists but is out of quota right now", and reporting the second as the first
+ * turns a rate limit into a spurious typo error. The unfiltered fetch is
+ * best-effort: an older gateway that ignores the parameter, or any failure,
+ * degrades to the filtered roster rather than blocking a launch.
+ */
+async function catalogs(
+  url: string,
+  apiKey: string,
+): Promise<{ available: CatalogModel[]; full: CatalogModel[] }> {
+  const available = await catalog(url, apiKey);
+  try {
+    return { available, full: await catalog(url, apiKey, false) };
+  } catch {
+    return { available, full: available };
+  }
 }
 
 function help(): string {
@@ -153,13 +175,22 @@ async function setup(command: string, options: CliOptions): Promise<void> {
   const tool = getTool(command.replace(/^setup-/, ''));
   if (!tool) throw new Error(`Unknown setup command '${command}'`);
   const apiKey = options.apiKey ?? await promptForKey();
-  const models = await catalog(options.url, apiKey);
+  const { available, full } = await catalogs(options.url, apiKey);
+  // --model was parsed but never reached the generators, so `setup-x --model y`
+  // silently wrote whatever primaryModel() preferred. Validate it against the
+  // unfiltered catalog (so an out-of-quota model is not reported as a typo)
+  // and thread it through.
+  const requestedModelId = options.model
+    ? resolveLaunchModel(options.model, available, full).id
+    : undefined;
+  warnIfUnavailable(options.model, available, full);
   const context: GenerateContext = {
     url: rootUrl(options.url),
     apiKey,
     profile: options.profile,
-    models,
+    models: available,
     homeDir: os.homedir(),
+    requestedModelId,
   };
   const generation = tool.generate(context);
 
@@ -221,14 +252,10 @@ export function claudeLaunchEnv(
   models: CatalogModel[],
   baseEnv: NodeJS.ProcessEnv = process.env,
   homeDir = os.homedir(),
+  fullCatalog: CatalogModel[] = models,
 ): NodeJS.ProcessEnv {
-  const selected = options.model
-    ?? models.find(model => model.id !== 'auto' && model.available !== false)?.id
-    ?? 'auto';
-  const selectedModel = models.find(model => model.id === selected);
-  const contextWindow = selectedModel?.context_window
-    ?? selectedModel?.context_length
-    ?? 128_000;
+  const resolved = resolveLaunchModel(options.model, models, fullCatalog);
+  const selected = resolved.id;
   const env: NodeJS.ProcessEnv = { ...baseEnv };
   // Never leak the user's real Anthropic credentials to the gateway.
   delete env.ANTHROPIC_API_KEY;
@@ -243,23 +270,52 @@ export function claudeLaunchEnv(
     }
     env.CLAUDE_CONFIG_DIR = directory;
   }
-  return Object.assign(env, {
+  Object.assign(env, {
     ANTHROPIC_BASE_URL: rootUrl(options.url),
     ANTHROPIC_AUTH_TOKEN: apiKey,
     ANTHROPIC_MODEL: selected,
     ANTHROPIC_DEFAULT_OPUS_MODEL: selected,
     ANTHROPIC_DEFAULT_SONNET_MODEL: selected,
     ANTHROPIC_DEFAULT_HAIKU_MODEL: selected,
-    CLAUDE_CODE_AUTO_COMPACT_WINDOW: String(contextWindow),
     CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY: '1',
   });
+  // Only pin the compaction window when the catalog actually published one.
+  // The old `?? 128_000` invented a number for every model with no stated
+  // window, and a wrong window is worse than none: too high and Claude Code
+  // compacts after the gateway has already rejected the request, too low and
+  // it compacts a conversation that still fits. Absent, Claude Code applies
+  // its own default.
+  if (resolved.contextWindow !== undefined) {
+    env.CLAUDE_CODE_AUTO_COMPACT_WINDOW = String(resolved.contextWindow);
+  } else {
+    delete env.CLAUDE_CODE_AUTO_COMPACT_WINDOW;
+  }
+  return env;
 }
 
 async function launchClaude(options: CliOptions): Promise<number> {
   const apiKey = options.apiKey ?? await promptForKey();
-  const models = await catalog(options.url, apiKey);
-  const env = claudeLaunchEnv(options, apiKey, models);
+  const { available, full } = await catalogs(options.url, apiKey);
+  const env = claudeLaunchEnv(options, apiKey, available, process.env, os.homedir(), full);
+  warnIfUnavailable(options.model, available, full);
   return runChild('claude', [], env);
+}
+
+/** A pinned model that is registered but not servable right now is a launch we
+ *  should still make — the router may recover it mid-session — but never one we
+ *  should make silently. */
+function warnIfUnavailable(
+  requested: string | undefined,
+  available: CatalogModel[],
+  full: CatalogModel[],
+): void {
+  if (!requested) return;
+  const resolved = resolveLaunchModel(requested, available, full);
+  if (!resolved.unavailable) return;
+  process.stderr.write(
+    `freellmapi: '${resolved.id}' is registered but not currently available `
+    + '(out of quota, cooling down, or its key is disabled). Launching anyway.\n',
+  );
 }
 
 export function codexArgs(url: string, selected: string): string[] {
@@ -276,10 +332,9 @@ export function codexArgs(url: string, selected: string): string[] {
 
 async function launchCodex(options: CliOptions): Promise<number> {
   const apiKey = options.apiKey ?? await promptForKey();
-  const models = await catalog(options.url, apiKey);
-  const selected = options.model
-    ?? models.find(model => model.id !== 'auto' && model.available !== false)?.id
-    ?? 'auto';
+  const { available, full } = await catalogs(options.url, apiKey);
+  const selected = resolveLaunchModel(options.model, available, full).id;
+  warnIfUnavailable(options.model, available, full);
   const env = { ...process.env, FREELLMAPI_API_KEY: apiKey };
   const args = codexArgs(options.url, selected);
   return runChild('codex', args, env);
