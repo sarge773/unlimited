@@ -16,7 +16,7 @@ export function SegmentedControl<T extends string>({
   className,
 }: {
   value: T
-  onValueChange: (value: T) => void
+  onValueChange: React.Dispatch<React.SetStateAction<T>>
   options: SegmentOption<T>[]
   ariaLabel?: string
   className?: string
