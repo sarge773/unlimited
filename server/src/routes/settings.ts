@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { getUnifiedApiKey, regenerateUnifiedKey, getSetting, setSetting } from '../db/index.js';
-import { applyProxyUrl, applyProxyEnabled, applyProxyBypass, isProxyActive, getProxyUrl, isProxyEnabled, getProxyBypassPlatforms, PROXY_SCHEMES } from '../lib/proxy.js';
+import { applyProxyUrl, applyProxyEnabled, applyProxyBypass, isProxyActive, getProxyUrl, isProxyEnabled, getProxyBypassPlatforms, probeProxyUrl, PROXY_SCHEMES } from '../lib/proxy.js';
 import { getSavedFusionConfig, setSavedFusionConfig, savedFusionConfigSchema, getFusionMaxK } from '../services/fusion.js';
 import { isUnifyEnabled, setUnifyEnabled, getUnifyOverrides, setUnifyOverrides, unifyOverridesSchema } from '../services/model-groups.js';
 import { getClaudeModelMap, setClaudeModelMap } from '../services/anthropic-map.js';
@@ -375,4 +375,14 @@ settingsRouter.put('/proxy', (req: Request, res: Response) => {
     bypassPlatforms: getProxyBypassPlatforms(),
     active: isProxyActive(),
   });
+});
+
+// Test proxy connectivity WITHOUT saving (#863). The dashboard's "Test" button
+// sends the DRAFT value; an empty body falls back to the saved proxy URL. The
+// probe never persists anything — it only builds a throwaway dispatcher and
+// measures a round trip through the (draft or saved) proxy.
+settingsRouter.post('/proxy/test', async (req: Request, res: Response) => {
+  const { proxyUrl } = (req.body ?? {}) as { proxyUrl?: string };
+  const result = await probeProxyUrl(proxyUrl);
+  res.json(result);
 });

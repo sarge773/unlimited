@@ -47,6 +47,14 @@ export function ProxySettingsSection() {
     },
   })
 
+  // #863: test the DRAFT proxy URL (or the saved one when the input is empty)
+  // without saving anything. Result shown inline; failures carry the reason.
+  const testProxy = useMutation({
+    meta: { silenceToast: true },
+    mutationFn: (body: { proxyUrl?: string }) =>
+      apiFetch<{ ok: boolean; latencyMs: number; status?: number; error?: string }>('/api/settings/proxy/test', { method: 'POST', body: JSON.stringify(body) }),
+  })
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     saveProxy.mutate({ proxyUrl })
@@ -94,10 +102,30 @@ export function ProxySettingsSection() {
               className="font-mono text-xs"
             />
           </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={testProxy.isPending}
+            onClick={() => testProxy.mutate({ proxyUrl })}
+          >
+            {testProxy.isPending ? t('keys.testingProxy') : t('keys.testProxy')}
+          </Button>
           <Button type="submit" size="sm" disabled={saveProxy.isPending}>
             {saveProxy.isPending ? t('keys.savingProxy') : t('keys.saveProxy')}
           </Button>
         </form>
+      )}
+
+      {testProxy.isSuccess && (
+        <p className={`text-xs mt-2 ${testProxy.data.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
+          {testProxy.data.ok
+            ? t('keys.proxyTestOk', { ms: String(testProxy.data.latencyMs) })
+            : t('keys.proxyTestFail', { reason: testProxy.data.error ?? '' })}
+        </p>
+      )}
+      {testProxy.isError && (
+        <p className="text-destructive text-xs mt-2">{(testProxy.error as Error).message}</p>
       )}
 
       {saveProxy.isError && (

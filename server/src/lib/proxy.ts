@@ -661,3 +661,55 @@ export function flushProxyCache(): void {
     console.warn(`[proxy] could not replace the global fetch dispatcher on wake: ${err?.message ?? err}`);
   }
 }
+
+export interface ProxyProbeResult {
+  ok: boolean;
+  latencyMs: number;
+  status?: number;
+  error?: string;
+}
+
+/**
+ * Test whether a proxy URL can actually route traffic (#863). Backs the
+ * Settings → Outbound proxy "Test" button so an operator can verify a draft
+ * value BEFORE saving it.
+ *
+ * `proxyUrl` empty → falls back to the saved global proxy URL (getProxyUrl);
+ * when neither is set the probe runs direct, so the button is still useful
+ * before any proxy has been configured.
+ *
+ * The probe target is a stable, unauthenticated metadata endpoint (OpenAI's
+ * models listing). Any HTTP response — even a 401/403 without a key — proves
+ * the proxy route works; only a network-level failure (DNS, connect, timeout)
+ * counts as a proxy failure.
+ */
+export async function probeProxyUrl(
+  proxyUrl: string | undefined,
+  timeoutMs = 10_000,
+): Promise<ProxyProbeResult> {
+  const started = Date.now();
+  const url = (proxyUrl ?? '').trim() || getProxyUrl();
+  const target = 'https://api.openai.com/v1/models';
+
+  try {
+    let response: Response;
+    if (!url) {
+      response = await fetch(target, { signal: AbortSignal.timeout(timeoutMs) });
+    } else {
+      const resolved = await resolvePerKeyDispatcher(url);
+      if (!resolved) {
+        return { ok: false, latencyMs: Date.now() - started, error: 'Failed to build a proxy agent for the given URL' };
+      }
+      if (resolved.isSocks) {
+        response = await socksFetch(target, { signal: AbortSignal.timeout(timeoutMs) }, resolved.dispatcher as http.Agent, undefined, 'unknown', timeoutMs);
+      } else {
+        response = await fetch(target, { ...{ signal: AbortSignal.timeout(timeoutMs) }, dispatcher: resolved.dispatcher } as unknown as RequestInit);
+      }
+    }
+    // Any HTTP response proves the proxy route works; the upstream may still
+    // answer 401/403 without a key, which is connectivity, not proxy failure.
+    return { ok: true, latencyMs: Date.now() - started, status: response.status };
+  } catch (err: any) {
+    return { ok: false, latencyMs: Date.now() - started, error: err?.message ?? String(err) };
+  }
+}
