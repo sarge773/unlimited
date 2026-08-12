@@ -529,7 +529,11 @@
     "bulkDelete": "Paarẹ gbogbo rẹ",
     "bulkDeleteConfirm": "Paarẹ {count}?",
     "bulkResult": "Ṣe imudojuiwọn {done}; kuna {failed}.",
-    "bulkDeleteResult": "Paarẹ {done}; kuna {failed}."
+    "bulkDeleteResult": "Paarẹ {done}; kuna {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ni ilera",

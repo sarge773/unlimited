@@ -529,7 +529,11 @@
     "bulkDelete": "Vymazať všetky",
     "bulkDeleteConfirm": "Vymazať {count}?",
     "bulkResult": "Aktualizované {done}; zlyhalo {failed}.",
-    "bulkDeleteResult": "Vymazané {done}; zlyhalo {failed}."
+    "bulkDeleteResult": "Vymazané {done}; zlyhalo {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "zdravé",

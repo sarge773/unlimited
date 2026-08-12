@@ -529,7 +529,11 @@
     "bulkDelete": "ሁሉንም ሰርዝ",
     "bulkDeleteConfirm": "{count} ይሰረዙ?",
     "bulkResult": "{done} ተዘምኗል፤ {failed} አልተሳካም።",
-    "bulkDeleteResult": "{done} ተሰርዟል፤ {failed} አልተሳካም።"
+    "bulkDeleteResult": "{done} ተሰርዟል፤ {failed} አልተሳካም።",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ጤናማ",

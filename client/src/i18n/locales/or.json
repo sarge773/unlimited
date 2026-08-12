@@ -529,7 +529,11 @@
     "bulkDelete": "ସବୁ ବିଲୋପ କରନ୍ତୁ",
     "bulkDeleteConfirm": "{count} ବିଲୋପ କରିବେ?",
     "bulkResult": "{done} ଅଦ୍ୟତନ ହୋଇଛି; {failed} ବିଫଳ ହୋଇଛି।",
-    "bulkDeleteResult": "{done} ବିଲୋପ ହୋଇଛି; {failed} ବିଫଳ ହୋଇଛି।"
+    "bulkDeleteResult": "{done} ବିଲୋପ ହୋଇଛି; {failed} ବିଫଳ ହୋଇଛି।",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ସୁସ୍ଥ",

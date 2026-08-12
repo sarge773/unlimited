@@ -529,7 +529,11 @@
     "bulkDelete": "سب حذف کریں۔",
     "bulkDeleteConfirm": "{count} حذف کریں؟",
     "bulkResult": "{done} اپ ڈیٹ ہوئے؛ {failed} ناکام۔",
-    "bulkDeleteResult": "{done} حذف ہوئے؛ {failed} ناکام۔"
+    "bulkDeleteResult": "{done} حذف ہوئے؛ {failed} ناکام۔",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "صحت مند",

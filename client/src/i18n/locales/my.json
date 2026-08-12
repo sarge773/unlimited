@@ -529,7 +529,11 @@
     "bulkDelete": "အားလုံး ဖျက်ပါ",
     "bulkDeleteConfirm": "{count} ခု ဖျက်မလား?",
     "bulkResult": "{done} ခု အပ်ဒိတ်လုပ်ပြီး၊ {failed} ခု မအောင်မြင်ပါ။",
-    "bulkDeleteResult": "{done} ခု ဖျက်ပြီး၊ {failed} ခု မအောင်မြင်ပါ။"
+    "bulkDeleteResult": "{done} ခု ဖျက်ပြီး၊ {failed} ခု မအောင်မြင်ပါ။",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ကျန်းမာသော",

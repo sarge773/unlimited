@@ -529,7 +529,11 @@
     "bulkDelete": "அனைத்தையும் நீக்கு",
     "bulkDeleteConfirm": "{count} நீக்கவா?",
     "bulkResult": "{done} புதுப்பிக்கப்பட்டது; {failed} தோல்வி.",
-    "bulkDeleteResult": "{done} நீக்கப்பட்டது; {failed} தோல்வி."
+    "bulkDeleteResult": "{done} நீக்கப்பட்டது; {failed} தோல்வி.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ஆரோக்கியமான",

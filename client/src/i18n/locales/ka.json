@@ -529,7 +529,11 @@
     "bulkDelete": "ყველას წაშლა",
     "bulkDeleteConfirm": "წაიშალოს {count}?",
     "bulkResult": "განახლდა {done}; ვერ მოხერხდა {failed}.",
-    "bulkDeleteResult": "წაიშალა {done}; ვერ მოხერხდა {failed}."
+    "bulkDeleteResult": "წაიშალა {done}; ვერ მოხერხდა {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ჯანსაღი",

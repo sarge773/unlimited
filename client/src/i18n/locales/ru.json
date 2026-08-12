@@ -529,7 +529,11 @@
     "bulkDelete": "Удалить все",
     "bulkDeleteConfirm": "Удалить {count}?",
     "bulkResult": "Обновлено {done}; не удалось {failed}.",
-    "bulkDeleteResult": "Удалено {done}; не удалось {failed}."
+    "bulkDeleteResult": "Удалено {done}; не удалось {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "здоровый",

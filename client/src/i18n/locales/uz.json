@@ -529,7 +529,11 @@
     "bulkDelete": "Hammasini oʻchirish",
     "bulkDeleteConfirm": "{count} ta oʻchirilsinmi?",
     "bulkResult": "Yangilandi {done}; muvaffaqiyatsiz {failed}.",
-    "bulkDeleteResult": "Oʻchirildi {done}; muvaffaqiyatsiz {failed}."
+    "bulkDeleteResult": "Oʻchirildi {done}; muvaffaqiyatsiz {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "sog'lom",

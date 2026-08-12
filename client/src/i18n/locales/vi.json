@@ -529,7 +529,11 @@
     "bulkDelete": "Xóa tất cả",
     "bulkDeleteConfirm": "Xóa {count}?",
     "bulkResult": "Đã cập nhật {done}; {failed} không thành công.",
-    "bulkDeleteResult": "Đã xóa {done}; {failed} không thành công."
+    "bulkDeleteResult": "Đã xóa {done}; {failed} không thành công.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "khỏe mạnh",

@@ -529,7 +529,11 @@
     "bulkDelete": "حذف همه",
     "bulkDeleteConfirm": "حذف {count}؟",
     "bulkResult": "{done} به‌روزرسانی شد؛ {failed} ناموفق.",
-    "bulkDeleteResult": "{done} حذف شد؛ {failed} ناموفق."
+    "bulkDeleteResult": "{done} حذف شد؛ {failed} ناموفق.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "سالم",

@@ -529,7 +529,11 @@
     "bulkDelete": "모두 삭제",
     "bulkDeleteConfirm": "{count}개를 삭제할까요?",
     "bulkResult": "{done}개 업데이트됨, {failed}개 실패.",
-    "bulkDeleteResult": "{done}개 삭제됨, {failed}개 실패."
+    "bulkDeleteResult": "{done}개 삭제됨, {failed}개 실패.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "건강한",

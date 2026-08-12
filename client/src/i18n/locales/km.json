@@ -529,7 +529,11 @@
     "bulkDelete": "លុបទាំងអស់",
     "bulkDeleteConfirm": "លុប {count}?",
     "bulkResult": "បានធ្វើបច្ចុប្បន្នភាព {done}; បរាជ័យ {failed}។",
-    "bulkDeleteResult": "បានលុប {done}; បរាជ័យ {failed}។"
+    "bulkDeleteResult": "បានលុប {done}; បរាជ័យ {failed}។",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "មានសុខភាពល្អ",

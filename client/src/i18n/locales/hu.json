@@ -529,7 +529,11 @@
     "bulkDelete": "Összes törlése",
     "bulkDeleteConfirm": "{count} törlése?",
     "bulkResult": "Frissítve {done}; {failed} sikertelen.",
-    "bulkDeleteResult": "Törölve {done}; {failed} sikertelen."
+    "bulkDeleteResult": "Törölve {done}; {failed} sikertelen.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "egészséges",

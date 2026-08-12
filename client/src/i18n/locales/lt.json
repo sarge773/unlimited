@@ -529,7 +529,11 @@
     "bulkDelete": "Ištrinti visus",
     "bulkDeleteConfirm": "Ištrinti {count}?",
     "bulkResult": "Atnaujinta {done}; nepavyko {failed}.",
-    "bulkDeleteResult": "Ištrinta {done}; nepavyko {failed}."
+    "bulkDeleteResult": "Ištrinta {done}; nepavyko {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "Sveika",

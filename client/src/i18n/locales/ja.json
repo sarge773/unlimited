@@ -529,7 +529,11 @@
     "bulkDelete": "すべて削除",
     "bulkDeleteConfirm": "{count} 件を削除しますか？",
     "bulkResult": "{done} 件を更新しました。{failed} 件が失敗しました。",
-    "bulkDeleteResult": "{done} 件を削除しました。{failed} 件が失敗しました。"
+    "bulkDeleteResult": "{done} 件を削除しました。{failed} 件が失敗しました。",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "健康な",

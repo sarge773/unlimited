@@ -529,7 +529,11 @@
     "bulkDelete": "सर्व हटवा",
     "bulkDeleteConfirm": "{count} हटवायचे?",
     "bulkResult": "{done} अद्ययावत केले; {failed} अयशस्वी.",
-    "bulkDeleteResult": "{done} हटवले; {failed} अयशस्वी."
+    "bulkDeleteResult": "{done} हटवले; {failed} अयशस्वी.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "निरोगी",

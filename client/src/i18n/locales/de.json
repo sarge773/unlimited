@@ -529,7 +529,11 @@
     "bulkDelete": "Alle löschen",
     "bulkDeleteConfirm": "{count} löschen?",
     "bulkResult": "Aktualisiert {done}; fehlgeschlagen {failed}.",
-    "bulkDeleteResult": "Gelöscht {done}; fehlgeschlagen {failed}."
+    "bulkDeleteResult": "Gelöscht {done}; fehlgeschlagen {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "gesund",

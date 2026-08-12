@@ -529,7 +529,11 @@
     "bulkDelete": "সব মুছে দিন",
     "bulkDeleteConfirm": "{count}টি মুছবেন?",
     "bulkResult": "{done}টি হালনাগাদ হয়েছে; {failed}টি ব্যর্থ।",
-    "bulkDeleteResult": "{done}টি মুছে ফেলা হয়েছে; {failed}টি ব্যর্থ।"
+    "bulkDeleteResult": "{done}টি মুছে ফেলা হয়েছে; {failed}টি ব্যর্থ।",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "সুস্থ",

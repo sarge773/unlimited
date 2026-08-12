@@ -529,7 +529,11 @@
     "bulkDelete": "Slett alle",
     "bulkDeleteConfirm": "Slette {count}?",
     "bulkResult": "Oppdaterte {done}; mislyktes {failed}.",
-    "bulkDeleteResult": "Slettet {done}; mislyktes {failed}."
+    "bulkDeleteResult": "Slettet {done}; mislyktes {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "Sunt",

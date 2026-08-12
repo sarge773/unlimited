@@ -529,7 +529,11 @@
     "bulkDelete": "Hamısını sil",
     "bulkDeleteConfirm": "{count} silinsin?",
     "bulkResult": "Yeniləndi {done}; uğursuz {failed}.",
-    "bulkDeleteResult": "Silindi {done}; uğursuz {failed}."
+    "bulkDeleteResult": "Silindi {done}; uğursuz {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "sağlam",

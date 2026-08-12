@@ -529,7 +529,11 @@
     "bulkDelete": "ลบทั้งหมด",
     "bulkDeleteConfirm": "ลบ {count} รายการ?",
     "bulkResult": "อัปเดต {done}; ล้มเหลว {failed}",
-    "bulkDeleteResult": "ลบ {done}; ล้มเหลว {failed}"
+    "bulkDeleteResult": "ลบ {done}; ล้มเหลว {failed}",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "มีสุขภาพดี",

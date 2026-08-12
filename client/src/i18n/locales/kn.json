@@ -529,7 +529,11 @@
     "bulkDelete": "ಎಲ್ಲವನ್ನೂ ಅಳಿಸಿ",
     "bulkDeleteConfirm": "{count} ಅಳಿಸುವುದೇ?",
     "bulkResult": "{done} ನವೀಕರಿಸಲಾಗಿದೆ; {failed} ವಿಫಲವಾಗಿದೆ.",
-    "bulkDeleteResult": "{done} ಅಳಿಸಲಾಗಿದೆ; {failed} ವಿಫಲವಾಗಿದೆ."
+    "bulkDeleteResult": "{done} ಅಳಿಸಲಾಗಿದೆ; {failed} ವಿಫಲವಾಗಿದೆ.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ಆರೋಗ್ಯಕರ",

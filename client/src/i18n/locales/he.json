@@ -529,7 +529,11 @@
     "bulkDelete": "מחק הכול",
     "bulkDeleteConfirm": "למחוק {count}?",
     "bulkResult": "עודכנו {done}; נכשלו {failed}.",
-    "bulkDeleteResult": "נמחקו {done}; נכשלו {failed}."
+    "bulkDeleteResult": "נמחקו {done}; נכשלו {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "בריא",

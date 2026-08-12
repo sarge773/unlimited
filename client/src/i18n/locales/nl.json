@@ -529,7 +529,11 @@
     "bulkDelete": "Alles verwijderen",
     "bulkDeleteConfirm": "{count} verwijderen?",
     "bulkResult": "Bijgewerkt {done}; mislukt {failed}.",
-    "bulkDeleteResult": "Verwijderd {done}; mislukt {failed}."
+    "bulkDeleteResult": "Verwijderd {done}; mislukt {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "Gezond",

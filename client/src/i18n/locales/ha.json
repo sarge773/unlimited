@@ -529,7 +529,11 @@
     "bulkDelete": "Share duka",
     "bulkDeleteConfirm": "A share {count}?",
     "bulkResult": "An sabunta {done}; ya kasa {failed}.",
-    "bulkDeleteResult": "An share {done}; ya kasa {failed}."
+    "bulkDeleteResult": "An share {done}; ya kasa {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "lafiya",

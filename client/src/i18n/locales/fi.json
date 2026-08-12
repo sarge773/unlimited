@@ -529,7 +529,11 @@
     "bulkDelete": "Poista kaikki",
     "bulkDeleteConfirm": "Poistetaanko {count}?",
     "bulkResult": "Päivitetty {done}; epäonnistui {failed}.",
-    "bulkDeleteResult": "Poistettu {done}; epäonnistui {failed}."
+    "bulkDeleteResult": "Poistettu {done}; epäonnistui {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "terve",

@@ -529,7 +529,11 @@
     "bulkDelete": "Obriši sve",
     "bulkDeleteConfirm": "Obrisati {count}?",
     "bulkResult": "Ažurirano {done}; neuspješno {failed}.",
-    "bulkDeleteResult": "Obrisano {done}; neuspješno {failed}."
+    "bulkDeleteResult": "Obrisano {done}; neuspješno {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "Zdravo",

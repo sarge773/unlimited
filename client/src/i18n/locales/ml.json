@@ -529,7 +529,11 @@
     "bulkDelete": "എല്ലാം ഇല്ലാതാക്കുക",
     "bulkDeleteConfirm": "{count} ഇല്ലാതാക്കണോ?",
     "bulkResult": "{done} അപ്‌ഡേറ്റ് ചെയ്തു; {failed} പരാജയപ്പെട്ടു.",
-    "bulkDeleteResult": "{done} ഇല്ലാതാക്കി; {failed} പരാജയപ്പെട്ടു."
+    "bulkDeleteResult": "{done} ഇല്ലാതാക്കി; {failed} പരാജയപ്പെട്ടു.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ആരോഗ്യമുള്ള",

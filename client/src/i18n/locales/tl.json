@@ -529,7 +529,11 @@
     "bulkDelete": "Tanggalin lahat",
     "bulkDeleteConfirm": "Tanggalin ang {count}?",
     "bulkResult": "Na-update {done}; nabigo {failed}.",
-    "bulkDeleteResult": "Natanggal {done}; nabigo {failed}."
+    "bulkDeleteResult": "Natanggal {done}; nabigo {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "malusog",

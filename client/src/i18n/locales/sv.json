@@ -529,7 +529,11 @@
     "bulkDelete": "Radera alla",
     "bulkDeleteConfirm": "Radera {count}?",
     "bulkResult": "Uppdaterade {done}; misslyckades {failed}.",
-    "bulkDeleteResult": "Raderade {done}; misslyckades {failed}."
+    "bulkDeleteResult": "Raderade {done}; misslyckades {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "Hälsosamt",

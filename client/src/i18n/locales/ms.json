@@ -529,7 +529,11 @@
     "bulkDelete": "Padam semua",
     "bulkDeleteConfirm": "Padam {count}?",
     "bulkResult": "Dikemas kini {done}; gagal {failed}.",
-    "bulkDeleteResult": "Dipadam {done}; gagal {failed}."
+    "bulkDeleteResult": "Dipadam {done}; gagal {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "sihat",

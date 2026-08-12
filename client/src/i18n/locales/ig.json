@@ -529,7 +529,11 @@
     "bulkDelete": "Hichapụ ha niile",
     "bulkDeleteConfirm": "Hichapụ {count}?",
     "bulkResult": "Emelitere {done}; {failed} dara.",
-    "bulkDeleteResult": "Ehichapụrụ {done}; {failed} dara."
+    "bulkDeleteResult": "Ehichapụrụ {done}; {failed} dara.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ahụike",

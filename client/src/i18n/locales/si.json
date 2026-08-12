@@ -529,7 +529,11 @@
     "bulkDelete": "සියල්ල මකන්න",
     "bulkDeleteConfirm": "{count} මකන්නද?",
     "bulkResult": "{done} යාවත්කාලීන කළා; {failed} අසාර්ථකයි.",
-    "bulkDeleteResult": "{done} මකා දැමුවා; {failed} අසාර්ථකයි."
+    "bulkDeleteResult": "{done} මකා දැමුවා; {failed} අසාර්ථකයි.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "සෞඛ්ය සම්පන්න",

@@ -529,7 +529,11 @@
     "bulkDelete": "Futa zote",
     "bulkDeleteConfirm": "Futa {count}?",
     "bulkResult": "Zimesasishwa {done}; zimeshindwa {failed}.",
-    "bulkDeleteResult": "Zimefutwa {done}; zimeshindwa {failed}."
+    "bulkDeleteResult": "Zimefutwa {done}; zimeshindwa {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "afya",

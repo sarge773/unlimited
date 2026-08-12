@@ -529,7 +529,11 @@
     "bulkDelete": "Hapus semua",
     "bulkDeleteConfirm": "Hapus {count}?",
     "bulkResult": "Diperbarui {done}; gagal {failed}.",
-    "bulkDeleteResult": "Dihapus {done}; gagal {failed}."
+    "bulkDeleteResult": "Dihapus {done}; gagal {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "sehat",
