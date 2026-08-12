@@ -246,6 +246,15 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
     },
   })
 
+  // #865: after flipping routeViaProxy for a selection, one click verifies the
+  // proxy itself is reachable — reuses the #863 Test-button endpoint so the
+  // verdict (latency or the failure reason) appears right on the batch bar.
+  const testProxy = useMutation({
+    meta: { silenceToast: true },
+    mutationFn: (body: { proxyUrl?: string }) =>
+      apiFetch<{ ok: boolean; latencyMs: number; status?: number; error?: string }>('/api/settings/proxy/test', { method: 'POST', body: JSON.stringify(body) }),
+  })
+
   function startEditing(key: ApiKey) {
     setEditingKeyId(key.id)
     setEditingLabel(key.label)
@@ -386,19 +395,35 @@ export function ProviderList({ onAddKey }: { onAddKey: () => void }) {
               selected via the routeViaProxy checkboxes. One PATCH flips the
               whole selection, instead of N sequential PUTs. */}
           {proxyEnabled && selectedProxyPlatforms.size > 0 && (
-            <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-1.5 text-xs">
-              <span className="text-muted-foreground">{t('keys.bulkProxySelected', { count: selectedProxyPlatforms.size })}</span>
-              <Button size="xs" variant="outline" disabled={bulkProxyToggle.isPending}
-                onClick={() => bulkProxyToggle.mutate({ platforms: [...selectedProxyPlatforms], routeViaProxy: true })}>
-                {t('keys.bulkRouteViaProxy')}
-              </Button>
-              <Button size="xs" variant="outline" disabled={bulkProxyToggle.isPending}
-                onClick={() => bulkProxyToggle.mutate({ platforms: [...selectedProxyPlatforms], routeViaProxy: false })}>
-                {t('keys.bulkBypassProxy')}
-              </Button>
-              <Button size="xs" variant="ghost" onClick={() => setSelectedProxyPlatforms(new Set())}>
-                {t('common.dismiss')}
-              </Button>
+            <div className="rounded-lg border bg-muted/40 px-3 py-1.5 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">{t('keys.bulkProxySelected', { count: selectedProxyPlatforms.size })}</span>
+                <Button size="xs" variant="outline" disabled={bulkProxyToggle.isPending}
+                  onClick={() => bulkProxyToggle.mutate({ platforms: [...selectedProxyPlatforms], routeViaProxy: true })}>
+                  {t('keys.bulkRouteViaProxy')}
+                </Button>
+                <Button size="xs" variant="outline" disabled={bulkProxyToggle.isPending}
+                  onClick={() => bulkProxyToggle.mutate({ platforms: [...selectedProxyPlatforms], routeViaProxy: false })}>
+                  {t('keys.bulkBypassProxy')}
+                </Button>
+                <Button size="xs" variant="outline" disabled={testProxy.isPending}
+                  onClick={() => testProxy.mutate({})}>
+                  {testProxy.isPending ? t('keys.testingProxy') : t('keys.testProxy')}
+                </Button>
+                <Button size="xs" variant="ghost" onClick={() => setSelectedProxyPlatforms(new Set())}>
+                  {t('common.dismiss')}
+                </Button>
+              </div>
+              {testProxy.isSuccess && (
+                <p className={`mt-1 ${testProxy.data.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
+                  {testProxy.data.ok
+                    ? t('keys.proxyTestOk', { ms: String(testProxy.data.latencyMs) })
+                    : t('keys.proxyTestFail', { reason: testProxy.data.error ?? '' })}
+                </p>
+              )}
+              {testProxy.isError && (
+                <p className="text-destructive mt-1">{(testProxy.error as Error).message}</p>
+              )}
             </div>
           )}
           {visibleGroups.map(group => {

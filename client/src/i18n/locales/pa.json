@@ -532,7 +532,11 @@
     "bulkDeleteResult": "{done} ਮਿਟਾਏ ਗਏ; {failed} ਅਸਫਲ।",
     "bulkProxySelected": "{count} platform(s) selected for proxy routing",
     "bulkRouteViaProxy": "Route via proxy",
-    "bulkBypassProxy": "Bypass proxy"
+    "bulkBypassProxy": "Bypass proxy",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ਸਿਹਤਮੰਦ",

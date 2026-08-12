@@ -532,7 +532,11 @@
     "bulkDeleteResult": "{done} 件を削除しました。{failed} 件が失敗しました。",
     "bulkProxySelected": "{count} platform(s) selected for proxy routing",
     "bulkRouteViaProxy": "Route via proxy",
-    "bulkBypassProxy": "Bypass proxy"
+    "bulkBypassProxy": "Bypass proxy",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "健康な",

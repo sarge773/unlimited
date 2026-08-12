@@ -532,7 +532,11 @@
     "bulkDeleteResult": "{done} ഇല്ലാതാക്കി; {failed} പരാജയപ്പെട്ടു.",
     "bulkProxySelected": "{count} platform(s) selected for proxy routing",
     "bulkRouteViaProxy": "Route via proxy",
-    "bulkBypassProxy": "Bypass proxy"
+    "bulkBypassProxy": "Bypass proxy",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ആരോഗ്യമുള്ള",

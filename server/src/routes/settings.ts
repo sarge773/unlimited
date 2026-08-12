@@ -379,7 +379,6 @@ settingsRouter.put('/proxy', (req: Request, res: Response) => {
   });
 });
 
-<<<<<<< HEAD
 // Test proxy connectivity WITHOUT saving (#863). The dashboard's "Test" button
 // sends the DRAFT value; an empty body falls back to the saved proxy URL. The
 // probe never persists anything — it only builds a throwaway dispatcher and
@@ -467,5 +466,4 @@ settingsRouter.patch('/proxy/bypass', (req: Request, res: Response) => {
     bypassPlatforms: getProxyBypassPlatforms(),
     active: isProxyActive(),
   });
-});
 });
