@@ -127,10 +127,10 @@ export default function ModelDetailPage() {
   // whole-overrides PUT as splits; only the merges list changes.
   const [aliasInput, setAliasInput] = useState('')
   const mergeMutation = useMutation({
-    mutationFn: (keys: string[]) =>
+    mutationFn: (merges: UnifyOverrides['merges']) =>
       apiFetch('/api/settings/unify', {
         method: 'PUT',
-        body: JSON.stringify({ overrides: { merges: keys, splits: unify?.overrides.splits ?? [] } }),
+        body: JSON.stringify({ overrides: { merges, splits: unify?.overrides.splits ?? [] } }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['unify'] })
@@ -140,24 +140,6 @@ export default function ModelDetailPage() {
       setAliasInput('')
     },
   })
-  // The merges entries that point INTO this group, keyed by their normalized
-  // target; `into` is the display name the group was built from.
-  const groupMerges = useMemo(() => {
-    const intoKey = (s: string) => s.trim().toLowerCase().replace(/[\s\-_]+/g, ' ')
-    const labelKey = intoKey(label)
-    return (unify?.overrides.merges ?? []).filter(m => intoKey(m.into) === labelKey)
-  }, [unify, label])
-  const addAlias = () => {
-    const key = aliasInput.trim()
-    if (!key) return
-    const others = (unify?.overrides.merges ?? []).filter(m => intoKeyOf(m.into) !== intoKeyOf(label))
-    mergeMutation.mutate([...others, { into: label, keys: [key] }])
-  }
-  const removeAlias = (index: number) => {
-    const rest = (unify?.overrides.merges ?? []).filter((_, i) => i !== index)
-    mergeMutation.mutate(rest)
-  }
-  function intoKeyOf(s: string): string { return s.trim().toLowerCase().replace(/[\s\-_]+/g, ' ') }
 
   const splits = unify?.overrides.splits ?? []
   // New splits are written against ONE row: an unqualified "platform:modelId"
@@ -210,6 +192,24 @@ export default function ModelDetailPage() {
   const quota = members.length ? groupQuotaBadge(members, t) : null
   const vision = members.some(m => m.supportsVision)
   const tools = members.some(m => m.supportsTools)
+
+  // #790: the merges entries that point INTO this group, keyed by their
+  // normalized target; `into` is the display name the group was built from.
+  const intoKeyOf = (s: string) => s.trim().toLowerCase().replace(/[\s\-_]+/g, ' ')
+  const groupMerges = useMemo(() => {
+    const labelKey = intoKeyOf(label)
+    return (unify?.overrides.merges ?? []).filter(m => intoKeyOf(m.into) === labelKey)
+  }, [unify, label])
+  const addAlias = () => {
+    const key = aliasInput.trim()
+    if (!key) return
+    const others = (unify?.overrides.merges ?? []).filter(m => intoKeyOf(m.into) !== intoKeyOf(label))
+    mergeMutation.mutate([...others, { into: label, keys: [key] }])
+  }
+  const removeAlias = (index: number) => {
+    const rest = (unify?.overrides.merges ?? []).filter((_, i) => i !== index)
+    mergeMutation.mutate(rest)
+  }
 
   // A ready-to-run request referencing this model by its unified id, so it fails
   // over across every provider above. Same base-URL derivation as the Keys page.
