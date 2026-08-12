@@ -37,18 +37,46 @@ const PURE_MODULES = [
   'think-tags.ts',
 ];
 
+/** True when every specifier inside `{...}` is type-only, so the whole
+ *  statement is erased. */
+function allSpecifiersAreTypes(specifiers: string): boolean {
+  return specifiers.split(',').every(s => s.trim() === '' || /^type\s/.test(s.trim()));
+}
+
 /** Import statements that survive compilation, i.e. everything except
  *  `import type ...`. Also catches bare side-effect imports (`import './x.js'`)
- *  and `require(...)`, which are value dependencies just as much. */
+ *  and `require(...)`, which are value dependencies just as much.
+ *
+ *  Three forms beyond a plain static import are load-bearing here, because each
+ *  creates the same runtime dependency while looking nothing like `^import`:
+ *  a dynamic `await import('./x.js')`, and re-exports of the form
+ *  `export { x } from './x.js'` / `export * from './x.js'` — a re-export is an
+ *  import that also republishes, so it forms a cycle just as readily. */
 function valueImportsIn(source: string): string[] {
   const found: string[] = [];
   for (const raw of source.split('\n')) {
     const line = raw.trim();
     if (line.startsWith('//') || line.startsWith('*')) continue;
+
+    // Dynamic import — `const m = await import('./x.js')` never starts with
+    // `import`, so the anchored rules below cannot see it. `import.meta.url`
+    // is not a call and does not match.
+    if (/\bimport\s*\(/.test(line)) { found.push(line); continue; }
+
+    // Re-exports. Only those with a `from` clause reach another module;
+    // `export { localThing }` republishes something declared right here.
+    if (/^export\b/.test(line) && /\bfrom\s*['"]/.test(line)) {
+      if (!/^export\s+type\b/.test(line)) {
+        const reexported = /^export\s*\{([^}]*)\}\s*from/.exec(line);
+        if (!reexported || !allSpecifiersAreTypes(reexported[1])) found.push(line);
+      }
+      continue;
+    }
+
     if (/^import\s+type\b/.test(line)) continue;
     // `import { type A, type B } from` is also fully erased.
     const named = /^import\s*\{([^}]*)\}\s*from/.exec(line);
-    if (named && named[1].split(',').every(s => s.trim() === '' || /^type\s/.test(s.trim()))) continue;
+    if (named && allSpecifiersAreTypes(named[1])) continue;
     if (/^import\b/.test(line)) found.push(line);
     if (/\brequire\s*\(/.test(line)) found.push(line);
   }
@@ -79,5 +107,27 @@ describe('pure lib modules stay pure', () => {
     expect(valueImportsIn("import './side-effect.js';")).toHaveLength(1);
     expect(valueImportsIn("const x = require('node:fs');")).toHaveLength(1);
     expect(valueImportsIn("import { type A, getDb } from '../db/index.js';")).toHaveLength(1);
+  });
+
+  it('catches the forms that do not begin with the import keyword', () => {
+    // A dynamic import is a runtime dependency that defeats an anchored ^import
+    // rule completely — it is the obvious way to smuggle getDb into a pure
+    // module without tripping this test.
+    expect(valueImportsIn("const { getDb } = await import('../db/index.js');")).toHaveLength(1);
+    expect(valueImportsIn("void import('./side-effect.js');")).toHaveLength(1);
+    // `import.meta.url` is not a call.
+    expect(valueImportsIn('const here = import.meta.url;')).toEqual([]);
+
+    // A re-export imports and republishes in one statement, so it forms a
+    // cycle just as readily as a plain import.
+    expect(valueImportsIn("export { getDb } from '../db/index.js';")).toHaveLength(1);
+    expect(valueImportsIn("export * from '../db/index.js';")).toHaveLength(1);
+    expect(valueImportsIn("export * as db from '../db/index.js';")).toHaveLength(1);
+
+    // Type-only re-exports are erased, and a local re-export reaches no module.
+    expect(valueImportsIn("export type { A } from './a.js';")).toEqual([]);
+    expect(valueImportsIn("export { type A, type B } from './a.js';")).toEqual([]);
+    expect(valueImportsIn('export { localHelper };')).toEqual([]);
+    expect(valueImportsIn('export function f(): void {}')).toEqual([]);
   });
 });
