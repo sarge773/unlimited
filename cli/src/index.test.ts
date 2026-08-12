@@ -36,6 +36,17 @@ describe('CLI arguments and launchers', () => {
       .toThrow('--profile requires a value');
   });
 
+  it('parses doctor --timeout, and rejects a value that is not milliseconds', () => {
+    expect(parseArgs(['doctor', '--timeout', '30000']).options.timeoutMs).toBe(30_000);
+    expect(parseArgs(['doctor', '--timeout=250']).options.timeoutMs).toBe(250);
+    // Left undefined rather than defaulted here, so doctor.ts owns the default.
+    expect(parseArgs(['doctor']).options.timeoutMs).toBeUndefined();
+    // Rejected, not silently ignored: a typo quietly becoming the default is
+    // exactly the quiet no-op this command exists to catch.
+    expect(() => parseArgs(['doctor', '--timeout', '5s'])).toThrow('positive number of milliseconds');
+    expect(() => parseArgs(['doctor', '--timeout', '0'])).toThrow('positive number of milliseconds');
+  });
+
   const models: CatalogModel[] = [
     { id: 'auto' },
     { id: 'fast-coder', available: true, context_window: 131072 },

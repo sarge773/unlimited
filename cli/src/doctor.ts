@@ -21,7 +21,7 @@ import path from 'node:path';
 // technically "it reaches what it is configured to reach", and precisely the
 // confident-wrong answer the command exists to prevent. `routed` now means
 // "reaches THIS gateway", which is the only question the user is asking.
-export type Verdict = 'routed' | 'elsewhere' | 'shadowed' | 'unreachable' | 'unknown';
+export type Verdict = 'routed' | 'degraded' | 'elsewhere' | 'shadowed' | 'unreachable' | 'unknown';
 
 export interface Layer {
   /** Where the value came from, in the tool's own vocabulary. */
@@ -47,16 +47,47 @@ export interface ToolReport {
 
 export interface GatewayProbe {
   reachable: boolean;
-  /** Whether the response looks like this product. See identifyGateway. */
+  /** Whether the response looks like this product. See probeGateway. */
   identified: boolean;
+  /** Whether the gateway says it can actually serve requests right now. */
+  healthy: boolean;
+  /** The `status` field verbatim: 'ok', 'unavailable', or anything added later. */
+  serviceStatus?: string;
   version?: string;
+  /** HTTP status of the /livez response. */
   status?: number;
   error?: string;
 }
 
-/** Normalize for comparison: scheme+host+port, no trailing slash, no /v1. */
+/**
+ * Normalize for comparison: scheme + host + port + path prefix, with any
+ * trailing slash and `/v1` suffix removed.
+ *
+ * The path is KEPT, and kept case-sensitively. A gateway mounted under a prefix
+ * (`http://host/gateway`) is a different endpoint from `http://host/other`, and
+ * folding the path away would report the two as the same gateway. Only the
+ * scheme and host are case-folded, because only those are case-insensitive.
+ * Query and fragment are dropped: they never identify the endpoint.
+ *
+ * The result is also what the probe is built on, so it must stay a usable URL.
+ */
 export function normalizeUrl(url: string): string {
-  return url.trim().replace(/\/+$/, '').replace(/\/v1$/i, '').toLowerCase();
+  const trimmed = url.trim();
+  const lexical = (): string => trimmed.replace(/\/+$/, '').replace(/\/v1$/i, '').toLowerCase();
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    // Not parseable at all — fall back to lexical trimming rather than
+    // throwing, so a malformed config value still yields a report.
+    return lexical();
+  }
+  // A scheme-less value like `localhost:3000/v1` PARSES, as the opaque path
+  // `3000/v1` under a `localhost:` scheme, and rebuilding it from parts would
+  // produce nonsense. An empty host is the tell.
+  if (!parsed.host) return lexical();
+  const prefix = parsed.pathname.replace(/\/+$/, '').replace(/\/v1$/i, '');
+  return `${parsed.protocol.toLowerCase()}//${parsed.host.toLowerCase()}${prefix}`;
 }
 
 export function sameGateway(a: string | undefined, b: string | undefined): boolean {
@@ -211,30 +242,45 @@ function sectionValue(toml: string, section: string, key: string): string | unde
   return undefined;
 }
 
+/** How long the /livez probe waits before calling an endpoint unreachable. */
+export const DEFAULT_PROBE_TIMEOUT_MS = 5_000;
+
 /**
- * Probe a base URL's identity.
+ * Probe a base URL's identity AND its health — two separate questions that must
+ * not be collapsed.
  *
- * IMPORTANT LIMIT, stated rather than papered over: `/livez` answers
- * `{status, version, uptime_s}` and carries NO product identifier, so a 200
- * with that exact shape is evidence, not proof — another service could serve
- * the same three keys. `identified` therefore means "responds the way this
- * gateway responds", and the report says so. Asserting identity harder would
- * need either an authenticated call (the CLI does not have a key here) or a
- * product marker the server does not currently emit.
+ * IDENTITY is structural: `/livez` answers `{status, version, uptime_s}` and
+ * carries NO product identifier, so a body with that exact shape is evidence,
+ * not proof — another service could serve the same three keys. `identified`
+ * therefore means "responds the way this gateway responds", and the report says
+ * so. Asserting identity harder would need either an authenticated call (the
+ * CLI does not have a key here) or a product marker the server does not emit.
+ *
+ * HEALTH is the `status` VALUE, and it is deliberately not folded into
+ * identity. The server really does emit `{status: 'unavailable', ...}` with a
+ * 503 when the database or the encryption key is down (routes/status.ts), and
+ * that response is still unmistakably this gateway. Requiring `status === 'ok'`
+ * to identify it would report a correctly-routed but sick gateway as "probably
+ * a different service on that port" — the confident wrong answer this command
+ * exists to prevent. Anything that is not a 2xx `'ok'` is reported as
+ * unhealthy and the raw status is echoed, so a status added later degrades into
+ * a truthful "reaches this gateway, which says: <status>" instead of a lie.
  */
 export async function probeGateway(
   baseUrl: string,
   fetchImpl: typeof fetch = fetch,
+  timeoutMs: number = DEFAULT_PROBE_TIMEOUT_MS,
 ): Promise<GatewayProbe> {
   let response: Response;
   try {
     response = await fetchImpl(`${normalizeUrl(baseUrl)}/livez`, {
-      signal: AbortSignal.timeout(5_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (error) {
     return {
       reachable: false,
       identified: false,
+      healthy: false,
       error: error instanceof Error ? error.message : String(error),
     };
   }
@@ -242,14 +288,23 @@ export async function probeGateway(
   try {
     body = await response.json() as Record<string, unknown>;
   } catch {
-    return { reachable: true, identified: false, status: response.status, error: 'response was not JSON' };
+    return {
+      reachable: true,
+      identified: false,
+      healthy: false,
+      status: response.status,
+      error: 'response was not JSON',
+    };
   }
-  const identified = typeof body.status === 'string'
+  const serviceStatus = typeof body.status === 'string' ? body.status : undefined;
+  const identified = serviceStatus !== undefined
     && typeof body.version === 'string'
     && typeof body.uptime_s === 'number';
   return {
     reachable: true,
     identified,
+    healthy: identified && serviceStatus === 'ok' && response.status >= 200 && response.status < 300,
+    serviceStatus,
     status: response.status,
     version: typeof body.version === 'string' ? body.version : undefined,
   };
@@ -263,6 +318,9 @@ export interface DoctorOptions {
   /** Project-scoped settings are resolved relative to this. */
   cwd?: string;
   fetchImpl?: typeof fetch;
+  /** Probe timeout. Raise it on a slow link, where the default would report a
+   *  reachable gateway as unreachable. */
+  timeoutMs?: number;
 }
 
 const LAYER_RESOLVERS: Record<string, (env: NodeJS.ProcessEnv, homeDir: string, cwd: string) => Layer[]> = {
@@ -299,7 +357,7 @@ export async function diagnose(tool: string, options: DoctorOptions): Promise<To
     };
   }
 
-  const gateway = await probeGateway(effective.value, options.fetchImpl);
+  const gateway = await probeGateway(effective.value, options.fetchImpl, options.timeoutMs);
 
   // A lower-precedence layer naming a DIFFERENT url is the silent-override
   // case: the user edited that file and something outranks it.
@@ -361,6 +419,24 @@ export async function diagnose(tool: string, options: DoctorOptions): Promise<To
     };
   }
 
+  // Routing is correct here and the gateway is unmistakably this one — it just
+  // says it cannot serve. Reporting that as `routed` would send the user
+  // hunting through config that is already right, so it gets its own verdict
+  // and a nonzero exit.
+  if (!gateway.healthy) {
+    return {
+      tool,
+      verdict: 'degraded',
+      layers,
+      effectiveUrl: effective.value,
+      gateway,
+      detail:
+        `${tool} reaches ${effective.value} and that IS this gateway, but it reports `
+        + `status "${gateway.serviceStatus}" (HTTP ${gateway.status}) — it cannot serve requests. `
+        + 'The routing is fine; the gateway is not.',
+    };
+  }
+
   return {
     tool,
     verdict: 'routed',
@@ -373,6 +449,7 @@ export async function diagnose(tool: string, options: DoctorOptions): Promise<To
 
 const SYMBOL: Record<Verdict, string> = {
   routed: 'OK  ',
+  degraded: 'WARN',
   elsewhere: 'FAIL',
   shadowed: 'WARN',
   unreachable: 'FAIL',

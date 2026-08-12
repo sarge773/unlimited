@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  DEFAULT_PROBE_TIMEOUT_MS,
   claudeLayers,
   codexLayers,
   diagnose,
@@ -23,9 +24,15 @@ afterEach(() => {
 });
 
 /** A fetch double that answers /livez exactly as the real gateway does. */
-function gatewayFetch(body: unknown = { status: 'ok', version: '0.7.0', uptime_s: 12 }): typeof fetch {
-  return (async () => ({ status: 200, json: async () => body })) as unknown as typeof fetch;
+function gatewayFetch(
+  body: unknown = { status: 'ok', version: '0.7.0', uptime_s: 12 },
+  status = 200,
+): typeof fetch {
+  return (async () => ({ status, json: async () => body })) as unknown as typeof fetch;
 }
+
+/** The real 503 body from routes/status.ts when the db or encryption key is down. */
+const UNAVAILABLE = { status: 'unavailable', version: '0.7.0', uptime_s: 12, checks: { db: false } };
 const deadFetch = (async () => { throw new Error('ECONNREFUSED'); }) as unknown as typeof fetch;
 
 function writeClaudeSettings(home: string, value: Record<string, unknown>): void {
@@ -41,11 +48,34 @@ function writeCodexConfig(home: string, toml: string): void {
 }
 
 describe('url comparison', () => {
-  it('ignores trailing slashes, a /v1 suffix, and case', () => {
+  it('ignores trailing slashes, a /v1 suffix, and host case', () => {
     expect(normalizeUrl('http://Localhost:3000/v1/')).toBe('http://localhost:3000');
     expect(sameGateway('http://localhost:3000', 'http://localhost:3000/v1')).toBe(true);
     expect(sameGateway('http://localhost:3000', 'http://localhost:3001')).toBe(false);
     expect(sameGateway(undefined, 'http://localhost:3000')).toBe(false);
+  });
+
+  it('keeps a path prefix, so two mounts on one host are not confused', () => {
+    // A gateway mounted under a prefix is a different endpoint. Folding the
+    // path away reported these as the same gateway.
+    expect(normalizeUrl('http://host/gateway/v1/')).toBe('http://host/gateway');
+    expect(sameGateway('http://host/gateway', 'http://host/other')).toBe(false);
+    expect(sameGateway('http://host/gateway/v1', 'http://host/gateway/')).toBe(true);
+    expect(sameGateway('http://host/gateway', 'http://host')).toBe(false);
+  });
+
+  it('keeps path case, which is case-sensitive, while folding the host', () => {
+    expect(normalizeUrl('HTTP://Host:3000/Gateway')).toBe('http://host:3000/Gateway');
+    expect(sameGateway('http://host/Gateway', 'http://host/gateway')).toBe(false);
+  });
+
+  it('drops query and fragment, which never identify the endpoint', () => {
+    expect(normalizeUrl('http://host:3000/v1?k=1#x')).toBe('http://host:3000');
+  });
+
+  it('falls back to lexical trimming for an unparseable value', () => {
+    // A malformed config value must still produce a report, not an exception.
+    expect(normalizeUrl('localhost:3000/v1/')).toBe('localhost:3000');
   });
 });
 
@@ -211,6 +241,22 @@ describe('verdicts', () => {
     expect(report.detail).toContain('https://api.anthropic.com');
   });
 
+  it('degraded — not routed, not elsewhere — when this gateway says it cannot serve', async () => {
+    // Routing is correct and the gateway is unmistakably this one; it is sick.
+    // `routed` would send the user hunting through config that is already
+    // right, and `elsewhere` would blame a service that is not there.
+    const report = await diagnose('claude', {
+      expectedUrl: url,
+      env: { ANTHROPIC_BASE_URL: url },
+      homeDir: tempHome(), cwd: tempHome(),
+      fetchImpl: gatewayFetch(UNAVAILABLE, 503),
+    });
+    expect(report.verdict).toBe('degraded');
+    expect(report.detail).toContain('that IS this gateway');
+    expect(report.detail).toContain('unavailable');
+    expect(report.gateway).toMatchObject({ identified: true, healthy: false });
+  });
+
   it('unreachable when the configured endpoint answers nothing', async () => {
     const report = await diagnose('claude', {
       expectedUrl: url,
@@ -255,7 +301,48 @@ describe('probeGateway', () => {
       json: async () => { throw new Error('not json'); },
     })) as unknown as typeof fetch;
     expect(await probeGateway('http://x', htmlFetch))
-      .toMatchObject({ reachable: true, identified: false });
+      .toMatchObject({ reachable: true, identified: false, healthy: false });
+  });
+
+  it('still IDENTIFIES the gateway when it answers 503 unavailable', async () => {
+    // The server really emits this when the db or encryption key is down, and
+    // it is unmistakably this gateway. Folding health into identity would
+    // report a correctly-routed sick gateway as a foreign service.
+    expect(await probeGateway('http://x', gatewayFetch(UNAVAILABLE, 503))).toMatchObject({
+      reachable: true,
+      identified: true,
+      healthy: false,
+      serviceStatus: 'unavailable',
+      status: 503,
+    });
+  });
+
+  it('treats an unrecognized status value as unhealthy, not unidentified', async () => {
+    // A status added later must degrade into a truthful "this gateway says
+    // <status>", never into a claim that it is some other service.
+    const probe = await probeGateway(
+      'http://x',
+      gatewayFetch({ status: 'draining', version: '9', uptime_s: 1 }),
+    );
+    expect(probe).toMatchObject({ identified: true, healthy: false, serviceStatus: 'draining' });
+  });
+
+  it('is unhealthy when a non-2xx carries an ok body', async () => {
+    expect((await probeGateway('http://x', gatewayFetch(undefined, 500))).healthy).toBe(false);
+  });
+
+  it('honours the caller-supplied timeout instead of the hard-coded default', async () => {
+    // Threaded so a slow link is not misreported as unreachable. That the
+    // caller's 20ms fires at all is the proof: the 5s default would not have.
+    const neverAnswers = (async (_url: string, init: RequestInit) => new Promise((_resolve, reject) => {
+      init.signal?.addEventListener('abort', () => reject(new Error('The operation was aborted')));
+    })) as unknown as typeof fetch;
+
+    const started = Date.now();
+    const probe = await probeGateway('http://x', neverAnswers, 20);
+    expect(Date.now() - started).toBeLessThan(DEFAULT_PROBE_TIMEOUT_MS);
+    expect(probe).toMatchObject({ reachable: false, identified: false, healthy: false });
+    expect(probe.error).toContain('abort');
   });
 });
 
@@ -264,5 +351,7 @@ describe('exit code', () => {
     expect(exitCodeFor([{ verdict: 'routed' } as never])).toBe(0);
     expect(exitCodeFor([{ verdict: 'routed' } as never, { verdict: 'elsewhere' } as never])).toBe(1);
     expect(exitCodeFor([{ verdict: 'unknown' } as never])).toBe(1);
+    // A gateway that cannot serve is a failed precondition, not a pass.
+    expect(exitCodeFor([{ verdict: 'degraded' } as never])).toBe(1);
   });
 });
