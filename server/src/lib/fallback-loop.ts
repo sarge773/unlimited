@@ -52,7 +52,7 @@ import { getRequestTrace, newRequestTrace, runWithRequestTrace, type AttemptOutc
 import { logRequest, persistRequestAttempts } from './request-log.js';
 
 // Every surface caps failover hops at the same number.
-export const FALLBACK_MAX_RETRIES = 20;
+export const FALLBACK_MAX_RETRIES = 60;
 
 // ── Wall-clock retry budget ──────────────────────────────────────────────────
 // Serial failover has no time bound of its own: the observed worst case was a

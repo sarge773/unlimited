@@ -292,7 +292,7 @@ proxyRouter.get('/models', (req: Request, res: Response) => {
 });
 
 
-const MAX_RETRIES = 20;
+const MAX_RETRIES = 60;
 
 // Echo-tolerant tool calls: agents replay OUR responses back as history, and
 // not all of them preserve the strict OpenAI shape. `type` may be dropped
