@@ -169,7 +169,7 @@ export function isTransportError(err: any): boolean {
     if (code && TRANSPORT_ERROR_CODES.has(code)) return true;
   }
   const joined = links.map(l => l.message ?? '').join(' | ').toLowerCase();
-  return TRANSPORT_MESSAGE_HINTS.some(h => joined.includes(h));
+  return TRANSPORT_MESSAGE_HINTS.some(h => joined.includes(h));}
 
 // A genuine provider QUOTA signal: a structured 429 or rate-limit/quota wording.
 // Distinct from the much broader isRetryableError: timeouts, 5xx, transport

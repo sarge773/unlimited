@@ -191,13 +191,17 @@ register(new OpenAICompatProvider({
 // OpenCode Zen — OpenAI-compatible gateway (https://opencode.ai/zen/v1), same
 // adapter as Groq/OpenRouter. A handful of promotional models are free for a
 // limited time; they need a free account key from https://opencode.ai/auth
-// (no card required — billing only applies to paid models). The free roster is
-// trial-only and prompts/outputs may be used to improve the models, so we seed
-// just the docs-confirmed free IDs (migrateModelsV18) with conservative limits.
+//
+// OpenCode Zen gates the promotional `...-free` models by User-Agent as of
+// August 2026: only requests starting with `opencode/` get through; generic
+// clients get 429'd immediately. Spoofing the UA here bypasses the fingerprint.
 register(new OpenAICompatProvider({
   platform: 'opencode',
   name: 'OpenCode Zen',
   baseUrl: 'https://opencode.ai/zen/v1',
+  extraHeaders: {
+    'User-Agent': 'opencode/1.16.2 ai-sdk/provider-utils/4.0.23 runtime/bun/1.3.14',
+  },
 }));
 
 // OVHcloud AI Endpoints — OpenAI-compatible. Two free modes: anonymous

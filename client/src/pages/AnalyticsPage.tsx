@@ -1053,7 +1053,7 @@ export default function AnalyticsPage() {
                                 {r.requestedModel}
                               </Badge>
                             )}
-                          </TableCellerror
+                          </TableCell>
                           <TableCell className="text-xs text-muted-foreground">{r.platform}</TableCell>
                           <TableCell className="text-xs text-muted-foreground">
                             {r.platform === 'custom' && r.keyLabel ? r.keyLabel : r.platform}
