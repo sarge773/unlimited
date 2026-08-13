@@ -60,6 +60,11 @@ export type Platform =
   | 'google'
   | 'groq'
   | 'cerebras'
+  // AnyAPI — OpenAI-compatible gateway. Free tier is $0/no card/recurring but
+  // capped at 100K tokens/day over "free and basic" models only; no RPM/RPD is
+  // published. Catalog rows live in the hosted catalog (premium now, free after
+  // 30 days).
+  | 'anyapi'
   | 'nvidia'
   | 'mistral'
   | 'sambanova'
@@ -338,6 +343,9 @@ export interface ChatCompletionRequest {
   temperature?: number;
   max_tokens?: number;
   stream?: boolean;
+  stream_options?: {
+    include_usage?: boolean;
+  };
   top_p?: number;
   stop?: string | string[];
   tools?: ChatToolDefinition[];
@@ -388,6 +396,7 @@ export interface ChatCompletionChunk {
     };
     finish_reason: string | null;
   }[];
+  usage?: TokenUsage;
 }
 
 // ---- Analytics Types ----

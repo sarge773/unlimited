@@ -14,6 +14,7 @@ import { restoreDbBackupIfNeeded, startDbBackupPump } from './lib/db-backup.js';
 import { userCount } from './services/auth.js';
 import { generateSetupCode } from './lib/setup-code.js';
 import { warnOnEnvDrift } from './lib/env-drift.js';
+import { warnOnRoutingOverrideDrift } from './services/model-weight-overrides.js';
 import { installLogRedaction } from './lib/log-redaction.js';
 
 // Before any other statement runs, so no provider key can reach stdout — users
@@ -39,6 +40,8 @@ async function main() {
   }
   initDb(config.dbPath ?? undefined);
   applyDeclarativeConfigFromEnv();
+  // After initDb: the unknown-model half of this check reads the catalog.
+  warnOnRoutingOverrideDrift();
 
   // First-run hardening: when the dashboard is still unclaimed, mint a one-time
   // setup code and log it. A loopback browser can finish setup without it; a
