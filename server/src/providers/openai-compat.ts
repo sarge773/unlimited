@@ -306,6 +306,21 @@ export class OpenAICompatProvider extends BaseProvider {
     quotaContext?: QuotaObservationContext,
   ): AsyncGenerator<ChatCompletionChunk> {
     const sampling = this.samplingForModel(modelId, options);
+
+
+    // 👇 استخراج هدرها در یک متغیر
+    const headers = {
+      ...this.authHeader(apiKey),
+      'Content-Type': 'application/json',
+      ...this.extraHeaders,
+    };
+
+    // 👇 اضافه کردن لاگ دیباگ فقط برای پلتفرم opencode
+    if (this.platform === 'opencode') {
+      console.log(`[DEBUG OpenCode] Sending headers:`, headers);
+    }
+
+
     const res = await this.fetchWithTimeout(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
