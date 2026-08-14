@@ -694,7 +694,11 @@
     "howToUse": "Käyttöohje",
     "howToUseHelp": "Lähetä tavallinen chat-pyyntö mallin \"fusion\" kanssa. Nämä asetukset ovat oletusasetukset; Mikä tahansa pyyntö voi ohittaa ne \"fuusio\"-kentällä.",
     "unsavedChanges": "Tallentamattomat muutokset",
-    "save": "Tallenna"
+    "save": "Tallenna",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

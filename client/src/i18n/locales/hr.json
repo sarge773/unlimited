@@ -694,7 +694,11 @@
     "howToUse": "Kako koristiti",
     "howToUseHelp": "Pošalji običan chat zahtjev s modelom \"fusion\". Ove postavke su zadane; bilo koji zahtjev može ih nadjačati poljem \"fuzija\".",
     "unsavedChanges": "Nespremljene promjene",
-    "save": "Spasi"
+    "save": "Spasi",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premija",

@@ -694,7 +694,11 @@
     "howToUse": "Bawo ni lati lo",
     "howToUseHelp": "Firanṣẹ ibeere iwiregbe deede pẹlu awoṣe “Fusion”. Awọn eto wọnyi jẹ aiyipada; eyikeyi ìbéèrè le idojuk wọn pẹlu kan \"fusion\" aaye.",
     "unsavedChanges": "Awọn iyipada ti ko ni fipamọ",
-    "save": "Fipamọ"
+    "save": "Fipamọ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Ere",

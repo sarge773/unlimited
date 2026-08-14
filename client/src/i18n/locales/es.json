@@ -694,7 +694,11 @@
     "howToUse": "Cómo usarlo",
     "howToUseHelp": "Envía una solicitud de chat normal con el modelo «fusion». Estos ajustes son los predeterminados; cualquier solicitud puede anularlos con un campo «fusion».",
     "unsavedChanges": "Cambios sin guardar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

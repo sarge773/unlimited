@@ -694,7 +694,11 @@
     "howToUse": "Како користити",
     "howToUseHelp": "Пошаљите нормалан захтев за ћаскање са моделом \"фусион\". Ова подешавања су подразумевана; сваки захтев их може заменити пољем „фузије“.",
     "unsavedChanges": "Несачуване промене",
-    "save": "Сачувај"
+    "save": "Сачувај",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Премиум",

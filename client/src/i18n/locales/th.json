@@ -694,7 +694,11 @@
     "howToUse": "วิธีใช้",
     "howToUseHelp": "ส่งคำขอแชทปกติด้วยโมเดล \"ฟิวชั่น\" การตั้งค่าเหล่านี้เป็นค่าเริ่มต้น คำขอใดๆ ก็ตามสามารถแทนที่คำขอเหล่านั้นด้วยฟิลด์ \"ฟิวชั่น\"",
     "unsavedChanges": "การเปลี่ยนแปลงที่ไม่ได้บันทึก",
-    "save": "บันทึก"
+    "save": "บันทึก",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "พรีเมี่ยม",

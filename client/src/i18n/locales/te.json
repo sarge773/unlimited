@@ -694,7 +694,11 @@
     "howToUse": "ఎలా ఉపయోగించాలి",
     "howToUseHelp": "మోడల్ \"ఫ్యూజన్\"తో సాధారణ చాట్ అభ్యర్థనను పంపండి. ఈ సెట్టింగ్‌లు డిఫాల్ట్; ఏదైనా అభ్యర్థన వాటిని \"ఫ్యూజన్\" ఫీల్డ్‌తో భర్తీ చేయగలదు.",
     "unsavedChanges": "సేవ్ చేయని మార్పులు",
-    "save": "సేవ్ చేయండి"
+    "save": "సేవ్ చేయండి",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "ప్రీమియం",

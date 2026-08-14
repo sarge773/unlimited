@@ -694,7 +694,11 @@
     "howToUse": "Como usar",
     "howToUseHelp": "Envie uma requisição de chat normal com o modelo \"fusion\". Estas configurações são o padrão; qualquer requisição pode sobrescrevê-las com um campo \"fusion\".",
     "unsavedChanges": "Alterações não salvas",
-    "save": "Salvar"
+    "save": "Salvar",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

@@ -694,7 +694,11 @@
     "howToUse": "Як використовувати",
     "howToUseHelp": "Надішліть звичайний запит у чат із моделлю \"fusion\". Ці налаштування є типовими; будь-який запит може замінити їх за допомогою поля \"fusion\".",
     "unsavedChanges": "Незбережені зміни",
-    "save": "зберегти"
+    "save": "зберегти",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Преміум",

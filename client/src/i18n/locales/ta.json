@@ -694,7 +694,11 @@
     "howToUse": "எப்படி பயன்படுத்துவது",
     "howToUseHelp": "மாதிரி \"ஃப்யூஷன்\" உடன் சாதாரண அரட்டை கோரிக்கையை அனுப்பவும். இந்த அமைப்புகள் இயல்புநிலை; எந்தவொரு கோரிக்கையும் அவற்றை \"இணைவு\" புலத்துடன் மேலெழுதலாம்.",
     "unsavedChanges": "சேமிக்கப்படாத மாற்றங்கள்",
-    "save": "சேமிக்கவும்"
+    "save": "சேமிக்கவும்",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "பிரீமியம்",

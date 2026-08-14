@@ -694,7 +694,11 @@
     "howToUse": "İstifadə",
     "howToUseHelp": "Model \"fusion\" ilə normal çat sorğusu göndərin. Bu parametrlər standartdır; istənilən istənilən sorğu onları \"birləşmə\" sahəsi ilə üstələyə bilər.",
     "unsavedChanges": "Yadda saxlanmamış dəyişikliklər",
-    "save": "Xilas et"
+    "save": "Xilas et",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

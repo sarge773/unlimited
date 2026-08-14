@@ -694,7 +694,11 @@
     "howToUse": "איך להשתמש",
     "howToUseHelp": "שלח בקשת צ'אט רגילה עם מודל \"fusion\". הגדרות אלו הן ברירת המחדל; כל בקשה יכולה לעקוף אותן באמצעות שדה \"מיזוג\".",
     "unsavedChanges": "שינויים שלא נשמרו",
-    "save": "שמור"
+    "save": "שמור",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "פרימיום",

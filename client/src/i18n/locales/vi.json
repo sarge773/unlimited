@@ -694,7 +694,11 @@
     "howToUse": "Cách sử dụng",
     "howToUseHelp": "Gửi yêu cầu trò chuyện bình thường với mô hình \"fusion\". Các cài đặt này là mặc định; mọi yêu cầu đều có thể ghi đè chúng bằng trường \"kết hợp\".",
     "unsavedChanges": "Những thay đổi chưa được lưu",
-    "save": "Lưu"
+    "save": "Lưu",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Cao cấp",

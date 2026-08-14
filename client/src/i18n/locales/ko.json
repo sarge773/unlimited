@@ -694,7 +694,11 @@
     "howToUse": "사용방법",
     "howToUseHelp": "모델 \"fusion\"을 사용하여 일반 채팅 요청을 보냅니다. 이러한 설정은 기본값입니다. 모든 요청은 \"fusion\" 필드로 이를 재정의할 수 있습니다.",
     "unsavedChanges": "저장되지 않은 변경사항",
-    "save": "저장"
+    "save": "저장",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "프리미엄",

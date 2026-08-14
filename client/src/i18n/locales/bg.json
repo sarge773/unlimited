@@ -694,7 +694,11 @@
     "howToUse": "Как да използвате",
     "howToUseHelp": "Изпратете обикновена заявка за чат с модел \"fusion\". Тези настройки са по подразбиране; Всяка заявка може да ги замени с поле \"сливане\".",
     "unsavedChanges": "Незапазени промени",
-    "save": "Запази"
+    "save": "Запази",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Премиум",

@@ -694,7 +694,11 @@
     "howToUse": "如何使用",
     "howToUseHelp": "傳送一般的對話請求，並將 model 設為 “fusion”。這些設定為預設值；任何請求都可以透過 “fusion” 欄位覆蓋它們。",
     "unsavedChanges": "有未儲存的變更",
-    "save": "儲存"
+    "save": "儲存",
+    "searchPlaceholder": "搜尋模型…",
+    "providerFilterLabel": "依供應商篩選",
+    "providerAll": "全部供應商",
+    "noMatch": "沒有符合搜尋條件的模型。"
   },
   "premium": {
     "title": "高級版",

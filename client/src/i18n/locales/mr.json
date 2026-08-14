@@ -694,7 +694,11 @@
     "howToUse": "कसे वापरावे",
     "howToUseHelp": "मॉडेल \"फ्यूजन\" सह सामान्य चॅट विनंती पाठवा. या सेटिंग्ज डीफॉल्ट आहेत; कोणतीही विनंती त्यांना \"फ्यूजन\" फील्डसह अधिलिखित करू शकते.",
     "unsavedChanges": "जतन न केलेले बदल",
-    "save": "जतन करा"
+    "save": "जतन करा",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "प्रीमियम",

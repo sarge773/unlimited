@@ -694,7 +694,11 @@
     "howToUse": "როგორ გამოვიყენოთ",
     "howToUseHelp": "გააგზავნეთ ჩვეულებრივი ჩატის მოთხოვნა მოდელის \"fusion\"-ით. ეს პარამეტრები ნაგულისხმევია; ნებისმიერ მოთხოვნას შეუძლია გადალახოს ისინი \"fusion\" ველით.",
     "unsavedChanges": "შენახული ცვლილებები",
-    "save": "შენახვა"
+    "save": "შენახვა",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "პრემიუმი",

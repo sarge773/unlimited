@@ -694,7 +694,11 @@
     "howToUse": "نحوه استفاده",
     "howToUseHelp": "یک درخواست چت معمولی با مدل \"fusion\" ارسال کنید. این تنظیمات پیش فرض هستند. هر درخواستی می تواند آنها را با یک فیلد \"fusion\" لغو کند.",
     "unsavedChanges": "تغییرات ذخیره نشده",
-    "save": "ذخیره کنید"
+    "save": "ذخیره کنید",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "حق بیمه",

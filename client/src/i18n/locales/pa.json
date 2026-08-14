@@ -694,7 +694,11 @@
     "howToUse": "ਕਿਵੇਂ ਵਰਤਣਾ ਹੈ",
     "howToUseHelp": "ਮਾਡਲ \"ਫਿਊਜ਼ਨ\" ਦੇ ਨਾਲ ਇੱਕ ਆਮ ਚੈਟ ਬੇਨਤੀ ਭੇਜੋ। ਇਹ ਸੈਟਿੰਗਾਂ ਡਿਫੌਲਟ ਹਨ; ਕੋਈ ਵੀ ਬੇਨਤੀ ਉਹਨਾਂ ਨੂੰ \"ਫਿਊਜ਼ਨ\" ਖੇਤਰ ਨਾਲ ਓਵਰਰਾਈਡ ਕਰ ਸਕਦੀ ਹੈ।",
     "unsavedChanges": "ਅਣਰੱਖਿਅਤ ਤਬਦੀਲੀਆਂ",
-    "save": "ਸੇਵ ਕਰੋ"
+    "save": "ਸੇਵ ਕਰੋ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "ਪ੍ਰੀਮੀਅਮ",

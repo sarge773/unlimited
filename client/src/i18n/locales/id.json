@@ -694,7 +694,11 @@
     "howToUse": "Cara menggunakan",
     "howToUseHelp": "Kirim request chat biasa dengan model \"fusion\". Pengaturan ini adalah default; permintaan apa pun dapat menimpanya dengan bidang \"fusi\".",
     "unsavedChanges": "Perubahan yang belum disimpan",
-    "save": "Simpan"
+    "save": "Simpan",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premi",

@@ -694,7 +694,11 @@
     "howToUse": "എങ്ങനെ ഉപയോഗിക്കാം",
     "howToUseHelp": "മോഡൽ \"ഫ്യൂഷൻ\" ഉപയോഗിച്ച് ഒരു സാധാരണ ചാറ്റ് അഭ്യർത്ഥന അയയ്ക്കുക. ഈ ക്രമീകരണങ്ങൾ സ്ഥിരസ്ഥിതിയാണ്; ഏതൊരു അഭ്യർത്ഥനയ്ക്കും ഒരു \"ഫ്യൂഷൻ\" ഫീൽഡ് ഉപയോഗിച്ച് അവയെ മറികടക്കാൻ കഴിയും.",
     "unsavedChanges": "സംരക്ഷിക്കാത്ത മാറ്റങ്ങൾ",
-    "save": "സംരക്ഷിക്കുക"
+    "save": "സംരക്ഷിക്കുക",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "പ്രീമിയം",

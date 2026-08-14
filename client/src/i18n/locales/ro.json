@@ -694,7 +694,11 @@
     "howToUse": "Cum să folosești",
     "howToUseHelp": "Trimite o cerere normală de chat cu modelul \"fusion\". Aceste setări sunt cele implicite; Orice cerere le poate suprascrie cu un câmp \"fuziune\".",
     "unsavedChanges": "Modificări nesalvate",
-    "save": "Salvează"
+    "save": "Salvează",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

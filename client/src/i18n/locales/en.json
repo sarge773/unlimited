@@ -710,7 +710,11 @@
     "howToUse": "How to use",
     "howToUseHelp": "Send a normal chat request with model \"fusion\". These settings are the default; any request can override them with a \"fusion\" field.",
     "unsavedChanges": "Unsaved changes",
-    "save": "Save"
+    "save": "Save",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

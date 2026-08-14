@@ -694,7 +694,11 @@
     "howToUse": "कसरी प्रयोग गर्ने?",
     "howToUseHelp": "मोडेल \"फ्यूजन\" संग एक सामान्य च्याट अनुरोध पठाउनुहोस्। यी सेटिङहरू पूर्वनिर्धारित हुन्; कुनै पनि अनुरोधले तिनीहरूलाई \"फ्यूजन\" फिल्डको साथ ओभरराइड गर्न सक्छ।",
     "unsavedChanges": "बचत नगरिएका परिवर्तनहरू",
-    "save": "बचत गर्नुहोस्"
+    "save": "बचत गर्नुहोस्",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "प्रिमियम",

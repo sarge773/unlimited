@@ -694,7 +694,11 @@
     "howToUse": "Nasıl kullanılır",
     "howToUseHelp": "\"Fusion\" modeliyle normal bir sohbet isteği gönderin. Bu ayarlar varsayılandır; herhangi bir istek bunları bir \"füzyon\" alanıyla geçersiz kılabilir.",
     "unsavedChanges": "Kaydedilmemiş değişiklikler",
-    "save": "Kaydet"
+    "save": "Kaydet",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "prim",

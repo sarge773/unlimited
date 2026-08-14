@@ -694,7 +694,11 @@
     "howToUse": "କିପରି ବ୍ୟବହାର କରିବେ",
     "howToUseHelp": "ମଡେଲ୍ \"ଫ୍ୟୁଜନ୍\" ସହ ଏକ ସାମାନ୍ୟ ଚାଟ୍ ଅନୁରୋଧ ପ୍ରେରଣ କରନ୍ତୁ। ଏହି ସେଟିଂସ୍ ହେଉଛି ଡିଫଲ୍ଟ; ଯେକୌଣସି ଅନୁରୋଧ ସେମାନଙ୍କୁ ଏକ \"ଫ୍ୟୁଜନ୍\" ଫିଲ୍ଡ ସହିତ ଓଭରରାଇଡ୍ କରିପାରେ ।",
     "unsavedChanges": "ଅସଞ୍ଚିତ ପରିବର୍ତ୍ତନଗୁଡିକ",
-    "save": "ସଞ୍ଚୟ କରନ୍ତୁ"
+    "save": "ସଞ୍ଚୟ କରନ୍ତୁ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "ପ୍ରିମିୟମ",

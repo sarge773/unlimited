@@ -694,7 +694,11 @@
     "howToUse": "Hoe te gebruiken",
     "howToUseHelp": "Stuur een normaal chatverzoek met model \"fusion\". Deze instellingen zijn standaard; elk verzoek kan ze overschrijven met een \"fusie\"-veld.",
     "unsavedChanges": "Wijzigingen die niet opgeslagen zijn",
-    "save": "Sla op"
+    "save": "Sla op",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premie",

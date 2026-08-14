@@ -694,7 +694,11 @@
     "howToUse": "እንዴት መጠቀም እንደሚቻል",
     "howToUseHelp": "መደበኛ የውይይት ጥያቄ ከሞዴል \"ውህደት\" ጋር ይላኩ. እነዚህ ቅንብሮች ነባሪ ናቸው; ማንኛውም ጥያቄ በ\"ውህደት\" መስክ ሊሽራቸው ይችላል።",
     "unsavedChanges": "ያልተቀመጡ ለውጦች",
-    "save": "አስቀምጥ"
+    "save": "አስቀምጥ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "ከፍተኛ",

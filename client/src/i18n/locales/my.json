@@ -694,7 +694,11 @@
     "howToUse": "အသုံးပြုနည်း",
     "howToUseHelp": "\"fusion\" မော်ဒယ်ဖြင့် ပုံမှန် စကားပြောတောင်းဆိုမှု ပို့ပါ။ ဤဆက်တင်များသည် ပုံမှန်ဖြစ်သည်။ မည်သည့် တောင်းဆိုမှုမဆို \"fusion\" ကွက်လပ်ဖြင့် အစားထိုးနိုင်သည်။",
     "unsavedChanges": "မသိမ်းဆည်းထားသော ပြင်ဆင်မှုများ",
-    "save": "သိမ်းဆည်းပါ"
+    "save": "သိမ်းဆည်းပါ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "ပရီးမီယံ",

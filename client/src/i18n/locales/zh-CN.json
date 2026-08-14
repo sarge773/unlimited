@@ -694,7 +694,11 @@
     "howToUse": "如何使用",
     "howToUseHelp": "发送普通的对话请求，并将 model 设为 “fusion”。这些设置为默认值；任何请求都可以通过 “fusion” 字段覆盖它们。",
     "unsavedChanges": "有未保存的更改",
-    "save": "保存"
+    "save": "保存",
+    "searchPlaceholder": "搜索模型…",
+    "providerFilterLabel": "按提供商筛选",
+    "providerAll": "全部提供商",
+    "noMatch": "没有匹配搜索条件的模型。"
   },
   "premium": {
     "title": "高级版",

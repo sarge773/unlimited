@@ -694,7 +694,11 @@
     "howToUse": "كيفية الاستخدام",
     "howToUseHelp": "إرسال طلب محادثة عادي مع النموذج \"الانصهار\". هذه الإعدادات هي الإعدادات الافتراضية؛ يمكن لأي طلب تجاوزها بحقل \"الاندماج\".",
     "unsavedChanges": "التغييرات غير المحفوظة",
-    "save": "حفظ"
+    "save": "حفظ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "قسط",
