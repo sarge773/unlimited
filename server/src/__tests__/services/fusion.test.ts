@@ -69,4 +69,22 @@ describe('fusion vision judge', () => {
     );
     expect(hasImage).toBe(false);
   });
+
+  it('keeps image blocks by default (no strip flag)', async () => {
+    const { buildJudgeMessages } = await import('../../services/fusion.js');
+    const original = [
+      { role: 'user' as const, content: [
+        { type: 'text', text: 'what is in this image?' },
+        { type: 'image_url', image_url: { url: 'data:image/png;base64,AAAA' } },
+      ] },
+    ];
+    const answers = [
+      { status: 'ok' as const, content: 'a red square', usage: undefined } as any,
+    ];
+    const judgeMessages = buildJudgeMessages(original, answers);
+    const hasImage = judgeMessages.some((m) =>
+      Array.isArray(m.content) && m.content.some((b: any) => b?.type === 'image_url' || b?.type === 'image'),
+    );
+    expect(hasImage).toBe(true);
+  });
 });
