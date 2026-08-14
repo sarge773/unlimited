@@ -117,7 +117,7 @@ describe('stripImagesFromMessages', () => {
     const m1 = { role: 'user', content: 'plain text' };
     const m2 = { role: 'assistant', content: null };
     const out = stripImagesFromMessages([m1 as any, m2 as any]);
-    expect(out[0]).toBe(m1);  // identité préservée (pas de copie inutile)
+    expect(out[0]).toBe(m1);  // identity preserved (no unnecessary copy)
     expect(out[1]).toBe(m2);
   });
 });

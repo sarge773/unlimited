@@ -566,8 +566,11 @@ export async function runFusion(params: {
   const requireTools = (options.tools?.length ?? 0) > 0;
   const { panel, overflow, dropped } = selectPanel(config, { requireTools, requireVision: vision, estimatedTokens });
   if (panel.length === 0) {
+    const hint = vision
+      ? 'No vision-capable model is servable for the panel. Enable a vision model in the Fallback Chain or pass `fusion.models` with vision-capable model ids.'
+      : 'Provide `fusion.models` with enabled model ids, or enable models in the Fallback Chain.';
     throw new FusionError(
-      'fusion: no usable models for the panel. Provide `fusion.models` with enabled model ids, or enable models in the Fallback Chain.',
+      `fusion: no usable models for the panel. ${hint}`,
       400,
     );
   }
