@@ -18,7 +18,8 @@ function fakeRoute(provider: any) {
 }
 
 async function post(app: Express, path: string, body: any, key?: string, headers: Record<string, string> = {}) {
-  const server = app.listen(0);
+  const server = app.listen(0, '127.0.0.1');
+  if (!server.listening) await new Promise<void>(resolve => server.once('listening', () => resolve()));
   const addr = server.address() as any;
   const res = await fetch(`http://127.0.0.1:${addr.port}${path}`, {
     method: 'POST',
@@ -140,7 +141,8 @@ describe('POST /v1/responses (#96)', () => {
   // #103: the x-api-key header (Anthropic wire format) must authenticate here
   // too, not just on /v1/chat/completions.
   it('accepts the unified key via the x-api-key header', async () => {
-    const server = app.listen(0);
+    const server = app.listen(0, '127.0.0.1');
+    if (!server.listening) await new Promise<void>(resolve => server.once('listening', () => resolve()));
     const addr = server.address() as any;
     const res = await fetch(`http://127.0.0.1:${addr.port}/v1/responses`, {
       method: 'POST',
