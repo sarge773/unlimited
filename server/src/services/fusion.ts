@@ -14,7 +14,7 @@ import {
   isRetryableError, isRateLimitSignal, isPaymentRequiredError,
   isModelNotFoundError, isModelAccessForbiddenError,
 } from '../lib/error-classify.js';
-import { contentToString } from '../lib/content.js';
+import { contentToString, stripImagesFromMessages } from '../lib/content.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
 import { getSetting, setSetting } from '../db/index.js';
 import type { CompletionOptions } from '../providers/base.js';
@@ -496,7 +496,7 @@ const JUDGE_SYSTEM_PROMPT =
   'Then REWRITE it all from scratch, in your own words, as one clear, well-structured, self-contained answer that makes complete sense by itself. ' +
   'Do not mention that other answers exist, do not refer to "Response 1/2/3", do not compare the responses, and do not describe your process — just deliver the final, authoritative answer directly to the user.';
 
-function buildJudgeMessages(original: ChatMessage[], answers: PanelAnswer[]): ChatMessage[] {
+export function buildJudgeMessages(original: ChatMessage[], answers: PanelAnswer[], stripImages = false): ChatMessage[] {
   const ok = answers.filter(a => a.status === 'ok' && a.content);
   const panelBlock = ok
     .map((a, i) => `--- Response ${i + 1} ---\n${a.content}`)
@@ -507,7 +507,7 @@ function buildJudgeMessages(original: ChatMessage[], answers: PanelAnswer[]): Ch
   // prompt leads so it frames everything that follows.
   return [
     { role: 'system', content: JUDGE_SYSTEM_PROMPT },
-    ...original,
+    ...(stripImages ? stripImagesFromMessages(original) : original),
     {
       role: 'user',
       content:
@@ -698,7 +698,7 @@ export async function runFusion(params: {
     // (longest as a cheap proxy for completeness) — no judge call.
     finalText = textSurvivors.slice().sort((a, b) => (b.content!.length - a.content!.length))[0].content!;
   } else {
-    const judgeMessages = buildJudgeMessages(messages, textSurvivors);
+    const judgeMessages = buildJudgeMessages(messages, textSurvivors, vision);
     // The judge prompt carries every panel answer, so its input is much larger
     // than the original — size the routing estimate accordingly.
     const judgeEstimate = estimatedTokens + textSurvivors.reduce((n, a) => n + Math.ceil((a.content?.length ?? 0) / 4), 0);
