@@ -27,6 +27,13 @@ function addCustomEndpoint(baseUrl: string, label = 'endpoint'): void {
   `).run(label, baseUrl);
 }
 
+function addDisabledCustomEndpoint(baseUrl: string, label = 'disabled-endpoint'): void {
+  getDb().prepare(`
+    INSERT INTO api_keys (platform, label, encrypted_key, iv, auth_tag, status, enabled, base_url)
+    VALUES ('custom', ?, 'enc', 'iv', 'tag', 'healthy', 0, ?)
+  `).run(label, baseUrl);
+}
+
 function customModelIds(): string[] {
   const rows = getDb().prepare("SELECT model_id FROM models WHERE platform = 'custom'").all() as { model_id: string }[];
   return rows.map(r => r.model_id).sort();
@@ -90,6 +97,37 @@ describe('custom model sync', () => {
     expect(result.added).toBe(1);
     expect(result.skipped).toBe(1);
     expect(customModelIds()).toEqual(['model-a', 'model-b']);
+  });
+
+  it('never polls a disabled endpoint', async () => {
+    addDisabledCustomEndpoint('http://off:9999');
+    (discoverEndpointModels as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'model-a', ownedBy: null },
+    ]);
+
+    const result = await runCustomModelSync(getDb());
+
+    // Turning an endpoint off means "stop using this": the unattended pass must
+    // not reach out to it, nor register (enabled) rows behind the operator's back.
+    expect(discoverEndpointModels).not.toHaveBeenCalled();
+    expect(result.endpoints).toBe(0);
+    expect(result.added).toBe(0);
+    expect(customModelIds()).toEqual([]);
+  });
+
+  it('syncs the enabled endpoint while skipping a disabled one', async () => {
+    addDisabledCustomEndpoint('http://off:9999');
+    addCustomEndpoint('http://on:9999');
+    (discoverEndpointModels as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'model-a', ownedBy: null },
+    ]);
+
+    const result = await runCustomModelSync(getDb());
+
+    expect(result.endpoints).toBe(1);
+    expect(discoverEndpointModels).toHaveBeenCalledTimes(1);
+    expect((discoverEndpointModels as unknown as ReturnType<typeof vi.fn>).mock.calls[0]![0]).toBe('http://on:9999');
+    expect(customModelIds()).toEqual(['model-a']);
   });
 
   it('isolates a failing endpoint and keeps syncing the rest', async () => {

@@ -178,17 +178,21 @@ export interface CustomEndpointCredential {
 }
 
 /**
- * Every configured custom endpoint, one entry per distinct base_url, carrying
- * its first stored credential. Used by the scheduled model sync
- * (#674/#663/#656) to refresh model lists unattended: the manual route asks
- * the operator for a key mid-typing, but a scheduled pass can only use what
- * the endpoint already has on record.
+ * Every ENABLED custom endpoint, one entry per distinct base_url, carrying its
+ * first stored credential. Used by the scheduled model sync (#674/#663/#656)
+ * to refresh model lists unattended: the manual route asks the operator for a
+ * key mid-typing, but a scheduled pass can only use what the endpoint already
+ * has on record.
+ *
+ * Disabled keys are excluded: turning an endpoint off means "stop using this",
+ * so an unattended pass must not keep polling it and registering new (enabled)
+ * model rows behind the operator's back.
  */
 export function listCustomEndpoints(db: Db): CustomEndpointCredential[] {
   const rows = db.prepare(`
     SELECT base_url, id, encrypted_key, iv, auth_tag
       FROM api_keys
-     WHERE platform = 'custom' AND base_url IS NOT NULL
+     WHERE platform = 'custom' AND base_url IS NOT NULL AND enabled = 1
      ORDER BY base_url, id
   `).all() as Array<{
     base_url: string;
