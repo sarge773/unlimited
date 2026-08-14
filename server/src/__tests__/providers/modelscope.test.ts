@@ -138,4 +138,73 @@ describe('ModelScope validateKey (#581)', () => {
     const provider = new ModelScopeProvider();
     await expect(provider.validateKey(GARBAGE_KEY)).rejects.toThrow(/no models/);
   });
+
+  it('rejects a token that does not start with ms- locally, with zero network calls', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(ROSTER as unknown as Response);
+
+    const provider = new ModelScopeProvider();
+    const result = await provider.validateKey('sk-this-is-not-a-modelscope-token');
+
+    expect(result).not.toBe(true);
+    const failure = result as KeyValidationFailure;
+    expect(failure.valid).toBe(false);
+    expect(failure.error).toContain('ms-');
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('caches a successful validation per key and skips the network on repeat checks', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(async (url) => {
+      if (String(url).endsWith('/models')) return ROSTER as unknown as Response;
+      return {
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({
+          id: 'chatcmpl-1', object: 'chat.completion', created: 1,
+          model: 'Qwen/Qwen3-235B-A22B-Instruct-2507',
+          choices: [{ index: 0, message: { role: 'assistant', content: 'p' }, finish_reason: 'length' }],
+          usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+        }),
+      } as unknown as Response;
+    });
+
+    const provider = new ModelScopeProvider();
+    const ctx = {
+      platform: 'modelscope' as const,
+      keyId: 48,
+      quotaPoolKey: 'modelscope::account',
+      endpoint: 'models',
+      origin: 'health' as const,
+    };
+
+    // First validation probes the network (models + chat completion).
+    await expect(provider.validateKey('ms-test-valid-shaped', ctx)).resolves.toBe(true);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+    // Second validation within the cache window returns true without any call.
+    await expect(provider.validateKey('ms-test-valid-shaped', ctx)).resolves.toBe(true);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not cache an invalid validation (a 401 re-probes on the next check)', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(async (url) => {
+      if (String(url).endsWith('/models')) return ROSTER as unknown as Response;
+      return AUTH_FAILED_401 as unknown as Response;
+    });
+
+    const provider = new ModelScopeProvider();
+    const ctx = {
+      platform: 'modelscope' as const,
+      keyId: 48,
+      quotaPoolKey: 'modelscope::account',
+      endpoint: 'models',
+      origin: 'health' as const,
+    };
+
+    await expect(provider.validateKey(GARBAGE_KEY, ctx)).resolves.not.toBe(true);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+    // A failed validation must not be cached — the next health pass re-probes.
+    await expect(provider.validateKey(GARBAGE_KEY, ctx)).resolves.not.toBe(true);
+    expect(fetchSpy).toHaveBeenCalledTimes(4);
+  });
 });
