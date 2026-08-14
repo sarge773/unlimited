@@ -992,7 +992,7 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
       false,
       state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined,
     ),
-    dispatch: async (route, attempt) => {
+    dispatch: async (route, attempt, ctx) => {
       traceRouteEvent('Proxy', {
         event: attempt === 0 ? 'start' : 'next',
         requestId: requestGroupId,
@@ -1022,6 +1022,9 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
           res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
           setFallbackHeaders(res, attempt, attemptLog);
           headerSent = true;
+          // Committed: the answer is on its way, so the retry budget must no
+          // longer cancel this attempt (it could not fail over now anyway).
+          ctx.disarmHedge();
           for (const frame of buffered) res.write(`data: ${JSON.stringify(frame)}\n\n`);
           buffered.length = 0;
         };
@@ -1800,7 +1803,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       const routingEstimate = handoffPossible ? estimatedTotal + HANDOFF_MAX_TOKENS : estimatedTotal;
       return routeRequest(routingEstimate, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, groupChain ?? resolvedChain?.chain, samplingParams.response_format !== undefined, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined);
     },
-    dispatch: async (route, attempt) => {
+    dispatch: async (route, attempt, ctx) => {
     const modelKey = `${route.platform}:${route.modelId}`;
     traceRouteEvent('Proxy', {
       event: attempt === 0 ? 'start' : 'next',
@@ -1884,6 +1887,9 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
           setFallbackHeaders(res, attempt, attemptLog);
           headerSent = true;
+          // Committed: the answer is on its way, so the retry budget must no
+          // longer cancel this attempt (it could not fail over now anyway).
+          ctx.disarmHedge();
           for (const p of preamble) res.write(`data: ${JSON.stringify(p)}\n\n`);
           preamble.length = 0;
         };

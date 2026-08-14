@@ -570,12 +570,12 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
     clientGone: () => clientGone,
     abortInFlight: () => hedgeAbort.abort(newHedgeAbortError()),
     route: () => routeRequest(estimatedTotal, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, undefined, false, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined),
-    dispatch: async (route, attempt) => {
+    dispatch: async (route, attempt, dispatchCtx) => {
       if (stream) {
         try {
           await streamCompletion(res, route, messages, dispatchOptions, {
             start, attempt, attemptLog, clientGone: () => clientGone, requestedModel, estimatedInputTokens, tools, pinnedModelId,
-            sessionId, pinned: resolved.pinned,
+            sessionId, pinned: resolved.pinned, disarmHedge: dispatchCtx.disarmHedge,
           });
           return 'done';
         } catch (err: any) {
@@ -699,6 +699,8 @@ interface StreamCtx {
   pinnedModelId: string | null;
   sessionId?: string;
   pinned: boolean;
+  /** Cancel this attempt's time-budget hedge once the stream commits. */
+  disarmHedge: () => void;
 }
 
 // Consume the provider's OpenAI-style stream and re-emit it as the Anthropic
@@ -741,6 +743,9 @@ async function streamCompletion(
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Routed-Via', routedViaValue(route.platform, route.modelId));
     setFallbackHeaders(res, ctx.attempt, ctx.attemptLog);
+    // Committed: the answer is on its way, so the retry budget must no longer
+    // cancel this attempt (it could not fail over now anyway).
+    ctx.disarmHedge();
     writeSse(res, 'message_start', {
       type: 'message_start',
       message: {

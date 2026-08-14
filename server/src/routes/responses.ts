@@ -769,7 +769,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
     clientGone: () => clientGone,
     abortInFlight: () => hedgeAbort.abort(newHedgeAbortError()),
     route: () => routeRequest(estimatedTotal, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, groupChain, completionOpts.response_format !== undefined, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined),
-    dispatch: async (route, attempt) => {
+    dispatch: async (route, attempt, ctx) => {
       traceRouteEvent('Responses', {
         event: attempt === 0 ? 'start' : 'next',
         requestId: requestGroupId,
@@ -831,6 +831,9 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
           sse('response.created', { response: skeleton });
           sse('response.in_progress', { response: skeleton });
           streamStarted = true;
+          // Committed: the answer is on its way, so the retry budget must no
+          // longer cancel this attempt (it could not fail over now anyway).
+          ctx.disarmHedge();
         };
 
         // Open the text output item and stream `text` as its first delta.

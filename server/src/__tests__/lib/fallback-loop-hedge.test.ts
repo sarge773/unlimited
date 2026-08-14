@@ -159,4 +159,80 @@ describe('fallback loop time-budget hedging', () => {
     expect(h.onExhausted).toHaveBeenCalledTimes(1);
     expect(h.onExhausted.mock.calls[0][1].timedOut).toBe(true);
   });
+
+  it('never cancels an attempt that already committed, however long it then runs', async () => {
+    // The whole point of the hedge is to kill a SILENT attempt. Once a stream
+    // has flushed its headers the answer is already reaching the client and the
+    // loop could not fail over anyway, so cancelling would truncate a healthy
+    // response for nothing. Slow != stalled.
+    const state = newFallbackState();
+    const abortInFlight = vi.fn();
+    const dispatch = vi.fn()
+      .mockImplementationOnce(async () => {
+        await new Promise(r => setTimeout(r, 30));
+        throw Object.assign(new Error('fake API error 429: rate limit'), { status: 429 });
+      })
+      .mockImplementationOnce(async () => {
+        await new Promise(r => setTimeout(r, 30));
+        throw Object.assign(new Error('fake API error 429: rate limit'), { status: 429 });
+      })
+      // Third attempt commits immediately, then keeps streaming well past the
+      // 100ms budget — exactly the slow-but-healthy generation that used to be
+      // truncated at the budget.
+      .mockImplementation(async (_route: unknown, _attempt: number, ctx: { disarmHedge: () => void }) => {
+        ctx.disarmHedge();
+        await new Promise(r => setTimeout(r, 250));
+        return 'committed';
+      });
+
+    const h = hooks(state, {
+      maxRetries: 5,
+      timeBudgetMs: 100,
+      abortInFlight,
+      route: () => leasedRoute().route,
+      dispatch,
+    });
+
+    await runFallbackLoop(h);
+
+    expect(dispatch).toHaveBeenCalledTimes(3);
+    // The committed attempt outlived the budget and was left alone.
+    expect(abortInFlight).not.toHaveBeenCalled();
+    expect(h.onExhausted).not.toHaveBeenCalled();
+    expect(h.onFatal).not.toHaveBeenCalled();
+    // Only the two real 429s were booked as failures.
+    expect(h.logFailure).toHaveBeenCalledTimes(2);
+  });
+
+  it('still aborts when the attempt stays silent past the budget', async () => {
+    // The complement of the test above: no disarmHedge call (nothing was ever
+    // flushed), so the stalled attempt is still cancelled.
+    const state = newFallbackState();
+    const hedgeAbort = new AbortController();
+    const abortInFlight = vi.fn(() => hedgeAbort.abort(newHedgeAbortError()));
+    const dispatch = vi.fn()
+      .mockImplementationOnce(async () => {
+        await new Promise(r => setTimeout(r, 30));
+        throw Object.assign(new Error('fake API error 429: rate limit'), { status: 429 });
+      })
+      .mockImplementationOnce(async () => {
+        await new Promise(r => setTimeout(r, 30));
+        throw Object.assign(new Error('fake API error 429: rate limit'), { status: 429 });
+      })
+      .mockImplementation(stalledDispatch(hedgeAbort));
+
+    const h = hooks(state, {
+      maxRetries: 5,
+      timeBudgetMs: 100,
+      abortInFlight,
+      route: () => leasedRoute().route,
+      dispatch,
+    });
+
+    await runFallbackLoop(h);
+
+    expect(abortInFlight).toHaveBeenCalledTimes(1);
+    expect(h.onExhausted).toHaveBeenCalledTimes(1);
+    expect(h.onExhausted.mock.calls[0][1].timedOut).toBe(true);
+  });
 });

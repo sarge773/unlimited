@@ -678,7 +678,7 @@ export function exhaustedRetryError(lastError: any, maxRetries?: number, ctx?: E
   const attempts = ctx?.attempts ?? [];
   const trail = attempts.length > 0 ? ` Attempt trail: ${formatAttemptTrail(attempts)}.` : '';
   const budgetNote = ctx?.timedOut
-    ? ` (stopped early: retry time budget ${Math.round((ctx.budgetMs ?? 0) / 1000)}s exceeded — the attempt in flight is never aborted mid-flight and one failover hop is always allowed, the budget only stops STARTING further retries; raise FALLBACK_TIME_BUDGET_MS or the fallback_time_budget_ms setting to allow a longer failover chain)`
+    ? ` (stopped early: retry time budget ${Math.round((ctx.budgetMs ?? 0) / 1000)}s exceeded — one failover hop is always allowed, and past that the budget stops starting further retries and cancels an attempt still waiting on its first byte; raise FALLBACK_TIME_BUDGET_MS or the fallback_time_budget_ms setting to allow a longer failover chain)`
     : '';
   const everyAttempt = (cls: AttemptErrorClass | ReadonlySet<AttemptErrorClass>): boolean =>
     attempts.length > 0 && attempts.every(a => (cls instanceof Set ? cls.has(a.errorClass) : a.errorClass === cls));
@@ -884,6 +884,15 @@ export function routingExhaustionBody(routeErr: any): ExhaustionBody {
 //                 possible, so stop without recording another retry.
 export type DispatchOutcome = 'done' | 'committed';
 
+/** Per-attempt handles the loop hands to dispatch. */
+export interface DispatchContext {
+  /**
+   * Cancel this attempt's time-budget hedge. Idempotent and always safe to
+   * call, including when hedging is not armed at all. See FallbackHooks.dispatch.
+   */
+  disarmHedge(): void;
+}
+
 // Per-request exhaustion metadata handed to the exhaustion hooks, so each
 // surface can stamp X-Fallback-Attempts on error responses (previously
 // success-only) without re-deriving the count.
@@ -943,8 +952,15 @@ export interface FallbackHooks {
    * return 'committed') so the loop can fail over invisibly. The loop enforces
    * this contract: any other return value is a programming error and fails
    * loudly instead of silently swallowing the request.
+   *
+   * `ctx.disarmHedge()` cancels the time-budget hedge for THIS attempt. Call it
+   * the moment the attempt proves it is alive (first byte / headers flushed):
+   * past that point the budget must not cancel it, because the answer is
+   * already on its way and killing it would truncate a healthy response for no
+   * failover benefit. Streaming surfaces are expected to call it; a
+   * non-streaming attempt has nothing to disarm until it returns.
    */
-  dispatch(route: RouteResult, attempt: number): Promise<DispatchOutcome>;
+  dispatch(route: RouteResult, attempt: number, ctx: DispatchContext): Promise<DispatchOutcome>;
 
   /** Trace + log a per-attempt failure (per-surface scope + logRequest args). */
   logFailure(route: RouteResult, err: any, attempt: number): void;
@@ -1095,15 +1111,27 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
     // Success accounting happens inside dispatch, so the persisted counters are
     // already written by the time the provisional lease goes away.
     // Fallback-v2 hedging: arm a timer for the remaining wall-clock budget so a
-    // stalled attempt is aborted mid-flight (abortInFlight) instead of only
+    // STALLED attempt is aborted mid-flight (abortInFlight) instead of only
     // refusing to start the next retry behind it. Mirrors the loop-top budget
     // check — attempt 0 and the first retry always run (#751).
+    //
+    // The timer only covers the silent window. dispatch calls ctx.disarmHedge()
+    // as soon as the attempt proves it is alive (first byte / headers flushed),
+    // because past that point cancelling would truncate a healthy response and
+    // buy nothing: a committed stream can no longer fail over anyway. Slow is
+    // not the same as stalled, and only stalled is worth killing.
     let hedgeTimer: NodeJS.Timeout | undefined;
+    const disarmHedge = () => {
+      if (hedgeTimer) {
+        clearTimeout(hedgeTimer);
+        hedgeTimer = undefined;
+      }
+    };
     if (attempt > 1 && budgetMs > 0 && hooks.abortInFlight) {
       const remaining = budgetMs - (Date.now() - startedAt);
       if (remaining > 0) {
         hedgeTimer = setTimeout(() => {
-          console.log(`[FallbackLoop] retry time budget (${budgetMs}ms) expired mid-attempt on ${route.platform}/${route.modelId} — aborting stalled upstream`);
+          console.log(`[FallbackLoop] retry time budget (${budgetMs}ms) expired with no first byte on ${route.platform}/${route.modelId} — aborting stalled upstream`);
           hooks.abortInFlight?.();
         }, remaining);
       }
@@ -1116,7 +1144,7 @@ async function runFallbackLoopAttempts(hooks: FallbackHooks, trace: RequestTrace
       // otherwise the global proxy / direct path applies as before. The URL
       // arrives already decrypted on the route (services/router.ts), so an
       // attempt costs nothing extra — no query, no decrypt.
-      outcome = await withKeyProxy(route.proxyUrl, () => hooks.dispatch(route, attempt));
+      outcome = await withKeyProxy(route.proxyUrl, () => hooks.dispatch(route, attempt, { disarmHedge }));
     } catch (err: any) {
       // Client-caused abort: the composed fetch signal fired because OUR
       // client hung up mid-attempt (see newClientAbortError). Not a
