@@ -19,6 +19,8 @@ import {
   recordUpstreamSuccess,
   MODEL_FAILURE_COOLDOWN_MS,
   MODEL_FAILURE_THRESHOLD,
+  MODEL_FAILURE_WINDOW_MS,
+  resetModelFailureWindows,
 } from '../../lib/fallback-loop.js';
 import {
   getActiveCooldownsForKeys,
@@ -61,9 +63,9 @@ function routeFor(model: { id: number; model_id: string }, keyId: number): Route
 // assertions below able to tell the two apart.
 const upstream500 = () => Object.assign(new Error('Groq API error 500: upstream'), { status: 500 });
 
-function failOnce(model: { id: number; model_id: string }, keyId: number) {
+function failOnce(model: { id: number; model_id: string }, keyId: number, now?: number) {
   // Fresh state per call: each failure stands for a separate request.
-  recordRetryableFailure(routeFor(model, keyId), upstream500(), newFallbackState());
+  recordRetryableFailure(routeFor(model, keyId), upstream500(), newFallbackState(), now);
 }
 
 function cooldownFor(model: { id: number; model_id: string }, keyId: number) {
@@ -89,6 +91,9 @@ beforeAll(() => {
 
 beforeEach(() => {
   getDb().prepare('DELETE FROM rate_limit_cooldowns').run();
+  // The failure windows are module state and outlive the DB wipe above, so a
+  // case would otherwise start partway to the threshold.
+  resetModelFailureWindows();
 });
 
 describe('model-level failure benching covers every key of the model', () => {
@@ -122,5 +127,31 @@ describe('model-level failure benching covers every key of the model', () => {
     const benchedA = cooldownFor(modelB, keyA);
     expect(benchedA).toBeDefined();
     expect(benchedA!.remainingMs).toBeLessThan(MODEL_FAILURE_COOLDOWN_MS / 2);
+  });
+
+  // The window is a SLIDING one, which is only observable if the clock can be
+  // moved. Without an injectable `now` this case would have to sleep for 15
+  // real minutes, so the behaviour was never pinned.
+  it('does not trip when the failures are spread beyond the sliding window', () => {
+    const t0 = Date.now();
+    failOnce(modelA, keyA, t0);
+    failOnce(modelA, keyA, t0 + MODEL_FAILURE_WINDOW_MS + 1);
+    failOnce(modelA, keyA, t0 + 2 * (MODEL_FAILURE_WINDOW_MS + 1));
+
+    // Three failures, but never three inside one window: no model-wide bench.
+    const benched = cooldownFor(modelA, keyB);
+    expect(benched).toBeUndefined();
+  });
+
+  it('trips when the same three failures fall inside one window', () => {
+    const t0 = Date.now();
+    failOnce(modelA, keyA, t0);
+    failOnce(modelA, keyA, t0 + 1000);
+    failOnce(modelA, keyA, t0 + 2000);
+
+    // keyB never failed, but the model-wide bench covers it.
+    const benched = cooldownFor(modelA, keyB);
+    expect(benched).toBeDefined();
+    expect(benched!.remainingMs).toBeGreaterThan(MODEL_FAILURE_COOLDOWN_MS / 2);
   });
 });

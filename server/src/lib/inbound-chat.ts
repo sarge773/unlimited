@@ -31,6 +31,7 @@ import {
 import { routedViaValue } from './header-value.js';
 import { applyTokenBudget, tokenBudgetMessage } from './guardrails.js';
 import { contentToString } from './content.js';
+import { normalizeMessageImages } from './image-normalize.js';
 import { repairToolArguments, toolSchemaMap } from './tool-args.js';
 import { invalidToolArgumentsError, invalidToolCallReasons, isToolArgumentValidationEnabled } from './tool-validate.js';
 import {
@@ -175,6 +176,10 @@ export async function runInboundChat(
   wire: InboundChatWire,
 ): Promise<void> {
   const start = Date.now();
+  // Downscale over-threshold inline images BEFORE estimation and routing so
+  // token budgets, payload limits, and upstream transfers all see the shrunk
+  // bytes (see lib/image-normalize.ts). Mutates the image blocks in place.
+  await normalizeMessageImages(input.messages);
   const estimatedInputTokens = estimateTokens(input.messages);
   const budget = applyTokenBudget(estimatedInputTokens, input.maxTokens);
   if (budget.rejection) {

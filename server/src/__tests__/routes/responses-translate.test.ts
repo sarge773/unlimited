@@ -4,8 +4,8 @@ import {
   toChatTools,
   toChatToolChoice,
   buildResponseObject,
-  responsesInputHasImage,
   responsesInputRequestsComputerUse,
+  responsesInputHasFileIdImage,
 } from '../../routes/responses.js';
 
 describe('Responses → chat translation (#96)', () => {
@@ -32,6 +32,65 @@ describe('Responses → chat translation (#96)', () => {
       { role: 'system', content: 'sys' },
       { role: 'user', content: 'ab' },
     ]);
+  });
+
+  it('translates image parts into image_url content blocks (keeps all-text content a string)', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'message', role: 'user', content: [
+          { type: 'input_text', text: 'what is this?' },
+          { type: 'input_image', image_url: 'data:image/png;base64,AA==' },
+        ] },
+        { type: 'message', role: 'user', content: 'plain text stays a string' },
+      ],
+    } as any);
+    expect(msgs[0]).toEqual({
+      role: 'user',
+      content: [
+        { type: 'text', text: 'what is this?' },
+        { type: 'image_url', image_url: { url: 'data:image/png;base64,AA==' } },
+      ],
+    });
+    expect(msgs[1]).toEqual({ role: 'user', content: 'plain text stays a string' });
+  });
+
+  it('accepts chat-style image_url and computer_screenshot parts', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'message', role: 'user', content: [
+          { type: 'image_url', image_url: { url: 'https://example.com/x.png' } },
+        ] },
+      ],
+    } as any);
+    expect(msgs[0]).toEqual({
+      role: 'user',
+      content: [{ type: 'image_url', image_url: { url: 'https://example.com/x.png' } }],
+    });
+  });
+
+  it('preserves the Responses detail hint on image parts', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'message', role: 'user', content: [
+          { type: 'input_image', image_url: 'https://example.com/x.png', detail: 'high' },
+        ] },
+      ],
+    } as any);
+    expect(msgs[0]).toEqual({
+      role: 'user',
+      content: [{ type: 'image_url', image_url: { url: 'https://example.com/x.png', detail: 'high' } }],
+    });
+  });
+
+  it('folds refusal parts into text so replayed assistant turns are not emptied', () => {
+    const msgs = toChatMessages({
+      input: [
+        { type: 'message', role: 'assistant', content: [
+          { type: 'refusal', refusal: 'I cannot help with that.' },
+        ] },
+      ],
+    } as any);
+    expect(msgs[0]).toEqual({ role: 'assistant', content: 'I cannot help with that.' });
   });
 
   it('maps a function_call item to an assistant tool_call', () => {
@@ -174,10 +233,27 @@ describe('Responses → chat translation (#96)', () => {
     expect(responsesInputRequestsComputerUse({ input: 'plain text' } as any)).toBe(false);
   });
 
-  it('detects screenshots inside computer_call_output.output as image input', () => {
-    expect(responsesInputHasImage({
-      input: [{ type: 'computer_call_output', call_id: 'cc_1', output: [{ type: 'computer_screenshot', image_url: 'data:image/png;base64,AA==' }] }],
+  it('flags unresolvable input_image parts (file_id-only, missing or empty url)', () => {
+    expect(responsesInputHasFileIdImage({
+      input: [{ type: 'message', role: 'user', content: [{ type: 'input_image', file_id: 'file_abc' }] }],
     } as any)).toBe(true);
+    // No url at all — the lenient schema lets this through validation, so the
+    // pre-check is the only thing standing between it and a blind answer.
+    expect(responsesInputHasFileIdImage({
+      input: [{ type: 'message', role: 'user', content: [{ type: 'input_image' }] }],
+    } as any)).toBe(true);
+    expect(responsesInputHasFileIdImage({
+      input: [{ type: 'message', role: 'user', content: [{ type: 'input_image', image_url: '' }] }],
+    } as any)).toBe(true);
+    // A resolvable image_url alongside the file_id is fine.
+    expect(responsesInputHasFileIdImage({
+      input: [{ type: 'message', role: 'user', content: [{ type: 'input_image', file_id: 'file_abc', image_url: 'data:image/png;base64,AA==' }] }],
+    } as any)).toBe(false);
+    // Plain url images and string inputs never flag.
+    expect(responsesInputHasFileIdImage({
+      input: [{ type: 'message', role: 'user', content: [{ type: 'input_image', image_url: 'https://example.com/x.png' }] }],
+    } as any)).toBe(false);
+    expect(responsesInputHasFileIdImage({ input: 'plain text' } as any)).toBe(false);
   });
 
   it('converts flat Responses tools to nested chat tools', () => {

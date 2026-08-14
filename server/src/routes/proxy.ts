@@ -11,6 +11,7 @@ import multer from 'multer';
 import { getDb } from '../db/index.js';
 import { resolveAuth, prependSystemPrompt, type ResolvedAuth } from '../lib/system-prompt.js';
 import { contentToString, messageHasImage, normalizeOutboundContent, sanitizeResponse } from '../lib/content.js';
+import { normalizeMessageImages } from '../lib/image-normalize.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
 import { invalidToolArgumentsError, invalidToolCallReasons, isToolArgumentValidationEnabled } from '../lib/tool-validate.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
@@ -1397,6 +1398,11 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   // the unified key and for profiles without a prompt.
   messages = prependSystemPrompt(messages, auth.systemPrompt);
 
+  // Downscale over-threshold inline images before estimation/routing so the
+  // token budget, payload limits, and upstream transfer all see the shrunk
+  // bytes (see lib/image-normalize.ts). Mutates the image blocks in place.
+  await normalizeMessageImages(messages);
+
   // Token estimation is intentionally a heuristic (~4 chars per token). Used
   // for routing decisions (skip a model whose budget is too small) and for
   // streaming bookkeeping where the provider doesn't echo a final usage count.
@@ -2004,9 +2010,9 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
             if (mode === 'dialect') continue;
 
             const probe = heldText.trimStart();
-            if (startsWithDialectMarker(probe)) {
+            if (wantsTools && startsWithDialectMarker(probe)) {
               mode = 'dialect';
-            } else if (!couldBecomeDialectMarker(probe) || probe.length > 256) {
+            } else if (!wantsTools || !couldBecomeDialectMarker(probe) || probe.length > 256) {
               mode = 'passthrough';
               flushHeaders();
               writeChunk(mkChunk({ content: heldText }, null));
@@ -2031,25 +2037,11 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
             }))
             .filter(c => { try { JSON.parse(c.function.arguments); return c.function.name.length > 0; } catch { return false; } });
 
-          // Opt-in schema verdict. `!headerSent` is the whole licence to throw
-          // here: the commit point is held until the first meaningful content,
-          // so the common tool-call turn (no prose before the call) has sent no
-          // bytes yet and can still fail over invisibly. A turn that already
-          // flushed prose is past the point of no return — the catch below
-          // would have to tear the SSE stream down with a `stream_error`, which
-          // is strictly worse for the client than forwarding a tool call the
-          // schema dislikes. Off-by-default or not, this check must never turn
-          // a served answer into a broken one.
-          if (isToolArgumentValidationEnabled() && !headerSent && completedCalls.length > 0) {
-            const invalid = invalidToolCallReasons(completedCalls, schemas);
-            if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
-          }
-
           // Dialect rescue: the held text is an inline tool call in some
           // model's private syntax. Parse it into structured calls or treat
           // the turn as dead (headers were never sent in dialect mode, so
           // failing over is free).
-          if (mode === 'dialect' || (mode === 'undecided' && heldText.length > 0 && containsDialectMarker(heldText))) {
+          if (wantsTools && (mode === 'dialect' || (mode === 'undecided' && heldText.length > 0 && containsDialectMarker(heldText)))) {
             const rescue = rescueInlineToolCalls(heldText, new Set((tools ?? []).map(t => t.function.name)));
             if (rescue.detected) {
               if (!rescue.calls) throw new Error(`unparseable inline tool-call dialect from ${route.displayName}: ${heldText.slice(0, 120)}`);
@@ -2060,6 +2052,23 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
               heldText = rescue.cleanText;
               console.log(`[Proxy] Rescued ${rescuedIds} inline tool call(s) from ${route.displayName} into structured tool_calls`);
             }
+          }
+
+          // Opt-in schema verdict, taken AFTER the rescue so it covers the
+          // calls the rescue reconstructed from prose — those are the ones
+          // most likely to be malformed, and running first exempted exactly
+          // them. `!headerSent` is the whole licence to throw here: the commit
+          // point is held until the first meaningful content, so the common
+          // tool-call turn (no prose before the call) has sent no bytes yet and
+          // can still fail over invisibly. A turn that already flushed prose is
+          // past the point of no return — the catch below would have to tear
+          // the SSE stream down with a `stream_error`, which is strictly worse
+          // for the client than forwarding a tool call the schema dislikes.
+          // Off-by-default or not, this check must never turn a served answer
+          // into a broken one.
+          if (isToolArgumentValidationEnabled() && !headerSent && completedCalls.length > 0) {
+            const invalid = invalidToolCallReasons(completedCalls, schemas);
+            if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
           }
 
           // Disconnect before the commit point: nothing usable was (or will

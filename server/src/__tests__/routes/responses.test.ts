@@ -50,9 +50,23 @@ describe('POST /v1/responses (#96)', () => {
     expect((await post(app, '/v1/responses', { model: 'auto' }, key)).status).toBe(400);
   });
 
-  // #118: image input isn't carried through the Responses translation yet, so
-  // it must hard-fail clearly rather than silently answer blind to the image.
-  it('rejects image input with a clear 422 pointing at /v1/chat/completions', async () => {
+  // #118: image parts now translate to image_url content blocks, so an image
+  // request must be routed with requireVision=true (only vision-capable models
+  // are candidates; a text-only pinned model is skipped, falling back to a
+  // vision-capable peer). The old unconditional 422 is gone.
+  it('routes an image request through requireVision (vision-capable model)', async () => {
+    mockRouteRequest.mockClear();
+    mockRouteRequest.mockReturnValue(fakeRoute({
+      async chatCompletion() {
+        return {
+          id: 'c', object: 'chat.completion', created: 0, model: 'fake-model',
+          choices: [{ index: 0, message: { role: 'assistant', content: 'a red circle' }, finish_reason: 'stop' }],
+          usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+        };
+      },
+      async *streamChatCompletion() { /* unused */ },
+    }));
+
     const { status, text } = await post(app, '/v1/responses', {
       input: [{
         role: 'user',
@@ -62,8 +76,65 @@ describe('POST /v1/responses (#96)', () => {
         ],
       }],
     }, key);
+    expect(status).toBe(200);
+    expect(JSON.parse(text).output_text).toBe('a red circle');
+    // routeRequest arg [3] is requireVision.
+    expect(mockRouteRequest.mock.calls.at(-1)?.[3]).toBe(true);
+  });
+
+  it('rejects a file_id-only input_image with 422 before routing (no Files backend)', async () => {
+    mockRouteRequest.mockClear();
+    const { status, text } = await post(app, '/v1/responses', {
+      input: [{
+        role: 'user',
+        content: [
+          { type: 'input_text', text: 'what is this?' },
+          { type: 'input_image', file_id: 'file_abc123' },
+        ],
+      }],
+    }, key);
     expect(status).toBe(422);
-    expect(JSON.parse(text).error.code).toBe('no_vision_model');
+    const body = JSON.parse(text);
+    expect(body.error.code).toBe('unsupported_image_input');
+    expect(body.error.type).toBe('invalid_request_error');
+    expect(mockRouteRequest).not.toHaveBeenCalled();
+  });
+
+  it('rejects an input_image with no resolvable url instead of answering blind', async () => {
+    mockRouteRequest.mockClear();
+    // The lenient schema accepts this body; without the pre-check the image
+    // part would translate to nothing and the request would route as plain
+    // text — answering blind to an image the client believes was sent.
+    const { status, text } = await post(app, '/v1/responses', {
+      input: [{
+        role: 'user',
+        content: [
+          { type: 'input_text', text: 'what is this?' },
+          { type: 'input_image', detail: 'high' },
+        ],
+      }],
+    }, key);
+    expect(status).toBe(422);
+    expect(JSON.parse(text).error.code).toBe('unsupported_image_input');
+    expect(mockRouteRequest).not.toHaveBeenCalled();
+  });
+
+  it('rejects an image request with 422 no_vision_model when no vision model is enabled', async () => {
+    mockRouteRequest.mockClear();
+    getDb().prepare('UPDATE models SET enabled = 0 WHERE supports_vision = 1').run();
+    try {
+      const { status, text } = await post(app, '/v1/responses', {
+        input: [{
+          role: 'user',
+          content: [{ type: 'input_image', image_url: 'data:image/png;base64,iVBORw0KGgo=' }],
+        }],
+      }, key);
+      expect(status).toBe(422);
+      expect(JSON.parse(text).error.code).toBe('no_vision_model');
+      expect(mockRouteRequest).not.toHaveBeenCalled();
+    } finally {
+      getDb().prepare('UPDATE models SET enabled = 1 WHERE supports_vision = 1').run();
+    }
   });
 
   // #103: the x-api-key header (Anthropic wire format) must authenticate here
@@ -153,6 +224,29 @@ describe('POST /v1/responses (#96)', () => {
     // ttfb must be the reasoning-head moment (well before the text token that
     // triggers the commit), not the flush time ≈ latency.
     expect(rows[0].ttfb_ms).toBeLessThan(rows[0].latency_ms - 250);
+    // The completed Response reports the thinking tokens truthfully instead of
+    // a hardcoded 0: 'thinking hard…' is 14 chars → ceil(14/4) = 4.
+    const completed = text.split('event: response.completed')[1];
+    const payload = JSON.parse(completed.slice(completed.indexOf('{')));
+    expect(payload.response.usage.output_tokens_details.reasoning_tokens).toBe(4);
+  });
+
+  it('non-stream: reports reasoning_tokens from the provider usage when advertised', async () => {
+    mockRouteRequest.mockReturnValue(fakeRoute({
+      async chatCompletion() {
+        return {
+          id: 'c', object: 'chat.completion', created: 0, model: 'fake-model',
+          choices: [{ index: 0, message: { role: 'assistant', content: 'answer', reasoning_content: 'thinking' }, finish_reason: 'stop' }],
+          usage: { prompt_tokens: 3, completion_tokens: 6, total_tokens: 9, completion_tokens_details: { reasoning_tokens: 2 } },
+        };
+      },
+      async *streamChatCompletion() { /* unused */ },
+    }));
+
+    const { status, text } = await post(app, '/v1/responses', { input: 'hi', stream: false }, key);
+    expect(status).toBe(200);
+    const body = JSON.parse(text);
+    expect(body.usage.output_tokens_details.reasoning_tokens).toBe(2);
   });
 
   it('stream: tool-call deltas produce function_call events with assembled arguments', async () => {

@@ -27,6 +27,7 @@ import { resolveAnthropicModel } from '../services/anthropic-map.js';
 import type { ReasoningEffort } from '../lib/sampling-params.js';
 import { buildModelListing } from '../services/model-listing.js';
 import { compressRequest, formatCompressionHeader } from '../services/compression/pipeline.js';
+import { normalizeMessageImages } from '../lib/image-normalize.js';
 
 // Anthropic-compatible Messages API (`POST /v1/messages`). This is a thin
 // translation layer over the SAME router/fallback/analytics machinery the
@@ -472,6 +473,12 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
   }
   let { messages } = converted;
   const { tools, tool_choice, hasImage, wantsTools } = converted;
+  // Downscale over-threshold inline images before compression/estimation so
+  // the budget, routing, and upstream transfer all see the shrunk bytes
+  // (see lib/image-normalize.ts). The cache-control detection below reads the
+  // RAW wire body, and normalization mutates urls in place keeping the blocks
+  // (and any cache_control on them) intact — neither is disturbed.
+  await normalizeMessageImages(messages);
   const systemHasCacheControl = Array.isArray(body.system)
     && body.system.some(block => block && typeof block === 'object' && 'cache_control' in block);
   const messageHasCacheControl = body.messages.some(message =>
@@ -860,7 +867,7 @@ async function streamCompletion(
     // committed). A rescued dialect becomes tool_use blocks; leftover clean text
     // is emitted as a text block first.
     if (heldText.length > 0) {
-      const rescue = (dialectMode === 'dialect' || containsDialectMarker(heldText))
+      const rescue = ((ctx.tools?.length ?? 0) > 0 && (dialectMode === 'dialect' || containsDialectMarker(heldText)))
         ? rescueInlineToolCalls(heldText, new Set((ctx.tools ?? []).map(t => t.function.name)))
         : { detected: false as const, calls: null, cleanText: heldText };
       if (rescue.detected && !rescue.calls) {
