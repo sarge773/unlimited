@@ -457,6 +457,7 @@ export function buildResponseObject(opts: {
   toolCalls: ChatToolCall[];
   promptTokens: number;
   completionTokens: number;
+  reasoningTokens?: number;
 }) {
   const output: any[] = [];
   if (opts.text.length > 0) {
@@ -491,7 +492,7 @@ export function buildResponseObject(opts: {
       input_tokens: opts.promptTokens,
       input_tokens_details: { cached_tokens: 0 },
       output_tokens: opts.completionTokens,
-      output_tokens_details: { reasoning_tokens: 0 },
+      output_tokens_details: { reasoning_tokens: opts.reasoningTokens ?? 0 },
       total_tokens: opts.promptTokens + opts.completionTokens,
     },
   };
@@ -791,6 +792,10 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
         // tool-call accumulator keyed by the provider's tool_call index
         const toolAcc = new Map<number, { outputIndex: number; itemId: string; callId: string; name: string; args: string }>();
         let totalOutputTokens = 0;
+        // #764: thinking tokens are tracked separately so the final Response
+        // object can report `output_tokens_details.reasoning_tokens` truthfully
+        // instead of a hardcoded 0.
+        let totalReasoningTokens = 0;
         // #764: ttfb = first token of ANY kind (content or reasoning), recorded
         // in the pump loop; commit() only backfills streams that never produced
         // one. This path previously logged no ttfb at all, so Analytics showed
@@ -889,6 +894,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
             }
             if (text) {
               totalOutputTokens += Math.ceil((text.length + reasoning.length) / 4);
+              if (reasoning.length > 0) totalReasoningTokens += Math.ceil(reasoning.length / 4);
               if (dialectMode === 'passthrough') {
                 if (msgItemId === null) openTextItem('');
                 sse('response.output_text.delta', {
@@ -911,6 +917,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
             } else if (reasoning.length > 0) {
               // #764: thinking-only chunk (no visible text yet) — count tokens.
               totalOutputTokens += Math.ceil(reasoning.length / 4);
+              totalReasoningTokens += Math.ceil(reasoning.length / 4);
             }
 
             // Tool-call deltas → function_call item + argument deltas.
@@ -1039,6 +1046,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
           const finalResponse = buildResponseObject({
             id: responseId, model: route.modelId, text: msgText,
             toolCalls: finalToolCalls, promptTokens: estimatedInputTokens, completionTokens: totalOutputTokens,
+            reasoningTokens: totalReasoningTokens,
           });
           sse('response.completed', { response: finalResponse });
           res.end();
@@ -1132,6 +1140,10 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
       // provider omits `usage`.
       const completionTokens = result.usage?.completion_tokens
         ?? Math.ceil((text.length + completionReasoningText(result).length) / 4);
+      // #764: report reasoning_tokens truthfully — the provider's own count
+      // when advertised, else the same chars/4 estimate of the thinking text.
+      const reasoningTokens = result.usage?.completion_tokens_details?.reasoning_tokens
+        ?? Math.ceil(completionReasoningText(result).length / 4);
 
       // Empty completion → fail over via the shared loop (see the streaming
       // path); finish_reason 'length' skips the cooldown/penalty.
@@ -1171,7 +1183,7 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
       setFallbackHeaders(res, attempt, attemptLog);
       res.json(buildResponseObject({
         id: responseId, model: route.modelId, text, toolCalls,
-        promptTokens, completionTokens,
+        promptTokens, completionTokens, reasoningTokens,
       }));
 
       traceRouteEvent('Responses', {

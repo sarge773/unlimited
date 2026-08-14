@@ -446,7 +446,7 @@
     "summaryIssueOne": "{count} 个问题",
     "summaryIssueOther": "{count} 个问题",
     "providerActions": "提供方操作",
-    "routeViaProxy": "经由代理转发",
+    "routeViaProxy": "经由代理服务器转发",
     "checkNow": "立即检查",
     "proxyEnvHintBefore": "也可通过 ",
     "proxyEnvHintAfter": " 环境变量配置（优先生效）。留空则禁用。示例：",
