@@ -446,7 +446,7 @@ export function diversifyChain(ordered: FusionCandidate[]): FusionCandidate[] {
  * both the panel and its refills span genuinely different perspectives before
  * doubling up on either axis.
  */
-function selectPanel(config: FusionConfig, requirements: { requireTools?: boolean; estimatedTokens: number }): { panel: FusionCandidate[]; overflow: FusionCandidate[]; dropped: string[] } {
+export function selectPanel(config: FusionConfig, requirements: { requireTools?: boolean; requireVision?: boolean; estimatedTokens: number }): { panel: FusionCandidate[]; overflow: FusionCandidate[]; dropped: string[] } {
   const maxK = panelMaxK();
 
   if (config.models && config.models.length > 0) {
@@ -458,6 +458,7 @@ function selectPanel(config: FusionConfig, requirements: { requireTools?: boolea
       const cand = resolveFusionCandidate(id);
       if (!cand) { dropped.push(`${id} (unknown or disabled)`); continue; }
       if (requirements.requireTools && !cand.supportsTools) { dropped.push(`${id} (no tool-calling support)`); continue; }
+      if (requirements.requireVision && !cand.supportsVision) { dropped.push(`${id} (no vision support)`); continue; }
       if (seen.has(cand.modelDbId)) continue; // de-dup repeats
       seen.add(cand.modelDbId);
       panel.push(cand);
@@ -470,7 +471,8 @@ function selectPanel(config: FusionConfig, requirements: { requireTools?: boolea
   // Size-aware: the chain excludes models that cannot hold a prompt this large,
   // so a too-small model never claims a slot it is guaranteed to fail.
   const ordered = getOrderedFusionChain(requirements.estimatedTokens)
-    .filter(c => !requirements.requireTools || c.supportsTools);
+    .filter(c => !requirements.requireTools || c.supportsTools)
+    .filter(c => !requirements.requireVision || c.supportsVision === 1);
 
   // Diversity-first ordering of the whole servable chain along provider AND
   // model family (see diversifyChain). The first K are the panel; the rest are
@@ -553,15 +555,16 @@ export async function runFusion(params: {
   options: CompletionOptions;
   estimatedTokens: number;
   hooks?: FusionHooks;
+  vision?: boolean;
 }): Promise<FusionResult> {
-  const { messages, options, estimatedTokens, hooks } = params;
+  const { messages, options, estimatedTokens, hooks, vision = false } = params;
   // Apply the dashboard-saved default; the request's inline fusion field (if
   // any) has already-merged precedence field-by-field.
   const config = resolveEffectiveConfig(params.config);
   const strategy = config.strategy ?? 'synthesize';
 
   const requireTools = (options.tools?.length ?? 0) > 0;
-  const { panel, overflow, dropped } = selectPanel(config, { requireTools, estimatedTokens });
+  const { panel, overflow, dropped } = selectPanel(config, { requireTools, requireVision: vision, estimatedTokens });
   if (panel.length === 0) {
     throw new FusionError(
       'fusion: no usable models for the panel. Provide `fusion.models` with enabled model ids, or enable models in the Fallback Chain.',

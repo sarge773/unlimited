@@ -1464,8 +1464,8 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   // in parallel, then a judge synthesizes one answer. It routes each panel/judge
   // sub-call through the normal path (cooldowns, quotas, analytics), so it
   // behaves like a normal model from the client's side — just K+1x the tokens.
-  // Vision is still rejected up front; tool requests run on tool-capable panel
-  // members and return the first structured tool call directly.
+  // Image requests run on vision-capable panel members; tool requests run on
+  // tool-capable members and return the first structured tool call directly.
   if (isFusionModel(requestedModel)) {
     const fusionOptions = { temperature, max_tokens, top_p, stop, tools, tool_choice, parallel_tool_calls, ...samplingParams };
     const fusionConfig = parsed.data.fusion ?? {};
