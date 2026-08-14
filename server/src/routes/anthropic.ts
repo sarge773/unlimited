@@ -598,7 +598,7 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
       // #809: bare "safe"/"unsafe" classification output from a relay is an
       // upstream filter, not the requested model — fail over like an empty
       // completion.
-      if (isUpstreamClassificationOutput(respText) && respToolCalls.length === 0) {
+      if (isUpstreamClassificationOutput(respText, route.platform) && respToolCalls.length === 0) {
         throw Object.assign(
           new Error(`empty completion from ${route.displayName} (upstream classification output)`),
           result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},

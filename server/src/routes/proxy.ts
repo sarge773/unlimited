@@ -1142,7 +1142,7 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
       // #809: a bare "safe"/"unsafe" classification word from a relay is an
       // upstream filter, not the requested model — fail over like an empty
       // completion.
-      if (isUpstreamClassificationOutput(text)) {
+      if (isUpstreamClassificationOutput(text, route.platform)) {
         throw Object.assign(
           new Error(`empty completion from ${route.displayName} (upstream classification output)`),
           result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},
@@ -2098,7 +2098,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
           // #809: a bare "safe"/"unsafe" classification word streamed by a
           // relay is an upstream filter, not the requested model — fail over
           // like an empty completion.
-          if (isUpstreamClassificationOutput(heldText) && completedCalls.length === 0) {
+          if (isUpstreamClassificationOutput(heldText, route.platform) && completedCalls.length === 0) {
             throw Object.assign(
               new Error(`empty completion from ${route.displayName} (upstream classification output)`),
               upstreamFinish === 'length' ? { skipBench: true } : {},
@@ -2219,7 +2219,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
         // #809: a bare "safe"/"unsafe" classification word from a relay is an
         // upstream filter, not the requested model — fail over like an empty
         // completion.
-        if (isUpstreamClassificationOutput(respText) && (respMsg?.tool_calls?.length ?? 0) === 0) {
+        if (isUpstreamClassificationOutput(respText, route.platform) && (respMsg?.tool_calls?.length ?? 0) === 0) {
           throw Object.assign(
             new Error(`empty completion from ${route.displayName} (upstream classification output)`),
             result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},

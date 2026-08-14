@@ -262,7 +262,7 @@ export async function runInboundChat(
         // #809: a bare "safe"/"unsafe" classification word from a relay is an
         // upstream filter, not the requested model — fail over like an empty
         // completion.
-        if (isUpstreamClassificationOutput(text) && toolCalls.length === 0) {
+        if (isUpstreamClassificationOutput(text, route.platform) && toolCalls.length === 0) {
           throw Object.assign(
             new Error(`empty completion from ${route.displayName} (upstream classification output)`),
             result.choices?.[0]?.finish_reason === 'length' ? { skipBench: true } : {},
@@ -476,7 +476,7 @@ export async function runInboundChat(
         // #809: bare "safe"/"unsafe" classification output from a relay is an
         // upstream filter, not the requested model — fail over like an empty
         // completion.
-        if (isUpstreamClassificationOutput(text) && toolCalls.length === 0) {
+        if (isUpstreamClassificationOutput(text, route.platform) && toolCalls.length === 0) {
           if (clientGone) return 'committed';
           throw Object.assign(
             new Error(`empty completion from ${route.displayName} (upstream classification output)`),
