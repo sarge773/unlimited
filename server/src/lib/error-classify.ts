@@ -304,6 +304,25 @@ export function isProviderLevelError(err: any): boolean {
     || msg.includes('fetch failed');   // undici transport error (DNS/TLS/proxy down)
 }
 
+// #809: kilo's free relay occasionally answers with a bare classification
+// word ("safe" / "unsafe") instead of a real reply — an upstream content
+// filter, not the requested model. Such a turn is a dead turn: treat it like
+// an empty completion so the fallback loop fails over to the next provider
+// instead of surfacing "safe"/"unsafe" as the answer.
+//
+// Scoped to the relay that actually does this. "safe"/"unsafe" is a LEGITIMATE
+// one-word answer for moderation and guard-model workloads, so applying the
+// rule everywhere would throw away correct responses and burn the whole
+// fallback chain for anyone doing classification. Only platforms observed
+// injecting a filter verdict in place of the model's reply belong here.
+const CLASSIFICATION_RELAY_PLATFORMS = new Set(['kilo']);
+
+export function isUpstreamClassificationOutput(text: unknown, platform?: string): boolean {
+  if (!platform || !CLASSIFICATION_RELAY_PLATFORMS.has(platform.toLowerCase())) return false;
+  const t = (typeof text === 'string' ? text : '').trim().toLowerCase();
+  return t === 'safe' || t === 'unsafe';
+}
+
 // Provider-side 400s are retryable because another provider may accept the same
 // request shape. If every routed provider rejects it, however, the client should
 // see an invalid-request error rather than a misleading rate-limit exhaustion.
