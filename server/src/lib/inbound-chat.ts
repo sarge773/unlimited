@@ -31,7 +31,9 @@ import {
 import { routedViaValue } from './header-value.js';
 import { applyTokenBudget, tokenBudgetMessage } from './guardrails.js';
 import { contentToString } from './content.js';
+import { normalizeMessageImages } from './image-normalize.js';
 import { repairToolArguments, toolSchemaMap } from './tool-args.js';
+import { invalidToolArgumentsError, invalidToolCallReasons, isToolArgumentValidationEnabled } from './tool-validate.js';
 import {
   containsDialectMarker,
   couldBecomeDialectMarker,
@@ -174,6 +176,10 @@ export async function runInboundChat(
   wire: InboundChatWire,
 ): Promise<void> {
   const start = Date.now();
+  // Downscale over-threshold inline images BEFORE estimation and routing so
+  // token budgets, payload limits, and upstream transfers all see the shrunk
+  // bytes (see lib/image-normalize.ts). Mutates the image blocks in place.
+  await normalizeMessageImages(input.messages);
   const estimatedInputTokens = estimateTokens(input.messages);
   const budget = applyTokenBudget(estimatedInputTokens, input.maxTokens);
   if (budget.rejection) {
@@ -233,6 +239,7 @@ export async function runInboundChat(
       state.skipModels.size ? state.skipModels : undefined,
       pin.strictChain,
       input.responseFormat !== undefined,
+      state.skipPlatforms.size ? state.skipPlatforms : undefined,
     ),
     dispatch: async (route, attempt) => {
       if (!input.stream) {
@@ -280,6 +287,12 @@ export async function runInboundChat(
             call.function.arguments,
             schemas.get(call.function.name),
           );
+        }
+        // Opt-in schema verdict on what the repair could not fix. Nothing has
+        // been written yet on this path, so the failover hop is invisible.
+        if (isToolArgumentValidationEnabled() && toolCalls.length > 0) {
+          const invalid = invalidToolCallReasons(toolCalls, schemas);
+          if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
         }
         const promptTokens = result.usage?.prompt_tokens ?? estimatedInputTokens;
         const completionTokens = result.usage?.completion_tokens
@@ -427,6 +440,15 @@ export async function runInboundChat(
             },
             ...(call.thoughtSignature ? { thought_signature: call.thoughtSignature } : {}),
           }));
+        // Opt-in schema verdict, before the tool calls are committed. Tool
+        // calls are buffered to the end of the stream on this path, so a
+        // tool-only turn has sent nothing yet and can still fail over. A turn
+        // that already streamed text is past its commit point — leave it
+        // alone rather than tearing down a stream the client is reading.
+        if (isToolArgumentValidationEnabled() && toolCalls.length > 0 && !committed) {
+          const invalid = invalidToolCallReasons(toolCalls, schemas);
+          if (invalid.length > 0) throw invalidToolArgumentsError(route.displayName, invalid);
+        }
         if (toolCalls.length) {
           commit();
           wire.sendToolCalls?.(res, route, toolCalls);
