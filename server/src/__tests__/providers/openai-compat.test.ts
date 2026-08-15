@@ -514,6 +514,7 @@ describe('OpenAICompatProvider - platform instances', () => {
     { platform: 'navy',       name: 'NavyAI',        baseUrl: 'https://api.navy/v1' },
     { platform: 'nara',       name: 'NaraRouter',    baseUrl: 'https://router.bynara.id/v1' },
     { platform: 'sealion',    name: 'SEA-LION',      baseUrl: 'https://api.sea-lion.ai/v1' },
+    { platform: 'orcarouter', name: 'OrcaRouter',    baseUrl: 'https://api.orcarouter.ai/v1' },
     // modelscope registers a ModelScopeProvider subclass (custom validateKey,
     // see providers/modelscope.test.ts) but chat routing is stock openai-compat.
     { platform: 'modelscope', name: 'ModelScope',    baseUrl: 'https://api-inference.modelscope.cn/v1' },

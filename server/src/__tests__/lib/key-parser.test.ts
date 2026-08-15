@@ -55,6 +55,8 @@ describe('key parser', () => {
     expect(detectPlatform('REQUESTY_')).toBe('requesty');
     expect(detectPlatform('NAVYAI_')).toBe('navy');
     expect(detectPlatform('SEALION_')).toBe('sealion');
+    expect(detectPlatform('ORCAROUTER_')).toBe('orcarouter');
+    expect(detectPlatform('ORCA_')).toBe('orcarouter');
     expect(detectPlatform('MODELSCOPE_')).toBe('modelscope');
     expect(detectPlatform('ANYAPI_')).toBe('anyapi');
     expect(detectPlatform('ANY_API_')).toBe('anyapi');
@@ -68,6 +70,7 @@ describe('key parser', () => {
     expect(AUTH_JSON_PROVIDER_MAP['requesty']).toBe('requesty');
     expect(AUTH_JSON_PROVIDER_MAP['api-navy']).toBe('navy');
     expect(AUTH_JSON_PROVIDER_MAP['sea-lion']).toBe('sealion');
+    expect(AUTH_JSON_PROVIDER_MAP['orca-router']).toBe('orcarouter');
     expect(AUTH_JSON_PROVIDER_MAP['model-scope']).toBe('modelscope');
     expect(AUTH_JSON_PROVIDER_MAP['any-api']).toBe('anyapi');
     const result = parseAuthJson(JSON.stringify({

@@ -354,6 +354,19 @@ register(new OpenAICompatProvider({
   baseUrl: 'https://api.sea-lion.ai/v1',
 }));
 
+// OrcaRouter — OpenAI-compatible aggregator (api.orcarouter.ai/v1). Free key
+// from orcarouter.ai (no card, `sk-orca-` prefix). Recurring rate-limited free
+// aliases at $0 (`*-free` ids plus the `orcarouter/free` auto route); limits
+// are intentionally unpublished (429 on cap) and free routes never fall back
+// to paid models, so a 429 is a clean quota signal, not a wallet risk.
+// Live-verified 2026-08-15. Catalog rows live in the Oracle catalog (premium
+// now, free after the 30-day model-age gate).
+register(new OpenAICompatProvider({
+  platform: 'orcarouter',
+  name: 'OrcaRouter',
+  baseUrl: 'https://api.orcarouter.ai/v1',
+}));
+
 // ModelScope (魔搭社区, Alibaba) — OpenAI-compatible inference API
 // (api-inference.modelscope.cn/v1, Bearer auth). Free tier: 2000 requests/day
 // account-wide. Token from modelscope.cn/my/myaccesstoken, BUT calls only work
