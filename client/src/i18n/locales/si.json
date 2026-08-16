@@ -304,6 +304,7 @@
     "factor": "ලකුණු x{factor}",
     "noCooldown": "සිසිල් කිරීමක් නැත",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} මෑත කාලීන දෝෂ",
     "noRecentErrors": "මෑත කාලීන දෝෂ නොමැත",
     "noKey": "යතුරක් නැත",

@@ -304,6 +304,7 @@
     "factor": "pontuação x{factor}",
     "noCooldown": "Sem cooldown",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} erros recentes",
     "noRecentErrors": "Nenhum erro recente",
     "noKey": "sem chave",

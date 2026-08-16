@@ -304,6 +304,7 @@
     "factor": "ਸਕੋਰ x{factor}",
     "noCooldown": "ਕੋਈ ਠੰਡਾ ਨਹੀਂ",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} ਹਾਲੀਆ ਤਰੁੱਟੀਆਂ",
     "noRecentErrors": "ਕੋਈ ਹਾਲੀਆ ਤਰੁੱਟੀਆਂ ਨਹੀਂ",
     "noKey": "ਕੋਈ ਕੁੰਜੀ ਨਹੀਂ",

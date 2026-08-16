@@ -304,6 +304,7 @@
     "factor": "النتيجة x{factor}",
     "noCooldown": "لا يوجد تهدئة",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "الأخطاء الأخيرة {count}",
     "noRecentErrors": "لا توجد أخطاء الأخيرة",
     "noKey": "لا يوجد مفتاح",

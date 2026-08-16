@@ -304,6 +304,7 @@
     "factor": "điểm x{factor}",
     "noCooldown": "Không có thời gian hồi chiêu",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} lỗi gần đây",
     "noRecentErrors": "Không có lỗi gần đây",
     "noKey": "không có chìa khóa",

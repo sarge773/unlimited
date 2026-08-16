@@ -304,6 +304,7 @@
     "factor": "ქულა x{factor}",
     "noCooldown": "არ არის გაგრილება",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} ბოლოდროინდელი შეცდომები",
     "noRecentErrors": "ბოლო შეცდომები არ არის",
     "noKey": "გასაღების გარეშე",

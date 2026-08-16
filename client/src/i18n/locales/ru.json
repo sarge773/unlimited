@@ -304,6 +304,7 @@
     "factor": "оценка x{factor}",
     "noCooldown": "Нет времени восстановления",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} недавние ошибки",
     "noRecentErrors": "Нет недавних ошибок",
     "noKey": "нет ключа",

@@ -304,6 +304,7 @@
     "factor": "ಸ್ಕೋರ್ x{factor}",
     "noCooldown": "ಕೂಲ್‌ಡೌನ್ ಇಲ್ಲ",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} ಇತ್ತೀಚಿನ ದೋಷಗಳು",
     "noRecentErrors": "ಇತ್ತೀಚಿನ ದೋಷಗಳಿಲ್ಲ",
     "noKey": "ಕೀ ಇಲ್ಲ",

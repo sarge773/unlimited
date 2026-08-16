@@ -304,6 +304,7 @@
     "factor": "ସ୍କୋର x{factor}",
     "noCooldown": "କୌଣସି କୁଲଡାଉନ୍ ନାହିଁ",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} ସାମ୍ପ୍ରତିକ ତ୍ରୁଟି",
     "noRecentErrors": "କୌଣସି ସାମ୍ପ୍ରତିକ ତ୍ରୁଟି ନାହିଁ",
     "noKey": "କୌଣସି ଚାବି ନାହିଁ",

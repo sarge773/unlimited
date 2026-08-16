@@ -304,6 +304,7 @@
     "factor": "スコア x{factor}",
     "noCooldown": "クールダウンなし",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} 最近のエラー",
     "noRecentErrors": "最近のエラーはありません",
     "noKey": "鍵がありません",

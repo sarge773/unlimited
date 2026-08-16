@@ -304,6 +304,7 @@
     "factor": "βαθμολογία x{factor}",
     "noCooldown": "Χωρίς ψύξη",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} πρόσφατα σφάλματα",
     "noRecentErrors": "Δεν υπάρχουν πρόσφατα σφάλματα",
     "noKey": "χωρίς κλειδί",

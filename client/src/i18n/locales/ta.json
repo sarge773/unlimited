@@ -304,6 +304,7 @@
     "factor": "மதிப்பெண் x{factor}",
     "noCooldown": "கூல்டவுன் இல்லை",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} சமீபத்திய பிழைகள்",
     "noRecentErrors": "சமீபத்திய பிழைகள் இல்லை",
     "noKey": "சாவி இல்லை",

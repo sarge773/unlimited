@@ -304,6 +304,7 @@
     "factor": "skóre x{factor}",
     "noCooldown": "Žádný cooldown",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} nedávné chyby",
     "noRecentErrors": "Žádné nedávné chyby",
     "noKey": "Bez klíče",

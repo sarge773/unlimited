@@ -304,6 +304,7 @@
     "factor": "ציון x{factor}",
     "noCooldown": "אין קירור",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} שגיאות אחרונות",
     "noRecentErrors": "אין שגיאות אחרונות",
     "noKey": "אין מפתח",

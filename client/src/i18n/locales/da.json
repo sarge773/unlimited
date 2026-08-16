@@ -304,6 +304,7 @@
     "factor": "score x{factor}",
     "noCooldown": "Ingen cooldown",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} nylige fejl",
     "noRecentErrors": "Ingen nylige fejl",
     "noKey": "Ingen nøgle",

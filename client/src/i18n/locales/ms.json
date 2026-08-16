@@ -304,6 +304,7 @@
     "factor": "skor x{factor}",
     "noCooldown": "Tiada masa sejuk",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} ralat terkini",
     "noRecentErrors": "Tiada ralat terkini",
     "noKey": "tiada kunci",

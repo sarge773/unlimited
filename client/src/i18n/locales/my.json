@@ -304,6 +304,7 @@
     "factor": "အမှတ် x{factor}",
     "noCooldown": "Cooldown မရှိပါ",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} အမှားများ",
     "noRecentErrors": "မကြာသေးမီက အမှားမရှိပါ",
     "noKey": "သော့မရှိ",

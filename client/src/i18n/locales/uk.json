@@ -304,6 +304,7 @@
     "factor": "оцінка x{factor}",
     "noCooldown": "Немає перезарядки",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} останні помилки",
     "noRecentErrors": "Немає останніх помилок",
     "noKey": "немає ключа",

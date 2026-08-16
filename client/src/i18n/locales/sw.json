@@ -304,6 +304,7 @@
     "factor": "alama x{factor}",
     "noCooldown": "Hakuna baridi",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} makosa ya hivi majuzi",
     "noRecentErrors": "Hakuna makosa ya hivi majuzi",
     "noKey": "hakuna ufunguo",

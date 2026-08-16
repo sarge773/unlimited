@@ -304,6 +304,7 @@
     "factor": "गुण x{factor}",
     "noCooldown": "कूलडाउन नाही",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} अलीकडील त्रुटी",
     "noRecentErrors": "अलीकडील त्रुटी नाहीत",
     "noKey": "चावी नाही",

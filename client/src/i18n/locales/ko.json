@@ -304,6 +304,7 @@
     "factor": "점수 x{factor}",
     "noCooldown": "쿨다운 없음",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} 최근 오류",
     "noRecentErrors": "최근 오류 없음",
     "noKey": "열쇠 없음",

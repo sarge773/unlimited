@@ -304,6 +304,7 @@
     "factor": "分數 x{factor}",
     "noCooldown": "無冷卻",
     "cooldownChip": "{key}，{time}",
+    "resetCooldown": "重設冷卻",
     "errorsHeading": "{count} 個近期錯誤",
     "noRecentErrors": "尚無近期錯誤",
     "noKey": "無金鑰",

@@ -304,6 +304,7 @@
     "factor": "score x{factor}",
     "noCooldown": "Няма време за презареждане",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} скорошни грешки",
     "noRecentErrors": "Няма скорошни грешки",
     "noKey": "Без ключ",

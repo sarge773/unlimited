@@ -304,6 +304,7 @@
     "factor": "امتیاز x{factor}",
     "noCooldown": "بدون خنک شدن",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "خطاهای اخیر {count}",
     "noRecentErrors": "هیچ خطای اخیر",
     "noKey": "بدون کلید",

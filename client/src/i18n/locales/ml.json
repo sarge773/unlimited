@@ -304,6 +304,7 @@
     "factor": "സ്കോർ x{factor}",
     "noCooldown": "കൂൾഡൗൺ ഇല്ല",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} സമീപകാല പിശകുകൾ",
     "noRecentErrors": "സമീപകാല പിശകുകളൊന്നുമില്ല",
     "noKey": "താക്കോൽ ഇല്ല",

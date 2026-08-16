@@ -304,6 +304,7 @@
     "factor": "резултат к{factor}",
     "noCooldown": "Нема хлађења",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} недавне грешке",
     "noRecentErrors": "Нема недавних грешака",
     "noKey": "без кључа",

@@ -304,6 +304,7 @@
     "factor": "xal x{factor}",
     "noCooldown": "Soyuma vaxtı yoxdur",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} son səhvlər",
     "noRecentErrors": "Son vaxtlar heç bir səhv yoxdur",
     "noKey": "Açar yoxdur",

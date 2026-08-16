@@ -304,6 +304,7 @@
     "factor": "ውጤት x{factor}",
     "noCooldown": "ማቀዝቀዝ የለም",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} የቅርብ ጊዜ ስህተቶች",
     "noRecentErrors": "ምንም የቅርብ ጊዜ ስህተቶች የሉም",
     "noKey": "ቁልፍ የለም",

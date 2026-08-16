@@ -304,6 +304,7 @@
     "factor": "سکور x{factor}",
     "noCooldown": "کوئی کولڈاؤن نہیں۔",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} حالیہ غلطیاں",
     "noRecentErrors": "کوئی حالیہ غلطیاں نہیں ہیں۔",
     "noKey": "کوئی چابی نہیں",

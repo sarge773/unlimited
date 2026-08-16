@@ -304,6 +304,7 @@
     "factor": "Scor x{factor}",
     "noCooldown": "Fără timp de reîncărcare",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} erori recente",
     "noRecentErrors": "Fără erori recente",
     "noKey": "fără cheie",

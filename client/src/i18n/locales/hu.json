@@ -304,6 +304,7 @@
     "factor": "pontszám x{factor}",
     "noCooldown": "Nincs újratöltési idő",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} legutóbbi hibák",
     "noRecentErrors": "Nincs friss hiba",
     "noKey": "Nincs kulcs",

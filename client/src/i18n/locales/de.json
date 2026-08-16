@@ -304,6 +304,7 @@
     "factor": "Ergebnis x{factor}",
     "noCooldown": "Keine Abklingzeit",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} aktuelle Fehler",
     "noRecentErrors": "Keine aktuellen Fehler",
     "noKey": "kein Schlüssel",

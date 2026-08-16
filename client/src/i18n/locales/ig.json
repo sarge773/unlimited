@@ -304,6 +304,7 @@
     "factor": "akara x{factor}",
     "noCooldown": "Enweghị mmachi",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} mperi nso nso a",
     "noRecentErrors": "Enweghị mperi nso nso a",
     "noKey": "enweghị igodo",

@@ -304,6 +304,7 @@
     "factor": "pisteet x{factor}",
     "noCooldown": "Ei jäähdytysaikaa",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} viimeaikaiset virheet",
     "noRecentErrors": "Ei viimeaikaisia virheitä",
     "noKey": "ei avainta",

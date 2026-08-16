@@ -304,6 +304,7 @@
     "factor": "स्कोर x{factor}",
     "noCooldown": "कूलडाउन छैन",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} त्रुटिहरू",
     "noRecentErrors": "हालैका त्रुटि छैन",
     "noKey": "कुञ्जी छैन",

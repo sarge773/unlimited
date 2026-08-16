@@ -304,6 +304,7 @@
     "factor": "ball x{factor}",
     "noCooldown": "Sovutish yo'q",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} oxirgi xatolar",
     "noRecentErrors": "Oxirgi xatolar yo'q",
     "noKey": "kalit yo'q",

@@ -304,6 +304,7 @@
     "factor": "puan x{factor}",
     "noCooldown": "Bekleme süresi yok",
     "cooldownChip": "{key} - {time}",
+    "resetCooldown": "Reset cooldown",
     "errorsHeading": "{count} son hatalar",
     "noRecentErrors": "Yakın zamanda hata yok",
     "noKey": "anahtar yok",
