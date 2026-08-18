@@ -28,6 +28,7 @@ import { platformDropsResponseFormat } from '../lib/sampling-params.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from './model-groups.js';
 import { getActiveProfileId } from './profile-models.js';
 import { customEndpointKeyIds } from './custom-endpoint.js';
+import { isDegraded } from './degradation.js';
 import { modelStatsKey, endpointScopeForBaseUrl } from '../lib/endpoint-scope.js';
 import { parseModelScope, scopeAllows } from '../lib/model-scope.js';
 import type { BaseProvider } from '../providers/base.js';
@@ -1563,7 +1564,11 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
   // that can't serve the request ahead of capable ones would just get it
   // skipped a moment later (e.g. an image request must never randomly probe a
   // text-only model).
-  if (strategy !== 'priority' && getExploreEnabled() && Math.random() < EXPLORE_CHANCE) {
+  // While the gateway is in degraded mode (#904) exploration is skipped
+  // entirely: probing unmeasured models during a fleet-wide outage just burns
+  // retry budget on the same dead providers, and the scored order of known
+  // survivors is the only thing worth trying.
+  if (strategy !== 'priority' && getExploreEnabled() && !isDegraded() && Math.random() < EXPLORE_CHANCE) {
     // A model the operator zeroed out via MODEL_ROUTING_OVERRIDES never wins a
     // bandit draw, so it would stay under EXPLORE_MIN_SAMPLES forever and become
     // a perpetual probe target — the explicit ban outranks exploration.
