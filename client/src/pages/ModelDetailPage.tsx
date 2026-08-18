@@ -340,7 +340,8 @@ function ProviderSettingsRow({
     <div className="rounded-xl border bg-background/60 p-3">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="text-xs font-medium" title={endpointTitle}>{endpointLabel}</span>
-        <code className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">{model.modelId}</code>
+        <code className="rounded-full bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{model.modelId}</code>
+        <CopyButton text={model.modelId} label={t('models.copyModelId')} className="size-6" />
         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{sourceLabel}</span>
         {model.hasOverrides && (
           <span className="rounded-full bg-emerald-600/15 px-1.5 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-400">
