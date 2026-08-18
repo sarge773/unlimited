@@ -432,6 +432,13 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     process.stdout.write(`${help()}\n`);
     return 0;
   }
+  // `doctor` is the only command that takes positional arguments. Every other
+  // one rejects them here, BEFORE dispatch — checking after the setup-* branch
+  // would let `setup-claude typo` run with the stray word silently ignored,
+  // where it used to be an error.
+  if (command !== 'doctor' && options.args.length) {
+    throw new Error(`Unknown option: ${options.args[0]}`);
+  }
   if (command === 'list') {
     for (const tool of tools) {
       process.stdout.write(`${tool.id}\t${tool.protocol}\t${tool.baseUrlSupport}\n`);
@@ -443,9 +450,6 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     return 0;
   }
   if (command === 'doctor') return runDoctor(options);
-  if (options.args.length) {
-    throw new Error(`Unknown option: ${options.args[0]}`);
-  }
   if (command === 'launch') return launchClaude(options);
   if (command === 'launch-codex') return launchCodex(options);
   throw new Error(`Unknown command '${command}'\n\n${help()}`);

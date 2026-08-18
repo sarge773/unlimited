@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { claudeLaunchEnv, codexArgs, parseArgs, resolvePinnedModel } from './index.js';
+import { claudeLaunchEnv, codexArgs, main, parseArgs, resolvePinnedModel } from './index.js';
 import { UnknownModelError } from './models.js';
 import type { CatalogModel } from './types.js';
 
@@ -45,6 +45,17 @@ describe('CLI arguments and launchers', () => {
     // exactly the quiet no-op this command exists to catch.
     expect(() => parseArgs(['doctor', '--timeout', '5s'])).toThrow('positive number of milliseconds');
     expect(() => parseArgs(['doctor', '--timeout', '0'])).toThrow('positive number of milliseconds');
+  });
+
+  it('still rejects a stray positional for commands that take none', async () => {
+    // `doctor` is the only command with positional arguments, so parseArgs
+    // collects them generically. The dispatcher has to reject them for every
+    // other command BEFORE dispatch — checked after the setup-* branch, the
+    // stray word would be silently ignored instead of erroring.
+    await expect(main(['setup-claude', 'typo'])).rejects.toThrow('Unknown option: typo');
+    await expect(main(['launch', 'typo'])).rejects.toThrow('Unknown option: typo');
+    // ...and doctor still takes them.
+    expect(parseArgs(['doctor', 'claude']).options.args).toEqual(['claude']);
   });
 
   const models: CatalogModel[] = [

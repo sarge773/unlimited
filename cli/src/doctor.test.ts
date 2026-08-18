@@ -8,6 +8,8 @@ import {
   codexLayers,
   diagnose,
   exitCodeFor,
+  managedSettingsDir,
+  managedSettingsPaths,
   normalizeUrl,
   probeGateway,
   sameGateway,
@@ -46,6 +48,40 @@ function writeCodexConfig(home: string, toml: string): void {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'config.toml'), toml);
 }
+
+describe('managed settings locations', () => {
+  it('uses the documented system directory for each platform', () => {
+    expect(managedSettingsDir('darwin')).toBe('/Library/Application Support/ClaudeCode');
+    expect(managedSettingsDir('linux')).toBe('/etc/claude-code');
+    expect(managedSettingsDir('win32')).toBe('C:\\Program Files\\ClaudeCode');
+  });
+
+  it('falls back to the base file alone when there is no drop-in directory', () => {
+    // The usual case: an unreadable or absent managed-settings.d contributes
+    // nothing rather than failing the whole report.
+    const dir = tempHome();
+    expect(managedSettingsPaths('linux', dir)).toEqual([path.join(dir, 'managed-settings.json')]);
+  });
+
+  it('ranks managed-settings.d drop-ins above the base file, last one first', () => {
+    // The drop-in files are merged alphabetically ON TOP of the base, so the
+    // alphabetically LAST one wins and the base loses to all of them. Getting
+    // this order backwards would name the wrong layer as effective for a
+    // fleet-managed install — the exact confident-wrong answer doctor exists
+    // to prevent.
+    const dir = tempHome();
+    fs.mkdirSync(path.join(dir, 'managed-settings.d'));
+    for (const name of ['20-b.json', '10-a.json', 'notes.txt']) {
+      fs.writeFileSync(path.join(dir, 'managed-settings.d', name), '{}');
+    }
+
+    expect(managedSettingsPaths('linux', dir)).toEqual([
+      path.join(dir, 'managed-settings.d', '20-b.json'),
+      path.join(dir, 'managed-settings.d', '10-a.json'),
+      path.join(dir, 'managed-settings.json'),
+    ]);
+  });
+});
 
 describe('url comparison', () => {
   it('ignores trailing slashes, a /v1 suffix, and host case', () => {

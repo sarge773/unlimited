@@ -105,12 +105,46 @@ function readJsonIfPresent(file: string): Record<string, unknown> | undefined {
   }
 }
 
-/** Platform locations of Claude Code's MANAGED settings — the layer nothing
- *  else can override. */
-export function managedSettingsPaths(platform: string = process.platform): string[] {
-  if (platform === 'win32') return ['C:\\Program Files\\ClaudeCode\\managed-settings.json'];
-  if (platform === 'darwin') return ['/Library/Application Support/ClaudeCode/managed-settings.json'];
-  return ['/etc/claude-code/managed-settings.json'];
+/** The system directory holding Claude Code's MANAGED settings — the scope
+ *  nothing else can override. */
+export function managedSettingsDir(platform: string = process.platform): string {
+  if (platform === 'win32') return 'C:\\Program Files\\ClaudeCode';
+  if (platform === 'darwin') return '/Library/Application Support/ClaudeCode';
+  return '/etc/claude-code';
+}
+
+/**
+ * Managed settings files, HIGHEST PRECEDENCE FIRST.
+ *
+ * Not one file. The same directory also supports a `managed-settings.d/`
+ * drop-in, whose `*.json` files are merged alphabetically ON TOP of the base
+ * `managed-settings.json` — so a drop-in outranks the base, and the
+ * alphabetically LAST drop-in outranks the ones before it. Reading only the
+ * base file is how this command would confidently name the wrong effective
+ * URL for exactly the fleet-managed install most likely to have one imposed:
+ * it would report the layer the operator can see and miss the one actually
+ * winning.
+ *
+ * An unreadable directory (the usual case — it does not exist) contributes
+ * nothing rather than failing the report.
+ */
+export function managedSettingsPaths(
+  platform: string = process.platform,
+  dir: string = managedSettingsDir(platform),
+): string[] {
+  const separator = platform === 'win32' ? '\\' : '/';
+  const dropInDir = `${dir}${separator}managed-settings.d`;
+  let dropIns: string[] = [];
+  try {
+    dropIns = fs.readdirSync(dropInDir)
+      .filter(name => name.endsWith('.json'))
+      .sort()
+      .reverse() // alphabetically last is merged last, so it wins
+      .map(name => `${dropInDir}${separator}${name}`);
+  } catch {
+    dropIns = [];
+  }
+  return [...dropIns, `${dir}${separator}managed-settings.json`];
 }
 
 /** ANTHROPIC_BASE_URL out of a settings file's `env` block. */
