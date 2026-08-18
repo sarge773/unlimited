@@ -12,6 +12,7 @@ import { getDb } from '../db/index.js';
 import { resolveAuth, prependSystemPrompt, type ResolvedAuth } from '../lib/system-prompt.js';
 import { contentToString, messageHasImage, normalizeOutboundContent, sanitizeResponse } from '../lib/content.js';
 import { normalizeMessageImages } from '../lib/image-normalize.js';
+import { tryVisionFallback } from '../lib/vision-fallback.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
 import { invalidToolArgumentsError, invalidToolCallReasons, isToolArgumentValidationEnabled } from '../lib/tool-validate.js';
 import { sanitizeProviderErrorMessage } from '../lib/error-redaction.js';
@@ -1427,16 +1428,28 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   // or surfacing the generic "all models exhausted" error (#118, #125). Add a
   // rough per-image token cost so budget routing isn't skewed by content the
   // heuristic above (text-only) can't see.
-  const hasImage = messageHasImage(messages);
+  let hasImage = messageHasImage(messages);
   if (hasImage && !hasEnabledVisionModel()) {
-    res.status(422).json({
-      error: {
-        message: 'This request includes an image, but no vision-capable model is enabled. Enable a vision model (e.g. Gemini 2.5 Flash, Llama 4 Scout) in the Fallback Chain.',
-        type: 'invalid_request_error',
-        code: 'no_vision_model',
-      },
-    });
-    return;
+    // Capability-aware vision fallback (#811): before rejecting an image
+    // request that no enabled vision model can serve, try Qwen VL
+    // pre-analysis to replace the image blocks with a text summary — the
+    // (non-visual) target model never receives image blocks. When the
+    // fallback isn't configured or the analysis fails, fall through to the
+    // existing up-front rejection.
+    const fallback = await tryVisionFallback(messages);
+    if (fallback) {
+      messages = fallback.messages;
+      hasImage = false; // images replaced by text — no longer a vision request
+    } else {
+      res.status(422).json({
+        error: {
+          message: 'This request includes an image, but no vision-capable model is enabled. Enable a vision model (e.g. Gemini 2.5 Flash, Llama 4 Scout) in the Fallback Chain.',
+          type: 'invalid_request_error',
+          code: 'no_vision_model',
+        },
+      });
+      return;
+    }
   }
   const IMAGE_TOKEN_ESTIMATE = 1000;
   const imageCount = messages.reduce((n, m) =>
