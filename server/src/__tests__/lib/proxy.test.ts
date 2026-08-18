@@ -16,6 +16,7 @@ import {
   describeAbort,
   withKeyProxy,
   probeProxyUrl,
+  DEFAULT_PROXY_PROBE_TARGET,
 } from '../../lib/proxy.js';
 
 // Every env var the proxy config reads, in both the upper- and lower-case
@@ -782,5 +783,53 @@ describe('probeProxyUrl (#863)', () => {
     // network-level failure counts as a proxy failure.
     expect(result.ok).toBe(true);
     expect(result.status).toBe(401);
+  });
+
+  // The probe used to be hardcoded to api.openai.com, which made the button
+  // lie in both directions: an install that never calls OpenAI pinged it on
+  // every Test, and a network that blocks that host reported a working proxy
+  // as broken. The caller now names the endpoint.
+  it('calls the target the caller supplies', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+
+    const result = await probeProxyUrl(undefined, { targetUrl: 'https://api.groq.com/openai/v1/models' });
+
+    expect(String(fetchSpy.mock.calls[0]?.[0])).toBe('https://api.groq.com/openai/v1/models');
+    expect(result.target).toBe('https://api.groq.com/openai/v1/models');
+  });
+
+  it('falls back to a neutral reachability endpoint, never an AI vendor', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+
+    const result = await probeProxyUrl(undefined);
+
+    expect(String(fetchSpy.mock.calls[0]?.[0])).toBe(DEFAULT_PROXY_PROBE_TARGET);
+    expect(DEFAULT_PROXY_PROBE_TARGET).not.toContain('openai.com');
+    expect(result.target).toBe(DEFAULT_PROXY_PROBE_TARGET);
+  });
+
+  it('blank and whitespace targets fall back rather than requesting an empty url', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+
+    await probeProxyUrl(undefined, { targetUrl: '   ' });
+
+    expect(String(fetchSpy.mock.calls[0]?.[0])).toBe(DEFAULT_PROXY_PROBE_TARGET);
+  });
+
+  it('reports the target it used on a failure too, so the result is readable', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('ECONNREFUSED'));
+
+    const result = await probeProxyUrl(undefined, { targetUrl: 'https://api.groq.com/openai/v1/models' });
+
+    expect(result.ok).toBe(false);
+    expect(result.target).toBe('https://api.groq.com/openai/v1/models');
+  });
+
+  it('still honours a custom timeout through the options object', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+
+    const result = await probeProxyUrl(undefined, { timeoutMs: 250 });
+
+    expect(result.ok).toBe(true);
   });
 });
