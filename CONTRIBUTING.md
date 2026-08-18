@@ -74,7 +74,6 @@ To turn it on, add this to your own `.claude/settings.local.json` — nothing is
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git *)",
             "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/contributing-check.mjs\""
           }
         ]
