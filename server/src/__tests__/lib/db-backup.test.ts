@@ -183,3 +183,53 @@ describe('parseHuggingFaceTarget', () => {
     expect(parseHuggingFaceTarget('not a url')).toBeNull();
   });
 });
+
+describe('Hugging Face upload/restore round trip', () => {
+  const origFetch = global.fetch;
+  afterEach(() => {
+    global.fetch = origFetch;
+    restoreEnv();
+  });
+
+  it('uploads the backup as base64 text (not a binary blob) and restores it back', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'freeapi-db-backup-hf-'));
+    const dbPath = path.join(dir, 'freeapi.db');
+    process.env.ENCRYPTION_KEY = 'a'.repeat(64);
+    process.env.FREEAPI_DB_BACKUP_URL = 'https://huggingface.co/datasets/acme/data/resolve/main/freeapi.db.backup';
+    process.env.FREEAPI_DB_BACKUP_TOKEN = 'hf_test_token';
+
+    const db = new Database(dbPath);
+    db.exec('CREATE TABLE items (name TEXT NOT NULL); INSERT INTO items (name) VALUES (\'survived\')');
+
+    let uploadedText: string | undefined;
+    global.fetch = (async (url: string, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        // Commit-API upload: the ndjson `file` line must carry no `encoding`
+        // field — that is what keeps the git blob a plain-text base64 string
+        // instead of a binary blob Xet-backed repos reject.
+        const lines = String(init.body).split('\n').map((l) => JSON.parse(l));
+        const fileLine = lines.find((l) => l.key === 'file');
+        expect(fileLine.value.encoding).toBeUndefined();
+        uploadedText = fileLine.value.content as string;
+        return new Response(null, { status: 200 });
+      }
+      // GET /resolve/ download: HF serves back exactly what was committed.
+      return new Response(uploadedText, { status: 200 });
+    }) as typeof fetch;
+
+    const backup = await backupDbNow(db, dbPath);
+    db.close();
+    expect(backup.ok).toBe(true);
+    expect(uploadedText).toBeDefined();
+    // The uploaded content must itself be valid base64 (proof it is text, not raw binary).
+    expect(() => Buffer.from(uploadedText!, 'base64')).not.toThrow();
+
+    fs.rmSync(dbPath);
+    const restore = await restoreDbBackupIfNeeded(dbPath);
+    expect(restore.restored).toBe(true);
+
+    const restored = new Database(dbPath);
+    expect((restored.prepare('SELECT name FROM items').get() as { name: string }).name).toBe('survived');
+    restored.close();
+  });
+});

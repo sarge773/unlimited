@@ -122,9 +122,14 @@ async function uploadToHuggingFace(
   payload: Buffer,
   token: string,
 ): Promise<void> {
+  // HF now rejects binary git blobs on repos migrated to Xet storage ("Your
+  // push was rejected because it contains binary files"). Storing the file
+  // as base64 TEXT (no `encoding: 'base64'` — that flag tells HF to decode
+  // back to binary before writing the blob) keeps the git blob plain ASCII,
+  // sidestepping Xet/LFS entirely. readTarget() reverses this for HF targets.
   const body = [
     { key: 'header', value: { summary: `chore: update ${filePath}` } },
-    { key: 'file', value: { path: filePath, content: payload.toString('base64'), encoding: 'base64' } },
+    { key: 'file', value: { path: filePath, content: payload.toString('base64') } },
   ];
   const res = await fetch(commitUrl, {
     method: 'POST',
@@ -149,7 +154,9 @@ async function readTarget(target: string): Promise<Buffer | null> {
     const res = await fetch(target, { method: 'GET', headers, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
     if (res.status === 404 || res.status === 204) return null;
     if (!res.ok) throw new Error(`backup restore failed: HTTP ${res.status}`);
-    return Buffer.from(await res.arrayBuffer());
+    const raw = Buffer.from(await res.arrayBuffer());
+    // HF uploads are stored as base64 text (see uploadToHuggingFace) — decode back.
+    return parseHuggingFaceTarget(target) ? Buffer.from(raw.toString('utf8'), 'base64') : raw;
   }
 
   if (!fs.existsSync(target)) return null;
