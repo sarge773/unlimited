@@ -529,7 +529,11 @@
     "bulkDelete": "Slett alle",
     "bulkDeleteConfirm": "Slette {count}?",
     "bulkResult": "Oppdaterte {done}; mislyktes {failed}.",
-    "bulkDeleteResult": "Slettet {done}; mislyktes {failed}."
+    "bulkDeleteResult": "Slettet {done}; mislyktes {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "Sunt",
@@ -694,7 +698,11 @@
     "howToUse": "Hvordan bruke",
     "howToUseHelp": "Send en vanlig chatforespørsel med modellen \"fusion\". Disse innstillingene er standard; Enhver forespørsel kan overstyre dem med et \"fusjonsfelt\".",
     "unsavedChanges": "Ulagrede endringer",
-    "save": "Lagre"
+    "save": "Lagre",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

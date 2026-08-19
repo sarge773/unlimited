@@ -529,7 +529,11 @@
     "bulkDelete": "Ištrinti visus",
     "bulkDeleteConfirm": "Ištrinti {count}?",
     "bulkResult": "Atnaujinta {done}; nepavyko {failed}.",
-    "bulkDeleteResult": "Ištrinta {done}; nepavyko {failed}."
+    "bulkDeleteResult": "Ištrinta {done}; nepavyko {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "Sveika",
@@ -694,7 +698,11 @@
     "howToUse": "Kaip naudoti",
     "howToUseHelp": "Siųskite įprastą pokalbio užklausą su modelio \"fuzija\". Šie nustatymai yra numatytieji; Bet koks prašymas gali juos perrašyti \"fuzijos\" lauku.",
     "unsavedChanges": "Neišsaugoti pakeitimai",
-    "save": "Išsaugoti"
+    "save": "Išsaugoti",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

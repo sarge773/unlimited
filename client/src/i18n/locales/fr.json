@@ -529,7 +529,11 @@
     "bulkDelete": "Tout supprimer",
     "bulkDeleteConfirm": "Supprimer {count} ?",
     "bulkResult": "Mises à jour : {done}. Échecs : {failed}.",
-    "bulkDeleteResult": "Supprimées : {done}. Échecs : {failed}."
+    "bulkDeleteResult": "Supprimées : {done}. Échecs : {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "sain",
@@ -694,7 +698,11 @@
     "howToUse": "Comment l’utiliser",
     "howToUseHelp": "Envoyez une requête de chat normale avec le modèle « fusion ». Ces réglages sont les valeurs par défaut ; toute requête peut les remplacer via un champ « fusion ».",
     "unsavedChanges": "Modifications non enregistrées",
-    "save": "Enregistrer"
+    "save": "Enregistrer",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

@@ -206,8 +206,15 @@ export default function ModelDetailPage() {
           </div>
         ) : (
           <>
-            {/* Summary badges */}
+            {/* Summary badges. The canonical (unified) model id leads: it is the
+                id callers actually put in a request body, and it was previously
+                only reachable via the hover copy button in the Models table
+                (#725, #708). */}
             <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex min-w-0 items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground">
+                <code className="min-w-0 truncate font-mono">{canonicalId}</code>
+                <CopyButton text={canonicalId} label={t('models.copyModelId')} className="size-4 shrink-0 border-0 bg-transparent" />
+              </span>
               <span className="text-[11px] rounded-full px-2 py-0.5 bg-muted text-muted-foreground">{t('models.providerCount', { count: members.length })}</span>
               {quota && <span title={quota.title} className="text-[11px] rounded-full px-2 py-0.5 bg-muted text-muted-foreground tabular-nums">{quota.text}</span>}
               {vision && <span title={t('models.visionTitle')} className="text-[11px] rounded-full px-2 py-0.5 bg-cyan-600/15 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-400">{t('models.vision')}</span>}
@@ -340,7 +347,8 @@ function ProviderSettingsRow({
     <div className="rounded-xl border bg-background/60 p-3">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="text-xs font-medium" title={endpointTitle}>{endpointLabel}</span>
-        <code className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">{model.modelId}</code>
+        <code className="min-w-0 truncate rounded-full bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{model.modelId}</code>
+        <CopyButton text={model.modelId} label={t('models.copyModelId')} className="size-6 shrink-0" />
         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{sourceLabel}</span>
         {model.hasOverrides && (
           <span className="rounded-full bg-emerald-600/15 px-1.5 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-400">

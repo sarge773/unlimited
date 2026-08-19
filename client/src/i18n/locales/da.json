@@ -529,7 +529,11 @@
     "bulkDelete": "Slet alle",
     "bulkDeleteConfirm": "Slet {count}?",
     "bulkResult": "Opdaterede {done}; fejlede {failed}.",
-    "bulkDeleteResult": "Slettede {done}; fejlede {failed}."
+    "bulkDeleteResult": "Slettede {done}; fejlede {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "sundt",
@@ -694,7 +698,11 @@
     "howToUse": "Sådan bruger du",
     "howToUseHelp": "Send en normal chatanmodning med modellen \"fusion\". Disse indstillinger er standard; enhver anmodning kan tilsidesætte dem med et \"fusion\"-felt.",
     "unsavedChanges": "Ændringer uden gemte",
-    "save": "Gem"
+    "save": "Gem",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

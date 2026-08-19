@@ -27,7 +27,8 @@ function appWithRemote(remoteAddr: string): Express {
 }
 
 async function call(app: Express, path: string, method: 'GET' | 'POST') {
-  const server = app.listen(0);
+  const server = app.listen(0, '127.0.0.1');
+  if (!server.listening) await new Promise<void>(resolve => server.once('listening', () => resolve()));
   const addr = server.address() as { port: number };
   const res = await fetch(`http://127.0.0.1:${addr.port}${path}`, {
     method,
@@ -40,7 +41,8 @@ async function call(app: Express, path: string, method: 'GET' | 'POST') {
 
 async function addKey(): Promise<number> {
   const app = appWithRemote('127.0.0.1');
-  const server = app.listen(0);
+  const server = app.listen(0, '127.0.0.1');
+  if (!server.listening) await new Promise<void>(resolve => server.once('listening', () => resolve()));
   const addr = server.address() as { port: number };
   const res = await fetch(`http://127.0.0.1:${addr.port}/api/keys`, {
     method: 'POST',
@@ -132,7 +134,8 @@ describe('Desktop re-auth bypass is loopback-only (#786)', () => {
     process.env.FREEAPI_DESKTOP = '1';
     const id = await addKey();
     const app = appWithRemote('192.168.1.42');
-    const server = app.listen(0);
+    const server = app.listen(0, '127.0.0.1');
+    if (!server.listening) await new Promise<void>(resolve => server.once('listening', () => resolve()));
     const addr = server.address() as { port: number };
     const res = await fetch(`http://127.0.0.1:${addr.port}/api/keys/${id}/reveal`, {
       method: 'POST',

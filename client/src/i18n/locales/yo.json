@@ -529,7 +529,11 @@
     "bulkDelete": "Paarẹ gbogbo rẹ",
     "bulkDeleteConfirm": "Paarẹ {count}?",
     "bulkResult": "Ṣe imudojuiwọn {done}; kuna {failed}.",
-    "bulkDeleteResult": "Paarẹ {done}; kuna {failed}."
+    "bulkDeleteResult": "Paarẹ {done}; kuna {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ni ilera",
@@ -694,7 +698,11 @@
     "howToUse": "Bawo ni lati lo",
     "howToUseHelp": "Firanṣẹ ibeere iwiregbe deede pẹlu awoṣe “Fusion”. Awọn eto wọnyi jẹ aiyipada; eyikeyi ìbéèrè le idojuk wọn pẹlu kan \"fusion\" aaye.",
     "unsavedChanges": "Awọn iyipada ti ko ni fipamọ",
-    "save": "Fipamọ"
+    "save": "Fipamọ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Ere",
