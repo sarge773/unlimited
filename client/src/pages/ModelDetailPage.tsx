@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { ChevronLeft, Merge, Save, Split, Trash2 } from 'lucide-react'
 import { useI18n } from '@/i18n'
 import { apiFetch } from '@/lib/api'
+import { addAlias, aliasesFor, removeAlias } from '@/lib/alias-merge'
 import { Button } from '@/components/ui/button'
 import { ConfirmButton } from '@/components/confirm-button'
 import { Input } from '@/components/ui/input'
@@ -193,22 +194,14 @@ export default function ModelDetailPage() {
   const vision = members.some(m => m.supportsVision)
   const tools = members.some(m => m.supportsTools)
 
-  // #790: the merges entries that point INTO this group, keyed by their
-  // normalized target; `into` is the display name the group was built from.
-  const intoKeyOf = (s: string) => s.trim().toLowerCase().replace(/[\s\-_]+/g, ' ')
-  const groupMerges = useMemo(() => {
-    const labelKey = intoKeyOf(label)
-    return (unify?.overrides.merges ?? []).filter(m => intoKeyOf(m.into) === labelKey)
-  }, [unify, label])
-  const addAlias = () => {
-    const key = aliasInput.trim()
-    if (!key) return
-    const others = (unify?.overrides.merges ?? []).filter(m => intoKeyOf(m.into) !== intoKeyOf(label))
-    mergeMutation.mutate([...others, { into: label, keys: [key] }])
-  }
-  const removeAlias = (index: number) => {
-    const rest = (unify?.overrides.merges ?? []).filter((_, i) => i !== index)
-    mergeMutation.mutate(rest)
+  // #790: the aliases merged INTO this group. Every edit is expressed against
+  // the full overrides list (see lib/alias-merge) — the visible rows are only
+  // this group's slice, so editing by row position would hit other groups.
+  const merges = useMemo(() => unify?.overrides.merges ?? [], [unify])
+  const groupAliases = useMemo(() => aliasesFor(merges, label), [merges, label])
+  const submitAlias = () => {
+    if (!aliasInput.trim()) return
+    mergeMutation.mutate(addAlias(merges, label, aliasInput))
   }
 
   // A ready-to-run request referencing this model by its unified id, so it fails
@@ -323,27 +316,27 @@ export default function ModelDetailPage() {
                 <Input
                   value={aliasInput}
                   onChange={e => setAliasInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addAlias() } }}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitAlias() } }}
                   placeholder="custom:my-alias"
                   className="font-mono text-xs"
                   aria-label={t('models.aliasMergeHeading')}
                 />
-                <Button type="button" size="sm" disabled={mergeMutation.isPending || !aliasInput.trim()} onClick={addAlias}>
+                <Button type="button" size="sm" disabled={mergeMutation.isPending || !aliasInput.trim()} onClick={submitAlias}>
                   {t('models.aliasMergeAdd')}
                 </Button>
               </div>
-              {groupMerges.length > 0 && (
+              {groupAliases.length > 0 && (
                 <div className="mt-3 space-y-1.5">
-                  {groupMerges.map((merge, gi) => (
-                    <div key={gi} className="flex items-center gap-2 text-xs">
-                      <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">{merge.keys.join(', ')}</code>
+                  {groupAliases.map(alias => (
+                    <div key={alias} className="flex items-center gap-2 text-xs">
+                      <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">{alias}</code>
                       <Button
                         type="button"
                         size="xs"
                         variant="ghost"
                         className="text-muted-foreground"
                         disabled={mergeMutation.isPending}
-                        onClick={() => removeAlias(gi)}
+                        onClick={() => mergeMutation.mutate(removeAlias(merges, label, alias))}
                       >
                         {t('models.aliasMergeRemove')}
                       </Button>
