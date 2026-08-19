@@ -529,7 +529,11 @@
     "bulkDelete": "Hammasini oʻchirish",
     "bulkDeleteConfirm": "{count} ta oʻchirilsinmi?",
     "bulkResult": "Yangilandi {done}; muvaffaqiyatsiz {failed}.",
-    "bulkDeleteResult": "Oʻchirildi {done}; muvaffaqiyatsiz {failed}."
+    "bulkDeleteResult": "Oʻchirildi {done}; muvaffaqiyatsiz {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "sog'lom",
@@ -694,7 +698,11 @@
     "howToUse": "Qanday foydalanish kerak",
     "howToUseHelp": "\"Fusion\" modeli bilan oddiy suhbat so'rovini yuboring. Bu sozlamalar sukut bo'yicha; har qanday so'rov ularni \"fusion\" maydoni bilan bekor qilishi mumkin.",
     "unsavedChanges": "Saqlanmagan o'zgarishlar",
-    "save": "Saqlash"
+    "save": "Saqlash",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

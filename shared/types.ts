@@ -60,6 +60,9 @@ export type Platform =
   | 'google'
   | 'groq'
   | 'cerebras'
+  // B.AI — OpenAI-compatible gateway. Its catalog row is a live-tested,
+  // limited-time 0-credit promotion, not a recurring free allowance.
+  | 'bai'
   // AnyAPI — OpenAI-compatible gateway. Free tier is $0/no card/recurring but
   // capped at 100K tokens/day over "free and basic" models only; no RPM/RPD is
   // published. Catalog rows live in the hosted catalog (premium now, free after
@@ -124,6 +127,11 @@ export type Platform =
   // (Google sign-in, no card, no region wall) at 10 RPM; catalog rows live in
   // the Oracle catalog (premium now, free after 30 days).
   | 'sealion'
+  // OrcaRouter — OpenAI-compatible aggregator (api.orcarouter.ai/v1). Free key
+  // from orcarouter.ai (no card); recurring rate-limited free aliases at $0
+  // (never fall back to paid). Catalog rows live in the Oracle catalog
+  // (premium now, free after the 30-day model-age gate).
+  | 'orcarouter'
   // ModelScope (魔搭社区, Alibaba) — OpenAI-compatible inference API
   // (api-inference.modelscope.cn/v1). Free tier is 2000 requests/day
   // account-wide, but calls only work after the ModelScope account is bound to
@@ -362,6 +370,11 @@ export interface TokenUsage {
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
+  // OpenAI-standard breakdown some providers advertise alongside the totals.
+  // Optional because many free-tier endpoints omit it; the proxy falls back
+  // to its chars/4 estimate when absent. (#764)
+  completion_tokens_details?: { reasoning_tokens?: number };
+  prompt_tokens_details?: { cached_tokens?: number };
 }
 
 export interface ChatCompletionResponse {

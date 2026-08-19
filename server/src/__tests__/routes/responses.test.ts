@@ -18,7 +18,8 @@ function fakeRoute(provider: any) {
 }
 
 async function post(app: Express, path: string, body: any, key?: string, headers: Record<string, string> = {}) {
-  const server = app.listen(0);
+  const server = app.listen(0, '127.0.0.1');
+  if (!server.listening) await new Promise<void>(resolve => server.once('listening', () => resolve()));
   const addr = server.address() as any;
   const res = await fetch(`http://127.0.0.1:${addr.port}${path}`, {
     method: 'POST',
@@ -140,7 +141,8 @@ describe('POST /v1/responses (#96)', () => {
   // #103: the x-api-key header (Anthropic wire format) must authenticate here
   // too, not just on /v1/chat/completions.
   it('accepts the unified key via the x-api-key header', async () => {
-    const server = app.listen(0);
+    const server = app.listen(0, '127.0.0.1');
+    if (!server.listening) await new Promise<void>(resolve => server.once('listening', () => resolve()));
     const addr = server.address() as any;
     const res = await fetch(`http://127.0.0.1:${addr.port}/v1/responses`, {
       method: 'POST',
@@ -224,6 +226,29 @@ describe('POST /v1/responses (#96)', () => {
     // ttfb must be the reasoning-head moment (well before the text token that
     // triggers the commit), not the flush time ≈ latency.
     expect(rows[0].ttfb_ms).toBeLessThan(rows[0].latency_ms - 250);
+    // The completed Response reports the thinking tokens truthfully instead of
+    // a hardcoded 0: 'thinking hard…' is 14 chars → ceil(14/4) = 4.
+    const completed = text.split('event: response.completed')[1];
+    const payload = JSON.parse(completed.slice(completed.indexOf('{')));
+    expect(payload.response.usage.output_tokens_details.reasoning_tokens).toBe(4);
+  });
+
+  it('non-stream: reports reasoning_tokens from the provider usage when advertised', async () => {
+    mockRouteRequest.mockReturnValue(fakeRoute({
+      async chatCompletion() {
+        return {
+          id: 'c', object: 'chat.completion', created: 0, model: 'fake-model',
+          choices: [{ index: 0, message: { role: 'assistant', content: 'answer', reasoning_content: 'thinking' }, finish_reason: 'stop' }],
+          usage: { prompt_tokens: 3, completion_tokens: 6, total_tokens: 9, completion_tokens_details: { reasoning_tokens: 2 } },
+        };
+      },
+      async *streamChatCompletion() { /* unused */ },
+    }));
+
+    const { status, text } = await post(app, '/v1/responses', { input: 'hi', stream: false }, key);
+    expect(status).toBe(200);
+    const body = JSON.parse(text);
+    expect(body.usage.output_tokens_details.reasoning_tokens).toBe(2);
   });
 
   it('stream: tool-call deltas produce function_call events with assembled arguments', async () => {

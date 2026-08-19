@@ -529,7 +529,11 @@
     "bulkDelete": "Share duka",
     "bulkDeleteConfirm": "A share {count}?",
     "bulkResult": "An sabunta {done}; ya kasa {failed}.",
-    "bulkDeleteResult": "An share {done}; ya kasa {failed}."
+    "bulkDeleteResult": "An share {done}; ya kasa {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "lafiya",
@@ -694,7 +698,11 @@
     "howToUse": "Yadda ake amfani da shi",
     "howToUseHelp": "Aika buƙatun taɗi na yau da kullun tare da ƙirar \"fusion\". Waɗannan saitunan tsoho ne; kowace bukata na iya shafe su da filin \"fusion\".",
     "unsavedChanges": "Canje-canjen da ba a ajiye su ba",
-    "save": "Ajiye"
+    "save": "Ajiye",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

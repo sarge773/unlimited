@@ -529,7 +529,11 @@
     "bulkDelete": "Padam semua",
     "bulkDeleteConfirm": "Padam {count}?",
     "bulkResult": "Dikemas kini {done}; gagal {failed}.",
-    "bulkDeleteResult": "Dipadam {done}; gagal {failed}."
+    "bulkDeleteResult": "Dipadam {done}; gagal {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "sihat",
@@ -694,7 +698,11 @@
     "howToUse": "Cara menggunakan",
     "howToUseHelp": "Hantar permintaan sembang biasa dengan model \"fusion\". Tetapan ini adalah lalai; Mana-mana permintaan boleh menggantikannya dengan medan \"fusion\".",
     "unsavedChanges": "Perubahan yang belum disimpan",
-    "save": "Simpan"
+    "save": "Simpan",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

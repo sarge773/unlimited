@@ -529,7 +529,11 @@
     "bulkDelete": "ሁሉንም ሰርዝ",
     "bulkDeleteConfirm": "{count} ይሰረዙ?",
     "bulkResult": "{done} ተዘምኗል፤ {failed} አልተሳካም።",
-    "bulkDeleteResult": "{done} ተሰርዟል፤ {failed} አልተሳካም።"
+    "bulkDeleteResult": "{done} ተሰርዟል፤ {failed} አልተሳካም።",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ጤናማ",
@@ -694,7 +698,11 @@
     "howToUse": "እንዴት መጠቀም እንደሚቻል",
     "howToUseHelp": "መደበኛ የውይይት ጥያቄ ከሞዴል \"ውህደት\" ጋር ይላኩ. እነዚህ ቅንብሮች ነባሪ ናቸው; ማንኛውም ጥያቄ በ\"ውህደት\" መስክ ሊሽራቸው ይችላል።",
     "unsavedChanges": "ያልተቀመጡ ለውጦች",
-    "save": "አስቀምጥ"
+    "save": "አስቀምጥ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "ከፍተኛ",

@@ -529,7 +529,11 @@
     "bulkDelete": "מחק הכול",
     "bulkDeleteConfirm": "למחוק {count}?",
     "bulkResult": "עודכנו {done}; נכשלו {failed}.",
-    "bulkDeleteResult": "נמחקו {done}; נכשלו {failed}."
+    "bulkDeleteResult": "נמחקו {done}; נכשלו {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "בריא",
@@ -694,7 +698,11 @@
     "howToUse": "איך להשתמש",
     "howToUseHelp": "שלח בקשת צ'אט רגילה עם מודל \"fusion\". הגדרות אלו הן ברירת המחדל; כל בקשה יכולה לעקוף אותן באמצעות שדה \"מיזוג\".",
     "unsavedChanges": "שינויים שלא נשמרו",
-    "save": "שמור"
+    "save": "שמור",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "פרימיום",

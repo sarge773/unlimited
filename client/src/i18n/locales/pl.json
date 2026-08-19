@@ -529,7 +529,11 @@
     "bulkDelete": "Usuń wszystkie",
     "bulkDeleteConfirm": "Usunąć {count}?",
     "bulkResult": "Zaktualizowano {done}; nie powiodło się {failed}.",
-    "bulkDeleteResult": "Usunięto {done}; nie powiodło się {failed}."
+    "bulkDeleteResult": "Usunięto {done}; nie powiodło się {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "zdrowy",
@@ -694,7 +698,11 @@
     "howToUse": "Jak używać",
     "howToUseHelp": "Wyślij normalną prośbę o czat z modelem „fusion”. Te ustawienia są domyślne; każde żądanie może je zastąpić polem „fusion”.",
     "unsavedChanges": "Niezapisane zmiany",
-    "save": "Zapisz"
+    "save": "Zapisz",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

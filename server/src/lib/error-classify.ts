@@ -175,6 +175,28 @@ export function isClientAbortError(err: any): boolean {
   return msg.includes('client disconnected');
 }
 
+// ── Fallback time-budget hedging (fallback-v2) ──────────────────────────────
+// When the wall-clock retry budget expires MID-FLIGHT (the current attempt is
+// still waiting on a stalled upstream), the fallback loop aborts the composed
+// fetch signal with this marked error. Same rationale as the client abort: it
+// is NOT a provider-health signal, so it must never bench/cooldown/penalize
+// the model+key, and enrichAbort must pass it through untouched. The loop
+// catches it, renders timedOut exhaustion (the budget is spent — nothing left
+// to try), and stops without failure bookkeeping.
+export function newHedgeAbortError(): Error {
+  const err = new Error('fallback time budget expired — upstream request canceled');
+  (err as Error & { hedgeAbort?: boolean }).hedgeAbort = true;
+  return err;
+}
+
+/** True when an error is (or wraps) the time-budget hedge abort above. */
+export function isHedgeAbortError(err: any): boolean {
+  if (err?.hedgeAbort === true) return true;
+  if (err?.cause && (err.cause as { hedgeAbort?: boolean }).hedgeAbort === true) return true;
+  const msg = (err?.message ?? '').toLowerCase();
+  return msg.includes('fallback time budget expired');
+}
+
 /** True for any fetch-abort rejection surfacing out of a body read — the
  * per-attempt timeout ('request'-bounds deadline in fetchWithTimeout), an
  * AbortSignal.timeout, or the client disconnect above. Adapters that wrap
@@ -282,6 +304,25 @@ export function isProviderLevelError(err: any): boolean {
     || msg.includes('fetch failed');   // undici transport error (DNS/TLS/proxy down)
 }
 
+// #809: kilo's free relay occasionally answers with a bare classification
+// word ("safe" / "unsafe") instead of a real reply — an upstream content
+// filter, not the requested model. Such a turn is a dead turn: treat it like
+// an empty completion so the fallback loop fails over to the next provider
+// instead of surfacing "safe"/"unsafe" as the answer.
+//
+// Scoped to the relay that actually does this. "safe"/"unsafe" is a LEGITIMATE
+// one-word answer for moderation and guard-model workloads, so applying the
+// rule everywhere would throw away correct responses and burn the whole
+// fallback chain for anyone doing classification. Only platforms observed
+// injecting a filter verdict in place of the model's reply belong here.
+const CLASSIFICATION_RELAY_PLATFORMS = new Set(['kilo']);
+
+export function isUpstreamClassificationOutput(text: unknown, platform?: string): boolean {
+  if (!platform || !CLASSIFICATION_RELAY_PLATFORMS.has(platform.toLowerCase())) return false;
+  const t = (typeof text === 'string' ? text : '').trim().toLowerCase();
+  return t === 'safe' || t === 'unsafe';
+}
+
 // Provider-side 400s are retryable because another provider may accept the same
 // request shape. If every routed provider rejects it, however, the client should
 // see an invalid-request error rather than a misleading rate-limit exhaustion.
@@ -333,6 +374,10 @@ export function isContextTooLargeError(err: any): boolean {
     || msg.includes('request entity too large')
     || msg.includes('request body too large')
     || msg.includes('content too large')
+    // Zhipu AI (bigmodel.cn) 400, error code 1261: "Prompt exceeds max length"
+    // (#873). Its wording matches none of the markers above, so without this it
+    // was mis-bucketed as provider_bad_request instead of context_too_large.
+    || msg.includes('exceeds max length')
     || msg.includes('api error 413');
 }
 
