@@ -33,6 +33,35 @@ register(new OpenAICompatProvider({
   baseUrl: 'https://api.cerebras.ai/v1',
 }));
 
+// B.AI — OpenAI-compatible gateway. Provider support is first-class, but the
+// only free catalog row currently published is a limited-time 0-credit promo;
+// keep commercial eligibility in the hosted catalog rather than seeding it.
+register(new OpenAICompatProvider({
+  platform: 'bai',
+  name: 'B.AI',
+  baseUrl: 'https://api.b.ai/v1',
+}));
+
+// AnyAPI - OpenAI-compatible gateway (anyapi.ai). Free tier (checked against
+// anyapi.ai/pricing 2026-08-10): $0, no card, recurring — but the binding limit
+// is 100K TOKENS PER DAY, and only "free and basic" models are in scope. AnyAPI
+// publishes no RPM/RPD numbers at all; the 20 RPM / 200 RPD figures in #732 are
+// OpenRouter's, not AnyAPI's, so nothing here asserts a request rate.
+//
+// Model rows are NOT seeded here or in migrations — they are authored in the
+// hosted catalog and arrive via catalog-sync once the platform is registered
+// (see services/catalog-sync.ts, which gates on hasProvider). The ids proposed
+// in #732 (meta-llama/llama-3.3-70b-instruct:free, qwen/qwen3-coder:free,
+// nvidia/nemotron-3-ultra-550b-a55b:free, google/gemma-4-26b-a4b-it:free) came
+// from a third-party list and are UNVERIFIED against the live /v1/models, which
+// needs a key; treat them as candidates for catalog authoring, where a bad id
+// is caught by the health check instead of shipped as a default.
+register(new OpenAICompatProvider({
+  platform: 'anyapi',
+  name: 'AnyAPI',
+  baseUrl: 'https://api.anyapi.ai/v1',
+}));
+
 // SambaNova was dropped in V23 (June 2026): the free tier is permanently gone.
 // The always-free tier was retired in early 2025 for a one-time $5 trial
 // credit (expires in 3 months); once it lapses, every chat call 402s
@@ -332,6 +361,19 @@ register(new OpenAICompatProvider({
   platform: 'sealion',
   name: 'SEA-LION',
   baseUrl: 'https://api.sea-lion.ai/v1',
+}));
+
+// OrcaRouter — OpenAI-compatible aggregator (api.orcarouter.ai/v1). Free key
+// from orcarouter.ai (no card, `sk-orca-` prefix). Recurring rate-limited free
+// aliases at $0 (`*-free` ids plus the `orcarouter/free` auto route); limits
+// are intentionally unpublished (429 on cap) and free routes never fall back
+// to paid models, so a 429 is a clean quota signal, not a wallet risk.
+// Live-verified 2026-08-15. Catalog rows live in the Oracle catalog (premium
+// now, free after the 30-day model-age gate).
+register(new OpenAICompatProvider({
+  platform: 'orcarouter',
+  name: 'OrcaRouter',
+  baseUrl: 'https://api.orcarouter.ai/v1',
 }));
 
 // ModelScope (魔搭社区, Alibaba) — OpenAI-compatible inference API
