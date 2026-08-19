@@ -533,7 +533,11 @@
     "bulkDelete": "Vymazať všetky",
     "bulkDeleteConfirm": "Vymazať {count}?",
     "bulkResult": "Aktualizované {done}; zlyhalo {failed}.",
-    "bulkDeleteResult": "Vymazané {done}; zlyhalo {failed}."
+    "bulkDeleteResult": "Vymazané {done}; zlyhalo {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "zdravé",
@@ -698,7 +702,11 @@
     "howToUse": "Ako používať",
     "howToUseHelp": "Pošli bežnú chatovú požiadavku s modelom \"fusion\". Tieto nastavenia sú predvolené; Akákoľvek požiadavka ich môže prepísať pomocou poľa \"fúzia\".",
     "unsavedChanges": "Neuložené zmeny",
-    "save": "Uložiť"
+    "save": "Uložiť",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Prémiové",

@@ -29,6 +29,7 @@ export const PLATFORMS: { value: Platform; label: string; url: string; keyless?:
   { value: 'google', label: 'Google AI Studio', url: 'https://aistudio.google.com/apikey' },
   { value: 'groq', label: 'Groq', url: 'https://console.groq.com/keys' },
   { value: 'cerebras', label: 'Cerebras', url: 'https://cloud.cerebras.ai' },
+  { value: 'bai', label: 'B.AI (promotional free model)', url: 'https://b.ai' },
   { value: 'nvidia', label: 'NVIDIA NIM', url: 'https://build.nvidia.com/settings/api-keys' },
   { value: 'mistral', label: 'Mistral', url: 'https://console.mistral.ai/api-keys/' },
   { value: 'openrouter', label: 'OpenRouter', url: 'https://openrouter.ai/keys' },
@@ -54,6 +55,7 @@ export const PLATFORMS: { value: Platform; label: string; url: string; keyless?:
   { value: 'navy', label: 'NavyAI (free key)', url: 'https://api.navy' },
   { value: 'nara', label: 'NaraRouter (free key)', url: 'https://router.bynara.id' },
   { value: 'sealion', label: 'SEA-LION (free key)', url: 'https://sea-lion.ai' },
+  { value: 'orcarouter', label: 'OrcaRouter (free key)', url: 'https://www.orcarouter.ai' },
   // AnyAPI advertises 100K tokens/day free, but live testing on 2026-08-10
   // could not get a single free-tier request served (see
   // CATALOG-ANYAPI-SMOKE-2026-08-10 in the ops repo). No quota claim until

@@ -403,6 +403,10 @@
     "proxyUrl": "Proxy URL",
     "saveProxy": "Save",
     "savingProxy": "Saving…",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}",
     "proxyLoadFailed": "Could not load proxy settings.",
     "addCustom": "Add a custom OpenAI-compatible model",
     "addCustomDescription": "Point chat, embedding, image, or audio models at any OpenAI-compatible endpoint. The API key is optional for local servers.",
@@ -714,7 +718,11 @@
     "howToUse": "How to use",
     "howToUseHelp": "Send a normal chat request with model \"fusion\". These settings are the default; any request can override them with a \"fusion\" field.",
     "unsavedChanges": "Unsaved changes",
-    "save": "Save"
+    "save": "Save",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

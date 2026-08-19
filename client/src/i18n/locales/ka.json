@@ -533,7 +533,11 @@
     "bulkDelete": "ყველას წაშლა",
     "bulkDeleteConfirm": "წაიშალოს {count}?",
     "bulkResult": "განახლდა {done}; ვერ მოხერხდა {failed}.",
-    "bulkDeleteResult": "წაიშალა {done}; ვერ მოხერხდა {failed}."
+    "bulkDeleteResult": "წაიშალა {done}; ვერ მოხერხდა {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ჯანსაღი",
@@ -698,7 +702,11 @@
     "howToUse": "როგორ გამოვიყენოთ",
     "howToUseHelp": "გააგზავნეთ ჩვეულებრივი ჩატის მოთხოვნა მოდელის \"fusion\"-ით. ეს პარამეტრები ნაგულისხმევია; ნებისმიერ მოთხოვნას შეუძლია გადალახოს ისინი \"fusion\" ველით.",
     "unsavedChanges": "შენახული ცვლილებები",
-    "save": "შენახვა"
+    "save": "შენახვა",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "პრემიუმი",

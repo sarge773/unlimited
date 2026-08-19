@@ -533,7 +533,11 @@
     "bulkDelete": "Excluir todas",
     "bulkDeleteConfirm": "Excluir {count}?",
     "bulkResult": "Atualizadas {done}; falharam {failed}.",
-    "bulkDeleteResult": "Excluídas {done}; falharam {failed}."
+    "bulkDeleteResult": "Excluídas {done}; falharam {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "saudável",
@@ -698,7 +702,11 @@
     "howToUse": "Como usar",
     "howToUseHelp": "Envie uma requisição de chat normal com o modelo \"fusion\". Estas configurações são o padrão; qualquer requisição pode sobrescrevê-las com um campo \"fusion\".",
     "unsavedChanges": "Alterações não salvas",
-    "save": "Salvar"
+    "save": "Salvar",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

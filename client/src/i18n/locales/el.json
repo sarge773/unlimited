@@ -533,7 +533,11 @@
     "bulkDelete": "Διαγραφή όλων",
     "bulkDeleteConfirm": "Διαγραφή {count};",
     "bulkResult": "Ενημερώθηκαν {done}· απέτυχαν {failed}.",
-    "bulkDeleteResult": "Διαγράφηκαν {done}· απέτυχαν {failed}."
+    "bulkDeleteResult": "Διαγράφηκαν {done}· απέτυχαν {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "υγιής",
@@ -698,7 +702,11 @@
     "howToUse": "Τρόπος χρήσης",
     "howToUseHelp": "Στείλτε ένα κανονικό αίτημα συνομιλίας με το μοντέλο \"fusion\". Αυτές οι ρυθμίσεις είναι οι προεπιλεγμένες. Οποιοδήποτε αίτημα μπορεί να τα παρακάμψει με ένα πεδίο \"fusion\".",
     "unsavedChanges": "Μη αποθηκευμένες αλλαγές",
-    "save": "Αποθήκευση"
+    "save": "Αποθήκευση",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Ασφάλιστρο",

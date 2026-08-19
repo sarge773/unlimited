@@ -533,7 +533,11 @@
     "bulkDelete": "Tanggalin lahat",
     "bulkDeleteConfirm": "Tanggalin ang {count}?",
     "bulkResult": "Na-update {done}; nabigo {failed}.",
-    "bulkDeleteResult": "Natanggal {done}; nabigo {failed}."
+    "bulkDeleteResult": "Natanggal {done}; nabigo {failed}.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "malusog",
@@ -698,7 +702,11 @@
     "howToUse": "Paano gamitin",
     "howToUseHelp": "Magpadala ng normal na chat request gamit ang modelong \"fusion\". Ang mga setting na ito ang default; Anumang request ay maaaring mag-override gamit ang \"fusion\" field.",
     "unsavedChanges": "Mga hindi na-save na pagbabago",
-    "save": "I-save"
+    "save": "I-save",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "Premium",

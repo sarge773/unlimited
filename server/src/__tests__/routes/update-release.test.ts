@@ -13,7 +13,7 @@ const RELEASES_PAGE = 'https://github.com/tashfeenahmed/freellmapi/releases';
 
 function httpGet(app: Express, path: string): Promise<{ status: number; body: any }> {
   return new Promise((resolve, reject) => {
-    const server = app.listen(0, () => {
+    const server = app.listen(0, '127.0.0.1', () => {
       const address = server.address();
       if (!address || typeof address === 'string') return reject(new Error('No test server address'));
       const req = http.request(
@@ -194,7 +194,8 @@ describe('/api/settings/update-check', () => {
   });
 
   async function request(method: string, body?: unknown) {
-    const server = app.listen(0);
+    const server = app.listen(0, '127.0.0.1');
+    if (!server.listening) await new Promise<void>(resolve => server.once('listening', () => resolve()));
     const address = server.address() as { port: number };
     const res = await fetch(`http://127.0.0.1:${address.port}/api/settings/update-check`, {
       method,

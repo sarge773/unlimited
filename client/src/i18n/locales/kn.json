@@ -533,7 +533,11 @@
     "bulkDelete": "ಎಲ್ಲವನ್ನೂ ಅಳಿಸಿ",
     "bulkDeleteConfirm": "{count} ಅಳಿಸುವುದೇ?",
     "bulkResult": "{done} ನವೀಕರಿಸಲಾಗಿದೆ; {failed} ವಿಫಲವಾಗಿದೆ.",
-    "bulkDeleteResult": "{done} ಅಳಿಸಲಾಗಿದೆ; {failed} ವಿಫಲವಾಗಿದೆ."
+    "bulkDeleteResult": "{done} ಅಳಿಸಲಾಗಿದೆ; {failed} ವಿಫಲವಾಗಿದೆ.",
+    "testProxy": "Test",
+    "testingProxy": "Testing…",
+    "proxyTestOk": "Proxy works — {ms}ms round trip",
+    "proxyTestFail": "Proxy failed: {reason}"
   },
   "status": {
     "healthy": "ಆರೋಗ್ಯಕರ",
@@ -698,7 +702,11 @@
     "howToUse": "ಹೇಗೆ ಬಳಸುವುದು",
     "howToUseHelp": "ಮಾದರಿ \"ಸಮ್ಮಿಳನ\" ದೊಂದಿಗೆ ಸಾಮಾನ್ಯ ಚಾಟ್ ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಿ. ಈ ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಡೀಫಾಲ್ಟ್ ಆಗಿರುತ್ತವೆ; ಯಾವುದೇ ವಿನಂತಿಯು ಅವುಗಳನ್ನು \"ಸಮ್ಮಿಳನ\" ಕ್ಷೇತ್ರದೊಂದಿಗೆ ಅತಿಕ್ರಮಿಸಬಹುದು.",
     "unsavedChanges": "ಉಳಿಸದ ಬದಲಾವಣೆಗಳು",
-    "save": "ಉಳಿಸಿ"
+    "save": "ಉಳಿಸಿ",
+    "searchPlaceholder": "Search models…",
+    "providerFilterLabel": "Filter by provider",
+    "providerAll": "All providers",
+    "noMatch": "No models match your search."
   },
   "premium": {
     "title": "ಪ್ರೀಮಿಯಂ",
