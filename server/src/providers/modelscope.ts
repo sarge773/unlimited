@@ -1,12 +1,9 @@
+import { createHash } from 'node:crypto';
 import { OpenAICompatProvider } from './openai-compat.js';
 import type { KeyValidationResult } from './base.js';
 import { recordQuotaObservationsFromResponse, type QuotaObservationContext } from '../services/provider-quota.js';
 
 const MODELSCOPE_BASE_URL = 'https://api-inference.modelscope.cn/v1';
-
-// ModelScope SDK tokens are always prefixed `ms-`; anything else is an
-// invalid token and can be rejected locally without spending a request.
-const MODELSCOPE_TOKEN_PREFIX = 'ms-';
 
 // A successful validation is cached per key for this long. The 5-minute
 // health pass would otherwise burn ~288 paid 1-token completions per key
@@ -49,13 +46,11 @@ function modelscopeValidateCacheMs(): number {
  * check against the account's magic-grain (魔粒) quota — observed as 2 魔粒
  * per ultra-tier request (2026-08-14), not the historical 2000-requests/day
  * free API quota. With the default 5-minute health pass that would be ~288
- * paid probes per key per day. Two mitigations keep that near zero:
- *   1. tokens not prefixed `ms-` are rejected locally, zero network cost;
- *   2. a successful validation is cached per key for
- *      MODELSCOPE_VALIDATE_CACHE_MS (default 24h) — repeat health passes
- *      return true without re-probing. A failed-auth validation is rejected
- *      before generation and, per maintainer reports, does not count against
- *      quota.
+ * paid probes per key per day. A successful validation is therefore cached
+ * per key for MODELSCOPE_VALIDATE_CACHE_MS (default 24h) — repeat health
+ * passes return true without re-probing, taking the steady-state cost to one
+ * probe per key per day. A failed-auth validation is rejected before
+ * generation and, per maintainer reports, does not count against quota.
  *
  * Community testers must confirm (we have NO real token for this platform):
  * the maintainer-documented bad-binding failure is
@@ -66,8 +61,10 @@ function modelscopeValidateCacheMs(): number {
  * actionable reason instead of a generic "invalid key". See issue #581.
  */
 export class ModelScopeProvider extends OpenAICompatProvider {
-  /** keyId → last successful validation wall-clock (ms). */
-  private readonly lastValidatedAt = new Map<number, number>();
+  /** key-material fingerprint → last successful validation wall-clock (ms).
+   *  Keyed on the token itself, not the row id, so editing a key in place
+   *  re-probes instead of inheriting the old token's verdict. */
+  private readonly lastValidatedAt = new Map<string, number>();
 
   constructor() {
     super({
@@ -83,16 +80,6 @@ export class ModelScopeProvider extends OpenAICompatProvider {
   }
 
   override async validateKey(apiKey: string, quotaContext?: QuotaObservationContext): Promise<KeyValidationResult> {
-    // Shape pre-check (zero network cost): ModelScope SDK tokens always start
-    // with `ms-`. A token that does not match is invalid outright — no need to
-    // spend a paid completion on it.
-    if (!apiKey.startsWith(MODELSCOPE_TOKEN_PREFIX)) {
-      return {
-        valid: false,
-        error: `${this.name} key validation failed: SDK token must start with "${MODELSCOPE_TOKEN_PREFIX}"`,
-      };
-    }
-
     // Validation cache: a key validated successfully within
     // MODELSCOPE_VALIDATE_CACHE_MS is trusted without re-probing. The
     // 5-minute health pass would otherwise burn ~288 paid 1-token
@@ -100,8 +87,9 @@ export class ModelScopeProvider extends OpenAICompatProvider {
     // key is still caught by the next real request's 401 handling, so this
     // only delays proactive detection.
     const cacheMs = modelscopeValidateCacheMs();
-    if (cacheMs > 0 && quotaContext?.keyId != null) {
-      const last = this.lastValidatedAt.get(quotaContext.keyId);
+    const fingerprint = createHash('sha256').update(apiKey).digest('hex');
+    if (cacheMs > 0) {
+      const last = this.lastValidatedAt.get(fingerprint);
       if (last !== undefined && Date.now() - last < cacheMs) {
         return true;
       }
@@ -157,8 +145,8 @@ export class ModelScopeProvider extends OpenAICompatProvider {
     // 400/404 (probe model quirk), 429 (quota) — proves the token
     // authenticated and returns true.
     const result = await this.validationResult(res);
-    if (result === true && cacheMs > 0 && quotaContext?.keyId != null) {
-      this.lastValidatedAt.set(quotaContext.keyId, Date.now());
+    if (result === true && cacheMs > 0) {
+      this.lastValidatedAt.set(fingerprint, Date.now());
     }
     return result;
   }

@@ -139,19 +139,6 @@ describe('ModelScope validateKey (#581)', () => {
     await expect(provider.validateKey(GARBAGE_KEY)).rejects.toThrow(/no models/);
   });
 
-  it('rejects a token that does not start with ms- locally, with zero network calls', async () => {
-    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(ROSTER as unknown as Response);
-
-    const provider = new ModelScopeProvider();
-    const result = await provider.validateKey('sk-this-is-not-a-modelscope-token');
-
-    expect(result).not.toBe(true);
-    const failure = result as KeyValidationFailure;
-    expect(failure.valid).toBe(false);
-    expect(failure.error).toContain('ms-');
-    expect(fetchSpy).not.toHaveBeenCalled();
-  });
-
   it('caches a successful validation per key and skips the network on repeat checks', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(async (url) => {
       if (String(url).endsWith('/models')) return ROSTER as unknown as Response;
@@ -183,6 +170,11 @@ describe('ModelScope validateKey (#581)', () => {
     // Second validation within the cache window returns true without any call.
     await expect(provider.validateKey('ms-test-valid-shaped', ctx)).resolves.toBe(true);
     expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+    // A DIFFERENT token on the same key row is a different secret — rotating a
+    // key in place must re-probe rather than inherit the old token's verdict.
+    await expect(provider.validateKey('ms-test-rotated', ctx)).resolves.toBe(true);
+    expect(fetchSpy).toHaveBeenCalledTimes(4);
   });
 
   it('does not cache an invalid validation (a 401 re-probes on the next check)', async () => {
