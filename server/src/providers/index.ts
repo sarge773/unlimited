@@ -417,6 +417,29 @@ register(new OpenAICompatProvider({
   baseUrl: 'https://api.hunyuan.cloud.tencent.com/v1',
 }));
 
+// Volcengine Ark (火山方舟, ByteDance) — OpenAI-compatible
+// (ark.cn-beijing.volces.com/api/v3, Bearer auth). Doubao models on a recurring
+// free tier (~2M tokens/day, daily reset); key from the Volcengine Ark console
+// (no card). Catalog rows live in the hosted catalog (premium now, free after
+// the 30-day model-age gate).
+register(new OpenAICompatProvider({
+  platform: 'volcengine',
+  name: 'Volcengine Ark',
+  baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
+}));
+
+// LongCat (面壁智能) — OpenAI-compatible (api.longcat.chat/openai/v1, Bearer
+// auth). Public-beta free tier: 500K tokens/day per account (Flash-Lite
+// 50M/day), reset daily at midnight Beijing time, no accumulation. Also
+// exposes an Anthropic-compatible endpoint (/anthropic). Key from longcat.chat
+// (no card). Catalog rows live in the hosted catalog (premium now, free after
+// the 30-day model-age gate).
+register(new OpenAICompatProvider({
+  platform: 'longcat',
+  name: 'LongCat',
+  baseUrl: 'https://api.longcat.chat/openai/v1',
+}));
+
 // AI Horde — free, community-powered inference (volunteer workers) via an
 // OpenAI-compatible proxy. Dedicated AIHordeProvider (not OpenAICompatProvider)
 // because the proxy is queue-based and diverges from the OpenAI contract:

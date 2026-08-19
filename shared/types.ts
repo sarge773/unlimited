@@ -147,6 +147,16 @@ export type Platform =
   // free with 256K context; key from console.cloud.tencent.com/hunyuan (no
   // card). Endpoint https://api.hunyuan.cloud.tencent.com/v1.
   | 'hunyuan'
+  // Volcengine Ark (火山方舟, ByteDance) — OpenAI-compatible
+  // (ark.cn-beijing.volces.com/api/v3, Bearer auth). Doubao models on a
+  // recurring free tier (~2M tokens/day, daily reset); key from the Volcengine
+  // Ark console (no card). Catalog rows live in the hosted catalog.
+  | 'volcengine'
+  // LongCat (面壁智能) — OpenAI-compatible (api.longcat.chat/openai/v1, Bearer
+  // auth). Public-beta free tier: 500K tokens/day per account (Flash-Lite
+  // 50M/day), reset daily at midnight Beijing time, no accumulation; also
+  // exposes an Anthropic-compatible endpoint. Key from longcat.chat (no card).
+  | 'longcat'
   // AI Horde — free, community-powered inference (volunteer workers) via an
   // OpenAI-compatible proxy (https://oai.aihorde.net/v1). Queue-based, so calls
   // can take tens of seconds; no tool support; usage is reported as kudos, not
