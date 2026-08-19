@@ -440,6 +440,17 @@ register(new OpenAICompatProvider({
   baseUrl: 'https://api.longcat.chat/openai/v1',
 }));
 
+// iFlytek Spark (讯飞星火) — OpenAI-compatible (spark-api-open.xf-yun.com/v1,
+// Bearer auth with the console APIPassword). Spark Lite (model id `lite`) is
+// permanently free with no token cap (QPS=2); key from console.xfyun.cn (no
+// card). Catalog rows live in the hosted catalog (premium now, free after the
+// 30-day model-age gate).
+register(new OpenAICompatProvider({
+  platform: 'xfyun',
+  name: 'iFlytek Spark',
+  baseUrl: 'https://spark-api-open.xf-yun.com/v1',
+}));
+
 // AI Horde — free, community-powered inference (volunteer workers) via an
 // OpenAI-compatible proxy. Dedicated AIHordeProvider (not OpenAICompatProvider)
 // because the proxy is queue-based and diverges from the OpenAI contract:

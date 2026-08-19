@@ -60,9 +60,6 @@ export type Platform =
   | 'google'
   | 'groq'
   | 'cerebras'
-  // B.AI — OpenAI-compatible gateway. Its catalog row is a live-tested,
-  // limited-time 0-credit promotion, not a recurring free allowance.
-  | 'bai'
   // AnyAPI — OpenAI-compatible gateway. Free tier is $0/no card/recurring but
   // capped at 100K tokens/day over "free and basic" models only; no RPM/RPD is
   // published. Catalog rows live in the hosted catalog (premium now, free after
@@ -157,6 +154,11 @@ export type Platform =
   // 50M/day), reset daily at midnight Beijing time, no accumulation; also
   // exposes an Anthropic-compatible endpoint. Key from longcat.chat (no card).
   | 'longcat'
+  // iFlytek Spark (讯飞星火) — OpenAI-compatible (spark-api-open.xf-yun.com/v1,
+  // Bearer auth with the console APIPassword). Spark Lite (model id `lite`) is
+  // permanently free with no token cap (QPS=2); key from console.xfyun.cn (no
+  // card). Catalog rows live in the hosted catalog.
+  | 'xfyun'
   // AI Horde — free, community-powered inference (volunteer workers) via an
   // OpenAI-compatible proxy (https://oai.aihorde.net/v1). Queue-based, so calls
   // can take tens of seconds; no tool support; usage is reported as kudos, not
