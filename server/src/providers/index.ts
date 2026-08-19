@@ -395,6 +395,28 @@ register(new OpenAICompatProvider({
 // provider-quota.ts keys on response headers, never on that message text.
 register(new ModelScopeProvider());
 
+// Baidu Qianfan (百度千帆) — OpenAI-compatible (qianfan.baidubce.com/v2,
+// Bearer auth). ERNIE-Speed and ERNIE-Lite are permanently free with no token
+// cap (documented QPS=50); key from the Qianfan console (no card required).
+// Catalog rows live in the hosted catalog (premium now, free after the 30-day
+// model-age gate).
+register(new OpenAICompatProvider({
+  platform: 'qianfan',
+  name: 'Baidu Qianfan',
+  baseUrl: 'https://qianfan.baidubce.com/v2',
+}));
+
+// Tencent Hunyuan (腾讯混元) — OpenAI-compatible
+// (api.hunyuan.cloud.tencent.com/v1, Bearer auth). HunYuan-Lite is permanently
+// free with no token cap and 256K context; key from the Tencent Cloud Hunyuan
+// console (no card). Catalog rows live in the hosted catalog (premium now, free
+// after the 30-day model-age gate).
+register(new OpenAICompatProvider({
+  platform: 'hunyuan',
+  name: 'Tencent Hunyuan',
+  baseUrl: 'https://api.hunyuan.cloud.tencent.com/v1',
+}));
+
 // AI Horde — free, community-powered inference (volunteer workers) via an
 // OpenAI-compatible proxy. Dedicated AIHordeProvider (not OpenAICompatProvider)
 // because the proxy is queue-based and diverges from the OpenAI contract:

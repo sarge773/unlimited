@@ -139,6 +139,14 @@ export type Platform =
   // verification — tokens mint without binding, then every call 401s. Catalog
   // rows land after community testing confirms per-model behavior (#581).
   | 'modelscope'
+  // Baidu Qianfan (百度千帆) — OpenAI-compatible. ERNIE-Speed / ERNIE-Lite are
+  // permanently free with no token cap (QPS=50); key from console.bce.baidu.com
+  // (no card). Endpoint https://qianfan.baidubce.com/v2.
+  | 'qianfan'
+  // Tencent Hunyuan (腾讯混元) — OpenAI-compatible. HunYuan-Lite is permanently
+  // free with 256K context; key from console.cloud.tencent.com/hunyuan (no
+  // card). Endpoint https://api.hunyuan.cloud.tencent.com/v1.
+  | 'hunyuan'
   // AI Horde — free, community-powered inference (volunteer workers) via an
   // OpenAI-compatible proxy (https://oai.aihorde.net/v1). Queue-based, so calls
   // can take tens of seconds; no tool support; usage is reported as kudos, not
