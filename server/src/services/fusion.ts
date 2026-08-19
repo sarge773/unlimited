@@ -472,7 +472,7 @@ export function selectPanel(config: FusionConfig, requirements: { requireTools?:
   // so a too-small model never claims a slot it is guaranteed to fail.
   const ordered = getOrderedFusionChain(requirements.estimatedTokens)
     .filter(c => !requirements.requireTools || c.supportsTools)
-    .filter(c => !requirements.requireVision || c.supportsVision === 1);
+    .filter(c => !requirements.requireVision || c.supportsVision);
 
   // Diversity-first ordering of the whole servable chain along provider AND
   // model family (see diversifyChain). The first K are the panel; the rest are
