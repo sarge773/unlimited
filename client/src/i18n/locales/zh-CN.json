@@ -523,6 +523,16 @@
     "modelScopeClear": "清除范围",
     "modelScopeBadgeOne": "限定 · 1 个模型",
     "modelScopeBadgeOther": "限定 · {count} 个模型",
+    "modelPicker": {
+      "title": "此密钥应服务哪些模型？",
+      "hint": "您的 {provider} 密钥已添加，目前可服务下方全部模型。请取消勾选此密钥不可使用的模型——路由器会为这些模型跳过此密钥。",
+      "count": "已选择 {selected} 个，共 {total} 个",
+      "allNote": "已全选——不会保存任何限制，之后添加到目录的模型也会使用此密钥。",
+      "subsetNote": "此密钥将仅限于所选模型。之后可在该密钥所在行更改。",
+      "skip": "暂不设置",
+      "scopedOne": "密钥已限定为 1 个模型",
+      "scopedOther": "密钥已限定为 {count} 个模型"
+    },
     "cpTitle": "客户端配置文件",
     "cpDesc": "为每个客户端单独发放 API 密钥，服务器会始终应用其系统提示词。",
     "cpEmpty": "还没有客户端配置文件。",
@@ -658,6 +668,24 @@
     "attachFailed": "无法读取 {name}。",
     "noVisionBadge": "不支持图像",
     "visionWarning": "{model} 不接受图像。请选择视觉模型或「自动」。"
+  },
+  "playgroundSessions": {
+    "heading": "对话",
+    "newConversation": "新建对话",
+    "showSidebar": "显示对话",
+    "hideSidebar": "隐藏对话",
+    "empty": "暂无已保存的对话。",
+    "untitled": "未命名对话",
+    "rename": "重命名",
+    "renamePlaceholder": "对话名称",
+    "messageCount": "{count} 条消息",
+    "justNow": "刚刚",
+    "minutesAgo": "{count} 分钟前",
+    "hoursAgo": "{count} 小时前",
+    "daysAgo": "{count} 天前",
+    "loadFailed": "无法打开该对话。",
+    "renameFailed": "无法重命名该对话。",
+    "deleteFailed": "无法删除该对话。"
   },
   "embeddings": {
     "title": "模型",

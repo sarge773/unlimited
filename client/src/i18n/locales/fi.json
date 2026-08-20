@@ -519,6 +519,16 @@
     "modelScopeClear": "Tyhjennä rajaus",
     "modelScopeBadgeOne": "rajattu · 1 malli",
     "modelScopeBadgeOther": "rajattu · {count} mallia",
+    "modelPicker": {
+      "title": "Mitä malleja tämän avaimen tulisi palvella?",
+      "hint": "{provider}-avaimesi lisättiin, ja se palvelee tällä hetkellä kaikkia alla olevia malleja. Poista valinta niistä malleista, joihin avainta ei saa käyttää — reititin ohittaa avaimen niiden kohdalla.",
+      "count": "{selected}/{total} valittu",
+      "allNote": "Kaikki on valittu — mitään ei tallenneta, ja myös myöhemmin luetteloon lisättävät mallit käyttävät tätä avainta.",
+      "subsetNote": "Avain rajataan valittuihin malleihin. Voit muuttaa tätä myöhemmin avaimen riviltä.",
+      "skip": "Ei nyt",
+      "scopedOne": "Avain rajattu 1 malliin",
+      "scopedOther": "Avain rajattu {count} malliin"
+    },
     "cpTitle": "Asiakasprofiilit",
     "cpDesc": "API-avaimet asiakaskohtaisesti, kullakin järjestelmäkehote, jonka palvelin lisää aina.",
     "cpEmpty": "Ei vielä asiakasprofiileja.",
@@ -658,6 +668,24 @@
     "attachFailed": "Tiedostoa {name} ei voitu lukea.",
     "noVisionBadge": "Ei kuvia",
     "visionWarning": "{model} ei hyväksy kuvia. Valitse kuvasyötteen hyväksyvä malli tai Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Keskustelut",
+    "newConversation": "Uusi keskustelu",
+    "showSidebar": "Näytä keskustelut",
+    "hideSidebar": "Piilota keskustelut",
+    "empty": "Ei vielä tallennettuja keskusteluja.",
+    "untitled": "Nimetön keskustelu",
+    "rename": "Nimeä uudelleen",
+    "renamePlaceholder": "Keskustelun nimi",
+    "messageCount": "{count} viestiä",
+    "justNow": "juuri nyt",
+    "minutesAgo": "{count} min sitten",
+    "hoursAgo": "{count} t sitten",
+    "daysAgo": "{count} pv sitten",
+    "loadFailed": "Keskustelua ei voitu avata.",
+    "renameFailed": "Keskustelua ei voitu nimetä uudelleen.",
+    "deleteFailed": "Keskustelua ei voitu poistaa."
   },
   "embeddings": {
     "title": "Mallit",

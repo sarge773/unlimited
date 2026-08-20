@@ -519,6 +519,16 @@
     "modelScopeClear": "Șterge domeniul",
     "modelScopeBadgeOne": "limitată · 1 model",
     "modelScopeBadgeOther": "limitată · {count} modele",
+    "modelPicker": {
+      "title": "Ce modele ar trebui să deservească această cheie?",
+      "hint": "Cheia ta {provider} a fost adăugată și deservește momentan toate modelele de mai jos. Debifează-le pe cele pe care această cheie nu are voie să le folosească — routerul o va sări pentru ele.",
+      "count": "{selected} din {total} selectate",
+      "allNote": "Totul este selectat — nu se salvează nimic, iar modelele adăugate ulterior în catalog vor folosi și ele această cheie.",
+      "subsetNote": "Această cheie va fi limitată la modelele selectate. Poți schimba asta mai târziu din rândul cheii.",
+      "skip": "Nu acum",
+      "scopedOne": "Cheie limitată la 1 model",
+      "scopedOther": "Cheie limitată la {count} modele"
+    },
     "cpTitle": "Profiluri de client",
     "cpDesc": "Chei API per client, fiecare cu un prompt de sistem pe care serverul îl aplică întotdeauna.",
     "cpEmpty": "Încă nu există profiluri de client.",
@@ -658,6 +668,24 @@
     "attachFailed": "Nu s-a putut citi {name}.",
     "noVisionBadge": "Fără imagini",
     "visionWarning": "{model} nu acceptă imagini. Alege un model cu suport pentru imagini sau Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Conversații",
+    "newConversation": "Conversație nouă",
+    "showSidebar": "Arată conversațiile",
+    "hideSidebar": "Ascunde conversațiile",
+    "empty": "Încă nu există conversații salvate.",
+    "untitled": "Conversație fără titlu",
+    "rename": "Redenumește",
+    "renamePlaceholder": "Numele conversației",
+    "messageCount": "{count} mesaje",
+    "justNow": "chiar acum",
+    "minutesAgo": "acum {count} min",
+    "hoursAgo": "acum {count} h",
+    "daysAgo": "acum {count} z",
+    "loadFailed": "Nu s-a putut deschide acea conversație.",
+    "renameFailed": "Nu s-a putut redenumi acea conversație.",
+    "deleteFailed": "Nu s-a putut șterge acea conversație."
   },
   "embeddings": {
     "title": "Modele",

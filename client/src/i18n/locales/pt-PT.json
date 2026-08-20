@@ -519,6 +519,16 @@
     "modelScopeClear": "Limpar âmbito",
     "modelScopeBadgeOne": "restrita · 1 modelo",
     "modelScopeBadgeOther": "restrita · {count} modelos",
+    "modelPicker": {
+      "title": "Que modelos deve esta chave servir?",
+      "hint": "A sua chave {provider} foi adicionada e serve atualmente todos os modelos abaixo. Desmarque os que esta chave não pode utilizar — o router ignora-a para esses modelos.",
+      "count": "{selected} de {total} selecionados",
+      "allNote": "Tudo selecionado — nada é guardado e os modelos acrescentados ao catálogo mais tarde também vão utilizar esta chave.",
+      "subsetNote": "Esta chave fica limitada aos modelos selecionados. Pode alterar isto mais tarde na linha da chave.",
+      "skip": "Agora não",
+      "scopedOne": "Chave limitada a 1 modelo",
+      "scopedOther": "Chave limitada a {count} modelos"
+    },
     "cpTitle": "Perfis de cliente",
     "cpDesc": "Chaves de API por cliente, cada uma com um prompt de sistema que o servidor aplica sempre.",
     "cpEmpty": "Ainda não existem perfis de cliente.",
@@ -658,6 +668,24 @@
     "attachFailed": "Não foi possível ler {name}.",
     "noVisionBadge": "Sem imagens",
     "visionWarning": "{model} não aceita imagens. Escolha um modelo de visão ou Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Conversas",
+    "newConversation": "Nova conversa",
+    "showSidebar": "Mostrar conversas",
+    "hideSidebar": "Ocultar conversas",
+    "empty": "Ainda não existem conversas guardadas.",
+    "untitled": "Conversa sem título",
+    "rename": "Mudar o nome",
+    "renamePlaceholder": "Nome da conversa",
+    "messageCount": "{count} mensagens",
+    "justNow": "agora mesmo",
+    "minutesAgo": "há {count} min",
+    "hoursAgo": "há {count} h",
+    "daysAgo": "há {count} d",
+    "loadFailed": "Não foi possível abrir essa conversa.",
+    "renameFailed": "Não foi possível mudar o nome dessa conversa.",
+    "deleteFailed": "Não foi possível eliminar essa conversa."
   },
   "embeddings": {
     "title": "Modelos",

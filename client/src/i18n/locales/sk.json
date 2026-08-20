@@ -519,6 +519,16 @@
     "modelScopeClear": "Vymazať rozsah",
     "modelScopeBadgeOne": "obmedzený · 1 model",
     "modelScopeBadgeOther": "obmedzený · {count} modelov",
+    "modelPicker": {
+      "title": "Ktoré modely má tento kľúč obsluhovať?",
+      "hint": "Váš kľúč {provider} bol pridaný a momentálne obsluhuje všetky modely nižšie. Odškrtnite tie, ktoré tento kľúč nesmie používať — router ho pre ne preskočí.",
+      "count": "Vybraných {selected} z {total}",
+      "allNote": "Vybrané je všetko — nič sa neukladá a modely pridané do katalógu neskôr budú tento kľúč používať tiež.",
+      "subsetNote": "Tento kľúč bude obmedzený na vybrané modely. Zmeniť to môžete neskôr v riadku kľúča.",
+      "skip": "Teraz nie",
+      "scopedOne": "Kľúč obmedzený na 1 model",
+      "scopedOther": "Kľúč obmedzený na {count} modelov"
+    },
     "cpTitle": "Profily klientov",
     "cpDesc": "Samostatné API kľúče pre každého klienta, každý so systémovým promptom, ktorý server vždy použije.",
     "cpEmpty": "Zatiaľ žiadne profily klientov.",
@@ -658,6 +668,24 @@
     "attachFailed": "Súbor {name} sa nepodarilo prečítať.",
     "noVisionBadge": "Bez obrázkov",
     "visionWarning": "Model {model} neprijíma obrázky. Vyberte model s podporou obrázkov alebo Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Konverzácie",
+    "newConversation": "Nová konverzácia",
+    "showSidebar": "Zobraziť konverzácie",
+    "hideSidebar": "Skryť konverzácie",
+    "empty": "Zatiaľ žiadne uložené konverzácie.",
+    "untitled": "Konverzácia bez názvu",
+    "rename": "Premenovať",
+    "renamePlaceholder": "Názov konverzácie",
+    "messageCount": "{count} správ",
+    "justNow": "práve teraz",
+    "minutesAgo": "pred {count} min",
+    "hoursAgo": "pred {count} h",
+    "daysAgo": "pred {count} dňami",
+    "loadFailed": "Konverzáciu sa nepodarilo otvoriť.",
+    "renameFailed": "Konverzáciu sa nepodarilo premenovať.",
+    "deleteFailed": "Konverzáciu sa nepodarilo vymazať."
   },
   "embeddings": {
     "title": "Modely",

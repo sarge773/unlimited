@@ -519,6 +519,16 @@
     "modelScopeClear": "Borrar alcance",
     "modelScopeBadgeOne": "limitada · 1 modelo",
     "modelScopeBadgeOther": "limitada · {count} modelos",
+    "modelPicker": {
+      "title": "¿Qué modelos debe atender esta clave?",
+      "hint": "Se añadió tu clave de {provider} y ahora mismo atiende todos los modelos de abajo. Desmarca los que esta clave no tenga permiso para usar — el enrutador la omitirá para ellos.",
+      "count": "{selected} de {total} seleccionados",
+      "allNote": "Todo seleccionado — no se guarda nada y los modelos que se añadan al catálogo más adelante también usarán esta clave.",
+      "subsetNote": "Esta clave se limitará a los modelos seleccionados. Puedes cambiarlo más adelante desde la fila de la clave.",
+      "skip": "Ahora no",
+      "scopedOne": "Clave limitada a 1 modelo",
+      "scopedOther": "Clave limitada a {count} modelos"
+    },
     "cpTitle": "Perfiles de cliente",
     "cpDesc": "Claves API por cliente, cada una con un prompt de sistema que el servidor aplica siempre.",
     "cpEmpty": "Aún no hay perfiles de cliente.",
@@ -658,6 +668,24 @@
     "attachFailed": "No se pudo leer {name}.",
     "noVisionBadge": "Sin imágenes",
     "visionWarning": "{model} no acepta imágenes. Elige un modelo de visión o Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Conversaciones",
+    "newConversation": "Nueva conversación",
+    "showSidebar": "Mostrar conversaciones",
+    "hideSidebar": "Ocultar conversaciones",
+    "empty": "Aún no hay conversaciones guardadas.",
+    "untitled": "Conversación sin título",
+    "rename": "Cambiar nombre",
+    "renamePlaceholder": "Nombre de la conversación",
+    "messageCount": "{count} mensajes",
+    "justNow": "ahora mismo",
+    "minutesAgo": "hace {count} min",
+    "hoursAgo": "hace {count} h",
+    "daysAgo": "hace {count} d",
+    "loadFailed": "No se pudo abrir esa conversación.",
+    "renameFailed": "No se pudo cambiar el nombre de esa conversación.",
+    "deleteFailed": "No se pudo eliminar esa conversación."
   },
   "embeddings": {
     "title": "Modelos",

@@ -519,6 +519,16 @@
     "modelScopeClear": "Əhatəni təmizlə",
     "modelScopeBadgeOne": "məhdud · 1 model",
     "modelScopeBadgeOther": "məhdud · {count} model",
+    "modelPicker": {
+      "title": "Bu açar hansı modellərə xidmət etsin?",
+      "hint": "{provider} açarınız əlavə edildi və hazırda aşağıdakı bütün modellərə xidmət edir. Bu açarın istifadəsinə icazə verilməyən modellərin işarəsini götürün — router həmin modellər üçün bu açarı ötürəcək.",
+      "count": "{total} modeldən {selected} seçilib",
+      "allNote": "Hamısı seçilib — heç nə yadda saxlanmır və sonradan kataloqa əlavə olunan modellər də bu açardan istifadə edəcək.",
+      "subsetNote": "Bu açar yalnız seçilmiş modellərlə məhdudlaşacaq. Bunu sonra açarın sətrindən dəyişə bilərsiniz.",
+      "skip": "İndi yox",
+      "scopedOne": "Açar 1 modellə məhdudlaşdırıldı",
+      "scopedOther": "Açar {count} modellə məhdudlaşdırıldı"
+    },
     "cpTitle": "Müştəri profilləri",
     "cpDesc": "Hər müştəri üçün ayrıca API açarı; onun sistem promptunu server həmişə tətbiq edir.",
     "cpEmpty": "Hələ müştəri profili yoxdur.",
@@ -658,6 +668,24 @@
     "attachFailed": "{name} oxunmadı.",
     "noVisionBadge": "Şəkilsiz",
     "visionWarning": "{model} şəkilləri qəbul etmir. Şəkil dəstəkləyən model və ya Avtomatik seçin."
+  },
+  "playgroundSessions": {
+    "heading": "Söhbətlər",
+    "newConversation": "Yeni söhbət",
+    "showSidebar": "Söhbətləri göstər",
+    "hideSidebar": "Söhbətləri gizlət",
+    "empty": "Hələ yadda saxlanmış söhbət yoxdur.",
+    "untitled": "Adsız söhbət",
+    "rename": "Adını dəyiş",
+    "renamePlaceholder": "Söhbətin adı",
+    "messageCount": "{count} mesaj",
+    "justNow": "indicə",
+    "minutesAgo": "{count} dəq əvvəl",
+    "hoursAgo": "{count} saat əvvəl",
+    "daysAgo": "{count} gün əvvəl",
+    "loadFailed": "Həmin söhbəti açmaq alınmadı.",
+    "renameFailed": "Həmin söhbətin adını dəyişmək alınmadı.",
+    "deleteFailed": "Həmin söhbəti silmək alınmadı."
   },
   "embeddings": {
     "title": "Modellər",

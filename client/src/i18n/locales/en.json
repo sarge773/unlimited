@@ -523,6 +523,16 @@
     "modelScopeClear": "Clear scope",
     "modelScopeBadgeOne": "scoped · 1 model",
     "modelScopeBadgeOther": "scoped · {count} models",
+    "modelPicker": {
+      "title": "Which models should this key serve?",
+      "hint": "Your {provider} key was added and currently serves every model below. Untick any this key isn't allowed to use — the router will skip it for those.",
+      "count": "{selected} of {total} selected",
+      "allNote": "Everything selected — nothing is saved, and models added to the catalog later will use this key too.",
+      "subsetNote": "This key will be limited to the selected models. You can change this later from the key's row.",
+      "skip": "Not now",
+      "scopedOne": "Key limited to 1 model",
+      "scopedOther": "Key limited to {count} models"
+    },
     "cpTitle": "Client profiles",
     "cpDesc": "Per-client API keys, each with a system prompt the server always applies.",
     "cpEmpty": "No client profiles yet.",
@@ -674,6 +684,24 @@
     "attachFailed": "Could not read {name}.",
     "noVisionBadge": "No images",
     "visionWarning": "{model} does not accept images. Choose a vision model or Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Conversations",
+    "newConversation": "New conversation",
+    "showSidebar": "Show conversations",
+    "hideSidebar": "Hide conversations",
+    "empty": "No saved conversations yet.",
+    "untitled": "Untitled conversation",
+    "rename": "Rename",
+    "renamePlaceholder": "Conversation name",
+    "messageCount": "{count} messages",
+    "justNow": "just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago",
+    "loadFailed": "Couldn't open that conversation.",
+    "renameFailed": "Couldn't rename that conversation.",
+    "deleteFailed": "Couldn't delete that conversation."
   },
   "embeddings": {
     "title": "Models",

@@ -519,6 +519,16 @@
     "modelScopeClear": "Ryd omfang",
     "modelScopeBadgeOne": "begrænset · 1 model",
     "modelScopeBadgeOther": "begrænset · {count} modeller",
+    "modelPicker": {
+      "title": "Hvilke modeller skal denne nøgle betjene?",
+      "hint": "Din {provider}-nøgle er tilføjet og betjener i øjeblikket alle modeller nedenfor. Fjern fluebenet ved de modeller, nøglen ikke må bruges til — routeren springer den så over for dem.",
+      "count": "{selected} af {total} valgt",
+      "allNote": "Alt er valgt — der gemmes ikke noget, og modeller, der senere føjes til kataloget, vil også bruge denne nøgle.",
+      "subsetNote": "Nøglen begrænses til de valgte modeller. Du kan ændre det senere fra nøglens række.",
+      "skip": "Ikke nu",
+      "scopedOne": "Nøgle begrænset til 1 model",
+      "scopedOther": "Nøgle begrænset til {count} modeller"
+    },
     "cpTitle": "Klientprofiler",
     "cpDesc": "API-nøgler pr. klient, hver med en systemprompt som serveren altid anvender.",
     "cpEmpty": "Ingen klientprofiler endnu.",
@@ -658,6 +668,24 @@
     "attachFailed": "Kunne ikke læse {name}.",
     "noVisionBadge": "Ingen billeder",
     "visionWarning": "{model} accepterer ikke billeder. Vælg en model med billedinput eller Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Samtaler",
+    "newConversation": "Ny samtale",
+    "showSidebar": "Vis samtaler",
+    "hideSidebar": "Skjul samtaler",
+    "empty": "Ingen gemte samtaler endnu.",
+    "untitled": "Unavngivet samtale",
+    "rename": "Omdøb",
+    "renamePlaceholder": "Samtalens navn",
+    "messageCount": "{count} beskeder",
+    "justNow": "lige nu",
+    "minutesAgo": "for {count} min. siden",
+    "hoursAgo": "for {count} t. siden",
+    "daysAgo": "for {count} d. siden",
+    "loadFailed": "Kunne ikke åbne den samtale.",
+    "renameFailed": "Kunne ikke omdøbe den samtale.",
+    "deleteFailed": "Kunne ikke slette den samtale."
   },
   "embeddings": {
     "title": "Modeller",

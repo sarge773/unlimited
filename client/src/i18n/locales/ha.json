@@ -519,6 +519,16 @@
     "modelScopeClear": "Share iyaka",
     "modelScopeBadgeOne": "iyakantacce · samfuri 1",
     "modelScopeBadgeOther": "iyakantacce · samfura {count}",
+    "modelPicker": {
+      "title": "Waɗanne samfura wannan maɓalli zai yi wa hidima?",
+      "hint": "An ƙara maɓallin {provider} naka kuma a yanzu yana yi wa duk samfuran da ke ƙasa hidima. Cire alamar duk samfurin da ba a yarda wannan maɓalli ya yi amfani da shi ba — router zai tsallake shi ga waɗannan.",
+      "count": "An zaɓi {selected} daga cikin {total}",
+      "allNote": "An zaɓi kome — ba a ajiye komai, kuma samfuran da za a ƙara a kasida nan gaba su ma za su yi amfani da wannan maɓalli.",
+      "subsetNote": "Wannan maɓalli zai iyakantu ga samfuran da aka zaɓa. Za ka iya canja wannan daga baya a jerin maɓallin.",
+      "skip": "Ba yanzu ba",
+      "scopedOne": "An iyakance maɓalli ga samfuri 1",
+      "scopedOther": "An iyakance maɓalli ga samfura {count}"
+    },
     "cpTitle": "Bayanan martabar abokan ciniki",
     "cpDesc": "Maɓallan API na kowane abokin ciniki, kowanne da umarnin tsarin da sabar ke amfani da shi koyaushe.",
     "cpEmpty": "Babu bayanan martabar abokan ciniki tukuna.",
@@ -658,6 +668,24 @@
     "attachFailed": "Ba a iya karanta {name} ba.",
     "noVisionBadge": "Babu hotuna",
     "visionWarning": "{model} ba ya karɓar hotuna. Zaɓi samfurin da ke karɓar hotuna ko Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Tattaunawa",
+    "newConversation": "Sabuwar tattaunawa",
+    "showSidebar": "Nuna tattaunawa",
+    "hideSidebar": "Ɓoye tattaunawa",
+    "empty": "Babu tattaunawar da aka ajiye tukuna.",
+    "untitled": "Tattaunawa marar suna",
+    "rename": "Sauya suna",
+    "renamePlaceholder": "Sunan tattaunawa",
+    "messageCount": "Saƙonni {count}",
+    "justNow": "yanzu yanzu",
+    "minutesAgo": "minti {count} da suka wuce",
+    "hoursAgo": "awa {count} da suka wuce",
+    "daysAgo": "kwana {count} da suka wuce",
+    "loadFailed": "Ba a iya buɗe wannan tattaunawar ba.",
+    "renameFailed": "Ba a iya sauya sunan wannan tattaunawar ba.",
+    "deleteFailed": "Ba a iya share wannan tattaunawar ba."
   },
   "embeddings": {
     "title": "Samfura",

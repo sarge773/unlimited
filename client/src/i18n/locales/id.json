@@ -519,6 +519,16 @@
     "modelScopeClear": "Hapus cakupan",
     "modelScopeBadgeOne": "dibatasi · 1 model",
     "modelScopeBadgeOther": "dibatasi · {count} model",
+    "modelPicker": {
+      "title": "Model mana saja yang boleh dilayani kunci ini?",
+      "hint": "Kunci {provider} Anda telah ditambahkan dan saat ini melayani semua model di bawah. Hapus centang pada model yang tidak boleh dipakai kunci ini — router akan melewatinya untuk model tersebut.",
+      "count": "{selected} dari {total} dipilih",
+      "allNote": "Semua dipilih — tidak ada yang disimpan, dan model yang ditambahkan ke katalog nanti juga akan memakai kunci ini.",
+      "subsetNote": "Kunci ini akan dibatasi pada model yang dipilih. Anda dapat mengubahnya nanti dari baris kunci tersebut.",
+      "skip": "Nanti saja",
+      "scopedOne": "Kunci dibatasi ke 1 model",
+      "scopedOther": "Kunci dibatasi ke {count} model"
+    },
     "cpTitle": "Profil klien",
     "cpDesc": "Kunci API per klien, masing-masing dengan prompt sistem yang selalu diterapkan server.",
     "cpEmpty": "Belum ada profil klien.",
@@ -658,6 +668,24 @@
     "attachFailed": "Tidak dapat membaca {name}.",
     "noVisionBadge": "Tanpa gambar",
     "visionWarning": "{model} tidak menerima gambar. Pilih model visi atau Otomatis."
+  },
+  "playgroundSessions": {
+    "heading": "Percakapan",
+    "newConversation": "Percakapan baru",
+    "showSidebar": "Tampilkan percakapan",
+    "hideSidebar": "Sembunyikan percakapan",
+    "empty": "Belum ada percakapan yang tersimpan.",
+    "untitled": "Percakapan tanpa judul",
+    "rename": "Ganti nama",
+    "renamePlaceholder": "Nama percakapan",
+    "messageCount": "{count} pesan",
+    "justNow": "baru saja",
+    "minutesAgo": "{count} mnt lalu",
+    "hoursAgo": "{count} jam lalu",
+    "daysAgo": "{count} hari lalu",
+    "loadFailed": "Tidak dapat membuka percakapan itu.",
+    "renameFailed": "Tidak dapat mengganti nama percakapan itu.",
+    "deleteFailed": "Tidak dapat menghapus percakapan itu."
   },
   "embeddings": {
     "title": "Model",

@@ -519,6 +519,16 @@
     "modelScopeClear": "Kapsamı temizle",
     "modelScopeBadgeOne": "sınırlı · 1 model",
     "modelScopeBadgeOther": "sınırlı · {count} model",
+    "modelPicker": {
+      "title": "Bu anahtar hangi modellere hizmet versin?",
+      "hint": "{provider} anahtarınız eklendi ve şu anda aşağıdaki tüm modellere hizmet veriyor. Bu anahtarın kullanmasına izin verilmeyen modellerin işaretini kaldırın — yönlendirici o modeller için bu anahtarı atlar.",
+      "count": "{total} modelden {selected} tanesi seçildi",
+      "allNote": "Her şey seçili — hiçbir şey kaydedilmez ve kataloğa sonradan eklenen modeller de bu anahtarı kullanır.",
+      "subsetNote": "Bu anahtar seçili modellerle sınırlı olacak. Bunu daha sonra anahtarın satırından değiştirebilirsiniz.",
+      "skip": "Şimdi değil",
+      "scopedOne": "Anahtar 1 modelle sınırlandırıldı",
+      "scopedOther": "Anahtar {count} modelle sınırlandırıldı"
+    },
     "cpTitle": "İstemci profilleri",
     "cpDesc": "İstemci başına API anahtarları; her birinin sistem istemini sunucu her zaman uygular.",
     "cpEmpty": "Henüz istemci profili yok.",
@@ -658,6 +668,24 @@
     "attachFailed": "{name} okunamadı.",
     "noVisionBadge": "Görüntü yok",
     "visionWarning": "{model} görüntü kabul etmiyor. Görüntü destekleyen bir model veya Otomatik seçin."
+  },
+  "playgroundSessions": {
+    "heading": "Sohbetler",
+    "newConversation": "Yeni sohbet",
+    "showSidebar": "Sohbetleri göster",
+    "hideSidebar": "Sohbetleri gizle",
+    "empty": "Henüz kaydedilmiş sohbet yok.",
+    "untitled": "Adsız sohbet",
+    "rename": "Yeniden adlandır",
+    "renamePlaceholder": "Sohbet adı",
+    "messageCount": "{count} mesaj",
+    "justNow": "az önce",
+    "minutesAgo": "{count} dk önce",
+    "hoursAgo": "{count} sa önce",
+    "daysAgo": "{count} gün önce",
+    "loadFailed": "Bu sohbet açılamadı.",
+    "renameFailed": "Bu sohbet yeniden adlandırılamadı.",
+    "deleteFailed": "Bu sohbet silinemedi."
   },
   "embeddings": {
     "title": "Modeller",

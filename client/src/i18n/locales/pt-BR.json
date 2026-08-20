@@ -519,6 +519,16 @@
     "modelScopeClear": "Limpar escopo",
     "modelScopeBadgeOne": "restrita · 1 modelo",
     "modelScopeBadgeOther": "restrita · {count} modelos",
+    "modelPicker": {
+      "title": "Quais modelos esta chave deve atender?",
+      "hint": "Sua chave da {provider} foi adicionada e no momento atende todos os modelos abaixo. Desmarque os que esta chave não pode usar — o roteador vai ignorá-la para esses modelos.",
+      "count": "{selected} de {total} selecionados",
+      "allNote": "Tudo selecionado — nada é salvo, e os modelos adicionados ao catálogo depois também vão usar esta chave.",
+      "subsetNote": "Esta chave ficará limitada aos modelos selecionados. Você pode alterar isso depois na linha da chave.",
+      "skip": "Agora não",
+      "scopedOne": "Chave limitada a 1 modelo",
+      "scopedOther": "Chave limitada a {count} modelos"
+    },
     "cpTitle": "Perfis de cliente",
     "cpDesc": "Chaves de API por cliente, cada uma com um prompt de sistema que o servidor sempre aplica.",
     "cpEmpty": "Ainda não há perfis de cliente.",
@@ -658,6 +668,24 @@
     "attachFailed": "Não foi possível ler {name}.",
     "noVisionBadge": "Sem imagens",
     "visionWarning": "{model} não aceita imagens. Escolha um modelo de visão ou Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Conversas",
+    "newConversation": "Nova conversa",
+    "showSidebar": "Mostrar conversas",
+    "hideSidebar": "Ocultar conversas",
+    "empty": "Ainda não há conversas salvas.",
+    "untitled": "Conversa sem título",
+    "rename": "Renomear",
+    "renamePlaceholder": "Nome da conversa",
+    "messageCount": "{count} mensagens",
+    "justNow": "agora mesmo",
+    "minutesAgo": "há {count} min",
+    "hoursAgo": "há {count} h",
+    "daysAgo": "há {count} d",
+    "loadFailed": "Não foi possível abrir essa conversa.",
+    "renameFailed": "Não foi possível renomear essa conversa.",
+    "deleteFailed": "Não foi possível excluir essa conversa."
   },
   "embeddings": {
     "title": "Modelos",

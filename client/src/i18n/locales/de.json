@@ -519,6 +519,16 @@
     "modelScopeClear": "Bereich löschen",
     "modelScopeBadgeOne": "begrenzt · 1 Modell",
     "modelScopeBadgeOther": "begrenzt · {count} Modelle",
+    "modelPicker": {
+      "title": "Welche Modelle soll dieser Schlüssel bedienen?",
+      "hint": "Ihr {provider}-Schlüssel wurde hinzugefügt und bedient derzeit alle Modelle unten. Deaktivieren Sie alle Modelle, für die dieser Schlüssel nicht verwendet werden darf — der Router überspringt ihn dann für diese.",
+      "count": "{selected} von {total} ausgewählt",
+      "allNote": "Alles ausgewählt — es wird nichts gespeichert, und später zum Katalog hinzugefügte Modelle verwenden diesen Schlüssel ebenfalls.",
+      "subsetNote": "Dieser Schlüssel wird auf die ausgewählten Modelle beschränkt. Sie können dies später in der Zeile des Schlüssels ändern.",
+      "skip": "Jetzt nicht",
+      "scopedOne": "Schlüssel auf 1 Modell begrenzt",
+      "scopedOther": "Schlüssel auf {count} Modelle begrenzt"
+    },
     "cpTitle": "Client-Profile",
     "cpDesc": "API-Schlüssel pro Client, jeweils mit einem System-Prompt, den der Server immer anwendet.",
     "cpEmpty": "Noch keine Client-Profile.",
@@ -658,6 +668,24 @@
     "attachFailed": "{name} konnte nicht gelesen werden.",
     "noVisionBadge": "Keine Bilder",
     "visionWarning": "{model} akzeptiert keine Bilder. Wählen Sie ein Vision-Modell oder Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Unterhaltungen",
+    "newConversation": "Neue Unterhaltung",
+    "showSidebar": "Unterhaltungen anzeigen",
+    "hideSidebar": "Unterhaltungen ausblenden",
+    "empty": "Noch keine gespeicherten Unterhaltungen.",
+    "untitled": "Unbenannte Unterhaltung",
+    "rename": "Umbenennen",
+    "renamePlaceholder": "Name der Unterhaltung",
+    "messageCount": "{count} Nachrichten",
+    "justNow": "gerade eben",
+    "minutesAgo": "vor {count} Min.",
+    "hoursAgo": "vor {count} Std.",
+    "daysAgo": "vor {count} T.",
+    "loadFailed": "Diese Unterhaltung konnte nicht geöffnet werden.",
+    "renameFailed": "Diese Unterhaltung konnte nicht umbenannt werden.",
+    "deleteFailed": "Diese Unterhaltung konnte nicht gelöscht werden."
   },
   "embeddings": {
     "title": "Modelle",

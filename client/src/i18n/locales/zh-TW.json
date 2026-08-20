@@ -523,6 +523,16 @@
     "modelScopeClear": "清除範圍",
     "modelScopeBadgeOne": "限定 · 1 個模型",
     "modelScopeBadgeOther": "限定 · {count} 個模型",
+    "modelPicker": {
+      "title": "此金鑰應服務哪些模型？",
+      "hint": "您的 {provider} 金鑰已新增，目前可服務下方所有模型。請取消勾選此金鑰不可使用的模型——路由器會為這些模型略過此金鑰。",
+      "count": "已選擇 {selected} 個，共 {total} 個",
+      "allNote": "已全選——不會儲存任何限制，日後新增至目錄的模型也會使用此金鑰。",
+      "subsetNote": "此金鑰將僅限於所選模型。日後可在該金鑰所在列變更。",
+      "skip": "暫不設定",
+      "scopedOne": "金鑰已限定為 1 個模型",
+      "scopedOther": "金鑰已限定為 {count} 個模型"
+    },
     "cpTitle": "用戶端設定檔",
     "cpDesc": "為每個用戶端各自發放 API 金鑰，伺服器會一律套用其系統提示詞。",
     "cpEmpty": "尚無用戶端設定檔。",
@@ -658,6 +668,24 @@
     "attachFailed": "無法讀取 {name}。",
     "noVisionBadge": "無圖像",
     "visionWarning": "{model} 不接受圖像。請選擇視覺模型或「自動」。"
+  },
+  "playgroundSessions": {
+    "heading": "對話",
+    "newConversation": "新增對話",
+    "showSidebar": "顯示對話",
+    "hideSidebar": "隱藏對話",
+    "empty": "尚無已儲存的對話。",
+    "untitled": "未命名對話",
+    "rename": "重新命名",
+    "renamePlaceholder": "對話名稱",
+    "messageCount": "{count} 則訊息",
+    "justNow": "剛剛",
+    "minutesAgo": "{count} 分鐘前",
+    "hoursAgo": "{count} 小時前",
+    "daysAgo": "{count} 天前",
+    "loadFailed": "無法開啟該對話。",
+    "renameFailed": "無法重新命名該對話。",
+    "deleteFailed": "無法刪除該對話。"
   },
   "embeddings": {
     "title": "模型",

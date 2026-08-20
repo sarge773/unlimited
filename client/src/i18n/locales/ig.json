@@ -519,6 +519,16 @@
     "modelScopeClear": "Hichapụ oke",
     "modelScopeBadgeOne": "oke · model 1",
     "modelScopeBadgeOther": "oke · model {count}",
+    "modelPicker": {
+      "title": "Kedu ụdị ndị igodo a kwesịrị iweta?",
+      "hint": "Etinyela igodo {provider} gị, ọ na-ewetakwa ụdị niile dị n'okpuru ugbu a. Wepụ akara na nke ọ bụla igodo a na-enweghị ikike iji — rawụta ga-agafe ya maka ndị ahụ.",
+      "count": "Ahọrọla {selected} n'ime {total}",
+      "allNote": "Ahọrọla ihe niile — ọ dịghị ihe a na-echekwa, ụdị ndị a ga-agbakwụnye na katalọgụ mgbe e mesịrị ga-ejikwa igodo a.",
+      "subsetNote": "A ga-ejedebe igodo a naanị na ụdị ndị ahọpụtara. Ị nwere ike ịgbanwe nke a mgbe e mesịrị site n'ahịrị igodo ahụ.",
+      "skip": "Ọ bụghị ugbu a",
+      "scopedOne": "Igodo ejedebere na model 1",
+      "scopedOther": "Igodo ejedebere na model {count}"
+    },
     "cpTitle": "Profaịlụ ndị ahịa",
     "cpDesc": "Igodo API maka onye ahịa ọ bụla, nke ọ bụla nwere ntụziaka sistemu nke sava na-etinye mgbe niile.",
     "cpEmpty": "Enwebeghị profaịlụ onye ahịa.",
@@ -658,6 +668,24 @@
     "attachFailed": "Enweghị ike ịgụ {name}.",
     "noVisionBadge": "Enweghị onyonyo",
     "visionWarning": "{model} anaghị anabata onyonyo. Họrọ ụdị na-anabata onyonyo ma ọ bụ Akpaaka."
+  },
+  "playgroundSessions": {
+    "heading": "Mkparịta ụka",
+    "newConversation": "Mkparịta ụka ọhụrụ",
+    "showSidebar": "Gosi mkparịta ụka",
+    "hideSidebar": "Zoo mkparịta ụka",
+    "empty": "Enweghị mkparịta ụka echekwara ruo ugbu a.",
+    "untitled": "Mkparịta ụka enweghị aha",
+    "rename": "Nyegharịa aha",
+    "renamePlaceholder": "Aha mkparịta ụka",
+    "messageCount": "Ozi {count}",
+    "justNow": "ugbu a",
+    "minutesAgo": "nkeji {count} gara aga",
+    "hoursAgo": "awa {count} gara aga",
+    "daysAgo": "ụbọchị {count} gara aga",
+    "loadFailed": "Enweghị ike imepe mkparịta ụka ahụ.",
+    "renameFailed": "Enweghị ike ịnyegharị aha mkparịta ụka ahụ.",
+    "deleteFailed": "Enweghị ike ihichapụ mkparịta ụka ahụ."
   },
   "embeddings": {
     "title": "Ụdị",

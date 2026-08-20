@@ -519,6 +519,16 @@
     "modelScopeClear": "スコープを解除",
     "modelScopeBadgeOne": "限定 · 1 モデル",
     "modelScopeBadgeOther": "限定 · {count} モデル",
+    "modelPicker": {
+      "title": "このキーをどのモデルで使用しますか？",
+      "hint": "{provider} のキーを追加しました。現在は以下のすべてのモデルで使用されます。このキーを使用できないモデルはチェックを外してください。それらのモデルではルーターがこのキーをスキップします。",
+      "count": "{total} 件中 {selected} 件を選択",
+      "allNote": "すべて選択されています。この場合は何も保存されず、今後カタログに追加されるモデルでもこのキーが使用されます。",
+      "subsetNote": "このキーは選択したモデルに限定されます。この設定は後からキーの行で変更できます。",
+      "skip": "今はしない",
+      "scopedOne": "キーを 1 モデルに限定しました",
+      "scopedOther": "キーを {count} モデルに限定しました"
+    },
     "cpTitle": "クライアントプロファイル",
     "cpDesc": "クライアントごとの API キー。それぞれのシステムプロンプトをサーバーが常に適用します。",
     "cpEmpty": "クライアントプロファイルはまだありません。",
@@ -658,6 +668,24 @@
     "attachFailed": "{name} を読み取れませんでした。",
     "noVisionBadge": "画像不可",
     "visionWarning": "{model} は画像を受け付けません。ビジョン モデルまたは「自動」を選択してください。"
+  },
+  "playgroundSessions": {
+    "heading": "会話",
+    "newConversation": "新しい会話",
+    "showSidebar": "会話を表示",
+    "hideSidebar": "会話を非表示",
+    "empty": "保存された会話はまだありません。",
+    "untitled": "無題の会話",
+    "rename": "名前を変更",
+    "renamePlaceholder": "会話名",
+    "messageCount": "{count} 件のメッセージ",
+    "justNow": "たった今",
+    "minutesAgo": "{count}分前",
+    "hoursAgo": "{count}時間前",
+    "daysAgo": "{count}日前",
+    "loadFailed": "この会話を開けませんでした。",
+    "renameFailed": "この会話の名前を変更できませんでした。",
+    "deleteFailed": "この会話を削除できませんでした。"
   },
   "embeddings": {
     "title": "モデル",

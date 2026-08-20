@@ -519,6 +519,16 @@
     "modelScopeClear": "Vymazat rozsah",
     "modelScopeBadgeOne": "omezený · 1 model",
     "modelScopeBadgeOther": "omezený · {count} modelů",
+    "modelPicker": {
+      "title": "Které modely má tento klíč obsluhovat?",
+      "hint": "Váš klíč {provider} byl přidán a nyní obsluhuje všechny modely níže. Odškrtněte ty, které tento klíč nesmí používat — router jej pro ně přeskočí.",
+      "count": "Vybráno {selected} z {total}",
+      "allNote": "Vybráno vše — nic se neukládá a modely přidané do katalogu později budou tento klíč používat také.",
+      "subsetNote": "Tento klíč bude omezen na vybrané modely. Změnit to můžete později v řádku klíče.",
+      "skip": "Teď ne",
+      "scopedOne": "Klíč omezen na 1 model",
+      "scopedOther": "Klíč omezen na {count} modelů"
+    },
     "cpTitle": "Profily klientů",
     "cpDesc": "Samostatné API klíče pro každého klienta, každý se systémovým promptem, který server vždy použije.",
     "cpEmpty": "Zatím žádné profily klientů.",
@@ -658,6 +668,24 @@
     "attachFailed": "Soubor {name} se nepodařilo přečíst.",
     "noVisionBadge": "Bez obrázků",
     "visionWarning": "{model} nepřijímá obrázky. Zvolte model podporující obrázky nebo Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Konverzace",
+    "newConversation": "Nová konverzace",
+    "showSidebar": "Zobrazit konverzace",
+    "hideSidebar": "Skrýt konverzace",
+    "empty": "Zatím žádné uložené konverzace.",
+    "untitled": "Konverzace bez názvu",
+    "rename": "Přejmenovat",
+    "renamePlaceholder": "Název konverzace",
+    "messageCount": "{count} zpráv",
+    "justNow": "právě teď",
+    "minutesAgo": "před {count} min",
+    "hoursAgo": "před {count} h",
+    "daysAgo": "před {count} dny",
+    "loadFailed": "Konverzaci se nepodařilo otevřít.",
+    "renameFailed": "Konverzaci se nepodařilo přejmenovat.",
+    "deleteFailed": "Konverzaci se nepodařilo smazat."
   },
   "embeddings": {
     "title": "Modely",

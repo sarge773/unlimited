@@ -519,6 +519,16 @@
     "modelScopeClear": "Bereik wissen",
     "modelScopeBadgeOne": "beperkt · 1 model",
     "modelScopeBadgeOther": "beperkt · {count} modellen",
+    "modelPicker": {
+      "title": "Welke modellen moet deze sleutel bedienen?",
+      "hint": "Je {provider}-sleutel is toegevoegd en bedient op dit moment alle modellen hieronder. Vink de modellen uit waarvoor deze sleutel niet gebruikt mag worden — de router slaat de sleutel daarvoor over.",
+      "count": "{selected} van {total} geselecteerd",
+      "allNote": "Alles is geselecteerd — er wordt niets opgeslagen, en modellen die later aan de catalogus worden toegevoegd, gebruiken deze sleutel ook.",
+      "subsetNote": "Deze sleutel wordt beperkt tot de geselecteerde modellen. Je kunt dit later wijzigen via de rij van de sleutel.",
+      "skip": "Niet nu",
+      "scopedOne": "Sleutel beperkt tot 1 model",
+      "scopedOther": "Sleutel beperkt tot {count} modellen"
+    },
     "cpTitle": "Clientprofielen",
     "cpDesc": "API-sleutels per client, elk met een systeemprompt die de server altijd toepast.",
     "cpEmpty": "Nog geen clientprofielen.",
@@ -658,6 +668,24 @@
     "attachFailed": "Kan {name} niet lezen.",
     "noVisionBadge": "Geen afbeeldingen",
     "visionWarning": "{model} accepteert geen afbeeldingen. Kies een model met beeldinvoer of Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Gesprekken",
+    "newConversation": "Nieuw gesprek",
+    "showSidebar": "Gesprekken tonen",
+    "hideSidebar": "Gesprekken verbergen",
+    "empty": "Nog geen opgeslagen gesprekken.",
+    "untitled": "Naamloos gesprek",
+    "rename": "Naam wijzigen",
+    "renamePlaceholder": "Naam van gesprek",
+    "messageCount": "{count} berichten",
+    "justNow": "zojuist",
+    "minutesAgo": "{count} min geleden",
+    "hoursAgo": "{count} u geleden",
+    "daysAgo": "{count} d geleden",
+    "loadFailed": "Kan dat gesprek niet openen.",
+    "renameFailed": "Kan de naam van dat gesprek niet wijzigen.",
+    "deleteFailed": "Kan dat gesprek niet verwijderen."
   },
   "embeddings": {
     "title": "Modellen",

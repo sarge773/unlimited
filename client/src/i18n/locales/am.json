@@ -519,6 +519,16 @@
     "modelScopeClear": "ወሰን አጥፋ",
     "modelScopeBadgeOne": "የተገደበ · 1 ሞዴል",
     "modelScopeBadgeOther": "የተገደበ · {count} ሞዴሎች",
+    "modelPicker": {
+      "title": "ይህ ቁልፍ የትኞቹን ሞዴሎች ያገልግል?",
+      "hint": "የ{provider} ቁልፍዎ ተጨምሯል እና በአሁኑ ጊዜ ከታች ያሉትን ሁሉንም ሞዴሎች ያገለግላል። ይህ ቁልፍ እንዲጠቀምባቸው ያልተፈቀደላቸውን ሞዴሎች ምልክት ያንሱ — ራውተሩ ለእነሱ ይህን ቁልፍ ያልፋል።",
+      "count": "ከ{total} ውስጥ {selected} ተመርጠዋል",
+      "allNote": "ሁሉም ተመርጠዋል — ምንም አይቀመጥም፣ እና ወደፊት ወደ ካታሎግ የሚጨመሩ ሞዴሎችም ይህን ቁልፍ ይጠቀማሉ።",
+      "subsetNote": "ይህ ቁልፍ በተመረጡት ሞዴሎች ብቻ ይገደባል። ይህን በኋላ ከቁልፉ ረድፍ መቀየር ይችላሉ።",
+      "skip": "አሁን አይደለም",
+      "scopedOne": "ቁልፍ በ1 ሞዴል ተገድቧል",
+      "scopedOther": "ቁልፍ በ{count} ሞዴሎች ተገድቧል"
+    },
     "cpTitle": "የደንበኛ መገለጫዎች",
     "cpDesc": "ለእያንዳንዱ ደንበኛ የተለየ የ API ቁልፍ፣ እያንዳንዱም አገልጋዩ ሁልጊዜ የሚተገብረው የስርዓት መመሪያ አለው።",
     "cpEmpty": "እስካሁን የደንበኛ መገለጫ የለም።",
@@ -658,6 +668,24 @@
     "attachFailed": "{name} ማንበብ አልተቻለም።",
     "noVisionBadge": "ምስል የለም",
     "visionWarning": "{model} ምስሎችን አይቀበልም። ምስል የሚቀበል ሞዴል ወይም ራስ-ሰር ይምረጡ።"
+  },
+  "playgroundSessions": {
+    "heading": "ውይይቶች",
+    "newConversation": "አዲስ ውይይት",
+    "showSidebar": "ውይይቶችን አሳይ",
+    "hideSidebar": "ውይይቶችን ደብቅ",
+    "empty": "እስካሁን የተቀመጠ ውይይት የለም።",
+    "untitled": "ርዕስ የሌለው ውይይት",
+    "rename": "ስም ቀይር",
+    "renamePlaceholder": "የውይይት ስም",
+    "messageCount": "{count} መልእክቶች",
+    "justNow": "አሁን",
+    "minutesAgo": "ከ{count} ደቂቃ በፊት",
+    "hoursAgo": "ከ{count} ሰዓት በፊት",
+    "daysAgo": "ከ{count} ቀን በፊት",
+    "loadFailed": "ያንን ውይይት መክፈት አልተቻለም።",
+    "renameFailed": "ያንን ውይይት እንደገና መሰየም አልተቻለም።",
+    "deleteFailed": "ያንን ውይይት መሰረዝ አልተቻለም።"
   },
   "embeddings": {
     "title": "ሞዴሎች",

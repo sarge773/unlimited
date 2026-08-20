@@ -519,6 +519,16 @@
     "modelScopeClear": "Išvalyti aprėptį",
     "modelScopeBadgeOne": "apribotas · 1 modelis",
     "modelScopeBadgeOther": "apribotas · {count} modeliai",
+    "modelPicker": {
+      "title": "Kuriuos modelius turėtų aptarnauti šis raktas?",
+      "hint": "Jūsų {provider} raktas pridėtas ir šiuo metu aptarnauja visus toliau pateiktus modelius. Atžymėkite tuos, kurių šiam raktui naudoti negalima — maršrutizatorius jį jiems praleis.",
+      "count": "Pasirinkta {selected} iš {total}",
+      "allNote": "Pasirinkta viskas — niekas neįrašoma, o vėliau į katalogą įtraukti modeliai taip pat naudos šį raktą.",
+      "subsetNote": "Šis raktas bus apribotas pasirinktais modeliais. Tai galėsite pakeisti vėliau rakto eilutėje.",
+      "skip": "Ne dabar",
+      "scopedOne": "Raktas apribotas 1 modeliu",
+      "scopedOther": "Raktas apribotas iki {count} modelių"
+    },
     "cpTitle": "Klientų profiliai",
     "cpDesc": "Atskiri API raktai kiekvienam klientui, kiekvienas su sisteminiu promptu, kurį serveris visada taiko.",
     "cpEmpty": "Klientų profilių kol kas nėra.",
@@ -658,6 +668,24 @@
     "attachFailed": "Nepavyko perskaityti failo {name}.",
     "noVisionBadge": "Be vaizdų",
     "visionWarning": "Modelis {model} nepriima vaizdų. Pasirinkite vaizdo įvestį palaikantį modelį arba Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Pokalbiai",
+    "newConversation": "Naujas pokalbis",
+    "showSidebar": "Rodyti pokalbius",
+    "hideSidebar": "Slėpti pokalbius",
+    "empty": "Išsaugotų pokalbių dar nėra.",
+    "untitled": "Pokalbis be pavadinimo",
+    "rename": "Pervadinti",
+    "renamePlaceholder": "Pokalbio pavadinimas",
+    "messageCount": "{count} žinučių",
+    "justNow": "ką tik",
+    "minutesAgo": "prieš {count} min.",
+    "hoursAgo": "prieš {count} val.",
+    "daysAgo": "prieš {count} d.",
+    "loadFailed": "Nepavyko atidaryti šio pokalbio.",
+    "renameFailed": "Nepavyko pervadinti šio pokalbio.",
+    "deleteFailed": "Nepavyko ištrinti šio pokalbio."
   },
   "embeddings": {
     "title": "Modeliai",

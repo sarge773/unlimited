@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronRight, CircleAlert, FileText, Paperclip, X } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -27,6 +27,22 @@ import {
   type Attachment,
 } from '@/lib/attachments'
 import { readChatStream } from '@/lib/playground-stream'
+import { ConversationSidebar } from '@/components/playground/conversation-sidebar'
+import {
+  SIDEBAR_OPEN_KEY,
+  autoTitle,
+  createConversation,
+  deleteConversation,
+  getConversation,
+  listConversations,
+  readActiveConversationId,
+  toStoredMessages,
+  updateConversation,
+  writeActiveConversationId,
+  type ChatMessage,
+  type ConversationSummary,
+  type FusionPanelEntry,
+} from '@/lib/playground-conversations'
 import { useI18n } from '@/i18n'
 
 interface FallbackEntry {
@@ -43,42 +59,9 @@ interface FallbackEntry {
   keyCount: number
 }
 
-interface ChatMessage {
-  role: 'user' | 'assistant'
-  content: string
-  // Data URIs of the images attached to this turn: rendered as thumbnails in
-  // the bubble and replayed as `image_url` parts on every follow-up request.
-  images?: string[]
-  // Request-level failure rendered as a distinct error bubble, not a fake
-  // assistant reply.
-  isError?: boolean
-  // Thinking tokens (`delta.reasoning_content`) accumulated separately from the
-  // answer, shown as a collapsible aside above it.
-  reasoning?: string
-  // True while this bubble is still being filled in by an open stream.
-  streaming?: boolean
-  meta?: {
-    platform?: string
-    model?: string
-    latency?: number
-    fallbackAttempts?: number
-    // Fusion responses: the panel models (with their answers, for the
-    // collapsible trace) and the judge that synthesized them (null when not
-    // synthesized — single survivor / best_of). `fusionStreaming` is true while
-    // panel/judge frames are still arriving.
-    fusionPanel?: FusionPanelEntry[]
-    fusionJudge?: { platform: string; model: string } | null
-    fusionStreaming?: boolean
-  }
-}
-
-interface FusionPanelEntry {
-  platform: string
-  model: string
-  status?: 'ok' | 'failed'
-  content?: string
-  error?: string
-}
+// ChatMessage / FusionPanelEntry now live in lib/playground-conversations.ts:
+// the transcript is persisted, so its shape is shared with the storage layer
+// rather than owned by this component.
 
 // Render a fusion panel/judge entry as "platform/model", but avoid doubling
 // the provider when the model id already carries it (e.g. openrouter/owl-alpha,
@@ -213,6 +196,31 @@ export default function PlaygroundPage() {
   // again, or navigates away mid-stream.
   const abortRef = useRef<AbortController | null>(null)
 
+  // ---- Saved conversations -------------------------------------------------
+  // The transcript lives on the server now. `conversationId` is the row this
+  // page is writing to; null means "nothing sent yet", and no row exists until
+  // the first message — a fresh visit still opens on an empty transcript.
+  const queryClient = useQueryClient()
+  const [conversationId, setConversationId] = useState<number | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(
+    () => localStorage.getItem(SIDEBAR_OPEN_KEY) !== 'false',
+  )
+  // Mirrors of state the async save paths read AFTER their closure was made:
+  // a stream that started before the row existed still has to save into it.
+  const conversationIdRef = useRef<number | null>(null)
+  const titleRef = useRef('')
+  // Memoised create, so two saves racing at the start of a conversation (a
+  // fast first answer and a quick second question) cannot mint two rows.
+  const createRef = useRef<Promise<number | null> | null>(null)
+
+  const { data: conversations = [] } = useQuery<ConversationSummary[]>({
+    queryKey: ['playground-conversations'],
+    queryFn: listConversations,
+  })
+  const refreshConversations = () => {
+    queryClient.invalidateQueries({ queryKey: ['playground-conversations'] })
+  }
+
   const { data: keyData } = useQuery<{ apiKey: string }>({
     queryKey: ['unified-key'],
     queryFn: () => apiFetch('/api/settings/api-key'),
@@ -271,6 +279,171 @@ export default function PlaygroundPage() {
   // setMessages on an unmounted tree (and hold the socket open).
   useEffect(() => () => abortRef.current?.abort(), [])
 
+  // Adopt a conversation the server just handed back as the one this page is
+  // writing to, and remember it for the next reload.
+  const adoptConversation = (id: number, title: string) => {
+    conversationIdRef.current = id
+    titleRef.current = title
+    setConversationId(id)
+    writeActiveConversationId(id)
+  }
+
+  // The id to save into, creating the row on the first message. Returns null
+  // when the create failed — saving is best-effort, never something that costs
+  // you the answer on screen.
+  const conversationIdFor = (msgs: ChatMessage[]): Promise<number | null> => {
+    if (conversationIdRef.current !== null) return Promise.resolve(conversationIdRef.current)
+    if (!createRef.current) {
+      createRef.current = createConversation({
+        title: autoTitle(msgs),
+        messages: toStoredMessages(msgs),
+        model: selectedModel,
+        systemPrompt: systemPrompt.trim() || null,
+      })
+        .then(created => {
+          adoptConversation(created.id, created.title)
+          refreshConversations()
+          return created.id
+        })
+        .catch(err => {
+          // Let the next completed exchange try again rather than wedging the
+          // page on one bad request.
+          createRef.current = null
+          console.error('[playground] could not create the conversation', err)
+          return null
+        })
+    }
+    return createRef.current
+  }
+
+  // Save the whole conversation — transcript, title, model, system prompt — in
+  // one PUT. Called when a response FINISHES (never per delta) and on
+  // rename/clear. A failure is logged and dropped: the transcript on screen is
+  // the source of truth, and the next exchange saves it again.
+  const persistConversation = async (msgs: ChatMessage[]) => {
+    const id = await conversationIdFor(msgs)
+    if (id === null) return
+    try {
+      const saved = await updateConversation(id, {
+        // Auto-title once, from the opening question; a rename makes the title
+        // non-empty for good, so it is never recomputed over.
+        title: titleRef.current || autoTitle(msgs),
+        messages: toStoredMessages(msgs),
+        model: selectedModel,
+        systemPrompt: systemPrompt.trim() || null,
+      })
+      if (conversationIdRef.current === id) titleRef.current = saved.title
+      refreshConversations()
+    } catch (err) {
+      console.error('[playground] could not save the conversation', err)
+    }
+  }
+
+  // Drop everything tied to the current conversation. Shared by "new
+  // conversation", "clear", and a stored id that no longer exists.
+  const resetConversationState = () => {
+    abortRef.current?.abort()
+    abortRef.current = null
+    conversationIdRef.current = null
+    titleRef.current = ''
+    createRef.current = null
+    setConversationId(null)
+    writeActiveConversationId(null)
+    setMessages([])
+    setAttachments([])
+    followRef.current = true
+  }
+
+  // Save whatever is on screen before it goes away — leaving a conversation
+  // mid-stream should keep the part that had already arrived. The last
+  // completed exchange saved itself; this only ever adds to that.
+  const flushCurrentConversation = () => {
+    if (messages.length > 0) void persistConversation(messages)
+  }
+
+  // Switch to a saved conversation: transcript, model and system prompt all
+  // come back, so you land exactly where you left it.
+  const openConversation = async (id: number) => {
+    abortRef.current?.abort()
+    abortRef.current = null
+    const conversation = await getConversation(id)
+    createRef.current = null
+    setMessages(conversation.messages)
+    setAttachments([])
+    pickModel(conversation.model ?? 'auto')
+    updateSystemPrompt(conversation.systemPrompt ?? '')
+    setSystemPromptOpen(!!conversation.systemPrompt)
+    adoptConversation(conversation.id, conversation.title)
+    followRef.current = true
+    inputRef.current?.focus()
+  }
+
+  const handleSelectConversation = (id: number) => {
+    if (id === conversationIdRef.current) return
+    flushCurrentConversation()
+    openConversation(id).catch(err => {
+      console.error('[playground] could not open the conversation', err)
+      toast.error(t('playgroundSessions.loadFailed'))
+      refreshConversations()
+    })
+  }
+
+  // "New conversation" and "Clear" are the same move now: bank the current
+  // transcript, then start with a blank one. The old chat stays in the sidebar.
+  const handleNewConversation = () => {
+    flushCurrentConversation()
+    resetConversationState()
+    inputRef.current?.focus()
+  }
+
+  const handleRenameConversation = (id: number, title: string) => {
+    // Title only: a rename must not race the transcript of an in-flight answer
+    // away, which is exactly what re-sending messages here would risk.
+    updateConversation(id, { title })
+      .then(saved => {
+        if (conversationIdRef.current === id) titleRef.current = saved.title
+        refreshConversations()
+      })
+      .catch(err => {
+        console.error('[playground] could not rename the conversation', err)
+        toast.error(t('playgroundSessions.renameFailed'))
+      })
+  }
+
+  const handleDeleteConversation = (id: number) => {
+    deleteConversation(id)
+      .then(() => {
+        // Deleting the open one leaves the Playground on a blank slate, the
+        // same state a first-ever visit gets.
+        if (conversationIdRef.current === id) resetConversationState()
+        refreshConversations()
+      })
+      .catch(err => {
+        console.error('[playground] could not delete the conversation', err)
+        toast.error(t('playgroundSessions.deleteFailed'))
+      })
+  }
+
+  const toggleSidebar = () => {
+    setSidebarOpen(open => {
+      localStorage.setItem(SIDEBAR_OPEN_KEY, String(!open))
+      return !open
+    })
+  }
+
+  // Reopen whatever was on screen before the reload. A stored id that no longer
+  // exists (deleted in another tab) just falls back to an empty transcript.
+  useEffect(() => {
+    const stored = readActiveConversationId()
+    if (stored === null) return
+    // The state it sets lands after the fetch resolves, not during this body —
+    // restoring the session IS synchronising React with an external system.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    openConversation(stored).catch(() => writeActiveConversationId(null))
+    // Mount only: this restores the session, it does not track later changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Read a fusion SSE stream, updating the assistant message in place as panel
   // answers + the judge arrive (additive `_fusion` frames) and the final answer
   // streams as content deltas.
@@ -282,12 +455,16 @@ export default function PlaygroundPage() {
     const panel: FusionPanelEntry[] = []
     let judge: { platform: string; model: string } | null = null
 
-    const flush = (streaming: boolean) => {
-      setMessages([...baseMessages, {
+    // Returns the transcript it rendered, so the final flush can hand the
+    // finished exchange straight to the save without rebuilding it.
+    const flush = (streaming: boolean): ChatMessage[] => {
+      const next: ChatMessage[] = [...baseMessages, {
         role: 'assistant',
         content: finalContent,
         meta: { latency: Date.now() - start, fusionPanel: [...panel], fusionJudge: judge, fusionStreaming: streaming },
-      }])
+      }]
+      setMessages(next)
+      return next
     }
     flush(true)
 
@@ -320,7 +497,8 @@ export default function PlaygroundPage() {
         }
       }
     }
-    flush(false)
+    // The exchange is complete: one save, here, never per delta.
+    await persistConversation(flush(false))
   }
 
   // Read a plain (non-fusion) OpenAI chat stream, filling the assistant bubble
@@ -342,7 +520,9 @@ export default function PlaygroundPage() {
     let reasoning = ''
     let failure: string | null = null
 
-    const flush = (streaming: boolean) => {
+    // Returns the transcript it rendered, so the final flush can hand the
+    // finished exchange straight to the save without rebuilding it.
+    const flush = (streaming: boolean): ChatMessage[] => {
       const next: ChatMessage[] = [...baseMessages]
       // A stream that broke before the first token has nothing to show but the
       // error; one that broke halfway keeps what it managed to say.
@@ -362,6 +542,7 @@ export default function PlaygroundPage() {
       }
       if (failure !== null) next.push({ role: 'assistant', isError: true, content: failure })
       setMessages(next)
+      return next
     }
 
     await readChatStream(stream, {
@@ -369,7 +550,8 @@ export default function PlaygroundPage() {
       onReasoning: text => { reasoning += text; flush(true) },
       onError: message => { failure = message; flush(true) },
     })
-    flush(false)
+    // The exchange is complete: one save, here, never per delta.
+    await persistConversation(flush(false))
   }
 
   // Stage dropped/pasted/picked files. Every rejection is reported by name so a
@@ -439,6 +621,12 @@ export default function PlaygroundPage() {
     setLoading(true)
     inputRef.current?.focus()
 
+    // The server row is born HERE — with the first message, not on arrival at
+    // the page — so a visit that sends nothing leaves no trace in the sidebar.
+    // Not awaited: the create runs alongside the completion, and every save
+    // below waits on the same memoised promise.
+    void conversationIdFor(newMessages)
+
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
       if (keyData?.apiKey) headers['Authorization'] = `Bearer ${keyData.apiKey}`
@@ -476,11 +664,15 @@ export default function PlaygroundPage() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: { message: `HTTP ${res.status}` } }))
-        setMessages([...newMessages, {
+        // A refused request still ends an exchange, and the question that
+        // provoked it is worth keeping — save the error bubble along with it.
+        const failed: ChatMessage[] = [...newMessages, {
           role: 'assistant',
           isError: true,
           content: err.error?.message ?? t('common.unknownError'),
-        }])
+        }]
+        setMessages(failed)
+        await persistConversation(failed)
         return
       }
 
@@ -512,7 +704,7 @@ export default function PlaygroundPage() {
         | { panel: { platform: string; model: string }[]; judge: { platform: string; model: string } | null }
         | undefined
 
-      setMessages([...newMessages, {
+      const answered: ChatMessage[] = [...newMessages, {
         role: 'assistant',
         content,
         meta: {
@@ -523,17 +715,21 @@ export default function PlaygroundPage() {
           fusionPanel: fusion?.panel,
           fusionJudge: fusion?.judge,
         },
-      }])
+      }]
+      setMessages(answered)
+      await persistConversation(answered)
     } catch (err: any) {
       // Clearing the chat (or leaving the page) aborts the stream on purpose —
       // that is not a failure to report, and the transcript it belonged to is
       // already gone.
       if (err?.name === 'AbortError') return
-      setMessages([...newMessages, {
+      const failed: ChatMessage[] = [...newMessages, {
         role: 'assistant',
         isError: true,
         content: err.message,
-      }])
+      }]
+      setMessages(failed)
+      await persistConversation(failed)
     } finally {
       setLoading(false)
       setTimeout(() => inputRef.current?.focus(), 0)
@@ -547,16 +743,11 @@ export default function PlaygroundPage() {
     }
   }
 
-  const handleClear = () => {
-    // Clearing mid-stream has to stop the stream too, or its next frame would
-    // paste the half-finished answer back into the empty transcript.
-    abortRef.current?.abort()
-    abortRef.current = null
-    setMessages([])
-    setAttachments([])
-    followRef.current = true
-    inputRef.current?.focus()
-  }
+  // "Clear" no longer throws the chat away: it starts a NEW conversation and
+  // leaves the old one in the sidebar. (resetConversationState stops an open
+  // stream too, or its next frame would paste the half-finished answer back
+  // into the empty transcript.)
+  const handleClear = handleNewConversation
 
   // Searchable picker options: auto + fusion pinned at the top, then every model
   // ordered BY INTELLIGENCE — size tier first (Frontier→Small), then the catalog
@@ -627,244 +818,260 @@ export default function PlaygroundPage() {
         }
       />
 
-      <div className="flex-1 flex flex-col rounded-3xl border bg-card overflow-hidden min-h-0">
-        <div ref={transcriptRef} className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-center">
-              <div className="space-y-2 max-w-sm">
-                <p className="text-base font-medium">{t('playground.emptyTitle')}</p>
-                <p className="text-sm text-muted-foreground">
-                  {t('playground.emptyDescription', { model: activeModelLabel })}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <>
-              {messages.map((msg, i) => {
-                const fusionPanel = msg.meta?.fusionPanel
-                const okPanel = fusionPanel?.filter(p => p.status !== 'failed') ?? []
-                // Skip an empty assistant bubble while the fusion trace is still
-                // streaming in (no final answer yet) — the trace shows below.
-                // Reasoning that arrives before the first answer token counts:
-                // that IS the bubble's content for the moment.
-                const showBubble = msg.role === 'user' || msg.content.length > 0 || !!msg.reasoning
-                return (
-                  <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`flex flex-col gap-1 max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                      {showBubble && (
-                        <div
-                          className={`group relative rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                            msg.role === 'user'
-                              ? 'bg-primary text-primary-foreground'
-                              : msg.isError
-                                ? 'border border-destructive/25 bg-destructive/10 text-destructive'
-                                : 'bg-muted'
-                          }`}
-                        >
-                          {msg.images && msg.images.length > 0 && (
-                            <div className="mb-2 flex flex-wrap gap-1.5">
-                              {msg.images.map((src, n) => (
-                                <img key={n} src={src} alt="" className="size-20 rounded-lg object-cover" />
-                              ))}
-                            </div>
-                          )}
-                          {msg.isError ? (
-                            <div className="flex items-start gap-2">
-                              <CircleAlert className="mt-0.5 size-4 shrink-0" />
-                              <div className="min-w-0">
-                                <p className="font-medium">{t('playground.errorTitle')}</p>
-                                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                              </div>
-                            </div>
-                          ) : msg.role === 'assistant' ? (
-                            <>
-                              {msg.reasoning && (
-                                <ReasoningTrace text={msg.reasoning} answerStarted={msg.content.length > 0} />
-                              )}
-                              <Markdown>{msg.content}</Markdown>
-                            </>
-                          ) : (
-                            <div className="whitespace-pre-wrap">{msg.content}</div>
-                          )}
-                          {msg.role === 'assistant' && !msg.isError && msg.content && (
-                            <CopyButton
-                              text={msg.content}
-                              label={t('playground.copyReply')}
-                              className="absolute right-1.5 top-1.5 size-6 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
-                            />
-                          )}
-                          {msg.meta && (
-                            <div className="flex items-center gap-2 mt-2 flex-wrap text-[11px] opacity-70 tabular-nums">
-                              {(fusionPanel || msg.meta.fusionStreaming) ? (
-                                <>
-                                  {okPanel.length > 0 && (
-                                    <span>
-                                      {t('playground.fusionPanel')}:{' '}
-                                      <span className="font-mono">{okPanel.map(fusionRouteLabel).join(', ')}</span>
-                                    </span>
-                                  )}
-                                  {msg.meta.fusionJudge && (
-                                    <span>
-                                      · {t('playground.fusionJudge')}:{' '}
-                                      <span className="font-mono">{fusionRouteLabel(msg.meta.fusionJudge)}</span>
-                                    </span>
-                                  )}
-                                  {msg.meta.latency != null && <span>· {msg.meta.latency} ms</span>}
-                                </>
-                              ) : (
-                                <>
-                                  {msg.meta.platform && <span>{msg.meta.platform}</span>}
-                                  {msg.meta.model && <span className="font-mono">· {msg.meta.model}</span>}
-                                  {/* Which provider served it is known from the
-                                      response headers straight away; the timing
-                                      only means something once the last frame
-                                      has landed. */}
-                                  {msg.meta.latency != null && !msg.streaming && <span>· {msg.meta.latency} ms</span>}
-                                  {msg.meta.fallbackAttempts != null && msg.meta.fallbackAttempts > 0 && (
-                                    <span>· {msg.meta.fallbackAttempts} {msg.meta.fallbackAttempts > 1 ? t('playground.fallbacks') : t('playground.fallback')}</span>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      {msg.role === 'assistant' && fusionPanel && fusionPanel.length > 0 && (
-                        <FusionTrace
-                          panel={fusionPanel}
-                          judge={msg.meta?.fusionJudge}
-                          streaming={msg.meta?.fusionStreaming}
-                          answerStarted={msg.content.length > 0}
-                        />
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-              {/* Typing dots until the reply starts materialising — which is
-                  the first fusion frame, the first token of a stream, or the
-                  whole message on the buffered path. */}
-              {loading && messages[messages.length - 1]?.role === 'user' && (
-                <div className="flex justify-start">
-                  <div className="bg-muted rounded-2xl px-4 py-3">
-                    <div className="flex gap-1">
-                      <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </>
-          )}
-        </div>
+      {/* The sidebar sits BESIDE the chat card, never inside it: the transcript
+          keeps its own scroll container (and with it transcriptRef and the
+          follow-the-stream behaviour) exactly as it was. */}
+      <div className="flex flex-1 gap-3 min-h-0">
+        <ConversationSidebar
+          conversations={conversations}
+          activeId={conversationId}
+          open={sidebarOpen}
+          onToggle={toggleSidebar}
+          onNew={handleNewConversation}
+          onSelect={handleSelectConversation}
+          onRename={handleRenameConversation}
+          onDelete={handleDeleteConversation}
+        />
 
-        <div
-          className={`border-t bg-background/50 p-3 transition-colors ${dragging ? 'bg-primary/5 ring-1 ring-inset ring-primary/40' : ''}`}
-          onDragOver={e => { e.preventDefault(); setDragging(true) }}
-          onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false) }}
-          onDrop={e => {
-            e.preventDefault()
-            setDragging(false)
-            addFiles([...e.dataTransfer.files])
-          }}
-        >
-          <div className="mb-2">
-            <button
-              type="button"
-              onClick={() => setSystemPromptOpen(o => !o)}
-              className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <ChevronRight className={`size-3.5 transition-transform ${systemPromptOpen ? 'rotate-90' : ''}`} />
-              {t('playground.systemPromptLabel')}
-              {systemPrompt.trim() && <span className="ml-1 size-1.5 rounded-full bg-primary/70" />}
-            </button>
-            {systemPromptOpen && (
-              <textarea
-                value={systemPrompt}
-                onChange={e => updateSystemPrompt(e.target.value)}
-                placeholder={t('playground.systemPromptPlaceholder')}
-                rows={2}
-                className="mt-1.5 w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 min-h-[44px] max-h-[160px]"
-              />
+        <div className="flex-1 flex flex-col rounded-3xl border bg-card overflow-hidden min-h-0">
+          <div ref={transcriptRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+            {messages.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-center">
+                <div className="space-y-2 max-w-sm">
+                  <p className="text-base font-medium">{t('playground.emptyTitle')}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t('playground.emptyDescription', { model: activeModelLabel })}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {messages.map((msg, i) => {
+                  const fusionPanel = msg.meta?.fusionPanel
+                  const okPanel = fusionPanel?.filter(p => p.status !== 'failed') ?? []
+                  // Skip an empty assistant bubble while the fusion trace is still
+                  // streaming in (no final answer yet) — the trace shows below.
+                  // Reasoning that arrives before the first answer token counts:
+                  // that IS the bubble's content for the moment.
+                  const showBubble = msg.role === 'user' || msg.content.length > 0 || !!msg.reasoning
+                  return (
+                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`flex flex-col gap-1 max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                        {showBubble && (
+                          <div
+                            className={`group relative rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                              msg.role === 'user'
+                                ? 'bg-primary text-primary-foreground'
+                                : msg.isError
+                                  ? 'border border-destructive/25 bg-destructive/10 text-destructive'
+                                  : 'bg-muted'
+                            }`}
+                          >
+                            {msg.images && msg.images.length > 0 && (
+                              <div className="mb-2 flex flex-wrap gap-1.5">
+                                {msg.images.map((src, n) => (
+                                  <img key={n} src={src} alt="" className="size-20 rounded-lg object-cover" />
+                                ))}
+                              </div>
+                            )}
+                            {msg.isError ? (
+                              <div className="flex items-start gap-2">
+                                <CircleAlert className="mt-0.5 size-4 shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="font-medium">{t('playground.errorTitle')}</p>
+                                  <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                                </div>
+                              </div>
+                            ) : msg.role === 'assistant' ? (
+                              <>
+                                {msg.reasoning && (
+                                  <ReasoningTrace text={msg.reasoning} answerStarted={msg.content.length > 0} />
+                                )}
+                                <Markdown>{msg.content}</Markdown>
+                              </>
+                            ) : (
+                              <div className="whitespace-pre-wrap">{msg.content}</div>
+                            )}
+                            {msg.role === 'assistant' && !msg.isError && msg.content && (
+                              <CopyButton
+                                text={msg.content}
+                                label={t('playground.copyReply')}
+                                className="absolute right-1.5 top-1.5 size-6 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+                              />
+                            )}
+                            {msg.meta && (
+                              <div className="flex items-center gap-2 mt-2 flex-wrap text-[11px] opacity-70 tabular-nums">
+                                {(fusionPanel || msg.meta.fusionStreaming) ? (
+                                  <>
+                                    {okPanel.length > 0 && (
+                                      <span>
+                                        {t('playground.fusionPanel')}:{' '}
+                                        <span className="font-mono">{okPanel.map(fusionRouteLabel).join(', ')}</span>
+                                      </span>
+                                    )}
+                                    {msg.meta.fusionJudge && (
+                                      <span>
+                                        · {t('playground.fusionJudge')}:{' '}
+                                        <span className="font-mono">{fusionRouteLabel(msg.meta.fusionJudge)}</span>
+                                      </span>
+                                    )}
+                                    {msg.meta.latency != null && <span>· {msg.meta.latency} ms</span>}
+                                  </>
+                                ) : (
+                                  <>
+                                    {msg.meta.platform && <span>{msg.meta.platform}</span>}
+                                    {msg.meta.model && <span className="font-mono">· {msg.meta.model}</span>}
+                                    {/* Which provider served it is known from the
+                                        response headers straight away; the timing
+                                        only means something once the last frame
+                                        has landed. */}
+                                    {msg.meta.latency != null && !msg.streaming && <span>· {msg.meta.latency} ms</span>}
+                                    {msg.meta.fallbackAttempts != null && msg.meta.fallbackAttempts > 0 && (
+                                      <span>· {msg.meta.fallbackAttempts} {msg.meta.fallbackAttempts > 1 ? t('playground.fallbacks') : t('playground.fallback')}</span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {msg.role === 'assistant' && fusionPanel && fusionPanel.length > 0 && (
+                          <FusionTrace
+                            panel={fusionPanel}
+                            judge={msg.meta?.fusionJudge}
+                            streaming={msg.meta?.fusionStreaming}
+                            answerStarted={msg.content.length > 0}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+                {/* Typing dots until the reply starts materialising — which is
+                    the first fusion frame, the first token of a stream, or the
+                    whole message on the buffered path. */}
+                {loading && messages[messages.length - 1]?.role === 'user' && (
+                  <div className="flex justify-start">
+                    <div className="bg-muted rounded-2xl px-4 py-3">
+                      <div className="flex gap-1">
+                        <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </>
             )}
           </div>
-          {attachments.length > 0 && (
-            <div className="mb-2 flex flex-wrap gap-2">
-              {attachments.map(a => (
-                <div key={a.id} className="relative flex items-center gap-1.5 rounded-lg border bg-background py-1 pl-1.5 pr-6 text-xs">
-                  {a.kind === 'image' && a.dataUrl
-                    ? <img src={a.dataUrl} alt="" className="size-8 rounded object-cover" />
-                    : <FileText className="size-4 shrink-0 text-muted-foreground" />}
-                  <span className="max-w-[140px] truncate">{a.name}</span>
-                  <button
-                    type="button"
-                    aria-label={t('common.remove')}
-                    title={t('common.remove')}
-                    onClick={() => removeAttachment(a.id)}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <X className="size-3.5" />
-                  </button>
-                </div>
-              ))}
+
+          <div
+            className={`border-t bg-background/50 p-3 transition-colors ${dragging ? 'bg-primary/5 ring-1 ring-inset ring-primary/40' : ''}`}
+            onDragOver={e => { e.preventDefault(); setDragging(true) }}
+            onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false) }}
+            onDrop={e => {
+              e.preventDefault()
+              setDragging(false)
+              addFiles([...e.dataTransfer.files])
+            }}
+          >
+            <div className="mb-2">
+              <button
+                type="button"
+                onClick={() => setSystemPromptOpen(o => !o)}
+                className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ChevronRight className={`size-3.5 transition-transform ${systemPromptOpen ? 'rotate-90' : ''}`} />
+                {t('playground.systemPromptLabel')}
+                {systemPrompt.trim() && <span className="ml-1 size-1.5 rounded-full bg-primary/70" />}
+              </button>
+              {systemPromptOpen && (
+                <textarea
+                  value={systemPrompt}
+                  onChange={e => updateSystemPrompt(e.target.value)}
+                  placeholder={t('playground.systemPromptPlaceholder')}
+                  rows={2}
+                  className="mt-1.5 w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 min-h-[44px] max-h-[160px]"
+                />
+              )}
             </div>
-          )}
-          {modelBlindToImages && (
-            <div className="mb-2 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-              <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
-              <span>{t('playground.visionWarning', { model: activeModelLabel })}</span>
+            {attachments.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {attachments.map(a => (
+                  <div key={a.id} className="relative flex items-center gap-1.5 rounded-lg border bg-background py-1 pl-1.5 pr-6 text-xs">
+                    {a.kind === 'image' && a.dataUrl
+                      ? <img src={a.dataUrl} alt="" className="size-8 rounded object-cover" />
+                      : <FileText className="size-4 shrink-0 text-muted-foreground" />}
+                    <span className="max-w-[140px] truncate">{a.name}</span>
+                    <button
+                      type="button"
+                      aria-label={t('common.remove')}
+                      title={t('common.remove')}
+                      onClick={() => removeAttachment(a.id)}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {modelBlindToImages && (
+              <div className="mb-2 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
+                <span>{t('playground.visionWarning', { model: activeModelLabel })}</span>
+              </div>
+            )}
+            <div className="flex gap-2 items-end">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept={ACCEPT_ATTRIBUTE}
+                className="hidden"
+                onChange={e => {
+                  addFiles([...(e.target.files ?? [])])
+                  e.target.value = ''
+                }}
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading}
+                aria-label={t('playground.attach')}
+                title={t('playground.attach')}
+              >
+                <Paperclip className="size-4" />
+              </Button>
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onPaste={e => {
+                  // Screenshot straight from the clipboard; a normal text paste
+                  // carries no files and falls through untouched.
+                  const files = [...e.clipboardData.files]
+                  if (files.length === 0) return
+                  e.preventDefault()
+                  addFiles(files)
+                }}
+                placeholder={t('playground.inputPlaceholder')}
+                rows={1}
+                className="flex-1 resize-none rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 min-h-[40px] max-h-[160px]"
+                style={{ height: 'auto', overflow: 'hidden' }}
+                onInput={e => {
+                  const el = e.target as HTMLTextAreaElement
+                  el.style.height = 'auto'
+                  el.style.height = Math.min(el.scrollHeight, 160) + 'px'
+                }}
+              />
+              <Button onClick={handleSend} disabled={loading || (!input.trim() && attachments.length === 0)} size="default">
+                {loading ? t('playground.sending') : t('playground.send')}
+              </Button>
             </div>
-          )}
-          <div className="flex gap-2 items-end">
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept={ACCEPT_ATTRIBUTE}
-              className="hidden"
-              onChange={e => {
-                addFiles([...(e.target.files ?? [])])
-                e.target.value = ''
-              }}
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={loading}
-              aria-label={t('playground.attach')}
-              title={t('playground.attach')}
-            >
-              <Paperclip className="size-4" />
-            </Button>
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onPaste={e => {
-                // Screenshot straight from the clipboard; a normal text paste
-                // carries no files and falls through untouched.
-                const files = [...e.clipboardData.files]
-                if (files.length === 0) return
-                e.preventDefault()
-                addFiles(files)
-              }}
-              placeholder={t('playground.inputPlaceholder')}
-              rows={1}
-              className="flex-1 resize-none rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 min-h-[40px] max-h-[160px]"
-              style={{ height: 'auto', overflow: 'hidden' }}
-              onInput={e => {
-                const el = e.target as HTMLTextAreaElement
-                el.style.height = 'auto'
-                el.style.height = Math.min(el.scrollHeight, 160) + 'px'
-              }}
-            />
-            <Button onClick={handleSend} disabled={loading || (!input.trim() && attachments.length === 0)} size="default">
-              {loading ? t('playground.sending') : t('playground.send')}
-            </Button>
           </div>
         </div>
       </div>

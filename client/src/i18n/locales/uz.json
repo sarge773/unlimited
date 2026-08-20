@@ -519,6 +519,16 @@
     "modelScopeClear": "Doirani tozalash",
     "modelScopeBadgeOne": "cheklangan · 1 model",
     "modelScopeBadgeOther": "cheklangan · {count} model",
+    "modelPicker": {
+      "title": "Bu kalit qaysi modellarga xizmat qilsin?",
+      "hint": "{provider} kalitingiz qo‘shildi va hozirda quyidagi barcha modellarga xizmat qilmoqda. Bu kalitdan foydalanishga ruxsat berilmagan modellardan belgini olib tashlang — router ular uchun bu kalitni o‘tkazib yuboradi.",
+      "count": "{total} tadan {selected} tasi tanlandi",
+      "allNote": "Hammasi tanlangan — hech narsa saqlanmaydi va keyinchalik katalogga qo‘shiladigan modellar ham shu kalitdan foydalanadi.",
+      "subsetNote": "Bu kalit faqat tanlangan modellar bilan cheklanadi. Buni keyinroq kalit qatoridan o‘zgartirishingiz mumkin.",
+      "skip": "Hozir emas",
+      "scopedOne": "Kalit 1 ta model bilan cheklandi",
+      "scopedOther": "Kalit {count} ta model bilan cheklandi"
+    },
     "cpTitle": "Mijoz profillari",
     "cpDesc": "Har bir mijoz uchun alohida API kaliti; uning tizim promptini server doim qo'llaydi.",
     "cpEmpty": "Hozircha mijoz profillari yo'q.",
@@ -658,6 +668,24 @@
     "attachFailed": "{name} oʻqib boʻlmadi.",
     "noVisionBadge": "Rasmsiz",
     "visionWarning": "{model} rasmlarni qabul qilmaydi. Rasmni qoʻllaydigan model yoki Avtomatik variantini tanlang."
+  },
+  "playgroundSessions": {
+    "heading": "Suhbatlar",
+    "newConversation": "Yangi suhbat",
+    "showSidebar": "Suhbatlarni ko‘rsatish",
+    "hideSidebar": "Suhbatlarni yashirish",
+    "empty": "Hozircha saqlangan suhbatlar yo‘q.",
+    "untitled": "Nomsiz suhbat",
+    "rename": "Nomini o‘zgartirish",
+    "renamePlaceholder": "Suhbat nomi",
+    "messageCount": "{count} ta xabar",
+    "justNow": "hozirgina",
+    "minutesAgo": "{count} daq oldin",
+    "hoursAgo": "{count} soat oldin",
+    "daysAgo": "{count} kun oldin",
+    "loadFailed": "Bu suhbatni ochib bo‘lmadi.",
+    "renameFailed": "Bu suhbat nomini o‘zgartirib bo‘lmadi.",
+    "deleteFailed": "Bu suhbatni o‘chirib bo‘lmadi."
   },
   "embeddings": {
     "title": "Modellar",

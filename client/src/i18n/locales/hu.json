@@ -519,6 +519,16 @@
     "modelScopeClear": "Kör törlése",
     "modelScopeBadgeOne": "korlátozva · 1 modell",
     "modelScopeBadgeOther": "korlátozva · {count} modell",
+    "modelPicker": {
+      "title": "Mely modelleket szolgálja ki ez a kulcs?",
+      "hint": "A(z) {provider} kulcs hozzáadva, és jelenleg az alábbi összes modellt kiszolgálja. Vegye ki a pipát azoknál, amelyeket ez a kulcs nem használhat — ezeknél a router kihagyja.",
+      "count": "{selected} / {total} kijelölve",
+      "allNote": "Minden ki van jelölve — semmi sem kerül mentésre, és a katalógusba később felvett modellek is használni fogják ezt a kulcsot.",
+      "subsetNote": "Ez a kulcs a kijelölt modellekre lesz korlátozva. Ezt később a kulcs sorában módosíthatja.",
+      "skip": "Most nem",
+      "scopedOne": "A kulcs 1 modellre korlátozva",
+      "scopedOther": "A kulcs {count} modellre korlátozva"
+    },
     "cpTitle": "Kliensprofilok",
     "cpDesc": "Kliensenkénti API-kulcsok, mindegyikhez saját rendszerprompt, amelyet a szerver mindig alkalmaz.",
     "cpEmpty": "Még nincsenek kliensprofilok.",
@@ -658,6 +668,24 @@
     "attachFailed": "A(z) {name} nem olvasható.",
     "noVisionBadge": "Nincs kép",
     "visionWarning": "A(z) {model} nem fogad képeket. Válassz képfeldolgozó modellt vagy az Automatikus lehetőséget."
+  },
+  "playgroundSessions": {
+    "heading": "Beszélgetések",
+    "newConversation": "Új beszélgetés",
+    "showSidebar": "Beszélgetések megjelenítése",
+    "hideSidebar": "Beszélgetések elrejtése",
+    "empty": "Még nincsenek mentett beszélgetések.",
+    "untitled": "Névtelen beszélgetés",
+    "rename": "Átnevezés",
+    "renamePlaceholder": "Beszélgetés neve",
+    "messageCount": "{count} üzenet",
+    "justNow": "az imént",
+    "minutesAgo": "{count} perce",
+    "hoursAgo": "{count} órája",
+    "daysAgo": "{count} napja",
+    "loadFailed": "Nem sikerült megnyitni ezt a beszélgetést.",
+    "renameFailed": "Nem sikerült átnevezni ezt a beszélgetést.",
+    "deleteFailed": "Nem sikerült törölni ezt a beszélgetést."
   },
   "embeddings": {
     "title": "Modellek",

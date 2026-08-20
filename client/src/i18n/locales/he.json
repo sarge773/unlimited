@@ -519,6 +519,16 @@
     "modelScopeClear": "נקה טווח",
     "modelScopeBadgeOne": "מוגבל · מודל 1",
     "modelScopeBadgeOther": "מוגבל · {count} מודלים",
+    "modelPicker": {
+      "title": "לאילו מודלים ישמש המפתח הזה?",
+      "hint": "מפתח ה-{provider} שלך נוסף וכרגע הוא משמש את כל המודלים שלמטה. בטל את הסימון של כל מודל שהמפתח הזה אינו רשאי להשתמש בו — הנתב ידלג עליו עבור אותם מודלים.",
+      "count": "{selected} מתוך {total} נבחרו",
+      "allNote": "הכול נבחר — דבר לא נשמר, ומודלים שיתווספו לקטלוג בהמשך ישתמשו גם הם במפתח הזה.",
+      "subsetNote": "המפתח הזה יוגבל למודלים שנבחרו. אפשר לשנות זאת בהמשך משורת המפתח.",
+      "skip": "לא עכשיו",
+      "scopedOne": "המפתח מוגבל למודל אחד",
+      "scopedOther": "המפתח מוגבל ל-{count} מודלים"
+    },
     "cpTitle": "פרופילי לקוח",
     "cpDesc": "מפתחות API לכל לקוח, לכל אחד הנחיית מערכת שהשרת מחיל תמיד.",
     "cpEmpty": "אין עדיין פרופילי לקוח.",
@@ -658,6 +668,24 @@
     "attachFailed": "לא ניתן לקרוא את {name}.",
     "noVisionBadge": "ללא תמונות",
     "visionWarning": "{model} אינו מקבל תמונות. בחר מודל חזון או אוטו."
+  },
+  "playgroundSessions": {
+    "heading": "שיחות",
+    "newConversation": "שיחה חדשה",
+    "showSidebar": "הצגת שיחות",
+    "hideSidebar": "הסתרת שיחות",
+    "empty": "אין עדיין שיחות שמורות.",
+    "untitled": "שיחה ללא שם",
+    "rename": "שינוי שם",
+    "renamePlaceholder": "שם השיחה",
+    "messageCount": "{count} הודעות",
+    "justNow": "ממש עכשיו",
+    "minutesAgo": "לפני {count} דק׳",
+    "hoursAgo": "לפני {count} שע׳",
+    "daysAgo": "לפני {count} ימים",
+    "loadFailed": "לא ניתן לפתוח את השיחה.",
+    "renameFailed": "לא ניתן לשנות את שם השיחה.",
+    "deleteFailed": "לא ניתן למחוק את השיחה."
   },
   "embeddings": {
     "title": "דגמים",

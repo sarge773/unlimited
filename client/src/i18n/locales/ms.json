@@ -519,6 +519,16 @@
     "modelScopeClear": "Kosongkan skop",
     "modelScopeBadgeOne": "terhad · 1 model",
     "modelScopeBadgeOther": "terhad · {count} model",
+    "modelPicker": {
+      "title": "Model manakah yang patut dilayan oleh kunci ini?",
+      "hint": "Kunci {provider} anda telah ditambah dan kini melayani setiap model di bawah. Nyahtanda mana-mana model yang kunci ini tidak dibenarkan guna — penghala akan melangkaunya untuk model tersebut.",
+      "count": "{selected} daripada {total} dipilih",
+      "allNote": "Semua dipilih — tiada apa-apa disimpan, dan model yang ditambah ke katalog kemudian juga akan menggunakan kunci ini.",
+      "subsetNote": "Kunci ini akan dihadkan kepada model yang dipilih. Anda boleh mengubahnya kemudian daripada baris kunci itu.",
+      "skip": "Bukan sekarang",
+      "scopedOne": "Kunci terhad kepada 1 model",
+      "scopedOther": "Kunci terhad kepada {count} model"
+    },
     "cpTitle": "Profil klien",
     "cpDesc": "Kunci API bagi setiap klien, masing-masing dengan prompt sistem yang sentiasa digunakan oleh pelayan.",
     "cpEmpty": "Belum ada profil klien.",
@@ -658,6 +668,24 @@
     "attachFailed": "Tidak dapat membaca {name}.",
     "noVisionBadge": "Tiada imej",
     "visionWarning": "{model} tidak menerima imej. Pilih model yang menyokong imej atau Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Perbualan",
+    "newConversation": "Perbualan baharu",
+    "showSidebar": "Tunjukkan perbualan",
+    "hideSidebar": "Sembunyikan perbualan",
+    "empty": "Belum ada perbualan yang disimpan.",
+    "untitled": "Perbualan tanpa tajuk",
+    "rename": "Tukar nama",
+    "renamePlaceholder": "Nama perbualan",
+    "messageCount": "{count} mesej",
+    "justNow": "sebentar tadi",
+    "minutesAgo": "{count} min lalu",
+    "hoursAgo": "{count} jam lalu",
+    "daysAgo": "{count} hari lalu",
+    "loadFailed": "Tidak dapat membuka perbualan itu.",
+    "renameFailed": "Tidak dapat menukar nama perbualan itu.",
+    "deleteFailed": "Tidak dapat memadam perbualan itu."
   },
   "embeddings": {
     "title": "Model",

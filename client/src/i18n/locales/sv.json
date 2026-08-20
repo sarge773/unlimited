@@ -519,6 +519,16 @@
     "modelScopeClear": "Rensa omfång",
     "modelScopeBadgeOne": "begränsad · 1 modell",
     "modelScopeBadgeOther": "begränsad · {count} modeller",
+    "modelPicker": {
+      "title": "Vilka modeller ska den här nyckeln betjäna?",
+      "hint": "Din {provider}-nyckel har lagts till och betjänar just nu alla modeller nedan. Avmarkera de modeller som nyckeln inte får användas för — routern hoppar då över den för dessa.",
+      "count": "{selected} av {total} valda",
+      "allNote": "Allt är valt — inget sparas, och modeller som läggs till i katalogen senare kommer också att använda den här nyckeln.",
+      "subsetNote": "Nyckeln begränsas till de valda modellerna. Du kan ändra detta senare från nyckelns rad.",
+      "skip": "Inte nu",
+      "scopedOne": "Nyckeln begränsad till 1 modell",
+      "scopedOther": "Nyckeln begränsad till {count} modeller"
+    },
     "cpTitle": "Klientprofiler",
     "cpDesc": "API-nycklar per klient, var och en med en systemprompt som servern alltid tillämpar.",
     "cpEmpty": "Inga klientprofiler ännu.",
@@ -658,6 +668,24 @@
     "attachFailed": "Kunde inte läsa {name}.",
     "noVisionBadge": "Inga bilder",
     "visionWarning": "{model} accepterar inte bilder. Välj en modell med bildstöd eller Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Konversationer",
+    "newConversation": "Ny konversation",
+    "showSidebar": "Visa konversationer",
+    "hideSidebar": "Dölj konversationer",
+    "empty": "Inga sparade konversationer än.",
+    "untitled": "Namnlös konversation",
+    "rename": "Byt namn",
+    "renamePlaceholder": "Konversationens namn",
+    "messageCount": "{count} meddelanden",
+    "justNow": "just nu",
+    "minutesAgo": "{count} min sedan",
+    "hoursAgo": "{count} tim sedan",
+    "daysAgo": "{count} d sedan",
+    "loadFailed": "Det gick inte att öppna den konversationen.",
+    "renameFailed": "Det gick inte att byta namn på den konversationen.",
+    "deleteFailed": "Det gick inte att radera den konversationen."
   },
   "embeddings": {
     "title": "Modeller",

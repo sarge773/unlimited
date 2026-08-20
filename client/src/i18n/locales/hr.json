@@ -519,6 +519,16 @@
     "modelScopeClear": "Očisti opseg",
     "modelScopeBadgeOne": "ograničen · 1 model",
     "modelScopeBadgeOther": "ograničen · {count} modela",
+    "modelPicker": {
+      "title": "Za koje se modele koristi ovaj ključ?",
+      "hint": "Vaš {provider} ključ je dodan i trenutačno poslužuje sve modele u nastavku. Odznačite one koje ovaj ključ ne smije koristiti — router će ga za njih preskočiti.",
+      "count": "Odabrano {selected} od {total}",
+      "allNote": "Odabrano je sve — ništa se ne sprema, a modeli koji se kasnije dodaju u katalog također će koristiti ovaj ključ.",
+      "subsetNote": "Ovaj će ključ biti ograničen na odabrane modele. To možete promijeniti kasnije u retku ključa.",
+      "skip": "Ne sada",
+      "scopedOne": "Ključ je ograničen na 1 model",
+      "scopedOther": "Ključ je ograničen na {count} modela"
+    },
     "cpTitle": "Profili klijenata",
     "cpDesc": "API ključevi po klijentu, svaki sa sistemskim promptom koji poslužitelj uvijek primjenjuje.",
     "cpEmpty": "Još nema profila klijenata.",
@@ -658,6 +668,24 @@
     "attachFailed": "Nije moguće pročitati datoteku {name}.",
     "noVisionBadge": "Bez slika",
     "visionWarning": "Model {model} ne prihvaća slike. Odaberite model s vizijom ili Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Razgovori",
+    "newConversation": "Novi razgovor",
+    "showSidebar": "Prikaži razgovore",
+    "hideSidebar": "Sakrij razgovore",
+    "empty": "Još nema spremljenih razgovora.",
+    "untitled": "Razgovor bez naziva",
+    "rename": "Preimenuj",
+    "renamePlaceholder": "Naziv razgovora",
+    "messageCount": "{count} poruka",
+    "justNow": "upravo sada",
+    "minutesAgo": "prije {count} min",
+    "hoursAgo": "prije {count} h",
+    "daysAgo": "prije {count} d",
+    "loadFailed": "Nije moguće otvoriti taj razgovor.",
+    "renameFailed": "Nije moguće preimenovati taj razgovor.",
+    "deleteFailed": "Nije moguće izbrisati taj razgovor."
   },
   "embeddings": {
     "title": "Modeli",

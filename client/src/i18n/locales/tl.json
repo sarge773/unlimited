@@ -519,6 +519,16 @@
     "modelScopeClear": "Burahin ang saklaw",
     "modelScopeBadgeOne": "limitado · 1 modelo",
     "modelScopeBadgeOther": "limitado · {count} na modelo",
+    "modelPicker": {
+      "title": "Aling mga modelo ang dapat pagsilbihan ng key na ito?",
+      "hint": "Naidagdag na ang iyong {provider} key at kasalukuyan nitong pinagsisilbihan ang lahat ng modelo sa ibaba. Alisan ng tsek ang alinmang hindi pinapayagang gamitin ng key na ito — laktawan ito ng router para sa mga iyon.",
+      "count": "{selected} sa {total} ang napili",
+      "allNote": "Lahat ay napili — walang ise-save, at gagamitin din ang key na ito ng mga modelong idaragdag sa katalogo mamaya.",
+      "subsetNote": "Malilimitahan ang key na ito sa mga napiling modelo. Mababago mo ito mamaya mula sa row ng key.",
+      "skip": "Hindi ngayon",
+      "scopedOne": "Limitado ang key sa 1 modelo",
+      "scopedOther": "Limitado ang key sa {count} na modelo"
+    },
     "cpTitle": "Mga profile ng client",
     "cpDesc": "Hiwalay na API key para sa bawat client, bawat isa may system prompt na palaging inilalapat ng server.",
     "cpEmpty": "Wala pang mga profile ng client.",
@@ -658,6 +668,24 @@
     "attachFailed": "Hindi mabasa ang {name}.",
     "noVisionBadge": "Walang larawan",
     "visionWarning": "Hindi tumatanggap ng larawan ang {model}. Pumili ng modelong tumatanggap ng larawan o Auto."
+  },
+  "playgroundSessions": {
+    "heading": "Mga usapan",
+    "newConversation": "Bagong usapan",
+    "showSidebar": "Ipakita ang mga usapan",
+    "hideSidebar": "Itago ang mga usapan",
+    "empty": "Wala pang naka-save na usapan.",
+    "untitled": "Usapang walang pamagat",
+    "rename": "Palitan ang pangalan",
+    "renamePlaceholder": "Pangalan ng usapan",
+    "messageCount": "{count} mensahe",
+    "justNow": "ngayon lang",
+    "minutesAgo": "{count} min nakalipas",
+    "hoursAgo": "{count} oras nakalipas",
+    "daysAgo": "{count} araw nakalipas",
+    "loadFailed": "Hindi mabuksan ang usapang iyon.",
+    "renameFailed": "Hindi mapalitan ang pangalan ng usapang iyon.",
+    "deleteFailed": "Hindi matanggal ang usapang iyon."
   },
   "embeddings": {
     "title": "Mga Modelo",
