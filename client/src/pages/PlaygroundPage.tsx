@@ -26,6 +26,7 @@ import {
   toMessageContent,
   type Attachment,
 } from '@/lib/attachments'
+import { readChatStream } from '@/lib/playground-stream'
 import { useI18n } from '@/i18n'
 
 interface FallbackEntry {
@@ -51,6 +52,11 @@ interface ChatMessage {
   // Request-level failure rendered as a distinct error bubble, not a fake
   // assistant reply.
   isError?: boolean
+  // Thinking tokens (`delta.reasoning_content`) accumulated separately from the
+  // answer, shown as a collapsible aside above it.
+  reasoning?: string
+  // True while this bubble is still being filled in by an open stream.
+  streaming?: boolean
   meta?: {
     platform?: string
     model?: string
@@ -133,6 +139,42 @@ function FusionTrace({ panel, judge, streaming, answerStarted }: {
   )
 }
 
+// Thinking tokens, shown INSIDE the assistant bubble above the answer. Same
+// visual language as FusionTrace (minimal font, muted, hanging rule, chevron
+// toggle) and the same behaviour: open while it streams so you can watch the
+// model work, auto-collapsing once the answer itself starts.
+function ReasoningTrace({ text, answerStarted }: { text: string; answerStarted?: boolean }) {
+  const { t } = useI18n()
+  const [open, setOpen] = useState(true)
+  const touched = useRef(false)
+  useEffect(() => {
+    if (answerStarted && !touched.current) setOpen(false)
+  }, [answerStarted])
+  return (
+    <div className="mb-2 text-[10px] leading-snug text-muted-foreground/80">
+      <button
+        type="button"
+        onClick={() => { touched.current = true; setOpen(o => !o) }}
+        className="inline-flex items-center gap-1 font-mono hover:text-foreground transition-colors"
+      >
+        <ChevronRight className={`size-3 transition-transform ${open ? 'rotate-90' : ''}`} />
+        {open ? t('common.hide') : t('common.show')}
+      </button>
+      {open && (
+        <div className="mt-1 whitespace-pre-wrap border-l border-border/60 pl-2.5 italic opacity-80">
+          {text}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// How close to the bottom of the transcript still counts as "reading the live
+// answer", in pixels. Slack is needed either way — sub-pixel scroll positions
+// mean an exact comparison never matches — and a couple of lines' worth of it
+// keeps the follow from dropping out on a stray trackpad nudge.
+const SCROLL_FOLLOW_SLACK = 40
+
 export default function PlaygroundPage() {
   const { t } = useI18n()
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -159,8 +201,17 @@ export default function PlaygroundPage() {
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [dragging, setDragging] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const transcriptRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // Whether the transcript should keep itself pinned to the bottom. Every model
+  // streams now, so a message can grow for a minute straight — scrolling up to
+  // re-read something must not be undone by the next token.
+  const followRef = useRef(true)
+  const lastScrollTopRef = useRef(0)
+  // Cancels the in-flight completion when the user clears the chat, sends
+  // again, or navigates away mid-stream.
+  const abortRef = useRef<AbortController | null>(null)
 
   const { data: keyData } = useQuery<{ apiKey: string }>({
     queryKey: ['unified-key'],
@@ -193,9 +244,32 @@ export default function PlaygroundPage() {
     && selectedModel !== 'auto' && selectedModel !== 'fusion'
     && !visionValues.has(selectedModel)
 
+  // Follow the stream only while the reader is parked at the bottom. Judging
+  // by direction (rather than position alone) keeps our own smooth-scroll
+  // animation — which always travels downwards — from being mistaken for the
+  // user taking over, whatever they used to scroll: wheel, keys, or the bar.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = transcriptRef.current
+    if (!el) return
+    lastScrollTopRef.current = el.scrollTop
+    const onScroll = () => {
+      const top = el.scrollTop
+      const movedUp = top < lastScrollTopRef.current - 1
+      lastScrollTopRef.current = top
+      if (el.scrollHeight - top - el.clientHeight <= SCROLL_FOLLOW_SLACK) followRef.current = true
+      else if (movedUp) followRef.current = false
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    if (followRef.current) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // A stream left running after the page goes away would keep calling
+  // setMessages on an unmounted tree (and hold the socket open).
+  useEffect(() => () => abortRef.current?.abort(), [])
 
   // Read a fusion SSE stream, updating the assistant message in place as panel
   // answers + the judge arrive (additive `_fusion` frames) and the final answer
@@ -246,6 +320,55 @@ export default function PlaygroundPage() {
         }
       }
     }
+    flush(false)
+  }
+
+  // Read a plain (non-fusion) OpenAI chat stream, filling the assistant bubble
+  // in place as content and reasoning deltas land. The routing metadata is
+  // already known — it rides on the response headers, which arrive before the
+  // first frame — so the only thing the stream adds is the latency, measured
+  // to the last frame rather than to the first.
+  const streamChat = async (
+    stream: ReadableStream<Uint8Array>,
+    baseMessages: ChatMessage[],
+    start: number,
+    routedVia: string | null,
+    fallbackAttempts: string | null,
+  ) => {
+    const via = routedVia
+      ? { platform: routedVia.split('/')[0], model: routedVia.split('/').slice(1).join('/') }
+      : undefined
+    let content = ''
+    let reasoning = ''
+    let failure: string | null = null
+
+    const flush = (streaming: boolean) => {
+      const next: ChatMessage[] = [...baseMessages]
+      // A stream that broke before the first token has nothing to show but the
+      // error; one that broke halfway keeps what it managed to say.
+      if (content || reasoning || failure === null) {
+        next.push({
+          role: 'assistant',
+          content,
+          ...(reasoning ? { reasoning } : {}),
+          ...(streaming ? { streaming: true } : {}),
+          meta: {
+            platform: via?.platform,
+            model: via?.model,
+            latency: Date.now() - start,
+            fallbackAttempts: fallbackAttempts ? parseInt(fallbackAttempts) : undefined,
+          },
+        })
+      }
+      if (failure !== null) next.push({ role: 'assistant', isError: true, content: failure })
+      setMessages(next)
+    }
+
+    await readChatStream(stream, {
+      onDelta: text => { content += text; flush(true) },
+      onReasoning: text => { reasoning += text; flush(true) },
+      onError: message => { failure = message; flush(true) },
+    })
     flush(false)
   }
 
@@ -307,6 +430,9 @@ export default function PlaygroundPage() {
       ...(pendingImages.length > 0 ? { images: pendingImages } : {}),
     }
     const newMessages = [...messages, userMsg]
+    // Your own message always brings the transcript back down, however far up
+    // you had scrolled to read.
+    followRef.current = true
     setMessages(newMessages)
     setInput('')
     setAttachments([])
@@ -326,9 +452,14 @@ export default function PlaygroundPage() {
         ],
       }
       if (selectedModel !== 'auto') body.model = selectedModel
-      // Fusion streams its panel + judge trace; ask for a stream so the
-      // Playground can show the other models arriving before the final answer.
-      if (isFusion) body.stream = true
+      // Everything streams: fusion so you can watch the panel and the judge
+      // arrive, every other model so the answer appears token by token instead
+      // of after a silent minute.
+      body.stream = true
+
+      abortRef.current?.abort()
+      const controller = new AbortController()
+      abortRef.current = controller
 
       const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       const start = Date.now()
@@ -336,6 +467,7 @@ export default function PlaygroundPage() {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
+        signal: controller.signal,
       })
 
       const latency = Date.now() - start
@@ -354,6 +486,15 @@ export default function PlaygroundPage() {
 
       if (isFusion && res.body) {
         await streamFusion(res.body, newMessages, start)
+        return
+      }
+
+      // The proxy answers a streamed request with SSE or not at all (every
+      // pre-commit failure is a non-2xx JSON body, already handled above), but
+      // fall back to the buffered path rather than trusting that: a proxy in
+      // front of us, or a future non-streaming route, can still hand back JSON.
+      if (!isFusion && res.body && (res.headers.get('Content-Type') ?? '').includes('text/event-stream')) {
+        await streamChat(res.body, newMessages, start, routedVia, fallbackAttempts)
         return
       }
 
@@ -384,6 +525,10 @@ export default function PlaygroundPage() {
         },
       }])
     } catch (err: any) {
+      // Clearing the chat (or leaving the page) aborts the stream on purpose —
+      // that is not a failure to report, and the transcript it belonged to is
+      // already gone.
+      if (err?.name === 'AbortError') return
       setMessages([...newMessages, {
         role: 'assistant',
         isError: true,
@@ -403,8 +548,13 @@ export default function PlaygroundPage() {
   }
 
   const handleClear = () => {
+    // Clearing mid-stream has to stop the stream too, or its next frame would
+    // paste the half-finished answer back into the empty transcript.
+    abortRef.current?.abort()
+    abortRef.current = null
     setMessages([])
     setAttachments([])
+    followRef.current = true
     inputRef.current?.focus()
   }
 
@@ -478,7 +628,7 @@ export default function PlaygroundPage() {
       />
 
       <div className="flex-1 flex flex-col rounded-3xl border bg-card overflow-hidden min-h-0">
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div ref={transcriptRef} className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-center">
               <div className="space-y-2 max-w-sm">
@@ -495,7 +645,9 @@ export default function PlaygroundPage() {
                 const okPanel = fusionPanel?.filter(p => p.status !== 'failed') ?? []
                 // Skip an empty assistant bubble while the fusion trace is still
                 // streaming in (no final answer yet) — the trace shows below.
-                const showBubble = msg.role === 'user' || msg.content.length > 0
+                // Reasoning that arrives before the first answer token counts:
+                // that IS the bubble's content for the moment.
+                const showBubble = msg.role === 'user' || msg.content.length > 0 || !!msg.reasoning
                 return (
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex flex-col gap-1 max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
@@ -525,7 +677,12 @@ export default function PlaygroundPage() {
                               </div>
                             </div>
                           ) : msg.role === 'assistant' ? (
-                            <Markdown>{msg.content}</Markdown>
+                            <>
+                              {msg.reasoning && (
+                                <ReasoningTrace text={msg.reasoning} answerStarted={msg.content.length > 0} />
+                              )}
+                              <Markdown>{msg.content}</Markdown>
+                            </>
                           ) : (
                             <div className="whitespace-pre-wrap">{msg.content}</div>
                           )}
@@ -558,7 +715,11 @@ export default function PlaygroundPage() {
                                 <>
                                   {msg.meta.platform && <span>{msg.meta.platform}</span>}
                                   {msg.meta.model && <span className="font-mono">· {msg.meta.model}</span>}
-                                  {msg.meta.latency != null && <span>· {msg.meta.latency} ms</span>}
+                                  {/* Which provider served it is known from the
+                                      response headers straight away; the timing
+                                      only means something once the last frame
+                                      has landed. */}
+                                  {msg.meta.latency != null && !msg.streaming && <span>· {msg.meta.latency} ms</span>}
                                   {msg.meta.fallbackAttempts != null && msg.meta.fallbackAttempts > 0 && (
                                     <span>· {msg.meta.fallbackAttempts} {msg.meta.fallbackAttempts > 1 ? t('playground.fallbacks') : t('playground.fallback')}</span>
                                   )}
@@ -580,7 +741,10 @@ export default function PlaygroundPage() {
                   </div>
                 )
               })}
-              {loading && !messages[messages.length - 1]?.meta?.fusionStreaming && (
+              {/* Typing dots until the reply starts materialising — which is
+                  the first fusion frame, the first token of a stream, or the
+                  whole message on the buffered path. */}
+              {loading && messages[messages.length - 1]?.role === 'user' && (
                 <div className="flex justify-start">
                   <div className="bg-muted rounded-2xl px-4 py-3">
                     <div className="flex gap-1">
