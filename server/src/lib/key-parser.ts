@@ -82,6 +82,17 @@ export const PREFIX_MAP: Record<string, string> = {
   ANYAPI_: 'anyapi',
   ANY_API_: 'anyapi',
   AIHORDE_: 'aihorde',
+  QIANFAN_: 'qianfan',
+  BAIDU_: 'qianfan',
+  ERNIE_: 'qianfan',
+  VOLCENGINE_: 'volcengine',
+  VOLC_: 'volcengine',
+  ARK_: 'volcengine',
+  DOUBAO_: 'volcengine',
+  LONGCAT_: 'longcat',
+  XFYUN_: 'xfyun',
+  SPARK_: 'xfyun',
+  IFLYTEK_: 'xfyun',
 };
 
 export const AUTH_JSON_PROVIDER_MAP: Record<string, string> = {
@@ -115,6 +126,17 @@ export const AUTH_JSON_PROVIDER_MAP: Record<string, string> = {
   'model-scope': 'modelscope',
   anyapi: 'anyapi',
   'any-api': 'anyapi',
+  qianfan: 'qianfan',
+  baidu: 'qianfan',
+  ernie: 'qianfan',
+  volcengine: 'volcengine',
+  volc: 'volcengine',
+  ark: 'volcengine',
+  doubao: 'volcengine',
+  longcat: 'longcat',
+  xfyun: 'xfyun',
+  spark: 'xfyun',
+  iflytek: 'xfyun',
 };
 
 export function detectPlatform(prefix: string): string | null {

@@ -309,6 +309,10 @@ export const platformColors: Record<string, string> = {
   anyapi:      '#0891b2',
   modelscope:  '#624aff',
   aihorde:     '#dc2626',
+  qianfan:     '#2932e1',
+  volcengine:  '#00b8d9',
+  longcat:     '#ffd100',
+  xfyun:       '#1f6fd0',
 }
 
 // ── Grouped (unified) rendering ──────────────────────────────────────────────
