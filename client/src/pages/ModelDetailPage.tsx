@@ -539,7 +539,7 @@ function ProviderSettingsRow({
         />
         <NumberField
           label={t('models.limitRpm')}
-          hint={t('models.limitHint')}
+          hint={t('models.limitRpmHint')}
           value={form.rpmLimit}
           invalid={invalid.rpmLimit}
           overridden={overridden.has('rpmLimit')}
@@ -547,7 +547,7 @@ function ProviderSettingsRow({
         />
         <NumberField
           label={t('models.limitRpd')}
-          hint={t('models.limitHint')}
+          hint={t('models.limitRpdHint')}
           value={form.rpdLimit}
           invalid={invalid.rpdLimit}
           overridden={overridden.has('rpdLimit')}
@@ -555,7 +555,7 @@ function ProviderSettingsRow({
         />
         <NumberField
           label={t('models.limitTpm')}
-          hint={t('models.limitHint')}
+          hint={t('models.limitTpmHint')}
           value={form.tpmLimit}
           invalid={invalid.tpmLimit}
           overridden={overridden.has('tpmLimit')}
@@ -563,7 +563,7 @@ function ProviderSettingsRow({
         />
         <NumberField
           label={t('models.limitTpd')}
-          hint={t('models.limitHint')}
+          hint={t('models.limitTpdHint')}
           value={form.tpdLimit}
           invalid={invalid.tpdLimit}
           overridden={overridden.has('tpdLimit')}
