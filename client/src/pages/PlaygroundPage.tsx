@@ -790,7 +790,7 @@ export default function PlaygroundPage() {
   // per-provider, not global, so tier-first matches the server's preset; #135.)
   const pickerOptions = [
     { value: 'auto', label: t('playground.autoModel'), sub: '', isNew: false, platforms: [] as string[] },
-    { value: 'fusion', label: t('playground.fusionModel'), sub: '', isNew: true, platforms: [] as string[] },
+    { value: 'fusion', label: t('playground.fusionModel'), sub: '', isNew: false, platforms: [] as string[] },
     ...modelOptions
       .slice()
       .sort((a, b) =>
