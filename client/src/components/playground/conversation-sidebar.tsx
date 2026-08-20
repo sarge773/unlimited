@@ -65,7 +65,7 @@ export function ConversationSidebar({
 
   if (!open) {
     return (
-      <div className="flex w-11 shrink-0 flex-col items-center gap-1 rounded-3xl border bg-card py-3">
+      <div className="flex w-11 shrink-0 flex-col items-center gap-1 border-e bg-card py-3">
         <Button
           variant="ghost"
           size="icon-sm"
@@ -89,7 +89,7 @@ export function ConversationSidebar({
   }
 
   return (
-    <div className="flex w-60 shrink-0 flex-col overflow-hidden rounded-3xl border bg-card">
+    <div className="flex w-60 shrink-0 flex-col overflow-hidden border-e bg-card">
       <div className="flex shrink-0 items-center gap-1 border-b px-2.5 py-2">
         <span className="flex-1 truncate text-xs font-medium text-muted-foreground">
           {t('playgroundSessions.heading')}

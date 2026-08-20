@@ -3,9 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronRight, CircleAlert, FileText, Paperclip, X } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { ModelCombobox } from '@/components/model-combobox'
 import { buildModelOptions } from '@/lib/model-groups'
-import { PageHeader } from '@/components/page-header'
 import { Markdown } from '@/components/markdown'
 import { CopyButton } from '@/components/copy-button'
 import { toast } from '@/lib/toast'
@@ -28,6 +26,13 @@ import {
 } from '@/lib/attachments'
 import { readChatStream } from '@/lib/playground-stream'
 import { ConversationSidebar } from '@/components/playground/conversation-sidebar'
+import { SettingsRail } from '@/components/playground/settings-rail'
+import {
+  readSampling,
+  samplingRequestParams,
+  writeSampling,
+  type SamplingSettings,
+} from '@/lib/playground-sampling'
 import {
   SIDEBAR_OPEN_KEY,
   autoTitle,
@@ -158,6 +163,20 @@ function ReasoningTrace({ text, answerStarted }: { text: string; answerStarted?:
 // keeps the follow from dropping out on a stray trackpad nudge.
 const SCROLL_FOLLOW_SLACK = 40
 
+/** localStorage key holding whether the right-hand settings rail is expanded. */
+const SETTINGS_OPEN_KEY = 'playground.settingsOpen'
+
+// Both rails plus the chat need room the small breakpoints do not have: three
+// columns on a phone leave the transcript a sliver. So below lg a visit starts
+// with the rails collapsed to their strips whatever a desktop session
+// remembered — the toggles still work, the remembered choice just isn't
+// restored until there is width for it.
+function initialRailOpen(key: string): boolean {
+  if (typeof window === 'undefined') return true
+  if (!window.matchMedia('(min-width: 1024px)').matches) return false
+  return localStorage.getItem(key) !== 'false'
+}
+
 export default function PlaygroundPage() {
   const { t } = useI18n()
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -167,12 +186,19 @@ export default function PlaygroundPage() {
   const [systemPrompt, setSystemPrompt] = useState<string>(
     () => localStorage.getItem('playground.systemPrompt') ?? '',
   )
-  const [systemPromptOpen, setSystemPromptOpen] = useState<boolean>(
-    () => !!localStorage.getItem('playground.systemPrompt'),
-  )
   const updateSystemPrompt = (v: string) => {
     setSystemPrompt(v)
     localStorage.setItem('playground.systemPrompt', v)
+  }
+  // Sampling knobs (temperature / top_p / max_tokens), edited in the settings
+  // rail. Every one is opt-in, so an untouched rail composes exactly the
+  // request the Playground sent before they existed. Remembered in
+  // localStorage, NOT on the conversation row — these are how YOU like to
+  // drive the Playground, not part of a saved transcript.
+  const [sampling, setSampling] = useState<SamplingSettings>(() => readSampling())
+  const updateSampling = (next: SamplingSettings) => {
+    setSampling(next)
+    writeSampling(next)
   }
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -202,9 +228,8 @@ export default function PlaygroundPage() {
   // the first message — a fresh visit still opens on an empty transcript.
   const queryClient = useQueryClient()
   const [conversationId, setConversationId] = useState<number | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(
-    () => localStorage.getItem(SIDEBAR_OPEN_KEY) !== 'false',
-  )
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => initialRailOpen(SIDEBAR_OPEN_KEY))
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(() => initialRailOpen(SETTINGS_OPEN_KEY))
   // Mirrors of state the async save paths read AFTER their closure was made:
   // a stream that started before the row existed still has to save into it.
   const conversationIdRef = useRef<number | null>(null)
@@ -372,7 +397,6 @@ export default function PlaygroundPage() {
     setAttachments([])
     pickModel(conversation.model ?? 'auto')
     updateSystemPrompt(conversation.systemPrompt ?? '')
-    setSystemPromptOpen(!!conversation.systemPrompt)
     adoptConversation(conversation.id, conversation.title)
     followRef.current = true
     inputRef.current?.focus()
@@ -427,6 +451,13 @@ export default function PlaygroundPage() {
   const toggleSidebar = () => {
     setSidebarOpen(open => {
       localStorage.setItem(SIDEBAR_OPEN_KEY, String(!open))
+      return !open
+    })
+  }
+
+  const toggleSettings = () => {
+    setSettingsOpen(open => {
+      localStorage.setItem(SETTINGS_OPEN_KEY, String(!open))
       return !open
     })
   }
@@ -638,6 +669,10 @@ export default function PlaygroundPage() {
           ...(sysPrompt ? [{ role: 'system', content: sysPrompt }] : []),
           ...newMessages.map(m => ({ role: m.role, content: toMessageContent(m.content, m.images) })),
         ],
+        // Only the knobs switched on in the settings rail: temperature, top_p
+        // and max_tokens, spelled as /v1/chat/completions parses them. An
+        // untouched rail adds nothing at all, leaving provider defaults alone.
+        ...samplingRequestParams(sampling),
       }
       if (selectedModel !== 'auto') body.model = selectedModel
       // Everything streams: fusion so you can watch the panel and the judge
@@ -788,293 +823,276 @@ export default function PlaygroundPage() {
     : modelOptions.find(o => o.value === selectedModel)?.label ?? selectedModel
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
-      <PageHeader
-        title={t('playground.title')}
-        description={t('playground.description')}
-        actions={
-          <>
-            <ModelCombobox
-              value={selectedModel}
-              options={pickerOptions}
-              onSelect={pickModel}
-              ariaLabel={t('playground.selectModel')}
-              placeholder={t('playground.searchModels')}
-              emptyText={t('playground.noModelsFound')}
-              footer={
-                availableModels.length === 0 ? (
-                  // Models only appear once a platform has an enabled key. Without
-                  // one, the list is just Auto/Fusion and looks broken — say why. (#269)
-                  <div className="px-2 py-1.5 text-xs text-muted-foreground">{t('playground.noModels')}</div>
-                ) : undefined
-              }
-            />
-            {messages.length > 0 && (
-              <Button variant="outline" size="sm" onClick={handleClear}>
-                {t('playground.clear')}
-              </Button>
-            )}
-          </>
-        }
+    // Three columns, edge to edge: conversations, the chat, the settings rail.
+    // The page is a flex child of the shell's full-bleed container, so it is
+    // exactly as tall as what the navbar leaves and nothing here scrolls except
+    // the three panes that mean to. The transcript keeps its OWN scroll
+    // container in the middle column — transcriptRef and the follow-the-stream
+    // behaviour are untouched by the reshuffle.
+    <div className="flex min-h-0 flex-1 overflow-hidden">
+      <ConversationSidebar
+        conversations={conversations}
+        activeId={conversationId}
+        open={sidebarOpen}
+        onToggle={toggleSidebar}
+        onNew={handleNewConversation}
+        onSelect={handleSelectConversation}
+        onRename={handleRenameConversation}
+        onDelete={handleDeleteConversation}
       />
 
-      {/* The sidebar sits BESIDE the chat card, never inside it: the transcript
-          keeps its own scroll container (and with it transcriptRef and the
-          follow-the-stream behaviour) exactly as it was. */}
-      <div className="flex flex-1 gap-3 min-h-0">
-        <ConversationSidebar
-          conversations={conversations}
-          activeId={conversationId}
-          open={sidebarOpen}
-          onToggle={toggleSidebar}
-          onNew={handleNewConversation}
-          onSelect={handleSelectConversation}
-          onRename={handleRenameConversation}
-          onDelete={handleDeleteConversation}
-        />
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* The page header, reduced to a slim bar: the title, what is answering,
+            and the one action that belongs to the transcript rather than to a
+            rail. */}
+        <div className="flex shrink-0 items-center gap-2 border-b px-4 py-2">
+          <h1 className="shrink-0 text-sm font-semibold tracking-tight">{t('playground.title')}</h1>
+          <span className="min-w-0 truncate text-xs text-muted-foreground">
+            <span aria-hidden="true">· </span>{activeModelLabel}
+          </span>
+          {messages.length > 0 && (
+            <Button variant="outline" size="sm" className="ms-auto" onClick={handleClear}>
+              {t('playground.clear')}
+            </Button>
+          )}
+        </div>
 
-        <div className="flex-1 flex flex-col rounded-3xl border bg-card overflow-hidden min-h-0">
-          <div ref={transcriptRef} className="flex-1 overflow-y-auto p-6 space-y-4">
-            {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-center">
-                <div className="space-y-2 max-w-sm">
-                  <p className="text-base font-medium">{t('playground.emptyTitle')}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {t('playground.emptyDescription', { model: activeModelLabel })}
-                  </p>
+        <div ref={transcriptRef} className="min-h-0 flex-1 overflow-y-auto p-6 space-y-4">
+          {messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-center">
+              <div className="space-y-2 max-w-sm">
+                <p className="text-base font-medium">{t('playground.emptyTitle')}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('playground.emptyDescription', { model: activeModelLabel })}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {messages.map((msg, i) => {
+                const fusionPanel = msg.meta?.fusionPanel
+                const okPanel = fusionPanel?.filter(p => p.status !== 'failed') ?? []
+                // Skip an empty assistant bubble while the fusion trace is still
+                // streaming in (no final answer yet) — the trace shows below.
+                // Reasoning that arrives before the first answer token counts:
+                // that IS the bubble's content for the moment.
+                const showBubble = msg.role === 'user' || msg.content.length > 0 || !!msg.reasoning
+                return (
+                  <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`flex flex-col gap-1 max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                      {showBubble && (
+                        <div
+                          className={`group relative rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                            msg.role === 'user'
+                              ? 'bg-primary text-primary-foreground'
+                              : msg.isError
+                                ? 'border border-destructive/25 bg-destructive/10 text-destructive'
+                                : 'bg-muted'
+                          }`}
+                        >
+                          {msg.images && msg.images.length > 0 && (
+                            <div className="mb-2 flex flex-wrap gap-1.5">
+                              {msg.images.map((src, n) => (
+                                <img key={n} src={src} alt="" className="size-20 rounded-lg object-cover" />
+                              ))}
+                            </div>
+                          )}
+                          {msg.isError ? (
+                            <div className="flex items-start gap-2">
+                              <CircleAlert className="mt-0.5 size-4 shrink-0" />
+                              <div className="min-w-0">
+                                <p className="font-medium">{t('playground.errorTitle')}</p>
+                                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                              </div>
+                            </div>
+                          ) : msg.role === 'assistant' ? (
+                            <>
+                              {msg.reasoning && (
+                                <ReasoningTrace text={msg.reasoning} answerStarted={msg.content.length > 0} />
+                              )}
+                              <Markdown>{msg.content}</Markdown>
+                            </>
+                          ) : (
+                            <div className="whitespace-pre-wrap">{msg.content}</div>
+                          )}
+                          {msg.role === 'assistant' && !msg.isError && msg.content && (
+                            <CopyButton
+                              text={msg.content}
+                              label={t('playground.copyReply')}
+                              className="absolute right-1.5 top-1.5 size-6 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+                            />
+                          )}
+                          {msg.meta && (
+                            <div className="flex items-center gap-2 mt-2 flex-wrap text-[11px] opacity-70 tabular-nums">
+                              {(fusionPanel || msg.meta.fusionStreaming) ? (
+                                <>
+                                  {okPanel.length > 0 && (
+                                    <span>
+                                      {t('playground.fusionPanel')}:{' '}
+                                      <span className="font-mono">{okPanel.map(fusionRouteLabel).join(', ')}</span>
+                                    </span>
+                                  )}
+                                  {msg.meta.fusionJudge && (
+                                    <span>
+                                      · {t('playground.fusionJudge')}:{' '}
+                                      <span className="font-mono">{fusionRouteLabel(msg.meta.fusionJudge)}</span>
+                                    </span>
+                                  )}
+                                  {msg.meta.latency != null && <span>· {msg.meta.latency} ms</span>}
+                                </>
+                              ) : (
+                                <>
+                                  {msg.meta.platform && <span>{msg.meta.platform}</span>}
+                                  {msg.meta.model && <span className="font-mono">· {msg.meta.model}</span>}
+                                  {/* Which provider served it is known from the
+                                      response headers straight away; the timing
+                                      only means something once the last frame
+                                      has landed. */}
+                                  {msg.meta.latency != null && !msg.streaming && <span>· {msg.meta.latency} ms</span>}
+                                  {msg.meta.fallbackAttempts != null && msg.meta.fallbackAttempts > 0 && (
+                                    <span>· {msg.meta.fallbackAttempts} {msg.meta.fallbackAttempts > 1 ? t('playground.fallbacks') : t('playground.fallback')}</span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {msg.role === 'assistant' && fusionPanel && fusionPanel.length > 0 && (
+                        <FusionTrace
+                          panel={fusionPanel}
+                          judge={msg.meta?.fusionJudge}
+                          streaming={msg.meta?.fusionStreaming}
+                          answerStarted={msg.content.length > 0}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+              {/* Typing dots until the reply starts materialising — which is
+                  the first fusion frame, the first token of a stream, or the
+                  whole message on the buffered path. */}
+              {loading && messages[messages.length - 1]?.role === 'user' && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-2xl px-4 py-3">
+                    <div className="flex gap-1">
+                      <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <>
-                {messages.map((msg, i) => {
-                  const fusionPanel = msg.meta?.fusionPanel
-                  const okPanel = fusionPanel?.filter(p => p.status !== 'failed') ?? []
-                  // Skip an empty assistant bubble while the fusion trace is still
-                  // streaming in (no final answer yet) — the trace shows below.
-                  // Reasoning that arrives before the first answer token counts:
-                  // that IS the bubble's content for the moment.
-                  const showBubble = msg.role === 'user' || msg.content.length > 0 || !!msg.reasoning
-                  return (
-                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`flex flex-col gap-1 max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                        {showBubble && (
-                          <div
-                            className={`group relative rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                              msg.role === 'user'
-                                ? 'bg-primary text-primary-foreground'
-                                : msg.isError
-                                  ? 'border border-destructive/25 bg-destructive/10 text-destructive'
-                                  : 'bg-muted'
-                            }`}
-                          >
-                            {msg.images && msg.images.length > 0 && (
-                              <div className="mb-2 flex flex-wrap gap-1.5">
-                                {msg.images.map((src, n) => (
-                                  <img key={n} src={src} alt="" className="size-20 rounded-lg object-cover" />
-                                ))}
-                              </div>
-                            )}
-                            {msg.isError ? (
-                              <div className="flex items-start gap-2">
-                                <CircleAlert className="mt-0.5 size-4 shrink-0" />
-                                <div className="min-w-0">
-                                  <p className="font-medium">{t('playground.errorTitle')}</p>
-                                  <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                                </div>
-                              </div>
-                            ) : msg.role === 'assistant' ? (
-                              <>
-                                {msg.reasoning && (
-                                  <ReasoningTrace text={msg.reasoning} answerStarted={msg.content.length > 0} />
-                                )}
-                                <Markdown>{msg.content}</Markdown>
-                              </>
-                            ) : (
-                              <div className="whitespace-pre-wrap">{msg.content}</div>
-                            )}
-                            {msg.role === 'assistant' && !msg.isError && msg.content && (
-                              <CopyButton
-                                text={msg.content}
-                                label={t('playground.copyReply')}
-                                className="absolute right-1.5 top-1.5 size-6 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
-                              />
-                            )}
-                            {msg.meta && (
-                              <div className="flex items-center gap-2 mt-2 flex-wrap text-[11px] opacity-70 tabular-nums">
-                                {(fusionPanel || msg.meta.fusionStreaming) ? (
-                                  <>
-                                    {okPanel.length > 0 && (
-                                      <span>
-                                        {t('playground.fusionPanel')}:{' '}
-                                        <span className="font-mono">{okPanel.map(fusionRouteLabel).join(', ')}</span>
-                                      </span>
-                                    )}
-                                    {msg.meta.fusionJudge && (
-                                      <span>
-                                        · {t('playground.fusionJudge')}:{' '}
-                                        <span className="font-mono">{fusionRouteLabel(msg.meta.fusionJudge)}</span>
-                                      </span>
-                                    )}
-                                    {msg.meta.latency != null && <span>· {msg.meta.latency} ms</span>}
-                                  </>
-                                ) : (
-                                  <>
-                                    {msg.meta.platform && <span>{msg.meta.platform}</span>}
-                                    {msg.meta.model && <span className="font-mono">· {msg.meta.model}</span>}
-                                    {/* Which provider served it is known from the
-                                        response headers straight away; the timing
-                                        only means something once the last frame
-                                        has landed. */}
-                                    {msg.meta.latency != null && !msg.streaming && <span>· {msg.meta.latency} ms</span>}
-                                    {msg.meta.fallbackAttempts != null && msg.meta.fallbackAttempts > 0 && (
-                                      <span>· {msg.meta.fallbackAttempts} {msg.meta.fallbackAttempts > 1 ? t('playground.fallbacks') : t('playground.fallback')}</span>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        {msg.role === 'assistant' && fusionPanel && fusionPanel.length > 0 && (
-                          <FusionTrace
-                            panel={fusionPanel}
-                            judge={msg.meta?.fusionJudge}
-                            streaming={msg.meta?.fusionStreaming}
-                            answerStarted={msg.content.length > 0}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-                {/* Typing dots until the reply starts materialising — which is
-                    the first fusion frame, the first token of a stream, or the
-                    whole message on the buffered path. */}
-                {loading && messages[messages.length - 1]?.role === 'user' && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted rounded-2xl px-4 py-3">
-                      <div className="flex gap-1">
-                        <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="size-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
-
-          <div
-            className={`border-t bg-background/50 p-3 transition-colors ${dragging ? 'bg-primary/5 ring-1 ring-inset ring-primary/40' : ''}`}
-            onDragOver={e => { e.preventDefault(); setDragging(true) }}
-            onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false) }}
-            onDrop={e => {
-              e.preventDefault()
-              setDragging(false)
-              addFiles([...e.dataTransfer.files])
-            }}
-          >
-            <div className="mb-2">
-              <button
-                type="button"
-                onClick={() => setSystemPromptOpen(o => !o)}
-                className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <ChevronRight className={`size-3.5 transition-transform ${systemPromptOpen ? 'rotate-90' : ''}`} />
-                {t('playground.systemPromptLabel')}
-                {systemPrompt.trim() && <span className="ml-1 size-1.5 rounded-full bg-primary/70" />}
-              </button>
-              {systemPromptOpen && (
-                <textarea
-                  value={systemPrompt}
-                  onChange={e => updateSystemPrompt(e.target.value)}
-                  placeholder={t('playground.systemPromptPlaceholder')}
-                  rows={2}
-                  className="mt-1.5 w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 min-h-[44px] max-h-[160px]"
-                />
               )}
+              <div ref={messagesEndRef} />
+            </>
+          )}
+        </div>
+
+        <div
+          className={`border-t bg-background/50 p-3 transition-colors ${dragging ? 'bg-primary/5 ring-1 ring-inset ring-primary/40' : ''}`}
+          onDragOver={e => { e.preventDefault(); setDragging(true) }}
+          onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false) }}
+          onDrop={e => {
+            e.preventDefault()
+            setDragging(false)
+            addFiles([...e.dataTransfer.files])
+          }}
+        >
+          {attachments.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {attachments.map(a => (
+                <div key={a.id} className="relative flex items-center gap-1.5 rounded-lg border bg-background py-1 pl-1.5 pr-6 text-xs">
+                  {a.kind === 'image' && a.dataUrl
+                    ? <img src={a.dataUrl} alt="" className="size-8 rounded object-cover" />
+                    : <FileText className="size-4 shrink-0 text-muted-foreground" />}
+                  <span className="max-w-[140px] truncate">{a.name}</span>
+                  <button
+                    type="button"
+                    aria-label={t('common.remove')}
+                    title={t('common.remove')}
+                    onClick={() => removeAttachment(a.id)}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              ))}
             </div>
-            {attachments.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-2">
-                {attachments.map(a => (
-                  <div key={a.id} className="relative flex items-center gap-1.5 rounded-lg border bg-background py-1 pl-1.5 pr-6 text-xs">
-                    {a.kind === 'image' && a.dataUrl
-                      ? <img src={a.dataUrl} alt="" className="size-8 rounded object-cover" />
-                      : <FileText className="size-4 shrink-0 text-muted-foreground" />}
-                    <span className="max-w-[140px] truncate">{a.name}</span>
-                    <button
-                      type="button"
-                      aria-label={t('common.remove')}
-                      title={t('common.remove')}
-                      onClick={() => removeAttachment(a.id)}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      <X className="size-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            {modelBlindToImages && (
-              <div className="mb-2 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-                <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
-                <span>{t('playground.visionWarning', { model: activeModelLabel })}</span>
-              </div>
-            )}
-            <div className="flex gap-2 items-end">
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept={ACCEPT_ATTRIBUTE}
-                className="hidden"
-                onChange={e => {
-                  addFiles([...(e.target.files ?? [])])
-                  e.target.value = ''
-                }}
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={loading}
-                aria-label={t('playground.attach')}
-                title={t('playground.attach')}
-              >
-                <Paperclip className="size-4" />
-              </Button>
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onPaste={e => {
-                  // Screenshot straight from the clipboard; a normal text paste
-                  // carries no files and falls through untouched.
-                  const files = [...e.clipboardData.files]
-                  if (files.length === 0) return
-                  e.preventDefault()
-                  addFiles(files)
-                }}
-                placeholder={t('playground.inputPlaceholder')}
-                rows={1}
-                className="flex-1 resize-none rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 min-h-[40px] max-h-[160px]"
-                style={{ height: 'auto', overflow: 'hidden' }}
-                onInput={e => {
-                  const el = e.target as HTMLTextAreaElement
-                  el.style.height = 'auto'
-                  el.style.height = Math.min(el.scrollHeight, 160) + 'px'
-                }}
-              />
-              <Button onClick={handleSend} disabled={loading || (!input.trim() && attachments.length === 0)} size="default">
-                {loading ? t('playground.sending') : t('playground.send')}
-              </Button>
+          )}
+          {modelBlindToImages && (
+            <div className="mb-2 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+              <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
+              <span>{t('playground.visionWarning', { model: activeModelLabel })}</span>
             </div>
+          )}
+          <div className="flex gap-2 items-end">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept={ACCEPT_ATTRIBUTE}
+              className="hidden"
+              onChange={e => {
+                addFiles([...(e.target.files ?? [])])
+                e.target.value = ''
+              }}
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loading}
+              aria-label={t('playground.attach')}
+              title={t('playground.attach')}
+            >
+              <Paperclip className="size-4" />
+            </Button>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onPaste={e => {
+                // Screenshot straight from the clipboard; a normal text paste
+                // carries no files and falls through untouched.
+                const files = [...e.clipboardData.files]
+                if (files.length === 0) return
+                e.preventDefault()
+                addFiles(files)
+              }}
+              placeholder={t('playground.inputPlaceholder')}
+              rows={1}
+              className="flex-1 resize-none rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 min-h-[40px] max-h-[160px]"
+              style={{ height: 'auto', overflow: 'hidden' }}
+              onInput={e => {
+                const el = e.target as HTMLTextAreaElement
+                el.style.height = 'auto'
+                el.style.height = Math.min(el.scrollHeight, 160) + 'px'
+              }}
+            />
+            <Button onClick={handleSend} disabled={loading || (!input.trim() && attachments.length === 0)} size="default">
+              {loading ? t('playground.sending') : t('playground.send')}
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Last column, and last in the DOM on purpose: the system prompt textarea
+          it carries must never come before the composer's, which is what a
+          plain `textarea` selector reaches for. */}
+      <SettingsRail
+        open={settingsOpen}
+        onToggle={toggleSettings}
+        modelValue={selectedModel}
+        modelOptions={pickerOptions}
+        onSelectModel={pickModel}
+        noModels={availableModels.length === 0}
+        systemPrompt={systemPrompt}
+        onSystemPromptChange={updateSystemPrompt}
+        sampling={sampling}
+        onSamplingChange={updateSampling}
+      />
     </div>
   )
 }
