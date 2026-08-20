@@ -10,7 +10,7 @@ import { runImageGeneration, runSpeech, runTranscription, MediaError, MAX_TRANSC
 import multer from 'multer';
 import { getDb } from '../db/index.js';
 import { resolveAuth, prependSystemPrompt, type ResolvedAuth } from '../lib/system-prompt.js';
-import { contentToString, messageHasImage, normalizeOutboundContent, sanitizeResponse } from '../lib/content.js';
+import { contentToString, messageHasImage, normalizeOutboundContent, sanitizeResponse, truncateMessagesForGithub } from '../lib/content.js';
 import { normalizeMessageImages } from '../lib/image-normalize.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
 import { invalidToolArgumentsError, invalidToolCallReasons, isToolArgumentValidationEnabled } from '../lib/tool-validate.js';
@@ -1002,6 +1002,12 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
         requestedModel: attempt === 0 ? requestedModelLabel : undefined,
       });
 
+      // Same GitHub input ceiling as /chat/completions below: trim the
+      // dispatched copy so a long legacy prompt doesn't 413 the github hop.
+      const dispatchMessages = route.platform === 'github'
+        ? truncateMessagesForGithub(messages)
+        : messages;
+
       if (stream) {
         let totalOutputTokens = 0;
         let headerSent = false;
@@ -1032,7 +1038,7 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
         try {
           const gen = route.provider.streamChatCompletion(
             route.apiKey,
-            messages,
+            dispatchMessages,
             route.modelId,
             { temperature, max_tokens, top_p, stop, signal: AbortSignal.any([clientAbort.signal, hedgeAbort.signal]) },
             quotaContextForRoute(route, 'chat/completions'),
@@ -1132,7 +1138,7 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
 
       const result = await route.provider.chatCompletion(
         route.apiKey,
-        messages,
+        dispatchMessages,
         route.modelId,
         { temperature, max_tokens, top_p, stop, signal: AbortSignal.any([clientAbort.signal, hedgeAbort.signal]) },
         quotaContextForRoute(route, 'chat/completions'),
@@ -1846,6 +1852,16 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       outboundMessages = restoreSessionReasoning(outboundMessages, rememberedReasoning, route.platform);
     }
 
+    // GitHub Models 413s a history above its input ceiling instead of
+    // truncating it, so a long conversation burns the github hop of every
+    // chain it appears in. Trim the outbound copy to what the platform will
+    // accept — scoped to this attempt, so the next candidate still sees the
+    // client's full history. A no-op returning the same array when the
+    // request already fits.
+    if (route.platform === 'github') {
+      outboundMessages = truncateMessagesForGithub(outboundMessages);
+    }
+
       if (stream) {
         // — Stream turn-integrity (#231 audit) —
         // The old loop forwarded upstream chunks verbatim and called any
@@ -1955,13 +1971,20 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
 
             if (anyChunk.id) lastMeta = { id: anyChunk.id, model: anyChunk.model, created: anyChunk.created };
 
+            // Usage arrives either on its own frame (OpenAI's
+            // stream_options.include_usage shape) or bundled onto the last
+            // choice-bearing frame — several providers do the latter, and
+            // reading it only off choice-less frames threw their real token
+            // counts away and left accounting on the chars/4 estimate. Capture
+            // it wherever it lands, reduced to a usage-only frame: the frame's
+            // deltas are re-emitted through our own framing below, so holding
+            // the original verbatim would duplicate content (or a finish_reason
+            // the client already saw) when it is written back after our finish
+            // chunk to preserve OpenAI ordering.
+            if (anyChunk.usage) usageChunk = { ...anyChunk, choices: [], usage: anyChunk.usage };
+
             const choice = anyChunk.choices?.[0];
-            if (!choice) {
-              // Usage-only frame (stream_options.include_usage) — held and
-              // re-emitted after our finish chunk to preserve OpenAI ordering.
-              if (anyChunk.usage) usageChunk = anyChunk;
-              continue;
-            }
+            if (!choice) continue;
 
             if (choice.finish_reason) upstreamFinish = choice.finish_reason;
 
@@ -2004,7 +2027,9 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
               // #764: thinking-only chunks still consumed tokens — count them.
               if (reasoning.length > 0) totalOutputTokens += Math.ceil(reasoning.length / 4);
               if (choice.delta && Object.keys(choice.delta).some(k => k !== 'content' && k !== 'tool_calls' && choice.delta[k] != null)) {
-                const cleaned = { ...anyChunk, choices: [{ ...choice, delta: { ...choice.delta, tool_calls: undefined }, finish_reason: null }] };
+                // `usage: undefined` (dropped by JSON.stringify): it was held
+                // above and is re-emitted once, after our finish chunk.
+                const cleaned = { ...anyChunk, usage: undefined, choices: [{ ...choice, delta: { ...choice.delta, tool_calls: undefined }, finish_reason: null }] };
                 if (headerSent) writeChunk(cleaned); else preamble.push(cleaned);
               }
               continue;
@@ -2016,7 +2041,9 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
             totalOutputTokens += Math.ceil((text.length + reasoning.length) / 4);
 
             if (mode === 'passthrough') {
-              writeChunk({ ...anyChunk, choices: [{ ...choice, delta: { ...choice.delta, tool_calls: undefined }, finish_reason: null }] });
+              // Same rule as the preamble path: usage rides the held frame,
+              // not this one, so the client sees it exactly once and last.
+              writeChunk({ ...anyChunk, usage: undefined, choices: [{ ...choice, delta: { ...choice.delta, tool_calls: undefined }, finish_reason: null }] });
               continue;
             }
 

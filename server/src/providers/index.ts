@@ -7,6 +7,7 @@ import { CloudflareProvider } from './cloudflare.js';
 import { AIHordeProvider } from './aihorde.js';
 import { ModelScopeProvider } from './modelscope.js';
 import { PollinationsProvider } from './pollinations.js';
+import { ZhipuProvider } from './zhipu.js';
 
 const providers = new Map<Platform, BaseProvider>();
 
@@ -116,19 +117,18 @@ register(new CohereProvider());
 // Cloudflare Workers AI - OpenAI-compatible endpoint (key = "account_id:token")
 register(new CloudflareProvider());
 
-// Zhipu (Z.ai / bigmodel.cn) - OpenAI-compatible
+// Zhipu (Z.ai / bigmodel.cn) - OpenAI-compatible. ZhipuProvider is stock
+// openai-compat chat routing plus console autodetect: the domestic
+// open.bigmodel.cn host stays the default, and a key it rejects is re-probed
+// against the global api.z.ai host during validation instead of being written
+// off as invalid (the two consoles don't share a key namespace).
 //
 // glm-4.7-flash is a hidden-reasoning model: it burns through a long
 // reasoning_content before the first answer byte (live-probed 41s TTFB on a
 // one-word completion, 2026-07-11), and Zhipu buffers that phase even when
 // streaming — so the default 15s timeout aborted every attempt. 60s covers
 // the observed worst case with headroom.
-register(new OpenAICompatProvider({
-  platform: 'zhipu',
-  name: 'Zhipu AI',
-  baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-  timeoutMs: 60_000,
-}));
+register(new ZhipuProvider({ timeoutMs: 60_000 }));
 
 // Hugging Face Inference Providers router — re-added in V13. The V4 removal
 // reason ("tool-call format issues") was the legacy serverless route that

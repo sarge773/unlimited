@@ -871,10 +871,38 @@ function orderChain(chain: ChainRow[], strategy: RoutingStrategy, sampled = true
   const tier = (e: ChainRow) => e.match_tier ?? 0;
   const weights = weightsFor(strategy);
   if (!weights) {
-    // Legacy priority mode: base priority + 429 penalty, ascending.
+    // Legacy priority mode: manual chain order + the 429/failure penalty,
+    // ascending.
+    //
+    // The penalty is denominated in PRIORITY POSITIONS — PENALTY_PER_429 = 3
+    // positions per rate limit, PENALTY_PER_FAIL = 1 per upstream failure,
+    // capped at MAX_PENALTY = 10 — so adding it to the RAW priority only ever
+    // reorders a chain whose neighbours sit within 10 of each other. Nothing
+    // guarantees that, and several ordinary paths guarantee the opposite:
+    //   - PUT /api/fallback validates `priority` as a bare z.number(), so any
+    //     spacing the caller likes (10 / 20 / 30) is persisted verbatim;
+    //   - the seed and sort-preset paths number the WHOLE catalog 1..N, while
+    //     this chain is only the ENABLED subset (`JOIN models m ON
+    //     m.enabled = 1`) — switching models off punches arbitrarily large
+    //     holes in the surviving sequence;
+    //   - resolveModelGroupCandidates hydrates scattered group members with
+    //     whatever COALESCE(fc.priority, 0) they happen to carry.
+    // On any of those the penalty was silently INERT: a model 429-ing every
+    // single request stayed pinned at the head of the chain forever, and the
+    // routing panel's "effective priority" claimed a demotion that never
+    // happened.
+    //
+    // So rank first, then penalize. Sort by the manual priority, re-number the
+    // survivors densely 1..N, and add the penalty to THAT rank. Dense ranking
+    // is monotonic in priority, so an unpenalized chain comes out in exactly
+    // the order the user arranged (tier still dominates as the outer sort key,
+    // and the raw priority remains the tiebreaker); the difference is that one
+    // penalty position now means what it says — one position.
     return chain
-      .map(e => ({ e, eff: e.priority + getPenalty(e.model_db_id) }))
-      .sort((a, b) => tier(a.e) - tier(b.e) || a.eff - b.eff || a.e.priority - b.e.priority)
+      .map((e, i) => ({ e, i }))
+      .sort((a, b) => a.e.priority - b.e.priority || a.i - b.i)
+      .map(({ e, i }, rank) => ({ e, i, eff: rank + 1 + getPenalty(e.model_db_id) }))
+      .sort((a, b) => tier(a.e) - tier(b.e) || a.eff - b.eff || a.e.priority - b.e.priority || a.i - b.i)
       .map(x => x.e);
   }
 
