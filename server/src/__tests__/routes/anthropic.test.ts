@@ -424,6 +424,29 @@ describe('Anthropic-compatible /v1/messages', () => {
     }
   });
 
+  // #880: Claude Desktop fetched the whole catalog over HTTP 200 and still
+  // reported "found 0 models", because it only accepts Claude-family ids. The
+  // listing now carries one id per family, and each one routes.
+  it('GET /v1/models lists a Claude-family id that /v1/messages then serves', async () => {
+    const { body } = await send(app, 'GET', '/v1/models', undefined, anthropicHeaders());
+    const sonnet = body.data.find((m: any) => m.id === 'claude-sonnet-4-5');
+    expect(sonnet).toBeTruthy();
+    expect(sonnet.type).toBe('model');
+    // The label must not read as hosted Claude.
+    expect(sonnet.display_name).toContain('Sonnet slot');
+    for (const id of ['claude-opus-4-5', 'claude-haiku-4-5']) {
+      expect(body.data.some((m: any) => m.id === id)).toBe(true);
+    }
+
+    // The whole point: a client that picks a discovered id gets a real answer.
+    const captured = mockJson(textCompletion('family slot routed'));
+    const response = await request(app, '/v1/messages', {
+      model: sonnet.id, max_tokens: 32, messages: [{ role: 'user', content: 'hello' }],
+    }, anthropicHeaders());
+    expect(response.status).toBe(200);
+    expect(captured.body).toBeTruthy();
+  });
+
   it('gates Claude Code discovery aliases and routes a selected alias', async () => {
     const hidden = await send(app, 'GET', '/v1/models', undefined, anthropicHeaders());
     expect(hidden.body.data.some((model: any) => model.id.startsWith('claude/'))).toBe(false);
