@@ -1,6 +1,7 @@
 import http from 'http';
 import https from 'https';
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { getSetting } from '../db/index.js';
 import { assertProviderUrlAllowed } from './url-guard.js';
 
 // #590 (per-key proxy): the SAME provider may be reached through different
@@ -188,6 +189,22 @@ export function applyProxyUrl(dbValue: string): void {
     console.log('[proxy] Not configured — outbound requests go direct.');
   }
   _initialized = true;
+}
+
+/**
+ * Hydrate the process-wide proxy state from the settings table.
+ *
+ * The standalone server does this in index.ts after initDb; the desktop
+ * embedder (desktop/src/server-host.ts) builds the app without index.ts and
+ * must call this itself — otherwise the URL saved by PUT /api/settings/proxy
+ * sits in the DB but the process starts with an empty proxy and every
+ * outbound request goes direct until the user re-saves the setting (#949).
+ * Safe to call more than once; it is idempotent.
+ */
+export function restoreProxySettings(): void {
+  applyProxyUrl(getSetting('proxy_url') ?? '');
+  applyProxyEnabled(getSetting('proxy_enabled') !== '0'); // default: enabled
+  applyProxyBypass(getSetting('proxy_bypass') ?? '');
 }
 
 export function getProxyUrl(): string {
