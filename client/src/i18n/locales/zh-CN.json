@@ -12,7 +12,7 @@
     "switchLight": "切换到浅色主题",
     "switchDark": "切换到深色主题",
     "switchToChinese": "切换到中文",
-    "switchToEnglish": "Switch to English",
+    "switchToEnglish": "切换到英文",
     "modelsMenu": "浏览模型类型",
     "agents": "智能体"
   },
@@ -672,7 +672,7 @@
     "upsellDescription": "新免费模型上线即用，无需等待 30 天。一个密钥，所有设备。随时取消，路由器永久免费。",
     "goPremium": "升级到高级版",
     "bundled": "内置",
-    "planGeneric": "Premium"
+    "planGeneric": "高级版"
   },
   "languages": {
     "en": "English",
