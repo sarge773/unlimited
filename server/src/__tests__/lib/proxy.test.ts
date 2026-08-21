@@ -467,6 +467,63 @@ describe('proxyFetch routing', () => {
   });
 });
 
+// #951: a loopback destination (Ollama/llama.cpp/LM Studio on 127.0.0.1) is
+// unreachable through any proxy, and because it is an IP literal the SOCKS
+// agent must send it as ATYP 0x01 (an IP) regardless of the `socks5h` suffix —
+// which is exactly what makes Tor log "giving Tor only an IP address" and may
+// get the connection refused. Loopback therefore always bypasses the proxy.
+describe('loopback destinations bypass the proxy (#951)', () => {
+  it('sends a 127.0.0.1 destination direct, not through a SOCKS proxy', async () => {
+    applyProxyUrl('socks5h://127.0.0.1:9050');
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('http://127.0.0.1:11434/api/chat', { method: 'POST' }, 'custom');
+
+    // Direct: no SocksProxyAgent on the wire, no dispatcher on fetch.
+    expect(reqSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect((fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher).toBeUndefined();
+  });
+
+  it('sends a localhost destination direct, not through a SOCKS proxy', async () => {
+    applyProxyUrl('socks5h://127.0.0.1:9050');
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('http://localhost:11434/api/chat', { method: 'POST' }, 'custom');
+
+    expect(reqSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect((fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher).toBeUndefined();
+  });
+
+  it('still routes a public destination through the SOCKS proxy', async () => {
+    applyProxyUrl('socks5h://127.0.0.1:9050');
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const reqSpy = stubHttpsRequest();
+
+    await proxyFetch('https://api.openai.com/v1/models', { method: 'GET' }, 'openai');
+
+    // Public host still goes through the SOCKS agent (port 9050).
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect((reqSpy.mock.calls[0][0] as any).agent?.proxy?.port).toBe(9050);
+  });
+
+  it('applies to the per-key proxy path too', async () => {
+    applyProxyUrl('socks5h://127.0.0.1:9050');
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse());
+    const reqSpy = stubHttpsRequest();
+
+    await withKeyProxy('socks5h://127.0.0.1:9051', () =>
+      proxyFetch('http://127.0.0.1:11434/api/chat', { method: 'POST' }, 'custom'));
+
+    expect(reqSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect((fetchSpy.mock.calls[0]?.[1] as any)?.dispatcher).toBeUndefined();
+  });
+});
+
 // SSRF guard, request-time half (#440). The save-time check validates the
 // literal base_url, but fetch()'s default redirect: 'follow' would re-request
 // a 3xx Location target with no re-validation — a public base_url answering

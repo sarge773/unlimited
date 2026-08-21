@@ -1,7 +1,8 @@
 import http from 'http';
 import https from 'https';
+import net from 'node:net';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { assertProviderUrlAllowed } from './url-guard.js';
+import { assertProviderUrlAllowed, classifyIp } from './url-guard.js';
 
 // #590 (per-key proxy): the SAME provider may be reached through different
 // exit IPs per key (geo-ban / risk-control avoidance). Providers are process
@@ -227,9 +228,28 @@ export function getNoProxyRules(): string[] {
 }
 
 /**
+ * True when the destination is THIS machine — loopback (127.0.0.0/8, ::1,
+ * 0.0.0.0) or the `localhost` name. Such a destination is unreachable through
+ * any proxy (a remote proxy has no route to your own 127.0.0.1), so routing it
+ * there is never useful and, for SOCKS, actively harmful: `127.0.0.1` is an IP
+ * literal, so the agent must send it as ATYP 0x01 (an IP) no matter what the
+ * `socks5h` suffix promises, and Tor then logs "giving Tor only an IP address"
+ * and may refuse the connection (#951). The Ollama/llama.cpp/LM Studio case —
+ * the app's primary documented local use — is exactly this.
+ */
+function isLoopbackDestination(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (host === 'localhost' || host.endsWith('.localhost')) return true;
+  if (net.isIP(host)) return classifyIp(host) === 'loopback';
+  return false;
+}
+
+/**
  * Returns true when a request should NOT use the proxy.
  * True when: proxy is disabled globally, the platform is in the bypass list,
- * or the upstream host is covered by NO_PROXY.
+ * the upstream is a loopback destination (unreachable through a proxy, and an
+ * IP literal that would trip Tor's DNS-leak warning — #951), or the upstream
+ * host is covered by NO_PROXY.
  */
 function shouldBypassProxy(url: string, platform?: string): boolean {
   if (!_proxyEnabled) return true;
@@ -240,6 +260,11 @@ function shouldBypassProxy(url: string, platform?: string): boolean {
     } catch {
       // Unparseable URL — leave the routing decision to the caller/fetch.
     }
+  }
+  try {
+    if (isLoopbackDestination(new URL(url).hostname)) return true;
+  } catch {
+    // Unparseable URL — leave the routing decision to the caller/fetch.
   }
   return false;
 }
