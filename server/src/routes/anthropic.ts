@@ -23,7 +23,7 @@ import { extractApiToken, timingSafeStringEqual, getStickyModel, setStickyModel 
 import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, type ExhaustionBody, setFallbackHeaders, setExhaustionHeaders, type AttemptRecord } from '../lib/fallback-loop.js';
 import { routedViaValue } from '../lib/header-value.js';
 import { applyTokenBudget, tokenBudgetMessage } from '../lib/guardrails.js';
-import { resolveAnthropicModel } from '../services/anthropic-map.js';
+import { resolveAnthropicModel, claudeFamilyDiscoveryEntries } from '../services/anthropic-map.js';
 import type { ReasoningEffort } from '../lib/sampling-params.js';
 import { buildModelListing } from '../services/model-listing.js';
 import { compressRequest, formatCompressionHeader } from '../services/compression/pipeline.js';
@@ -1018,8 +1018,13 @@ anthropicRouter.post('/messages/count_tokens', (req: Request, res: Response) => 
 // the caller speaks Anthropic (sends an `anthropic-version` header, as Claude
 // Code does) — otherwise it calls next() and the OpenAI-shaped handler in
 // proxyRouter serves the same path. Lists the SAME catalog as the OpenAI
-// endpoint (real free models that can serve a request right now, plus "auto") —
-// no fake Claude cloud models.
+// endpoint (real free models that can serve a request right now, plus "auto").
+// Nothing here is hosted Claude, and no entry claims to be.
+//
+// One entry per Claude family (claude-sonnet-4-5 and friends) rides along so
+// clients that only accept Claude-shaped ids can discover anything at all; see
+// CLAUDE_FAMILY_ALIASES for why, and note /messages already routed those ids
+// long before they were listed here.
 //
 // Optional `claude/<real-id>` aliases let Claude Code's gateway picker discover
 // the full catalog; /messages strips the synthetic prefix before routing.
@@ -1032,6 +1037,16 @@ anthropicRouter.get('/models', (req: Request, res: Response, next: NextFunction)
   const aliasesEnabled = getSetting('expose_cc_discovery_aliases') === '1';
   const data = [
     { type: 'model' as const, id: 'auto', display_name: 'Auto (router picks the best available model)', created_at: MODEL_CREATED_AT },
+    // Only when something can actually serve them: advertising a Sonnet slot
+    // backed by an empty pool would trade "0 models" for a model that 503s.
+    ...(available.length > 0
+      ? claudeFamilyDiscoveryEntries().map(a => ({
+        type: 'model' as const,
+        id: a.id,
+        display_name: a.displayName,
+        created_at: MODEL_CREATED_AT,
+      }))
+      : []),
     ...available.map(m => ({ type: 'model' as const, id: m.id, display_name: m.name, created_at: MODEL_CREATED_AT })),
     ...(aliasesEnabled
       ? available.map(m => ({

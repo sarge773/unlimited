@@ -361,6 +361,31 @@ function enrichAbort(
   return enriched;
 }
 
+/**
+ * DNS `lookup` override for the SOCKS fallback path: hand back the hostname it
+ * was asked to resolve, unchanged.
+ *
+ * socks-proxy-agent resolves the DESTINATION locally for the `socks5://` and
+ * `socks4://` schemes (`shouldLookup`) and sends the proxy a bare IP; only
+ * `socks5h://`/`socks4a://` pass the name through. That local resolution is
+ * what breaks rule-based proxy clients (Clash and friends), which match routing
+ * rules on the domain and have nothing to match once the name is gone — and on
+ * a DNS-poisoned network it resolves to the poisoned address as well.
+ *
+ * `http.request` forwards this to the agent as `opts.lookup`, so echoing the
+ * hostname makes every SOCKS scheme reach the proxy with the domain intact,
+ * i.e. behave like its `h`/`a` variant. The agent only forwards the "address"
+ * as the SOCKS destination host — it never inspects the address family, so the
+ * `4` is a placeholder the callback signature requires.
+ */
+export function socksHostnameLookup(
+  hostname: string,
+  _options: unknown,
+  callback: (err: null, address: string, family: number) => void,
+): void {
+  callback(null, hostname, 4);
+}
+
 function socksFetch(
   urlStr: string,
   init: RequestInit | undefined,
@@ -427,6 +452,11 @@ function socksFetch(
       servername: isTls ? url.hostname : undefined,
       rejectUnauthorized: true,
       timeout: socketTimeoutMs,
+      // Keep the destination hostname unresolved so the SOCKS proxy does the
+      // DNS. `agent` here is always a SocksProxyAgent (every socksFetch caller
+      // is behind an `isSocks` branch), and the agent is the only consumer of
+      // this hook — the connection to the proxy itself still resolves normally.
+      lookup: socksHostnameLookup,
     }, (res) => {
       if (signal?.aborted) {
         res.destroy();

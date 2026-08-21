@@ -11,6 +11,7 @@ import {
   getNoProxyRules,
   isProxyActive,
   isSocksProxyUrl,
+  socksHostnameLookup,
   PROXY_SCHEMES,
   proxyFetch,
   describeAbort,
@@ -214,6 +215,45 @@ describe('SOCKS socket timeout guard (#666)', () => {
       const reqSpy = stubHttpsRequest();
       await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq', 'chat', bad);
       expect(socketTimeoutOf(reqSpy)).toBe(120_000);
+      vi.restoreAllMocks();
+    }
+  });
+});
+
+// socks-proxy-agent resolves the DESTINATION locally for the plain `socks5://`
+// and `socks4://` schemes and hands the proxy a bare IP. Rule-based proxy
+// clients (Clash and friends) route on the DOMAIN, so a pre-resolved IP loses
+// every routing rule the user wrote. socksFetch passes a `lookup` that echoes
+// the hostname, which is what makes the SOCKS path behave like socks5h
+// regardless of the scheme the user configured.
+describe('SOCKS destination hostname reaches the proxy unresolved', () => {
+  const lookupOf = (spy: ReturnType<typeof stubHttpsRequest>): any =>
+    (spy.mock.calls[0][0] as any).lookup;
+
+  it('returns the hostname it was handed, unchanged', () => {
+    const seen: unknown[] = [];
+    socksHostnameLookup('api.example.com', {}, (...args) => seen.push(args));
+    expect(seen).toEqual([[null, 'api.example.com', 4]]);
+  });
+
+  it('never performs a real DNS resolution', () => {
+    // A hostname that cannot resolve anywhere still comes straight back out,
+    // synchronously — proof the override short-circuits dns.lookup entirely.
+    let address: string | undefined;
+    socksHostnameLookup('this-host-does-not-exist.invalid', {}, (_e, addr) => { address = addr; });
+    expect(address).toBe('this-host-does-not-exist.invalid');
+  });
+
+  it('installs the override on every SOCKS scheme, including socks5', async () => {
+    for (const url of ['socks5://127.0.0.1:1080', 'socks5h://127.0.0.1:1080', 'socks4://127.0.0.1:1080']) {
+      applyProxyUrl(url);
+      const reqSpy = stubHttpsRequest();
+
+      await proxyFetch('https://api.example.com/v1', { method: 'POST' }, 'groq');
+
+      let resolved: string | undefined;
+      lookupOf(reqSpy)('api.example.com', {}, (_e: unknown, addr: string) => { resolved = addr; });
+      expect(resolved).toBe('api.example.com');
       vi.restoreAllMocks();
     }
   });

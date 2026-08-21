@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { ChevronLeft, Merge, Save, Split, Trash2 } from 'lucide-react'
 import { useI18n } from '@/i18n'
 import { apiFetch } from '@/lib/api'
+import { addAlias, aliasesFor, removeAlias } from '@/lib/alias-merge'
 import { Button } from '@/components/ui/button'
 import { ConfirmButton } from '@/components/confirm-button'
 import { Input } from '@/components/ui/input'
@@ -122,6 +123,25 @@ export default function ModelDetailPage() {
     },
   })
 
+  // #790: merge a custom provider's model alias into THIS unified model, so a
+  // request for the primary model id is served through the alias too. Same
+  // whole-overrides PUT as splits; only the merges list changes.
+  const [aliasInput, setAliasInput] = useState('')
+  const mergeMutation = useMutation({
+    mutationFn: (merges: UnifyOverrides['merges']) =>
+      apiFetch('/api/settings/unify', {
+        method: 'PUT',
+        body: JSON.stringify({ overrides: { merges, splits: unify?.overrides.splits ?? [] } }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['unify'] })
+      queryClient.invalidateQueries({ queryKey: ['fallback'] })
+      queryClient.invalidateQueries({ queryKey: ['fallback', 'routing'] })
+      queryClient.invalidateQueries({ queryKey: ['models'] })
+      setAliasInput('')
+    },
+  })
+
   const splits = unify?.overrides.splits ?? []
   // New splits are written against ONE row: an unqualified "platform:modelId"
   // matches every relay that serves the id, so splitting one relay's card used
@@ -173,6 +193,16 @@ export default function ModelDetailPage() {
   const quota = members.length ? groupQuotaBadge(members, t) : null
   const vision = members.some(m => m.supportsVision)
   const tools = members.some(m => m.supportsTools)
+
+  // #790: the aliases merged INTO this group. Every edit is expressed against
+  // the full overrides list (see lib/alias-merge) — the visible rows are only
+  // this group's slice, so editing by row position would hit other groups.
+  const merges = useMemo(() => unify?.overrides.merges ?? [], [unify])
+  const groupAliases = useMemo(() => aliasesFor(merges, label), [merges, label])
+  const submitAlias = () => {
+    if (!aliasInput.trim()) return
+    mergeMutation.mutate(addAlias(merges, label, aliasInput))
+  }
 
   // A ready-to-run request referencing this model by its unified id, so it fails
   // over across every provider above. Same base-URL derivation as the Keys page.
@@ -274,6 +304,46 @@ export default function ModelDetailPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* #790: merge a custom provider's model alias into this unified
+                model, so requests for the primary model id are served through
+                the alias too. Same overrides store as the split control. */}
+            <div className="rounded-2xl border bg-card p-4">
+              <h2 className="text-sm font-medium">{t('models.aliasMergeHeading')}</h2>
+              <p className="mt-0.5 mb-3 text-xs text-muted-foreground">{t('models.aliasMergeHint')}</p>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={aliasInput}
+                  onChange={e => setAliasInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitAlias() } }}
+                  placeholder="custom:my-alias"
+                  className="font-mono text-xs"
+                  aria-label={t('models.aliasMergeHeading')}
+                />
+                <Button type="button" size="sm" disabled={mergeMutation.isPending || !aliasInput.trim()} onClick={submitAlias}>
+                  {t('models.aliasMergeAdd')}
+                </Button>
+              </div>
+              {groupAliases.length > 0 && (
+                <div className="mt-3 space-y-1.5">
+                  {groupAliases.map(alias => (
+                    <div key={alias} className="flex items-center gap-2 text-xs">
+                      <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">{alias}</code>
+                      <Button
+                        type="button"
+                        size="xs"
+                        variant="ghost"
+                        className="text-muted-foreground"
+                        disabled={mergeMutation.isPending}
+                        onClick={() => mergeMutation.mutate(removeAlias(merges, label, alias))}
+                      >
+                        {t('models.aliasMergeRemove')}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Ready-to-run snippet that references this model by its unified id. */}
@@ -469,7 +539,7 @@ function ProviderSettingsRow({
         />
         <NumberField
           label={t('models.limitRpm')}
-          hint={t('models.limitHint')}
+          hint={t('models.limitRpmHint')}
           value={form.rpmLimit}
           invalid={invalid.rpmLimit}
           overridden={overridden.has('rpmLimit')}
@@ -477,7 +547,7 @@ function ProviderSettingsRow({
         />
         <NumberField
           label={t('models.limitRpd')}
-          hint={t('models.limitHint')}
+          hint={t('models.limitRpdHint')}
           value={form.rpdLimit}
           invalid={invalid.rpdLimit}
           overridden={overridden.has('rpdLimit')}
@@ -485,7 +555,7 @@ function ProviderSettingsRow({
         />
         <NumberField
           label={t('models.limitTpm')}
-          hint={t('models.limitHint')}
+          hint={t('models.limitTpmHint')}
           value={form.tpmLimit}
           invalid={invalid.tpmLimit}
           overridden={overridden.has('tpmLimit')}
@@ -493,7 +563,7 @@ function ProviderSettingsRow({
         />
         <NumberField
           label={t('models.limitTpd')}
-          hint={t('models.limitHint')}
+          hint={t('models.limitTpdHint')}
           value={form.tpdLimit}
           invalid={invalid.tpdLimit}
           overridden={overridden.has('tpdLimit')}

@@ -63,6 +63,14 @@ export const PLATFORMS: { value: Platform; label: string; url: string; keyless?:
   { value: 'anyapi', label: 'AnyAPI (free key)', url: 'https://anyapi.ai' },
   { value: 'modelscope', label: 'ModelScope (free key, needs Aliyun cn binding)', url: 'https://modelscope.cn/my/myaccesstoken' },
   { value: 'aihorde', label: 'AI Horde (no key needed, slow)', url: 'https://aihorde.net/register', keyless: true },
+  // Chinese domestic providers. All four gate API access behind real-name
+  // verification on the cloud account, so the label says so up front rather
+  // than letting a user mint a key that 401s on every call (the ModelScope
+  // lesson, #581). LongCat is the one that takes an overseas email signup.
+  { value: 'qianfan', label: 'Baidu Qianfan (free ERNIE, needs cn real-name)', url: 'https://console.bce.baidu.com/qianfan/overview' },
+  { value: 'volcengine', label: 'Volcengine Ark (free daily, needs cn real-name)', url: 'https://console.volcengine.com/ark' },
+  { value: 'longcat', label: 'LongCat (free daily, email signup ok)', url: 'https://longcat.chat/platform' },
+  { value: 'xfyun', label: 'iFlytek Spark (free Lite, needs cn real-name)', url: 'https://console.xfyun.cn' },
 ]
 
 // 'custom' is configured through its own form (base URL + model), not the
