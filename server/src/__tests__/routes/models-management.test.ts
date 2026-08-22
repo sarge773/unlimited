@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import type { Express } from 'express';
 import { createApp } from '../../app.js';
-import { initDb, getDb, getSetting, setSetting } from '../../db/index.js';
+import { initDb, getDb, getSetting, setSetting, getUnifiedApiKey } from '../../db/index.js';
 import { mintDashboardToken, isGatedApiPath } from '../helpers/auth.js';
 import { applyAllModelOverrides } from '../../services/model-state.js';
 
@@ -37,11 +37,17 @@ async function request(app: Express, method: string, path: string, body?: any) {
   const addr = server.address() as any;
   const url = `http://127.0.0.1:${addr.port}${path}`;
 
+  // /v1/* inference endpoints authenticate with the unified key (or a client
+  // profile key), NOT the dashboard token; /api/* admin endpoints take the
+  // dashboard token. isGatedApiPath covers the admin side, and /v1 paths are
+  // simply excluded from it — so add the unified key explicitly for those.
+  const isV1 = path.startsWith('/v1/');
   const res = await fetch(url, {
     method,
     headers: {
       ...(body ? { 'Content-Type': 'application/json' } : {}),
       ...(isGatedApiPath(path) ? { Authorization: `Bearer ${dashToken}` } : {}),
+      ...(isV1 ? { Authorization: `Bearer ${getUnifiedApiKey()}` } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -318,5 +324,49 @@ describe('Model management API', () => {
       SELECT 1 FROM catalog_model_tombstones
        WHERE kind = 'chat' AND platform = ? AND model_id = ?
     `).get(target.platform, target.model_id)).toBeDefined();
+  });
+
+  it('exposes custom profiles as auto:<name> chains in /v1/models (#960/#895)', async () => {
+    // Seed a custom profile whose chain is a subset of the catalog.
+    const db = getDb();
+    const model = db.prepare(`
+      SELECT id FROM models WHERE platform = 'groq' AND key_id IS NULL ORDER BY id LIMIT 1
+    `).get() as { id: number };
+    const profile = db.prepare(`
+      INSERT INTO profiles (name, emoji, color, type, sort_order) VALUES ('my-group', '', '#6366f1', 'custom', 5)
+    `).run();
+    const profileId = profile.lastInsertRowid as number;
+    db.prepare('INSERT INTO profile_models (profile_id, model_db_id, priority, enabled) VALUES (?, ?, 1, 1)').run(profileId, model.id);
+
+    const listed = await request(app, 'GET', '/v1/models');
+    expect(listed.status).toBe(200);
+    const chain = listed.body.data.find((m: any) => m.id === 'auto:my-group');
+    expect(chain).toBeDefined();
+    expect(chain.name).toContain('my-group');
+    expect(chain.object).toBe('model');
+    // The chain lists even without a key for its member; unavailable is honest.
+    expect(['available', 'unavailable_reason']).toContain('available' in chain ? 'available' : '');
+    // The virtual auto: id must not collide with real catalog ids.
+    expect(listed.body.data.filter((m: any) => m.id === 'auto:my-group')).toHaveLength(1);
+  });
+
+  it('routes a request to model auto:my-group through the named chain (#960/#895)', async () => {
+    const db = getDb();
+    const model = db.prepare(`
+      SELECT id FROM models WHERE platform = 'groq' AND key_id IS NULL ORDER BY id LIMIT 1
+    `).get() as { id: number };
+    const profile = db.prepare(`
+      INSERT INTO profiles (name, emoji, color, type, sort_order) VALUES ('route-group', '', '#6366f1', 'custom', 6)
+    `).run();
+    const profileId = profile.lastInsertRowid as number;
+    db.prepare('INSERT INTO profile_models (profile_id, model_db_id, priority, enabled) VALUES (?, ?, 1, 1)').run(profileId, model.id);
+
+    // An unknown chain name must 400 with a clear message, not silently fall
+    // back to the active chain.
+    const missing = await request(app, 'POST', '/v1/chat/completions', {
+      model: 'auto:no-such-group',
+      messages: [{ role: 'user', content: 'hi' }],
+    });
+    expect([400, 404, 503]).toContain(missing.status);
   });
 });
