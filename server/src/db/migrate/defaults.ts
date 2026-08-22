@@ -82,6 +82,6 @@ export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: KEY_MODEL_SCOPE_FILENAME, module: keyModelScope },
   { filename: CLIENT_PROFILES_FILENAME, module: clientProfiles },
   { filename: API_KEY_PROXY_FILENAME, module: apiKeyProxy },
-  { filename: PLAYGROUND_CONVERSATIONS_FILENAME, module: playgroundConversations },
   { filename: CUSTOM_MODEL_TOMBSTONES_FILENAME, module: customModelTombstones },
+  { filename: PLAYGROUND_CONVERSATIONS_FILENAME, module: playgroundConversations },
 ];
