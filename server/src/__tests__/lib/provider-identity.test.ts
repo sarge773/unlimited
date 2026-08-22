@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { endpointHost, providerDisplayName, providerIdFor } from '../../lib/provider-identity.js';
+import { endpointScopeForBaseUrl } from '../../lib/endpoint-scope.js';
 
 describe('provider-identity', () => {
   describe('endpointHost', () => {
@@ -36,6 +37,15 @@ describe('provider-identity', () => {
       expect(providerIdFor('custom', undefined)).toBe('custom');
       expect(providerIdFor('custom', '')).toBe('custom');
     });
+
+    it('is the endpoint-scope token verbatim', () => {
+      // The caller hands in the NORMALIZED base_url (keys.ts on write, the SQL
+      // in routes/analytics.ts for older rows), so the id matches
+      // `models.endpoint_scope` for the same endpoint and this module needs no
+      // second definition of "same endpoint" of its own.
+      expect(providerIdFor('custom', endpointScopeForBaseUrl('https://relay-a.example.com/v1/')))
+        .toBe('custom:https://relay-a.example.com/v1');
+    });
   });
 
   describe('providerDisplayName', () => {
@@ -51,6 +61,42 @@ describe('provider-identity', () => {
 
     it('shows the platform slug for catalog providers', () => {
       expect(providerDisplayName('groq', null)).toBe('groq');
+    });
+
+    it('keeps the path when it, not the host, is what tells endpoints apart', () => {
+      // One gateway fronting two tenants: the host is identical, so a
+      // host-only name would collide and the operator could not tell the rows
+      // apart — #889 all over again, one level down.
+      const a = providerDisplayName('custom', 'https://gw.example.com/tenant-a/v1');
+      const b = providerDisplayName('custom', 'https://gw.example.com/tenant-b/v1');
+      expect(a).toBe('gw.example.com/tenant-a/v1');
+      expect(b).toBe('gw.example.com/tenant-b/v1');
+      expect(a).not.toBe(b);
+    });
+
+    it('drops only a trivial path, so the common case still reads as a host', () => {
+      // '/', '/v1', '/v1beta' say nothing a second endpoint on the host would
+      // not also say, so they are noise in the single-endpoint-per-host case.
+      expect(providerDisplayName('custom', 'https://relay.example.com')).toBe('relay.example.com');
+      expect(providerDisplayName('custom', 'https://relay.example.com/')).toBe('relay.example.com');
+      expect(providerDisplayName('custom', 'https://relay.example.com/v1')).toBe('relay.example.com');
+      expect(providerDisplayName('custom', 'https://relay.example.com/v1beta')).toBe('relay.example.com');
+      expect(providerDisplayName('custom', 'http://192.168.1.10:11434/v1')).toBe('192.168.1.10:11434');
+    });
+
+    it('does not collapse a kept path onto its own versioned form', () => {
+      // Trimming the '/v1' off a KEPT path would make these two endpoints
+      // display the same name, which is the collision this exists to prevent.
+      expect(providerDisplayName('custom', 'https://gw.example.com/tenant-a'))
+        .not.toBe(providerDisplayName('custom', 'https://gw.example.com/tenant-a/v1'));
+    });
+
+    it('names an endpoint the same way no matter which other endpoints exist', () => {
+      // Purely a function of this row's base_url (like endpoint-scope's
+      // handles), so /by-platform, /by-model and /errors agree on the name
+      // even though each sees a different subset of endpoints.
+      expect(providerDisplayName('custom', 'https://relay-a.example.com/v1/'))
+        .toBe(providerDisplayName('custom', 'https://relay-a.example.com/v1'));
     });
   });
 });
