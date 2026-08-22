@@ -5,6 +5,7 @@ import {
   getProxyUrl,
   isProxyEnabled,
   getProxyBypassPlatforms,
+  getNoProxyRules,
   applyProxyUrl,
   applyProxyEnabled,
   applyProxyBypass,
@@ -90,5 +91,158 @@ describe('restoreProxySettings (desktop embedder hydration, #949)', () => {
     restoreProxySettings();
 
     expect(getProxyUrl()).toBe('http://env:8080');
+  });
+});
+
+// The env tiers below are resolveProxySource()'s job, but restore time is the
+// only moment they are consulted on a desktop start: the embedder hydrates
+// once and then nothing re-reads the environment. A regression that skipped a
+// tier here would strand a user who has only ever exported HTTPS_PROXY.
+describe('restoreProxySettings + the standard env fallbacks (#353 x #949)', () => {
+  function freshDb(): void {
+    process.env.ENCRYPTION_KEY = '0'.repeat(64);
+    initDb(':memory:');
+  }
+
+  it('falls back to ALL_PROXY when nothing was saved in the dashboard', () => {
+    freshDb();
+    process.env.ALL_PROXY = 'socks5://all:1080';
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('socks5://all:1080');
+  });
+
+  it('falls back to HTTPS_PROXY', () => {
+    freshDb();
+    process.env.HTTPS_PROXY = 'http://https-tier:8443';
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('http://https-tier:8443');
+  });
+
+  it('falls back to HTTP_PROXY', () => {
+    freshDb();
+    process.env.HTTP_PROXY = 'http://http-tier:8080';
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('http://http-tier:8080');
+  });
+
+  it('prefers ALL_PROXY, then HTTPS_PROXY, then HTTP_PROXY', () => {
+    freshDb();
+    process.env.ALL_PROXY = 'http://all:1';
+    process.env.HTTPS_PROXY = 'http://https:2';
+    process.env.HTTP_PROXY = 'http://http:3';
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('http://all:1');
+  });
+
+  it('reads the lower-case spelling too — the one curl/git users actually export', () => {
+    freshDb();
+    process.env.https_proxy = 'http://lower:8443';
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('http://lower:8443');
+  });
+
+  it('does NOT let the ambient env override a proxy the user typed into the dashboard', () => {
+    freshDb();
+    setSetting('proxy_url', 'http://saved:3128');
+    process.env.ALL_PROXY = 'http://ambient:1080';
+    process.env.HTTPS_PROXY = 'http://ambient:8443';
+    process.env.HTTP_PROXY = 'http://ambient:8080';
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('http://saved:3128');
+  });
+
+  it('still lets PROXY_URL outrank the ambient vars', () => {
+    freshDb();
+    process.env.PROXY_URL = 'http://explicit:9090';
+    process.env.ALL_PROXY = 'http://ambient:1080';
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('http://explicit:9090');
+  });
+
+  it('leaves the proxy empty when neither the DB nor any env var has one', () => {
+    freshDb();
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('');
+  });
+});
+
+// NO_PROXY is read from the environment inside applyProxyUrl, so on the
+// desktop path it is parsed exactly once: during restore. If restore stopped
+// going through applyProxyUrl the saved URL might still land while the direct
+// list silently emptied, quietly proxying hosts the user excluded.
+describe('restoreProxySettings + NO_PROXY (#949)', () => {
+  function freshDb(): void {
+    process.env.ENCRYPTION_KEY = '0'.repeat(64);
+    initDb(':memory:');
+  }
+
+  it('parses NO_PROXY at restore time, lower-cased and trimmed', () => {
+    freshDb();
+    setSetting('proxy_url', 'http://127.0.0.1:3128');
+    process.env.NO_PROXY = 'localhost, .Internal.Corp ,, 10.0.0.1';
+
+    restoreProxySettings();
+
+    expect(getNoProxyRules()).toEqual(['localhost', '.internal.corp', '10.0.0.1']);
+  });
+
+  it('normalises the `*.domain` spelling to the leading-dot form', () => {
+    freshDb();
+    setSetting('proxy_url', 'http://127.0.0.1:3128');
+    process.env.NO_PROXY = '*.example.com';
+
+    restoreProxySettings();
+
+    expect(getNoProxyRules()).toEqual(['.example.com']);
+  });
+
+  it('honours the lower-case no_proxy spelling', () => {
+    freshDb();
+    setSetting('proxy_url', 'http://127.0.0.1:3128');
+    process.env.no_proxy = 'example.com';
+
+    restoreProxySettings();
+
+    expect(getNoProxyRules()).toEqual(['example.com']);
+  });
+
+  it('applies NO_PROXY even when the proxy itself came from the env tier', () => {
+    freshDb();
+    process.env.HTTPS_PROXY = 'http://ambient:8443';
+    process.env.NO_PROXY = 'internal.corp';
+
+    restoreProxySettings();
+
+    expect(getProxyUrl()).toBe('http://ambient:8443');
+    expect(getNoProxyRules()).toEqual(['internal.corp']);
+  });
+
+  it('clears stale rules when the env no longer sets NO_PROXY', () => {
+    freshDb();
+    setSetting('proxy_url', 'http://127.0.0.1:3128');
+    process.env.NO_PROXY = 'example.com';
+    restoreProxySettings();
+    expect(getNoProxyRules()).toEqual(['example.com']);
+
+    delete process.env.NO_PROXY;
+    restoreProxySettings();
+
+    expect(getNoProxyRules()).toEqual([]);
   });
 });
