@@ -1,6 +1,11 @@
 services:
   freellmapi:
-    image: ghcr.io/tashfeenahmed/freellmapi:latest
+    # Local tag, NOT ghcr.io/tashfeenahmed/freellmapi:latest: this deployment
+    # carries local patches (context-window safety margin, 2026-08-21) and a
+    # `docker compose pull` on the upstream tag would silently overwrite them.
+    # To pick up upstream changes: git pull, then `docker compose build && docker compose up -d`.
+    image: freellmapi-local:patched
+    pull_policy: never
     build:
       context: .
       dockerfile: Dockerfile

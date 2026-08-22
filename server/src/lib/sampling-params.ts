@@ -246,8 +246,10 @@ export const PLATFORM_PARAM_POLICIES: Partial<Record<Platform, PlatformParamPoli
     rename: { seed: 'random_seed' },
   },
   // Groq documents logprobs / top_logprobs / logit_bias as unsupported and
-  // rejects requests that include them.
-  groq: { drop: ['logprobs', 'top_logprobs', 'logit_bias'] },
+  // rejects requests that include them. Its free tier also 400s any
+  // max_tokens > 8192 (`must be less than or equal to 8192`, live 2026-08-22),
+  // so the cap is clamped here instead of being spent as a wasted fallback hop.
+  groq: { drop: ['logprobs', 'top_logprobs', 'logit_bias'], maxTokensCap: 8192 },
   // GitHub Models sits on Azure OpenAI, which 400s "Unrecognized request
   // argument" for knobs outside the OpenAI set. Its reasoning_effort enum is
   // the older low/medium/high one, so 'none'/'minimal' are clamped rather
