@@ -100,11 +100,8 @@ describe('migration round trip', () => {
         KEY_MODEL_SCOPE_FILENAME,
         CLIENT_PROFILES_FILENAME,
         API_KEY_PROXY_FILENAME,
-<<<<<<< HEAD
         PLAYGROUND_CONVERSATIONS_FILENAME,
-=======
         CUSTOM_MODEL_TOMBSTONES_FILENAME,
->>>>>>> e974106 (feat(custom): keep user-deleted custom models deleted across scheduled sync (#926))
       ]);
     } finally {
       db.close();
