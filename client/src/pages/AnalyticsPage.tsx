@@ -77,6 +77,13 @@ interface SummaryResponse {
 
 interface ByPlatformRow {
   platform: string
+  // Stable identity for the filter dropdown. For a catalog platform it equals
+  // `platform`; for a custom endpoint it is `custom:<base_url>` (#889), so each
+  // relay is filterable on its own instead of collapsing into 'custom'.
+  providerId: string
+  // Human display name. Catalog: the platform id. Custom: the endpoint host
+  // (e.g. 'relay.example.com') so several relays are distinguishable.
+  endpoint?: string
   requests: number
   successRate: number
   avgLatencyMs: number
@@ -109,6 +116,11 @@ interface TimelineBucket {
 
 interface ByModelRow {
   platform: string
+  // Endpoint identity of the row (#889). The same model id served by two
+  // custom relays is two rows, one per relay, so the name has to say which.
+  // Same id/name pair /by-platform returns for that endpoint.
+  providerId?: string
+  endpoint?: string
   modelId: string
   displayName: string
   requests: number
@@ -133,13 +145,19 @@ interface ByKeyRow {
 
 interface ErrorDistribution {
   byCategory: Array<{ category: string; count: number }>
-  byPlatform: Array<{ platform: string; count: number }>
+  // One entry per provider — per custom ENDPOINT, not one pooled 'custom'
+  // entry (#889); `platform` is kept for the dot coloring.
+  byPlatform: Array<{ platform: string; providerId?: string; endpoint?: string; count: number }>
   detailed: Array<{ platform: string; model_id: string; error_category: string; count: number }>
 }
 
 interface RecentErrorRow {
   id: number
   platform: string
+  // Which endpoint produced the error: the platform slug for catalog
+  // providers, the custom endpoint's host/path for a relay (#889).
+  providerId?: string
+  endpoint?: string
   modelId: string
   error: string
   latencyMs: number
@@ -455,6 +473,11 @@ export default function AnalyticsPage() {
     queryFn: () => apiFetch<ByPlatformRow[]>(`/api/analytics/by-platform?range=${range}`),
   })
 
+  // Friendly display name per providerId: catalog → the platform id, custom →
+  // the endpoint host. Used by the filter dropdown so a selected custom relay
+  // shows 'relay.example.com', not 'custom:https://relay.example.com' (#889).
+  const providerDisplay = new Map(byPlatform.map((p) => [p.providerId, p.endpoint ?? p.platform]))
+
   const { data: byClient = [] } = useQuery({
     queryKey: ['analytics', 'by-client', range],
     queryFn: () => apiFetch<ByClientRow[]>(`/api/analytics/by-client?range=${range}`),
@@ -501,7 +524,9 @@ export default function AnalyticsPage() {
     queryFn: () => {
       const params = new URLSearchParams({ range, limit: '100' })
       if (statusFilter !== 'all') params.set('status', statusFilter)
-      if (platformFilter !== 'all') params.set('platform', platformFilter)
+      // provider (not platform) so a selected custom relay filters to itself
+      // instead of every custom endpoint (#889). Catalog ids equal the platform.
+      if (platformFilter !== 'all') params.set('provider', platformFilter)
       return apiFetch<RecentCallsResponse>(`/api/analytics/requests?${params}`)
     },
   })
@@ -655,7 +680,7 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={byPlatform} margin={{ top: 6, right: 6, left: -12, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="2 4" stroke={gridStyle} />
-                  <XAxis dataKey="platform" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
+                  <XAxis dataKey={(row: ByPlatformRow) => row.endpoint ?? row.platform} tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
                   <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="requests" name={t('analytics.requests')} fill={primaryFill} radius={[3, 3, 0, 0]} maxBarSize={24} />
@@ -688,7 +713,7 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={byPlatform} margin={{ top: 6, right: 6, left: -12, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="2 4" stroke={gridStyle} />
-                  <XAxis dataKey="platform" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
+                  <XAxis dataKey={(row: ByPlatformRow) => row.endpoint ?? row.platform} tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
                   <YAxis unit="ms" tick={axisStyle} tickLine={false} axisLine={false} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Legend wrapperStyle={{ fontSize: 12 }} iconType="rect" />
@@ -709,7 +734,7 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={byPlatform} margin={{ top: 6, right: 6, left: -12, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="2 4" stroke={gridStyle} />
-                  <XAxis dataKey="platform" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
+                  <XAxis dataKey={(row: ByPlatformRow) => row.endpoint ?? row.platform} tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
                   <YAxis unit="ms" tick={axisStyle} tickLine={false} axisLine={false} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="avgTtfbMs" name={t('analytics.avgTtft')} fill={seriesA} radius={[3, 3, 0, 0]} maxBarSize={24} />
@@ -742,7 +767,7 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={errorDist.byPlatform} margin={{ top: 6, right: 6, left: -12, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="2 4" stroke={gridStyle} />
-                  <XAxis dataKey="platform" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
+                  <XAxis dataKey={(row: ErrorDistribution['byPlatform'][number]) => row.endpoint ?? row.platform} tick={axisStyle} tickLine={false} axisLine={{ stroke: gridStyle }} />
                   <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="count" name={t('analytics.errors')} fill="var(--destructive)" radius={[3, 3, 0, 0]} maxBarSize={24} />
@@ -767,7 +792,7 @@ export default function AnalyticsPage() {
                   <TableBody>
                     {errors.slice(0, 20).map((e) => (
                       <TableRow key={e.id}>
-                        <TableCell className="pl-4 text-xs">{e.platform}</TableCell>
+                        <TableCell className="pl-4 text-xs">{e.endpoint ?? e.platform}</TableCell>
                         <TableCell className="text-xs max-w-[200px] truncate">{e.error}</TableCell>
                         <TableCell className="text-right text-xs text-muted-foreground tabular-nums pr-4">
                           {formatSqliteUtcToLocalTime(e.createdAt, { hour: '2-digit', minute: '2-digit' })}
@@ -805,16 +830,16 @@ export default function AnalyticsPage() {
                   <Select value={platformFilter} onValueChange={(v) => setPlatformFilter(v ?? 'all')}>
                     <SelectTrigger size="sm" aria-label={t('common.provider')}>
                       <SelectValue>
-                        {(v: string) => (!v || v === 'all' ? t('analytics.allProviders') : v)}
+                        {(v: string) => (!v || v === 'all' ? t('analytics.allProviders') : providerDisplay.get(v) ?? v)}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t('analytics.allProviders')}</SelectItem>
                       {byPlatform.map((p) => (
-                        <SelectItem key={p.platform} value={p.platform}>
+                        <SelectItem key={p.providerId} value={p.providerId}>
                           <span className="flex items-center gap-2">
                             <PlatformDot platform={p.platform} />
-                            <span>{p.platform}</span>
+                            <span>{p.endpoint ?? p.platform}</span>
                           </span>
                         </SelectItem>
                       ))}
@@ -909,11 +934,11 @@ export default function AnalyticsPage() {
                     </TableHeader>
                     <TableBody>
                       {byPlatform.map((p) => (
-                        <TableRow key={p.platform}>
+                        <TableRow key={p.providerId}>
                           <TableCell className="pl-4 text-sm font-medium">
                             <span className="flex items-center gap-2">
                               <PlatformDot platform={p.platform} />
-                              {p.platform}
+                              {p.endpoint ?? p.platform}
                             </span>
                           </TableCell>
                           <TableCell className="text-right tabular-nums">{p.requests}</TableCell>
@@ -957,10 +982,10 @@ export default function AnalyticsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {byModel.map((m, i) => (
-                        <TableRow key={i}>
+                      {byModel.map((m) => (
+                        <TableRow key={`${m.providerId ?? m.platform}:${m.modelId}`}>
                           <TableCell className="pl-4 text-sm font-medium">{m.displayName}</TableCell>
-                          <TableCell className="text-xs text-muted-foreground">{m.platform}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{m.endpoint ?? m.platform}</TableCell>
                           <TableCell className="text-right tabular-nums">{m.requests}</TableCell>
                           <TableCell className="text-right tabular-nums">{m.pinnedRequests > 0 ? m.pinnedRequests : '—'}</TableCell>
                           <TableCell className="text-right tabular-nums">{m.successRate}%</TableCell>
