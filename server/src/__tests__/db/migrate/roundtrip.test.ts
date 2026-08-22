@@ -100,8 +100,8 @@ describe('migration round trip', () => {
         KEY_MODEL_SCOPE_FILENAME,
         CLIENT_PROFILES_FILENAME,
         API_KEY_PROXY_FILENAME,
-        PLAYGROUND_CONVERSATIONS_FILENAME,
         CUSTOM_MODEL_TOMBSTONES_FILENAME,
+        PLAYGROUND_CONVERSATIONS_FILENAME,
       ]);
     } finally {
       db.close();
