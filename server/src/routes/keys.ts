@@ -288,8 +288,8 @@ keysRouter.get('/', (_req: Request, res: Response) => {
   }
   for (const list of modelsByEndpoint.values()) {
     list.sort((a, b) => {
-      const ka = ['chat', 'embedding', 'image', 'audio'].indexOf(a.kind);
-      const kb = ['chat', 'embedding', 'image', 'audio'].indexOf(b.kind);
+      const ka = ['chat', 'embedding', 'image', 'audio', 'transcription'].indexOf(a.kind);
+      const kb = ['chat', 'embedding', 'image', 'audio', 'transcription'].indexOf(b.kind);
       return (ka - kb) || String(a.displayName).localeCompare(String(b.displayName));
     });
   }

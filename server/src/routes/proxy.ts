@@ -664,9 +664,10 @@ proxyRouter.post('/audio/speech', async (req: Request, res: Response) => {
 // disk), routed through the STT provider chain in services/media.ts with the
 // same key/failover/cooldown machinery as the other media endpoints. The STT
 // registry (media_models, modality='transcription') is maintained by the
-// published catalog's `transcriptionModels` array via catalog-sync; on an
-// install that has never synced one, the endpoint answers 503 with code
-// 'no_transcription_models' until the first sync lands.
+// published catalog's `transcriptionModels` array via catalog-sync, plus any
+// OpenAI-compatible endpoint the operator registered themselves through
+// POST /api/media/custom; on an install that has never synced one and has no
+// custom row, the endpoint answers 503 with code 'no_transcription_models'.
 //
 // response_format: 'json' (default, {"text": ...}), 'text' (plain string),
 // 'verbose_json' (OpenAI verbose shape when the provider returns segments,

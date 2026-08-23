@@ -242,7 +242,7 @@ export type KeyStatus = 'healthy' | 'rate_limited' | 'invalid' | 'error' | 'unkn
 
 export interface ApiKeyModel {
   id: number;
-  kind: 'chat' | 'embedding' | 'image' | 'audio';
+  kind: 'chat' | 'embedding' | 'image' | 'audio' | 'transcription';
   modelId: string;
   displayName: string;
   family?: string | null;

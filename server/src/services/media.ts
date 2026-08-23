@@ -586,7 +586,10 @@ export async function runImageGeneration(model: string | undefined, params: Imag
 //
 // STT models live in media_models with modality='transcription', maintained
 // by the published catalog's `transcriptionModels` array (see catalog-sync)
-// — never hardcoded here, never seeded by migrations. The per-platform
+// — never hardcoded here, never seeded by migrations. A user can also
+// register their own OpenAI-compatible STT endpoint (platform 'custom') from
+// the Keys page; those rows are keyed to an api_keys row and are never touched
+// by catalog-sync. The per-platform
 // adapters below are pure transport; everything model-specific (native
 // subtitle support, upload ceiling, request flavor) rides on the catalog
 // entry and lands in the row's meta_json. On an install that has never
@@ -617,6 +620,11 @@ export const MAX_TRANSCRIPTION_BYTES = 25 * 1024 * 1024;
 interface SttCandidate {
   platform: string;
   modelId: string;
+  /** The api_keys row this model is bound to, or null to pick any healthy key
+   *  for the platform. Custom endpoints ALWAYS carry one: getProviderCredential
+   *  refuses to guess a key for platform 'custom', so dropping this here would
+   *  silently skip every custom STT row. */
+  keyId: number | null;
   nativeSubtitles: Set<string>;
   maxBytes: number;
   requestStyle: string | null;
@@ -641,6 +649,7 @@ function toSttCandidate(row: MediaModelRow): SttCandidate {
   return {
     platform: row.platform,
     modelId: row.model_id,
+    keyId: row.key_id,
     nativeSubtitles: new Set(Array.isArray(meta.subtitleFormats) ? meta.subtitleFormats : []),
     maxBytes,
     requestStyle: typeof meta.requestStyle === 'string' ? meta.requestStyle : null,
@@ -680,7 +689,8 @@ function resolveTranscriptionChain(model: string | undefined, responseFormat: st
     // for / trigger a sync rather than pretending the model id is wrong.
     throw new MediaError(
       'No transcription models are configured yet. The registry arrives via catalog sync; ' +
-      'wait for the next sync (or trigger one from the dashboard) and retry.',
+      'wait for the next sync (or trigger one from the dashboard) and retry, ' +
+      'or register your own OpenAI-compatible endpoint from the Keys page.',
       503,
       'no_transcription_models',
     );
@@ -714,6 +724,31 @@ async function callTranscriptionProvider(
 ): Promise<Omit<TranscriptionResult, 'platform' | 'modelId'>> {
   const key = credential.key;
   switch (m.platform) {
+    case 'custom': {
+      // Any OpenAI-compatible STT server (faster-whisper-server, LocalAI,
+      // whisper.cpp's server, vLLM…). Same multipart shape as groq below;
+      // only the base URL and the optional key differ.
+      if (!credential.baseUrl) throw new MediaError('custom transcription provider is missing base_url', 500);
+      const form = new FormData();
+      form.append('file', new Blob([p.file], { type: p.mimeType || 'application/octet-stream' }), p.filename);
+      form.append('model', m.modelId);
+      if (p.language) form.append('language', p.language);
+      if (p.prompt) form.append('prompt', p.prompt);
+      if (p.temperature !== undefined) form.append('temperature', String(p.temperature));
+      // 'text' is derived locally from the json shape so failover output stays
+      // uniform; 'vtt' never reaches here (no native subtitle support is
+      // declared for custom rows, so resolveTranscriptionChain filters them).
+      form.append('response_format', p.responseFormat === 'verbose_json' ? 'verbose_json' : 'json');
+      // Never set Content-Type by hand — FormData supplies the boundary.
+      const r = await mediaFetch(`${credential.baseUrl}/audio/transcriptions`, 'custom', 'transcription', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${key ?? 'no-key'}` },
+        body: form,
+      });
+      const j = (await r.json()) as { text?: string; language?: string; duration?: number; segments?: unknown[] };
+      if (typeof j.text !== 'string') throw new MediaError('custom endpoint returned no transcription text', 502);
+      return { text: j.text, language: j.language, duration: j.duration, segments: j.segments };
+    }
     case 'groq': {
       // Groq's OpenAI-compatible audio endpoint takes multipart form data.
       // Never set Content-Type by hand — FormData supplies the boundary.
@@ -791,7 +826,7 @@ export async function runTranscription(model: string | undefined, p: Transcripti
   }
   let lastError: MediaError | null = null;
   for (const m of usable) {
-    const credential = getProviderCredential({ platform: m.platform, key_id: null });
+    const credential = getProviderCredential({ platform: m.platform, key_id: m.keyId });
     if (!credential) continue; // no usable key for this provider — try the next
     if (credential.id != null && isOnCooldown(m.platform, m.modelId, credential.id)) continue;
     const logRow = { platform: m.platform, model_id: m.modelId, modality: 'transcription' as const };
