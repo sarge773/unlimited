@@ -16,8 +16,7 @@
     "modelsMenu": "모델 유형 찾아보기",
     "agents": "에이전트",
     "logs": "로그",
-    "analyticsMenu": "분석 페이지",
-    "freeTier": "Free Tier"
+    "analyticsMenu": "분석 페이지"
   },
   "auth": {
     "createYourAccount": "계정 만들기",
@@ -986,25 +985,24 @@
     "dismiss": "Dismiss"
   },
   "freeTier": {
-    "title": "Free Tier",
-    "description": "Pool-deduped free-tier budgets across providers.",
-    "documentedMonthly": "Documented monthly tokens",
-    "documentedMonthlyHint": "One budget per pool — never summed across models sharing a pool.",
-    "pools": "Free-tier pools",
-    "creditsBased": "Credits-based",
-    "unpublished": "Unpublished",
-    "generatedAt": "Generated",
-    "liveQuotaHint": "Quota cells show the latest provider-reported observation.",
-    "pool": "Pool",
-    "platform": "Platform",
-    "models": "Models",
-    "budget": "Monthly budget",
-    "kind": "Kind",
-    "kindDocumented": "Documented",
-    "kindCredits": "Credits",
-    "kindUnpublished": "Unpublished",
-    "remaining": "Remaining",
-    "resetAt": "Resets at",
-    "empty": "No enabled models with free-tier budget data."
+    "poolsToggle": "무료 등급 풀 ({count})",
+    "poolsToggleBare": "무료 등급 풀",
+    "summary": "{pools}개 풀 · {budget} 토큰/월, 풀당 한 번만 집계 · 크레딧 기반 {credits}개 · 미공개 {unpublished}개",
+    "pool": "풀",
+    "models": "모델 수",
+    "budget": "월간 예산",
+    "kind": "종류",
+    "kindDocumented": "공개됨",
+    "kindCredits": "크레딧",
+    "kindUnpublished": "미공개",
+    "remaining": "남음",
+    "resetAt": "재설정 시각",
+    "disabledModels": "({count}개 꺼짐)",
+    "metricTokens": "토큰",
+    "metricRequests": "요청",
+    "metricCredits": "크레딧",
+    "metricNeurons": "뉴런",
+    "metricOther": "단위",
+    "empty": "무료 등급 예산 데이터가 있는 활성화된 모델이 없습니다."
   }
 }

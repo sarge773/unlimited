@@ -16,8 +16,7 @@
     "modelsMenu": "मॉडल प्रकार ब्राउज़ करें",
     "agents": "एजेंट",
     "logs": "लॉग",
-    "analyticsMenu": "विश्लेषिकी पेज",
-    "freeTier": "Free Tier"
+    "analyticsMenu": "विश्लेषिकी पेज"
   },
   "auth": {
     "createYourAccount": "अपना खाता बनाएं",
@@ -986,25 +985,24 @@
     "dismiss": "Dismiss"
   },
   "freeTier": {
-    "title": "Free Tier",
-    "description": "Pool-deduped free-tier budgets across providers.",
-    "documentedMonthly": "Documented monthly tokens",
-    "documentedMonthlyHint": "One budget per pool — never summed across models sharing a pool.",
-    "pools": "Free-tier pools",
-    "creditsBased": "Credits-based",
-    "unpublished": "Unpublished",
-    "generatedAt": "Generated",
-    "liveQuotaHint": "Quota cells show the latest provider-reported observation.",
-    "pool": "Pool",
-    "platform": "Platform",
-    "models": "Models",
-    "budget": "Monthly budget",
-    "kind": "Kind",
-    "kindDocumented": "Documented",
-    "kindCredits": "Credits",
-    "kindUnpublished": "Unpublished",
-    "remaining": "Remaining",
-    "resetAt": "Resets at",
-    "empty": "No enabled models with free-tier budget data."
+    "poolsToggle": "फ्री टियर पूल ({count})",
+    "poolsToggleBare": "फ्री टियर पूल",
+    "summary": "{pools} पूल · {budget} टोकन/माह, हर पूल एक ही बार गिना गया · {credits} क्रेडिट-आधारित · {unpublished} अप्रकाशित",
+    "pool": "पूल",
+    "models": "मॉडल",
+    "budget": "मासिक बजट",
+    "kind": "प्रकार",
+    "kindDocumented": "प्रलेखित",
+    "kindCredits": "क्रेडिट",
+    "kindUnpublished": "अप्रकाशित",
+    "remaining": "शेष",
+    "resetAt": "रीसेट",
+    "disabledModels": "({count} बंद)",
+    "metricTokens": "टोकन",
+    "metricRequests": "अनुरोध",
+    "metricCredits": "क्रेडिट",
+    "metricNeurons": "न्यूरॉन",
+    "metricOther": "इकाई",
+    "empty": "फ्री टियर बजट डेटा वाला कोई सक्षम मॉडल नहीं।"
   }
 }

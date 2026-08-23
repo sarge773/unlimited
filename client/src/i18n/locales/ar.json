@@ -16,8 +16,7 @@
     "modelsMenu": "تصفح أنواع النماذج",
     "agents": "الوكلاء",
     "logs": "السجلات",
-    "analyticsMenu": "صفحات التحليلات",
-    "freeTier": "Free Tier"
+    "analyticsMenu": "صفحات التحليلات"
   },
   "auth": {
     "createYourAccount": "أنشئ حسابك",
@@ -986,25 +985,24 @@
     "dismiss": "Dismiss"
   },
   "freeTier": {
-    "title": "Free Tier",
-    "description": "Pool-deduped free-tier budgets across providers.",
-    "documentedMonthly": "Documented monthly tokens",
-    "documentedMonthlyHint": "One budget per pool — never summed across models sharing a pool.",
-    "pools": "Free-tier pools",
-    "creditsBased": "Credits-based",
-    "unpublished": "Unpublished",
-    "generatedAt": "Generated",
-    "liveQuotaHint": "Quota cells show the latest provider-reported observation.",
-    "pool": "Pool",
-    "platform": "Platform",
-    "models": "Models",
-    "budget": "Monthly budget",
-    "kind": "Kind",
-    "kindDocumented": "Documented",
-    "kindCredits": "Credits",
-    "kindUnpublished": "Unpublished",
-    "remaining": "Remaining",
-    "resetAt": "Resets at",
-    "empty": "No enabled models with free-tier budget data."
+    "poolsToggle": "مجمّعات الطبقة المجانية ({count})",
+    "poolsToggleBare": "مجمّعات الطبقة المجانية",
+    "summary": "{pools} مجمّعات · {budget} رمز/شهر تُحتسب مرة واحدة لكل مجمّع · {credits} بالأرصدة · {unpublished} غير معلنة",
+    "pool": "المجمّع",
+    "models": "النماذج",
+    "budget": "الميزانية الشهرية",
+    "kind": "النوع",
+    "kindDocumented": "موثّق",
+    "kindCredits": "أرصدة",
+    "kindUnpublished": "غير معلن",
+    "remaining": "المتبقي",
+    "resetAt": "يُعاد الضبط",
+    "disabledModels": "({count} معطّل)",
+    "metricTokens": "رمز",
+    "metricRequests": "طلب",
+    "metricCredits": "رصيد",
+    "metricNeurons": "خلية عصبية",
+    "metricOther": "وحدة",
+    "empty": "لا توجد نماذج مفعّلة تحتوي على بيانات ميزانية الطبقة المجانية."
   }
 }

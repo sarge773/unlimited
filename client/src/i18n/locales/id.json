@@ -16,8 +16,7 @@
     "modelsMenu": "Telusuri jenis model",
     "agents": "Agen",
     "logs": "Log",
-    "analyticsMenu": "Halaman analisis",
-    "freeTier": "Free Tier"
+    "analyticsMenu": "Halaman analisis"
   },
   "auth": {
     "createYourAccount": "Buat akun Anda",
@@ -986,25 +985,24 @@
     "dismiss": "Dismiss"
   },
   "freeTier": {
-    "title": "Free Tier",
-    "description": "Pool-deduped free-tier budgets across providers.",
-    "documentedMonthly": "Documented monthly tokens",
-    "documentedMonthlyHint": "One budget per pool — never summed across models sharing a pool.",
-    "pools": "Free-tier pools",
-    "creditsBased": "Credits-based",
-    "unpublished": "Unpublished",
-    "generatedAt": "Generated",
-    "liveQuotaHint": "Quota cells show the latest provider-reported observation.",
-    "pool": "Pool",
-    "platform": "Platform",
-    "models": "Models",
-    "budget": "Monthly budget",
-    "kind": "Kind",
-    "kindDocumented": "Documented",
-    "kindCredits": "Credits",
-    "kindUnpublished": "Unpublished",
-    "remaining": "Remaining",
-    "resetAt": "Resets at",
-    "empty": "No enabled models with free-tier budget data."
+    "poolsToggle": "Kumpulan tingkat gratis ({count})",
+    "poolsToggleBare": "Kumpulan tingkat gratis",
+    "summary": "{pools} kumpulan · {budget} token/bln dihitung sekali per kumpulan · {credits} berbasis kredit · {unpublished} tidak dipublikasikan",
+    "pool": "Kumpulan",
+    "models": "Model",
+    "budget": "Anggaran bulanan",
+    "kind": "Jenis",
+    "kindDocumented": "Terdokumentasi",
+    "kindCredits": "Kredit",
+    "kindUnpublished": "Tidak dipublikasikan",
+    "remaining": "Sisa",
+    "resetAt": "Reset pada",
+    "disabledModels": "({count} nonaktif)",
+    "metricTokens": "token",
+    "metricRequests": "permintaan",
+    "metricCredits": "kredit",
+    "metricNeurons": "neuron",
+    "metricOther": "unit",
+    "empty": "Tidak ada model aktif dengan data anggaran tingkat gratis."
   }
 }

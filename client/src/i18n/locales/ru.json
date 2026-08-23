@@ -16,8 +16,7 @@
     "modelsMenu": "Просмотр типов моделей",
     "agents": "Агенты",
     "logs": "Журнал",
-    "analyticsMenu": "Страницы аналитики",
-    "freeTier": "Free Tier"
+    "analyticsMenu": "Страницы аналитики"
   },
   "auth": {
     "createYourAccount": "Создайте свою учетную запись",
@@ -986,25 +985,24 @@
     "dismiss": "Dismiss"
   },
   "freeTier": {
-    "title": "Free Tier",
-    "description": "Pool-deduped free-tier budgets across providers.",
-    "documentedMonthly": "Documented monthly tokens",
-    "documentedMonthlyHint": "One budget per pool — never summed across models sharing a pool.",
-    "pools": "Free-tier pools",
-    "creditsBased": "Credits-based",
-    "unpublished": "Unpublished",
-    "generatedAt": "Generated",
-    "liveQuotaHint": "Quota cells show the latest provider-reported observation.",
-    "pool": "Pool",
-    "platform": "Platform",
-    "models": "Models",
-    "budget": "Monthly budget",
-    "kind": "Kind",
-    "kindDocumented": "Documented",
-    "kindCredits": "Credits",
-    "kindUnpublished": "Unpublished",
-    "remaining": "Remaining",
-    "resetAt": "Resets at",
-    "empty": "No enabled models with free-tier budget data."
+    "poolsToggle": "Пулы бесплатного тарифа ({count})",
+    "poolsToggleBare": "Пулы бесплатного тарифа",
+    "summary": "{pools} пулов · {budget} токенов/мес, каждый пул учтён один раз · {credits} на кредитах · {unpublished} без данных",
+    "pool": "Пул",
+    "models": "Модели",
+    "budget": "Месячный лимит",
+    "kind": "Тип",
+    "kindDocumented": "Задокументирован",
+    "kindCredits": "Кредиты",
+    "kindUnpublished": "Не опубликован",
+    "remaining": "Осталось",
+    "resetAt": "Сброс",
+    "disabledModels": "({count} выкл.)",
+    "metricTokens": "токенов",
+    "metricRequests": "запросов",
+    "metricCredits": "кредитов",
+    "metricNeurons": "нейронов",
+    "metricOther": "единиц",
+    "empty": "Нет включённых моделей с данными о бесплатном лимите."
   }
 }

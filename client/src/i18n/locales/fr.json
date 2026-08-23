@@ -16,8 +16,7 @@
     "modelsMenu": "Parcourir les types de modèles",
     "agents": "Agents",
     "logs": "Journaux",
-    "analyticsMenu": "Pages d'analytique",
-    "freeTier": "Free Tier"
+    "analyticsMenu": "Pages d'analytique"
   },
   "auth": {
     "createYourAccount": "Créez votre compte",
@@ -986,25 +985,24 @@
     "dismiss": "Dismiss"
   },
   "freeTier": {
-    "title": "Free Tier",
-    "description": "Pool-deduped free-tier budgets across providers.",
-    "documentedMonthly": "Documented monthly tokens",
-    "documentedMonthlyHint": "One budget per pool — never summed across models sharing a pool.",
-    "pools": "Free-tier pools",
-    "creditsBased": "Credits-based",
-    "unpublished": "Unpublished",
-    "generatedAt": "Generated",
-    "liveQuotaHint": "Quota cells show the latest provider-reported observation.",
+    "poolsToggle": "Pools de l'offre gratuite ({count})",
+    "poolsToggleBare": "Pools de l'offre gratuite",
+    "summary": "{pools} pools · {budget} jetons/mois comptés une seule fois par pool · {credits} à crédits · {unpublished} non publiés",
     "pool": "Pool",
-    "platform": "Platform",
-    "models": "Models",
-    "budget": "Monthly budget",
-    "kind": "Kind",
-    "kindDocumented": "Documented",
-    "kindCredits": "Credits",
-    "kindUnpublished": "Unpublished",
-    "remaining": "Remaining",
-    "resetAt": "Resets at",
-    "empty": "No enabled models with free-tier budget data."
+    "models": "Modèles",
+    "budget": "Budget mensuel",
+    "kind": "Type",
+    "kindDocumented": "Documenté",
+    "kindCredits": "Crédits",
+    "kindUnpublished": "Non publié",
+    "remaining": "Restant",
+    "resetAt": "Réinitialisation",
+    "disabledModels": "({count} désactivés)",
+    "metricTokens": "jetons",
+    "metricRequests": "requêtes",
+    "metricCredits": "crédits",
+    "metricNeurons": "neurones",
+    "metricOther": "unités",
+    "empty": "Aucun modèle activé avec des données de budget d'offre gratuite."
   }
 }

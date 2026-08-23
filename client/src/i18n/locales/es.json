@@ -16,8 +16,7 @@
     "modelsMenu": "Explorar tipos de modelos",
     "agents": "Agentes",
     "logs": "Registros",
-    "analyticsMenu": "Páginas de analíticas",
-    "freeTier": "Free Tier"
+    "analyticsMenu": "Páginas de analíticas"
   },
   "auth": {
     "createYourAccount": "Crea tu cuenta",
@@ -986,25 +985,24 @@
     "dismiss": "Dismiss"
   },
   "freeTier": {
-    "title": "Free Tier",
-    "description": "Pool-deduped free-tier budgets across providers.",
-    "documentedMonthly": "Documented monthly tokens",
-    "documentedMonthlyHint": "One budget per pool — never summed across models sharing a pool.",
-    "pools": "Free-tier pools",
-    "creditsBased": "Credits-based",
-    "unpublished": "Unpublished",
-    "generatedAt": "Generated",
-    "liveQuotaHint": "Quota cells show the latest provider-reported observation.",
-    "pool": "Pool",
-    "platform": "Platform",
-    "models": "Models",
-    "budget": "Monthly budget",
-    "kind": "Kind",
-    "kindDocumented": "Documented",
-    "kindCredits": "Credits",
-    "kindUnpublished": "Unpublished",
-    "remaining": "Remaining",
-    "resetAt": "Resets at",
-    "empty": "No enabled models with free-tier budget data."
+    "poolsToggle": "Grupos del nivel gratuito ({count})",
+    "poolsToggleBare": "Grupos del nivel gratuito",
+    "summary": "{pools} grupos · {budget} tokens/mes contados una vez por grupo · {credits} basados en créditos · {unpublished} sin publicar",
+    "pool": "Grupo",
+    "models": "Modelos",
+    "budget": "Presupuesto mensual",
+    "kind": "Tipo",
+    "kindDocumented": "Documentado",
+    "kindCredits": "Créditos",
+    "kindUnpublished": "Sin publicar",
+    "remaining": "Restante",
+    "resetAt": "Se restablece",
+    "disabledModels": "({count} apagados)",
+    "metricTokens": "tokens",
+    "metricRequests": "solicitudes",
+    "metricCredits": "créditos",
+    "metricNeurons": "neuronas",
+    "metricOther": "unidades",
+    "empty": "No hay modelos habilitados con datos de presupuesto del nivel gratuito."
   }
 }

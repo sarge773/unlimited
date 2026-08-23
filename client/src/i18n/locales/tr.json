@@ -16,8 +16,7 @@
     "modelsMenu": "Model türlerine göz atın",
     "agents": "Ajanlar",
     "logs": "Günlükler",
-    "analyticsMenu": "Analitik sayfaları",
-    "freeTier": "Free Tier"
+    "analyticsMenu": "Analitik sayfaları"
   },
   "auth": {
     "createYourAccount": "Hesabınızı oluşturun",
@@ -986,25 +985,24 @@
     "dismiss": "Dismiss"
   },
   "freeTier": {
-    "title": "Free Tier",
-    "description": "Pool-deduped free-tier budgets across providers.",
-    "documentedMonthly": "Documented monthly tokens",
-    "documentedMonthlyHint": "One budget per pool — never summed across models sharing a pool.",
-    "pools": "Free-tier pools",
-    "creditsBased": "Credits-based",
-    "unpublished": "Unpublished",
-    "generatedAt": "Generated",
-    "liveQuotaHint": "Quota cells show the latest provider-reported observation.",
-    "pool": "Pool",
-    "platform": "Platform",
-    "models": "Models",
-    "budget": "Monthly budget",
-    "kind": "Kind",
-    "kindDocumented": "Documented",
-    "kindCredits": "Credits",
-    "kindUnpublished": "Unpublished",
-    "remaining": "Remaining",
-    "resetAt": "Resets at",
-    "empty": "No enabled models with free-tier budget data."
+    "poolsToggle": "Ücretsiz katman havuzları ({count})",
+    "poolsToggleBare": "Ücretsiz katman havuzları",
+    "summary": "{pools} havuz · {budget} jeton/ay, her havuz bir kez sayılır · {credits} kredi tabanlı · {unpublished} yayımlanmamış",
+    "pool": "Havuz",
+    "models": "Modeller",
+    "budget": "Aylık bütçe",
+    "kind": "Tür",
+    "kindDocumented": "Belgelenmiş",
+    "kindCredits": "Kredi",
+    "kindUnpublished": "Yayımlanmamış",
+    "remaining": "Kalan",
+    "resetAt": "Sıfırlanma",
+    "disabledModels": "({count} kapalı)",
+    "metricTokens": "jeton",
+    "metricRequests": "istek",
+    "metricCredits": "kredi",
+    "metricNeurons": "nöron",
+    "metricOther": "birim",
+    "empty": "Ücretsiz katman bütçe verisi olan etkin model yok."
   }
 }
