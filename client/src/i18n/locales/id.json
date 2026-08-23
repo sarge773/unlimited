@@ -690,6 +690,7 @@
     "failoverLadderHint": "Setiap hop yang diambil permintaan ini melalui rantai fallback, secara berurutan.",
     "noAttemptTrace": "Tidak ada jejak upaya yang dicatat untuk permintaan ini.",
     "keyOrdinal": "kunci #{n}",
+    "keyBadge": "Kunci #{n}",
     "attemptTimingHint": "Mulai offset dari awal permintaan · durasi upaya",
     "requestedModel": "Model yang diminta",
     "ttft": "TTFT",

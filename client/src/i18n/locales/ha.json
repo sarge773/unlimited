@@ -690,6 +690,7 @@
     "failoverLadderHint": "Kowane hop wannan bukatar ya bi ta sarkar koma baya, cikin tsari.",
     "noAttemptTrace": "Babu wani yunƙuri da aka yi rikodin wannan buƙatar.",
     "keyOrdinal": "makullin #{n}",
+    "keyBadge": "Maɓalli #{n}",
     "attemptTimingHint": "Fara biya daga farkon buƙatun · lokacin ƙoƙarin",
     "requestedModel": "Samfurin da ake nema",
     "ttft": "Saukewa: TTFT",

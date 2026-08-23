@@ -690,6 +690,7 @@
     "failoverLadderHint": "Jeder Hop, den diese Anfrage durchlief, wurde der Reihe nach durch die Fallback-Kette durchlaufen.",
     "noAttemptTrace": "Für diese Anfrage wurde keine Versuchsverfolgung aufgezeichnet.",
     "keyOrdinal": "Schlüssel #{n}",
+    "keyBadge": "Schlüssel #{n}",
     "attemptTimingHint": "Startoffset vom Anforderungsstart · Versuchsdauer",
     "requestedModel": "Angefragtes Modell",
     "ttft": "TTFT",

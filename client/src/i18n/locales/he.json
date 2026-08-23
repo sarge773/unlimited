@@ -690,6 +690,7 @@
     "failoverLadderHint": "כל קפיצה שבקשה הזו עברה דרך שרשרת הגיבוי, לפי הסדר.",
     "noAttemptTrace": "לא נרשמה עקבות ניסיון לבקשה זו.",
     "keyOrdinal": "מפתח #{n}",
+    "keyBadge": "מפתח #{n}",
     "attemptTimingHint": "התחל הזזה מהבקשה · משך הניסיון",
     "requestedModel": "מודל מבוקש",
     "ttft": "TTFT",

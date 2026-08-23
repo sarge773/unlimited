@@ -690,6 +690,7 @@
     "failoverLadderHint": "Jokainen hyppy, jonka tämä pyyntö kulki varasuunnitelmaketjun läpi, järjestyksessä.",
     "noAttemptTrace": "Tähän pyyntöön ei kirjattu yrityksen jälkeä.",
     "keyOrdinal": "Keskeiset #{n}",
+    "keyBadge": "Avain #{n}",
     "attemptTimingHint": "Aloita siirtymä pyynnön alusta · Yrityksen kesto",
     "requestedModel": "Pyydetty malli",
     "ttft": "TTFT",

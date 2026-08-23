@@ -690,6 +690,7 @@
     "failoverLadderHint": "Bawat talon-talon na ito ay dumaan sa fallback chain, sunod-sunod.",
     "noAttemptTrace": "Walang naitala na pagsubok para sa kahilingang ito.",
     "keyOrdinal": "pangunahing #{n}",
+    "keyBadge": "Susi #{n}",
     "attemptTimingHint": "Start offset mula sa request start · tagal ng pagtatangka",
     "requestedModel": "Hinihiling na modelo",
     "ttft": "TTFT",

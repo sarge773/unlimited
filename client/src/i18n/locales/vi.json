@@ -690,6 +690,7 @@
     "failoverLadderHint": "Mỗi bước nhảy mà yêu cầu này thực hiện qua chuỗi dự phòng theo thứ tự.",
     "noAttemptTrace": "Không có dấu vết nỗ lực nào được ghi lại cho yêu cầu này.",
     "keyOrdinal": "phím #{n}",
+    "keyBadge": "Khóa #{n}",
     "attemptTimingHint": "Bắt đầu bù đắp từ khi bắt đầu yêu cầu · thời gian thử",
     "requestedModel": "Mô hình được yêu cầu",
     "ttft": "TTFT",

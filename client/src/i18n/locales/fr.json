@@ -690,6 +690,7 @@
     "failoverLadderHint": "Chaque étape parcourue par cette requête dans la chaîne de repli, dans l'ordre.",
     "noAttemptTrace": "Aucune trace de tentative n'a été enregistrée pour cette requête.",
     "keyOrdinal": "clé #{n}",
+    "keyBadge": "Clé #{n}",
     "attemptTimingHint": "Décalage depuis le début de la requête · durée de la tentative",
     "requestedModel": "Modèle demandé",
     "ttft": "TTFT",

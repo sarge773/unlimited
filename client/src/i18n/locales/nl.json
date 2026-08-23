@@ -690,6 +690,7 @@
     "failoverLadderHint": "Elke sprong die dit verzoek volgde door de terugvalketen, in volgorde.",
     "noAttemptTrace": "Er is geen poging tot trace geregistreerd voor dit verzoek.",
     "keyOrdinal": "Belangrijke #{n}",
+    "keyBadge": "Sleutel #{n}",
     "attemptTimingHint": "Start offset van verzoek start · Duur van de poging",
     "requestedModel": "Aangevraagd model",
     "ttft": "TTFT",

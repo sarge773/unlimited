@@ -690,6 +690,7 @@
     "failoverLadderHint": "كل خطوة اتخذها هذا الطلب عبر السلسلة الاحتياطية، بالترتيب.",
     "noAttemptTrace": "لم يتم تسجيل أي محاولة تتبع لهذا الطلب.",
     "keyOrdinal": "المفتاح #{n}",
+    "keyBadge": "المفتاح #{n}",
     "attemptTimingHint": "بداية الإزاحة من بداية الطلب · مدة المحاولة",
     "requestedModel": "النموذج المطلوب",
     "ttft": "TTFT",

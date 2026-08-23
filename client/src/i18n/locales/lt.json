@@ -690,6 +690,7 @@
     "failoverLadderHint": "Kiekvienas šio prašymo šuolis per atsarginę grandinę, iš eilės.",
     "noAttemptTrace": "Šiam prašymui nebuvo užfiksuota jokių bandymų.",
     "keyOrdinal": "Pagrindinė #{n}",
+    "keyBadge": "Raktas #{n}",
     "attemptTimingHint": "Pradėti poslinkį nuo užklausos pradžios · Bandymo trukmė",
     "requestedModel": "Prašytas modelis",
     "ttft": "TTFT",

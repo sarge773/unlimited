@@ -690,6 +690,7 @@
     "failoverLadderHint": "Každý skok tohoto požadavku procházel záložním řetězcem, v pořadí.",
     "noAttemptTrace": "Nebyl zaznamenán žádný pokus o vystopování této žádosti.",
     "keyOrdinal": "Klíčové #{n}",
+    "keyBadge": "Klíč #{n}",
     "attemptTimingHint": "Začít offset od začátku požadavku · Doba trvání pokusu",
     "requestedModel": "Požadovaný model",
     "ttft": "TTFT",

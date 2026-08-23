@@ -690,6 +690,7 @@
     "failoverLadderHint": "Fiecare salt pe care această cerere îl făcea prin lanțul de rezervă, în ordine.",
     "noAttemptTrace": "Nu a fost înregistrată nicio încercare de urmărire pentru această cerere.",
     "keyOrdinal": "#{n} cheie",
+    "keyBadge": "Cheia #{n}",
     "attemptTimingHint": "Start offset față de începutul cererii · Durata încercării",
     "requestedModel": "Modelul cerut",
     "ttft": "TTFT",

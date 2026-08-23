@@ -690,6 +690,7 @@
     "failoverLadderHint": "هر پرش این درخواست به ترتیب از طریق زنجیره بازگشتی انجام می شود.",
     "noAttemptTrace": "هیچ ردی از تلاش برای این درخواست ثبت نشد.",
     "keyOrdinal": "کلید #{n}",
+    "keyBadge": "کلید #{n}",
     "attemptTimingHint": "شروع افست از شروع درخواست · مدت زمان تلاش",
     "requestedModel": "مدل درخواستی",
     "ttft": "TTFT",

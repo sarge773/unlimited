@@ -690,6 +690,7 @@
     "failoverLadderHint": "Hvert hopp denne forespørselen tok gjennom fallback-kjeden, i rekkefølge.",
     "noAttemptTrace": "Ingen forsøksspor ble registrert for denne forespørselen.",
     "keyOrdinal": "Nøkkel #{n}",
+    "keyBadge": "Nøkkel #{n}",
     "attemptTimingHint": "Startforskyvning fra forespørselsstart · Forsøksvarighet",
     "requestedModel": "Etterspurt modell",
     "ttft": "TTFT",

@@ -25,6 +25,7 @@ import * as playgroundConversations from '../migrations/20260820_000001_playgrou
 import * as customModelTombstones from '../migrations/20260819_000001_custom_model_tombstones.js';
 import * as serverLogs from '../migrations/20260823_000001_server_logs.js';
 import * as backupsTable from '../migrations/20260823_000002_backups_table.js';
+import * as attemptKeyLabel from '../migrations/20260823_000003_attempt_key_label.js';
 
 export interface MigrationModule {
   up(db: Db): void;
@@ -62,6 +63,7 @@ export const PLAYGROUND_CONVERSATIONS_FILENAME = '20260820_000001_playground_con
 export const CUSTOM_MODEL_TOMBSTONES_FILENAME = '20260819_000001_custom_model_tombstones.ts';
 export const SERVER_LOGS_FILENAME = '20260823_000001_server_logs.ts';
 export const BACKUPS_TABLE_FILENAME = '20260823_000002_backups_table.ts';
+export const ATTEMPT_KEY_LABEL_FILENAME = '20260823_000003_attempt_key_label.ts';
 
 export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: LEGACY_BASELINE_FILENAME, module: legacyBaseline },
@@ -90,4 +92,5 @@ export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: PLAYGROUND_CONVERSATIONS_FILENAME, module: playgroundConversations },
   { filename: SERVER_LOGS_FILENAME, module: serverLogs },
   { filename: BACKUPS_TABLE_FILENAME, module: backupsTable },
+  { filename: ATTEMPT_KEY_LABEL_FILENAME, module: attemptKeyLabel },
 ];

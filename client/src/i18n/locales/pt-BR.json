@@ -690,6 +690,7 @@
     "failoverLadderHint": "Cada salto que esta requisição deu pela cadeia de fallback, em ordem.",
     "noAttemptTrace": "Nenhum rastro de tentativas foi registrado para esta requisição.",
     "keyOrdinal": "chave #{n}",
+    "keyBadge": "Chave #{n}",
     "attemptTimingHint": "Deslocamento desde o início da requisição · duração da tentativa",
     "requestedModel": "Modelo solicitado",
     "ttft": "TTFT",

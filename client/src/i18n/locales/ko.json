@@ -690,6 +690,7 @@
     "failoverLadderHint": "이 요청이 폴백 체인을 순서대로 통과한 각 홉입니다.",
     "noAttemptTrace": "이 요청에 대한 시도 추적이 기록되지 않았습니다.",
     "keyOrdinal": "키 #{n}",
+    "keyBadge": "키 #{n}",
     "attemptTimingHint": "요청 시작부터 시작 오프셋 · 시도 기간",
     "requestedModel": "요청 모델",
     "ttft": "TTFT",

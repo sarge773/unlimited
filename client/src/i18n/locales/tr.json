@@ -690,6 +690,7 @@
     "failoverLadderHint": "Bu isteğin her atlama sırası, geri dönüş zincirinden geçti.",
     "noAttemptTrace": "Bu istek için herhangi bir girişim izi kaydedilmedi.",
     "keyOrdinal": "anahtar #{n}",
+    "keyBadge": "Anahtar #{n}",
     "attemptTimingHint": "İstek başlangıcından itibaren başlangıç dengelemesi · deneme süresi",
     "requestedModel": "İstenilen model",
     "ttft": "TTFT",

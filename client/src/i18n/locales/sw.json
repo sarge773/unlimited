@@ -690,6 +690,7 @@
     "failoverLadderHint": "Kila ruka ombi hili lilipitia msururu wa kurudi nyuma, kwa mpangilio.",
     "noAttemptTrace": "Hakuna ufuatiliaji wa jaribio uliorekodiwa kwa ombi hili.",
     "keyOrdinal": "ufunguo #{n}",
+    "keyBadge": "Ufunguo #{n}",
     "attemptTimingHint": "Anza kukabiliana na ombi kuanza · muda wa jaribio",
     "requestedModel": "Umeomba muundo",
     "ttft": "TTFT",

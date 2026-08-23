@@ -690,6 +690,7 @@
     "failoverLadderHint": "Przy każdym przeskoku to żądanie przechodziło w kolejności przez łańcuch awaryjny.",
     "noAttemptTrace": "Dla tego żądania nie zarejestrowano żadnego śledzenia prób.",
     "keyOrdinal": "klucz #{n}",
+    "keyBadge": "Klucz #{n}",
     "attemptTimingHint": "Przesunięcie początku od początku żądania · czas trwania próby",
     "requestedModel": "Żądany model",
     "ttft": "TTFT",

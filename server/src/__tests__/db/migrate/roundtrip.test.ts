@@ -30,6 +30,7 @@ const PLAYGROUND_CONVERSATIONS_FILENAME = '20260820_000001_playground_conversati
 const CUSTOM_MODEL_TOMBSTONES_FILENAME = '20260819_000001_custom_model_tombstones.ts';
 const SERVER_LOGS_FILENAME = '20260823_000001_server_logs.ts';
 const BACKUPS_TABLE_FILENAME = '20260823_000002_backups_table.ts';
+const ATTEMPT_KEY_LABEL_FILENAME = '20260823_000003_attempt_key_label.ts';
 
 interface SchemaRow {
   type: string;
@@ -106,6 +107,7 @@ describe('migration round trip', () => {
         PLAYGROUND_CONVERSATIONS_FILENAME,
         SERVER_LOGS_FILENAME,
         BACKUPS_TABLE_FILENAME,
+        ATTEMPT_KEY_LABEL_FILENAME,
       ]);
     } finally {
       db.close();

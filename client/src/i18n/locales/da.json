@@ -690,6 +690,7 @@
     "failoverLadderHint": "Hver gang denne anmodning gik gennem fallback-kæden, i rækkefølge.",
     "noAttemptTrace": "Der blev ikke registreret nogen sporing af forsøg på denne anmodning.",
     "keyOrdinal": "Nøgle #{n}",
+    "keyBadge": "Nøgle #{n}",
     "attemptTimingHint": "Startforskydning fra anmodningsstart · Forsøgsvarighed",
     "requestedModel": "Efterspurgt model",
     "ttft": "TTFT",

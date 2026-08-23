@@ -690,6 +690,7 @@
     "failoverLadderHint": "Kọọkan hop ibeere yi gba nipasẹ awọn fallback pq, ni ibere.",
     "noAttemptTrace": "Ko si igbiyanju wa ti o gbasilẹ fun ibeere yii.",
     "keyOrdinal": "bọtini #{n}",
+    "keyBadge": "Bọtini #{n}",
     "attemptTimingHint": "Bẹrẹ aiṣedeede lati ibere ibere · Iye akoko igbiyanju",
     "requestedModel": "Awoṣe ti a beere",
     "ttft": "TTFT",

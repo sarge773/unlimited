@@ -690,6 +690,7 @@
     "failoverLadderHint": "Setiap lompatan permintaan ini melalui rantai sandaran, mengikut urutan.",
     "noAttemptTrace": "Tiada cubaan jejak direkodkan untuk permintaan ini.",
     "keyOrdinal": "#{n} utama",
+    "keyBadge": "Kunci #{n}",
     "attemptTimingHint": "Offset mula dari permintaan mula · tempoh cubaan",
     "requestedModel": "Model yang diminta",
     "ttft": "TTFT",

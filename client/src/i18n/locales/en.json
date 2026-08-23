@@ -707,6 +707,7 @@
     "failoverLadderHint": "Each hop this request took through the fallback chain, in order.",
     "noAttemptTrace": "No attempt trace was recorded for this request.",
     "keyOrdinal": "key #{n}",
+    "keyBadge": "Key #{n}",
     "attemptTimingHint": "Start offset from request start · attempt duration",
     "requestedModel": "Requested model",
     "ttft": "TTFT"

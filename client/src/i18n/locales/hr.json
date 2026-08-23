@@ -690,6 +690,7 @@
     "failoverLadderHint": "Svaki hop ovog zahtjeva prolazio je kroz lanac rezervnih opcija, redom.",
     "noAttemptTrace": "Za ovaj zahtjev nije zabilježen nikakav pokušaj praćenja.",
     "keyOrdinal": "Ključne #{n}",
+    "keyBadge": "Ključ #{n}",
     "attemptTimingHint": "Početak offseta od početka zahtjeva · Trajanje pokušaja",
     "requestedModel": "Traženi model",
     "ttft": "TTFT",

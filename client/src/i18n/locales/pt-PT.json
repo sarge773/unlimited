@@ -690,6 +690,7 @@
     "failoverLadderHint": "Cada salto que este pedido percorria a cadeia de recurso, por ordem.",
     "noAttemptTrace": "Não foi registada qualquer tentativa de rastreio para este pedido.",
     "keyOrdinal": "#{n} chave",
+    "keyBadge": "Chave #{n}",
     "attemptTimingHint": "Início deslocado a partir do início do pedido · Duração da tentativa",
     "requestedModel": "Modelo solicitado",
     "ttft": "TTFT",

@@ -690,6 +690,7 @@
     "failoverLadderHint": "Cada salto que esta solicitud dio por la cadena de respaldo, en orden.",
     "noAttemptTrace": "No se registró ninguna traza de intentos para esta solicitud.",
     "keyOrdinal": "clave #{n}",
+    "keyBadge": "Clave #{n}",
     "attemptTimingHint": "Desfase desde el inicio de la solicitud · duración del intento",
     "requestedModel": "Modelo solicitado",
     "ttft": "TTFT",

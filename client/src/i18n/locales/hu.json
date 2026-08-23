@@ -690,6 +690,7 @@
     "failoverLadderHint": "Minden ugrásnál ez a kérés sorrendben haladt a tartalék láncon.",
     "noAttemptTrace": "Ehhez a kéréshez nem figyeltek kísérleti nyomot.",
     "keyOrdinal": "Kulcsfontosságú #{n}",
+    "keyBadge": "Kulcs #{n}",
     "attemptTimingHint": "A kérelmű elejétől kezdj el · Próbálkozás időtartama",
     "requestedModel": "Kért modell",
     "ttft": "TTFT",

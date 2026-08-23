@@ -690,6 +690,7 @@
     "failoverLadderHint": "Ogni passaggio di questa richiesta lungo la catena di fallback, in ordine.",
     "noAttemptTrace": "Nessuna traccia dei tentativi registrata per questa richiesta.",
     "keyOrdinal": "chiave #{n}",
+    "keyBadge": "Chiave #{n}",
     "attemptTimingHint": "Offset dall'inizio della richiesta · durata del tentativo",
     "requestedModel": "Modello richiesto",
     "ttft": "TTFT",

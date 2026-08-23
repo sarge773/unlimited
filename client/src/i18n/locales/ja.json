@@ -690,6 +690,7 @@
     "failoverLadderHint": "このリクエストがフォールバック チェーンを順番に通過した各ホップ。",
     "noAttemptTrace": "このリクエストの試行トレースは記録されませんでした。",
     "keyOrdinal": "キー #{n}",
+    "keyBadge": "キー #{n}",
     "attemptTimingHint": "リクエスト開始からの開始オフセット · 試行期間",
     "requestedModel": "要求されたモデル",
     "ttft": "TTFT",

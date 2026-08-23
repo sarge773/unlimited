@@ -690,6 +690,7 @@
     "failoverLadderHint": "該請求沿備援鏈經過的每一跳，按順序排列。",
     "noAttemptTrace": "此請求未記錄嘗試軌跡。",
     "keyOrdinal": "金鑰 #{n}",
+    "keyBadge": "金鑰 #{n}",
     "attemptTimingHint": "自請求開始的偏移 · 嘗試耗時",
     "requestedModel": "請求的模型",
     "ttft": "首字延遲",

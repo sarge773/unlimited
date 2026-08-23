@@ -690,6 +690,7 @@
     "failoverLadderHint": "Onye ọ bụla hop arịrịọ a weghaara yinye ọdịda azụ, n'usoro.",
     "noAttemptTrace": "Ọnweghị mbọ ọ bụla edekọtara maka arịrịọ a.",
     "keyOrdinal": "igodo #{n}",
+    "keyBadge": "Igodo #{n}",
     "attemptTimingHint": "Malite nkwụsị site na mmalite arịrịọ · Ogologo oge nwaa",
     "requestedModel": "Ihe nlereanya achọrọ",
     "ttft": "TTFT",

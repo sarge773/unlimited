@@ -690,6 +690,7 @@
     "failoverLadderHint": "Bu sorğu ehtiyat zəncirindən keçən hər sıçrayış, ardıcıllıqla.",
     "noAttemptTrace": "Bu sorğu üçün heç bir cəhd izi qeydə alınmadı.",
     "keyOrdinal": "Əsas #{n}",
+    "keyBadge": "Açar #{n}",
     "attemptTimingHint": "Sorğu başlanğıcından ofset · Cəhd müddəti",
     "requestedModel": "Tələb olunan model",
     "ttft": "TTFT",

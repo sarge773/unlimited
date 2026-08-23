@@ -690,6 +690,7 @@
     "failoverLadderHint": "该请求沿回退链经过的每一跳，按顺序排列。",
     "noAttemptTrace": "此请求未记录尝试轨迹。",
     "keyOrdinal": "密钥 #{n}",
+    "keyBadge": "密钥 #{n}",
     "attemptTimingHint": "自请求开始的偏移 · 尝试耗时",
     "requestedModel": "请求的模型",
     "ttft": "首个词元用时",

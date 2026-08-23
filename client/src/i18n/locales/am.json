@@ -690,6 +690,7 @@
     "failoverLadderHint": "እያንዳንዱ ሆፕ ይህ ጥያቄ በቅደም ተከተል በመውደቅ ሰንሰለት ውስጥ ወስዷል።",
     "noAttemptTrace": "ለዚህ ጥያቄ ምንም አይነት ሙከራ አልተመዘገበም።",
     "keyOrdinal": "ቁልፍ #{n}",
+    "keyBadge": "ቁልፍ #{n}",
     "attemptTimingHint": "ከጥያቄ ጅምር ማካካሻ ጀምር · የሙከራ ጊዜ",
     "requestedModel": "የተጠየቀው ሞዴል",
     "ttft": "TTFT",

@@ -120,6 +120,7 @@ export function summarizeExhaustion(
 interface KeyRow {
   id: number;
   platform: string;
+  label: string | null;
   encrypted_key: string;
   iv: string;
   auth_tag: string;
@@ -177,6 +178,13 @@ export interface RouteResult {
   modelDbId: number;
   apiKey: string;
   keyId: number;
+  /**
+   * The operator-assigned api_keys.label for this key at route time (#869),
+   * null when the key is unlabeled (the column defaults to ''). Deliberately
+   * the human label, never the key id and never the credential: it is what the
+   * failover ladder can show without leaking either.
+   */
+  keyLabel: string | null;
   platform: string;
   displayName: string;
   /**
@@ -1406,6 +1414,7 @@ function selectKeyForModel(entry: ChainRow, estimatedTokens: number, skipKeys?: 
       modelDbId: entry.model_db_id,
       apiKey: decryptedKey,
       keyId: key.id,
+      keyLabel: key.label || null,
       // Decrypted once here, at the point the row is already in hand (#590).
       proxyUrl: decryptProxyUrl(key),
       platform: entry.platform,

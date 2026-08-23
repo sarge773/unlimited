@@ -690,6 +690,7 @@
     "failoverLadderHint": "Bu so'rovning har bir sakrashi ketma-ket ravishda zaxira zanjiri orqali o'tdi.",
     "noAttemptTrace": "Bu soʻrov uchun hech qanday urinish kuzatilmadi.",
     "keyOrdinal": "kalit #{n}",
+    "keyBadge": "Kalit #{n}",
     "attemptTimingHint": "So'rov boshlanishidan boshlab ofsetni boshlash · urinish davomiyligi",
     "requestedModel": "So'ralgan model",
     "ttft": "TTFT",
