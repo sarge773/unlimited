@@ -4,6 +4,8 @@ import {
   applyProxyEnabled,
   applyProxyMode,
   applyProxyUrl,
+  applyFetchRelayToken,
+  FETCH_RELAY_AUTH_HEADER,
   FETCH_RELAY_TARGET_HEADER,
   proxyFetch,
 } from '../../lib/proxy.js';
@@ -28,6 +30,7 @@ describe('fetch-relay local smoke test', () => {
   afterEach(async () => {
     applyProxyMode('forward');
     applyProxyUrl('');
+    applyFetchRelayToken('');
     delete process.env.FREEAPI_PROXY_LOCAL_DESTINATIONS;
     await Promise.all(servers.splice(0).map(close));
   });
@@ -55,6 +58,10 @@ describe('fetch-relay local smoke test', () => {
     const upstreamUrl = await listen(upstream);
 
     const relay = http.createServer(async (req, res) => {
+      if (req.headers[FETCH_RELAY_AUTH_HEADER] !== 'Bearer integration-secret') {
+        res.writeHead(401).end('unauthorized');
+        return;
+      }
       const target = req.headers[FETCH_RELAY_TARGET_HEADER];
       if (typeof target !== 'string') {
         res.writeHead(400).end('missing target');
@@ -67,6 +74,7 @@ describe('fetch-relay local smoke test', () => {
         if (value !== undefined) headers.set(name, Array.isArray(value) ? value.join(', ') : value);
       }
       headers.delete(FETCH_RELAY_TARGET_HEADER);
+      headers.delete(FETCH_RELAY_AUTH_HEADER);
       headers.delete('host');
       headers.delete('content-length');
       const upstreamResponse = await fetch(target, {
@@ -95,6 +103,7 @@ describe('fetch-relay local smoke test', () => {
     applyProxyEnabled(true);
     applyProxyUrl(relayUrl);
     applyProxyMode('fetch-relay');
+    applyFetchRelayToken('integration-secret');
 
     const jsonResponse = await proxyFetch(`${upstreamUrl}/echo`, {
       method: 'POST',

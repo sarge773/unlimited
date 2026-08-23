@@ -4,6 +4,8 @@ import {
   applyProxyEnabled,
   applyProxyMode,
   applyProxyUrl,
+  applyFetchRelayToken,
+  FETCH_RELAY_AUTH_HEADER,
   FETCH_RELAY_TARGET_HEADER,
   probeProxyUrl,
   proxyFetch,
@@ -11,7 +13,7 @@ import {
 
 describe('fetch-relay transport', () => {
   beforeEach(() => {
-    for (const name of ['PROXY_MODE', 'PROXY_URL', 'ALL_PROXY', 'HTTPS_PROXY', 'HTTP_PROXY', 'NO_PROXY']) {
+    for (const name of ['PROXY_MODE', 'PROXY_URL', 'FETCH_RELAY_TOKEN', 'ALL_PROXY', 'HTTPS_PROXY', 'HTTP_PROXY', 'NO_PROXY']) {
       delete process.env[name];
       delete process.env[name.toLowerCase()];
     }
@@ -19,12 +21,14 @@ describe('fetch-relay transport', () => {
     applyProxyBypass('');
     applyProxyUrl('https://relay.example.test/secret');
     applyProxyMode('fetch-relay');
+    applyFetchRelayToken('relay-secret');
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
     applyProxyMode('forward');
     applyProxyUrl('');
+    applyFetchRelayToken('');
   });
 
   it('preserves method, authorization, body and signal with the target in a header', async () => {
@@ -55,22 +59,26 @@ describe('fetch-relay transport', () => {
     expect(init.redirect).toBe('manual');
     expect(headers.get('authorization')).toBe('Bearer provider-key');
     expect(headers.get(FETCH_RELAY_TARGET_HEADER)).toBe('https://api.provider.test/v1/chat?trace=secret');
+    expect(headers.get(FETCH_RELAY_AUTH_HEADER)).toBe('Bearer relay-secret');
     expect(headers.has('host')).toBe(false);
     expect(headers.has('content-length')).toBe(false);
   });
 
-  it('supports the encoded {url} compatibility template without adding the target header', async () => {
-    applyProxyUrl('https://relay.example.test/fetch?url={url}');
-    applyProxyMode('fetch-relay');
+  it('overwrites caller-supplied Relay control headers', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(new Response('ok'));
 
-    await proxyFetch('https://api.provider.test/v1/models?a=1&b=two words', undefined, 'groq');
+    await proxyFetch('https://api.provider.test/v1/models?a=1&b=two words', {
+      headers: {
+        [FETCH_RELAY_TARGET_HEADER]: 'https://attacker.test',
+        [FETCH_RELAY_AUTH_HEADER]: 'Bearer attacker-token',
+      },
+    }, 'groq');
 
     const [destination, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
-    expect(destination).toBe(
-      'https://relay.example.test/fetch?url=https%3A%2F%2Fapi.provider.test%2Fv1%2Fmodels%3Fa%3D1%26b%3Dtwo%20words',
-    );
-    expect(new Headers(init.headers).has(FETCH_RELAY_TARGET_HEADER)).toBe(false);
+    expect(destination).toBe('https://relay.example.test/secret');
+    const headers = new Headers(init.headers);
+    expect(headers.get(FETCH_RELAY_TARGET_HEADER)).toBe('https://api.provider.test/v1/models?a=1&b=two words');
+    expect(headers.get(FETCH_RELAY_AUTH_HEADER)).toBe('Bearer relay-secret');
   });
 
   it('returns the relay Response body untouched so SSE can stream incrementally', async () => {
@@ -129,6 +137,7 @@ describe('fetch-relay transport', () => {
     const [destination, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
     expect(destination).toBe('https://draft-relay.example.test/secret');
     expect(new Headers(init.headers).get(FETCH_RELAY_TARGET_HEADER)).toBe('https://api.provider.test/v1/models');
+    expect(new Headers(init.headers).get(FETCH_RELAY_AUTH_HEADER)).toBe('Bearer relay-secret');
   });
 
   it('propagates AbortSignal cancellation to the relay fetch', async () => {

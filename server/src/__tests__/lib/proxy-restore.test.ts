@@ -4,6 +4,7 @@ import {
   restoreProxySettings,
   getProxyUrl,
   getProxyMode,
+  getFetchRelayToken,
   isProxyEnabled,
   getProxyBypassPlatforms,
   getNoProxyRules,
@@ -11,6 +12,8 @@ import {
   applyProxyMode,
   applyProxyEnabled,
   applyProxyBypass,
+  applyFetchRelayToken,
+  encodeFetchRelayToken,
 } from '../../lib/proxy.js';
 
 // #949: the desktop embedder builds the app without server/src/index.ts, so
@@ -20,7 +23,7 @@ import {
 // is the single hydration step both entry points now call after initDb; this
 // test pins that the DB value actually reaches the process state.
 
-const PROXY_ENV_VARS = ['PROXY_URL', 'PROXY_MODE', 'ALL_PROXY', 'HTTPS_PROXY', 'HTTP_PROXY', 'NO_PROXY'];
+const PROXY_ENV_VARS = ['PROXY_URL', 'PROXY_MODE', 'FETCH_RELAY_TOKEN', 'ALL_PROXY', 'HTTPS_PROXY', 'HTTP_PROXY', 'NO_PROXY'];
 
 function clearProxyEnv(): void {
   for (const name of PROXY_ENV_VARS) {
@@ -36,6 +39,7 @@ beforeEach(() => {
   // Reset to the module defaults so each case starts from "fresh process".
   applyProxyUrl('');
   applyProxyMode('forward');
+  applyFetchRelayToken('');
   applyProxyEnabled(true);
   applyProxyBypass('');
 });
@@ -108,6 +112,19 @@ describe('restoreProxySettings (desktop embedder hydration, #949)', () => {
 
     expect(getProxyUrl()).toBe('https://relay.example.test/secret');
     expect(getProxyMode()).toBe('fetch-relay');
+  });
+
+  it('restores a saved Relay token and lets FETCH_RELAY_TOKEN override it', () => {
+    process.env.ENCRYPTION_KEY = '0'.repeat(64);
+    initDb(':memory:');
+    setSetting('fetch_relay_token', encodeFetchRelayToken('saved-token'));
+
+    restoreProxySettings();
+    expect(getFetchRelayToken()).toBe('saved-token');
+
+    process.env.FETCH_RELAY_TOKEN = 'environment-token';
+    restoreProxySettings();
+    expect(getFetchRelayToken()).toBe('environment-token');
   });
 
   it('lets PROXY_MODE opt an environment PROXY_URL into Fetch Relay', () => {

@@ -1,72 +1,44 @@
-# FreeLLMAPI Fetch Relay Worker
+# Universal Fetch Relay Worker
 
-This Worker implements the protocol documented in
-[`docs/fetch-relay.md`](../../docs/fetch-relay.md). It streams requests and
-responses, preserves provider Authorization, rejects non-HTTPS targets, and
-only contacts exact hostnames in `ALLOWED_UPSTREAM_HOSTS`.
-
-The `global_fetch_strictly_public` compatibility flag makes public Worker URLs
-go through Cloudflare's front door instead of being treated as the relay's own
-zone origin. This matters when an upstream API is itself hosted on Workers.
+This provider-agnostic, single-file Cloudflare Worker implements the protocol
+documented in [`docs/fetch-relay.md`](../../docs/fetch-relay.md). It stores no
+target-site or LLM-provider configuration. Each request supplies its complete
+public HTTP(S) target through `Fetch-Relay-Target`.
 
 ## Deploy
 
-From this directory (`examples/fetch-relay-worker`):
+Install Wrangler, authenticate it, set a strong secret, and deploy:
 
-1. Edit `ALLOWED_UPSTREAM_HOSTS` in `wrangler.jsonc` to contain only the exact
-   provider hosts this FreeLLMAPI installation uses.
-2. Install/authenticate Wrangler and set a long random secret path:
+```bash
+npx wrangler login
+npx wrangler secret put RELAY_TOKEN
+npx wrangler deploy
+```
 
-   ```bash
-   npx wrangler@latest login
-   npx wrangler@latest secret put RELAY_PATH
-   ```
-
-   Enter a value such as `/8aebf1d0-6dc6-4d78-9b4c-rotate-me`. The leading slash
-   is required. Treat this value as a bearer credential.
-3. Validate and deploy:
-
-   ```bash
-   npx wrangler@latest deploy --dry-run
-   npx wrangler@latest deploy
-   ```
-4. In FreeLLMAPI, select `fetch-relay` and set the proxy URL to the deployed
-   Worker URL plus the secret path:
-
-   ```text
-   https://freellmapi-fetch-relay.<your-subdomain>.workers.dev/8aebf1d0-6dc6-4d78-9b4c-rotate-me
-   ```
-
-For a headless install:
+Do not put the token in `wrangler.jsonc` or commit it. Configure FreeLLMAPI:
 
 ```dotenv
 PROXY_MODE=fetch-relay
-PROXY_URL=https://freellmapi-fetch-relay.<your-subdomain>.workers.dev/<secret-path>
+PROXY_URL=https://universal-fetch-relay.<your-subdomain>.workers.dev
+FETCH_RELAY_TOKEN=<the same RELAY_TOKEN>
 ```
 
-## Security notes
+Or select `fetch-relay` in **Keys -> Outbound proxy** and enter the same URL and
+token. The Test button exercises the draft values before saving.
 
-- Do not deploy with a wildcard or empty upstream allowlist.
-- Do not publish or log `RELAY_PATH`; rotate it if exposed.
-- The Worker operator can see provider credentials and request content.
-- The Worker returns upstream redirects without following them. Add redirect
-  support only if every `Location` target is revalidated against the allowlist.
-- The `{url}` query form is accepted for compatibility, but the default Header
-  form avoids putting provider query parameters in URL logs.
-- Browser CORS headers are intentionally absent because this is a server-to-
-  server transport, not a public browser proxy.
+## Direct smoke test
 
-## Observability
+```bash
+curl https://universal-fetch-relay.<your-subdomain>.workers.dev \
+  -H "Fetch-Relay-Authorization: Bearer $RELAY_TOKEN" \
+  -H "Fetch-Relay-Target: https://httpbingo.org/anything?relay=smoke" \
+  -H "Content-Type: application/json" \
+  --data-binary '{"hello":"relay"}'
+```
 
-Workers Logs is enabled with 100% head sampling in `wrangler.jsonc`. The Worker
-emits structured JSON events for accepted requests, upstream response headers,
-completed response streams, rejected requests, configuration errors, and
-upstream failures. Logged fields are limited to a request ID, method, target
-hostname, Cloudflare colo/country, status, content type, duration, byte count,
-and a fixed error category.
-
-Provider credentials, request/response bodies, target paths and query strings,
-and the relay secret path are not written by the Worker. Treat Cloudflare's
-invocation metadata as sensitive operational data and restrict access to the
-Workers Logs dashboard. For a high-volume deployment, lower
-`head_sampling_rate` after collecting enough baseline data.
+The Worker supports JSON, GraphQL, binary uploads, arbitrary ordinary HTTP
+methods, SSE, and other streamed responses. It rejects `CONNECT`, `TRACE`, URL
+credentials, IP-literal and local host targets, fragments, and relay loops. It
+does not implement SOCKS, raw TCP, WebSockets, cookies, or automatic redirects.
+Logs contain request ID, method, target hostname/protocol, status, TTFB, and
+Cloudflare colo—not bodies, credentials, paths, or query values.

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { getUnifiedApiKey, regenerateUnifiedKey, getSetting, setSetting, getDb } from '../db/index.js';
-import { applyProxyUrl, applyProxyMode, applyProxyEnabled, applyProxyBypass, isProxyActive, getProxyUrl, getProxyMode, isProxyEnabled, getProxyBypassPlatforms, probeProxyUrl, DEFAULT_PROXY_PROBE_TARGET, PROXY_MODES, PROXY_SCHEMES } from '../lib/proxy.js';
+import { applyProxyUrl, applyProxyMode, applyProxyEnabled, applyProxyBypass, applyFetchRelayToken, encodeFetchRelayToken, isProxyActive, getProxyUrl, getProxyMode, getFetchRelayToken, isProxyEnabled, getProxyBypassPlatforms, probeProxyUrl, DEFAULT_PROXY_PROBE_TARGET, PROXY_MODES, PROXY_SCHEMES } from '../lib/proxy.js';
 import { getProvider } from '../providers/index.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import type { ProxyMode } from '@freellmapi/shared/types.js';
@@ -318,6 +318,7 @@ settingsRouter.get('/proxy', (_req: Request, res: Response) => {
   res.json({
     proxyUrl: getProxyUrl(),
     proxyMode: getProxyMode(),
+    fetchRelayTokenConfigured: Boolean(getFetchRelayToken()),
     enabled: isProxyEnabled(),
     bypassPlatforms: getProxyBypassPlatforms(),
     active: isProxyActive(),
@@ -344,9 +345,10 @@ function proxyUrlError(proxyUrl: string, proxyMode: ProxyMode): string | undefin
 
 // Set the proxy settings. Accepts partial updates.
 settingsRouter.put('/proxy', (req: Request, res: Response) => {
-  const { proxyUrl, proxyMode, enabled, bypassPlatforms } = req.body as {
+  const { proxyUrl, proxyMode, fetchRelayToken, enabled, bypassPlatforms } = req.body as {
     proxyUrl?: string;
     proxyMode?: ProxyMode;
+    fetchRelayToken?: string;
     enabled?: boolean;
     bypassPlatforms?: string[];
   };
@@ -379,6 +381,15 @@ settingsRouter.put('/proxy', (req: Request, res: Response) => {
     applyProxyMode(proxyMode);
   }
 
+  // --- fetchRelayToken ---
+  // Never return this value from the API. Undefined retains the saved token;
+  // an explicit empty string clears it.
+  if (typeof fetchRelayToken === 'string') {
+    const trimmed = fetchRelayToken.trim();
+    setSetting('fetch_relay_token', encodeFetchRelayToken(trimmed));
+    applyFetchRelayToken(trimmed);
+  }
+
   // --- enabled ---
   if (typeof enabled === 'boolean') {
     setSetting('proxy_enabled', enabled ? '1' : '0');
@@ -395,6 +406,7 @@ settingsRouter.put('/proxy', (req: Request, res: Response) => {
   res.json({
     proxyUrl: getProxyUrl(),
     proxyMode: getProxyMode(),
+    fetchRelayTokenConfigured: Boolean(getFetchRelayToken()),
     enabled: isProxyEnabled(),
     bypassPlatforms: getProxyBypassPlatforms(),
     active: isProxyActive(),
@@ -445,7 +457,11 @@ function proxyProbeTarget(): string {
 }
 
 settingsRouter.post('/proxy/test', async (req: Request, res: Response) => {
-  const { proxyUrl, proxyMode } = (req.body ?? {}) as { proxyUrl?: string; proxyMode?: ProxyMode };
+  const { proxyUrl, proxyMode, fetchRelayToken } = (req.body ?? {}) as {
+    proxyUrl?: string;
+    proxyMode?: ProxyMode;
+    fetchRelayToken?: string;
+  };
   if (proxyMode !== undefined && !PROXY_MODES.includes(proxyMode)) {
     res.status(400).json({ error: { message: 'Proxy mode must be forward or fetch-relay', type: 'invalid_request_error' } });
     return;
@@ -457,6 +473,12 @@ settingsRouter.post('/proxy/test', async (req: Request, res: Response) => {
     res.status(400).json({ error: { message: urlError, type: 'invalid_request_error' } });
     return;
   }
-  const result = await probeProxyUrl(proxyUrl, { targetUrl: proxyProbeTarget(), mode });
+  const result = await probeProxyUrl(proxyUrl, {
+    targetUrl: proxyProbeTarget(),
+    mode,
+    relayToken: typeof fetchRelayToken === 'string' && fetchRelayToken.trim()
+      ? fetchRelayToken.trim()
+      : getFetchRelayToken(),
+  });
   res.json(result);
 });

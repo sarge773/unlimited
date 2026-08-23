@@ -1,165 +1,159 @@
-const TARGET_HEADER = 'X-FreeLLMAPI-Target-URL';
+const TARGET_HEADER = 'Fetch-Relay-Target';
+const AUTH_HEADER = 'Fetch-Relay-Authorization';
+const REQUEST_ID_HEADER = 'Fetch-Relay-Request-ID';
+const REDIRECT_HEADER = 'Fetch-Relay-Location';
 
-const REQUEST_HEADERS_TO_REMOVE = [
-  TARGET_HEADER,
-  'host',
-  'content-length',
-  'connection',
-  'keep-alive',
-  'proxy-authenticate',
-  'proxy-authorization',
-  'te',
-  'trailer',
-  'transfer-encoding',
-  'upgrade',
-  'cf-connecting-ip',
-  'cf-ray',
-  'cf-visitor',
-  'x-forwarded-proto',
-  'x-real-ip',
-  'origin',
-  'referer',
-];
-
-function allowedHosts(value) {
-  return new Set(
-    (value ?? '')
-      .split(',')
-      .map(host => host.trim().toLowerCase())
-      .filter(Boolean),
-  );
-}
-
-function targetFrom(request) {
-  const relayUrl = new URL(request.url);
-  return request.headers.get(TARGET_HEADER) ?? relayUrl.searchParams.get('url');
-}
-
-function validateTarget(value, allowlist) {
-  if (!value) return undefined;
-  try {
-    const target = new URL(value);
-    if (target.protocol !== 'https:') return undefined;
-    if (target.username || target.password) return undefined;
-    if (target.port && target.port !== '443') return undefined;
-    if (!allowlist.has(target.hostname.toLowerCase())) return undefined;
-    return target;
-  } catch {
-    return undefined;
-  }
-}
-
-async function secretPathMatches(actual, expected) {
-  if (!expected) return false;
-  const encoder = new TextEncoder();
-  const [actualHash, expectedHash] = await Promise.all([
-    crypto.subtle.digest('SHA-256', encoder.encode(actual)),
-    crypto.subtle.digest('SHA-256', encoder.encode(expected)),
-  ]);
-  return crypto.subtle.timingSafeEqual(actualHash, expectedHash);
-}
-
-function writeLog(level, event, fields) {
-  const entry = JSON.stringify({ event, ...fields });
-  if (level === 'error') console.error(entry);
-  else if (level === 'warn') console.warn(entry);
-  else console.log(entry);
-}
+const BLOCKED_REQUEST_HEADERS = new Set([
+  'accept-encoding', 'connection', 'content-length', 'cookie', 'expect',
+  'forwarded', 'host', 'keep-alive', 'origin', 'proxy-authenticate',
+  'proxy-authorization', 'referer', 'te', 'trailer', 'transfer-encoding', 'upgrade',
+]);
+const BLOCKED_RESPONSE_HEADERS = new Set([
+  'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
+  'set-cookie', 'te', 'trailer', 'transfer-encoding', 'upgrade',
+]);
 
 export default {
   async fetch(request, env) {
-    const relayUrl = new URL(request.url);
-    const requestId = request.headers.get('cf-ray') ?? crypto.randomUUID();
-    const started = Date.now();
-    const baseLog = {
-      requestId,
-      method: request.method,
-      colo: request.cf?.colo ?? 'unknown',
-      country: request.cf?.country ?? 'unknown',
-    };
+    const requestId = crypto.randomUUID();
+    const startedAt = Date.now();
 
-    // RELAY_PATH is a bearer secret. Fail closed when it or the allowlist is
-    // absent, and use a 404 for wrong paths so the endpoint is not advertised.
-    if (!env.RELAY_PATH) {
-      writeLog('error', 'relay_misconfigured', { ...baseLog, reason: 'missing_secret' });
-      return new Response('Relay is not configured', { status: 503 });
-    }
-    if (!(await secretPathMatches(relayUrl.pathname, env.RELAY_PATH))) {
-      writeLog('warn', 'relay_rejected', { ...baseLog, reason: 'invalid_path' });
-      return new Response('Not found', { status: 404 });
+    if (request.method === 'OPTIONS' && request.headers.has('Access-Control-Request-Method')) {
+      const headers = new Headers();
+      applyCors(headers);
+      headers.set('Access-Control-Allow-Methods', request.headers.get('Access-Control-Request-Method') || 'GET');
+      headers.set('Access-Control-Allow-Headers', request.headers.get('Access-Control-Request-Headers') || `${AUTH_HEADER}, ${TARGET_HEADER}`);
+      headers.set('Access-Control-Max-Age', '86400');
+      headers.set(REQUEST_ID_HEADER, requestId);
+      return new Response(null, { status: 204, headers });
     }
 
-    const allowlist = allowedHosts(env.ALLOWED_UPSTREAM_HOSTS);
-    if (allowlist.size === 0) {
-      writeLog('error', 'relay_misconfigured', { ...baseLog, reason: 'empty_allowlist' });
-      return new Response('Relay allowlist is not configured', { status: 503 });
+    if (!env.RELAY_TOKEN) return jsonError(503, 'relay_not_configured', requestId);
+    if (!(await verifyBearerToken(request.headers.get(AUTH_HEADER), env.RELAY_TOKEN))) {
+      console.warn(JSON.stringify({ event: 'relay.rejected', requestId, reason: 'unauthorized' }));
+      return jsonError(401, 'unauthorized', requestId);
+    }
+    if (request.method === 'CONNECT' || request.method === 'TRACE') {
+      return jsonError(405, 'method_not_allowed', requestId);
     }
 
-    const target = validateTarget(targetFrom(request), allowlist);
-    if (!target) {
-      writeLog('warn', 'relay_rejected', { ...baseLog, reason: 'target_not_allowed' });
-      return new Response('Target not allowed', { status: 403 });
+    const targetValue = request.headers.get(TARGET_HEADER);
+    if (!targetValue) return jsonError(400, 'missing_target_header', requestId);
+
+    let target;
+    try {
+      target = validateTarget(targetValue, request.url);
+    } catch (error) {
+      const code = error instanceof RelayInputError ? error.code : 'invalid_target';
+      console.warn(JSON.stringify({ event: 'relay.rejected', requestId, reason: code }));
+      return jsonError(400, code, requestId);
     }
-
-    const requestLog = { ...baseLog, targetHost: target.hostname };
-    writeLog('info', 'relay_request', requestLog);
-
-    const headers = new Headers(request.headers);
-    for (const name of REQUEST_HEADERS_TO_REMOVE) headers.delete(name);
 
     try {
       const upstream = await fetch(target, {
         method: request.method,
-        headers,
-        body: request.method === 'GET' || request.method === 'HEAD' ? undefined : request.body,
+        headers: sanitizeRequestHeaders(request.headers),
+        body: request.method === 'GET' || request.method === 'HEAD' ? null : request.body,
         redirect: 'manual',
+        cache: 'no-store',
         signal: request.signal,
       });
-
-      writeLog('info', 'relay_upstream_headers', {
-        ...requestLog,
-        status: upstream.status,
-        durationMs: Date.now() - started,
-        contentType: upstream.headers.get('content-type') ?? 'unknown',
-      });
-
-      const responseHeaders = new Headers(upstream.headers);
-      responseHeaders.set('X-FreeLLMAPI-Relay-Request-ID', requestId);
-
-      let responseBody = upstream.body;
-      if (responseBody) {
-        let responseBytes = 0;
-        responseBody = responseBody.pipeThrough(new TransformStream({
-          transform(chunk, controller) {
-            responseBytes += chunk.byteLength;
-            controller.enqueue(chunk);
-          },
-          flush() {
-            writeLog('info', 'relay_response_complete', {
-              ...requestLog,
-              status: upstream.status,
-              durationMs: Date.now() - started,
-              responseBytes,
-            });
-          },
-        }));
-      }
-
-      // Passing the ReadableStream through is what keeps SSE, audio, and other
-      // streamed responses incremental. Do not call arrayBuffer/text/json.
-      return new Response(responseBody, {
+      const responseHeaders = sanitizeResponseHeaders(upstream.headers);
+      const location = upstream.headers.get('location');
+      if (location) responseHeaders.set(REDIRECT_HEADER, location);
+      applyCors(responseHeaders);
+      responseHeaders.set(REQUEST_ID_HEADER, requestId);
+      responseHeaders.set('Cache-Control', 'no-store');
+      console.log(JSON.stringify({
+        event: 'relay.response', requestId, method: request.method,
+        targetHost: target.hostname, targetProtocol: target.protocol,
+        status: upstream.status, ttfbMs: Date.now() - startedAt,
+        colo: request.cf?.colo ?? null,
+      }));
+      return new Response(upstream.body, {
         status: upstream.status,
         statusText: upstream.statusText,
         headers: responseHeaders,
       });
     } catch (error) {
-      writeLog('error', 'relay_upstream_error', {
-        ...requestLog,
-        durationMs: Date.now() - started,
-        errorName: error instanceof Error ? error.name : 'UnknownError',
-      });
-      // Do not expose target URLs, provider credentials, or runtime details.
-      return new Response('Upstream request failed', { status: 502 });
+      const aborted = request.signal.aborted || (error instanceof Error && error.name === 'AbortError');
+      console.error(JSON.stringify({
+        event: 'relay.error', requestId, targetHost: target.hostname,
+        errorType: aborted ? 'aborted' : 'upstream_fetch_failed',
+        durationMs: Date.now() - startedAt,
+      }));
+      return jsonError(aborted ? 499 : 502, aborted ? 'request_aborted' : 'upstream_fetch_failed', requestId);
     }
   },
 };
+
+class RelayInputError extends Error {
+  constructor(code) { super(code); this.code = code; }
+}
+
+async function verifyBearerToken(value, expected) {
+  const provided = value?.startsWith('Bearer ') ? value.slice(7) : '';
+  const encoder = new TextEncoder();
+  const [providedHash, expectedHash] = await Promise.all([
+    crypto.subtle.digest('SHA-256', encoder.encode(provided)),
+    crypto.subtle.digest('SHA-256', encoder.encode(expected)),
+  ]);
+  return crypto.subtle.timingSafeEqual(providedHash, expectedHash);
+}
+
+function validateTarget(value, relayUrl) {
+  if (value.length > 16384) throw new RelayInputError('target_too_long');
+  let target;
+  try { target = new URL(value); } catch { throw new RelayInputError('invalid_target'); }
+  if (target.protocol !== 'https:' && target.protocol !== 'http:') throw new RelayInputError('unsupported_protocol');
+  if (target.username || target.password) throw new RelayInputError('target_credentials_forbidden');
+  if (target.hash) throw new RelayInputError('target_fragment_forbidden');
+  const hostname = target.hostname.toLowerCase();
+  if (hostname === new URL(relayUrl).hostname.toLowerCase()) throw new RelayInputError('relay_loop_forbidden');
+  if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname) || hostname.includes(':') || /^\[.*\]$/.test(hostname)) {
+    throw new RelayInputError('ip_literal_forbidden');
+  }
+  if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local') ||
+      hostname.endsWith('.internal') || hostname.endsWith('.home.arpa') || hostname === 'metadata.google.internal') {
+    throw new RelayInputError('local_target_forbidden');
+  }
+  return target;
+}
+
+function sanitizeRequestHeaders(input) {
+  const output = new Headers();
+  for (const [name, value] of input) {
+    const lower = name.toLowerCase();
+    if (BLOCKED_REQUEST_HEADERS.has(lower) || lower.startsWith('fetch-relay-') ||
+        lower.startsWith('cf-') || lower.startsWith('x-forwarded-')) continue;
+    output.append(name, value);
+  }
+  return output;
+}
+
+function sanitizeResponseHeaders(input) {
+  const output = new Headers();
+  for (const [name, value] of input) {
+    const lower = name.toLowerCase();
+    if (BLOCKED_RESPONSE_HEADERS.has(lower) || lower === 'location' ||
+        lower.startsWith('access-control-') || lower.startsWith('fetch-relay-')) continue;
+    output.append(name, value);
+  }
+  return output;
+}
+
+function applyCors(headers) {
+  headers.set('Access-Control-Allow-Origin', '*');
+  headers.set('Access-Control-Expose-Headers', '*');
+  headers.set('Timing-Allow-Origin', '*');
+}
+
+function jsonError(status, code, requestId) {
+  const headers = new Headers({
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+    [REQUEST_ID_HEADER]: requestId,
+  });
+  applyCors(headers);
+  return Response.json({ error: code, requestId }, { status, headers });
+}

@@ -1,66 +1,62 @@
 # Fetch Relay transport
 
-FreeLLMAPI can route provider HTTP requests through an application-layer relay,
-such as a Cloudflare Worker. This is different from a CONNECT/SOCKS forward
-proxy: the relay receives an ordinary HTTP request, fetches the provider URL,
-and streams the provider response back.
+FreeLLMAPI can route provider HTTP requests through an application-layer
+Fetch Relay, such as a Cloudflare Worker. Unlike a CONNECT/SOCKS forward proxy,
+the relay receives an ordinary authenticated HTTP request, fetches the target,
+and streams the response back.
 
 ```text
-FreeLLMAPI -> Fetch Relay -> LLM provider
+FreeLLMAPI -> Fetch Relay -> provider
 ```
 
-Select `fetch-relay` under **Keys -> Outbound proxy**, or configure a headless
-install:
+Select `fetch-relay` under **Keys -> Outbound proxy**, enter the Relay URL and
+token, or configure a headless install:
 
 ```dotenv
 PROXY_MODE=fetch-relay
-PROXY_URL=https://relay.example.workers.dev/a-long-random-secret
+PROXY_URL=https://relay.example.workers.dev
+FETCH_RELAY_TOKEN=generate-a-long-random-token
 ```
 
-`forward` is the default. Existing `PROXY_URL`, `ALL_PROXY`, `HTTPS_PROXY`,
-`HTTP_PROXY`, SOCKS, per-key proxy, bypass, and `NO_PROXY` configurations keep
-their existing behavior unless `fetch-relay` is explicitly selected.
+`forward` remains the default. Existing `PROXY_URL`, `ALL_PROXY`, `HTTPS_PROXY`,
+`HTTP_PROXY`, SOCKS, per-key proxy, bypass, and `NO_PROXY` behavior is unchanged
+unless `fetch-relay` is explicitly selected.
 
-## Relay protocol
+## Protocol
 
-FreeLLMAPI sends the provider request method, headers, body, and cancellation
-signal to `PROXY_URL`. The preferred protocol carries the provider URL in this
-header:
+FreeLLMAPI sends the original method, body, provider headers, and cancellation
+signal to `PROXY_URL`, with two hop-specific control headers:
 
 ```http
-X-FreeLLMAPI-Target-URL: https://api.provider.example/v1/chat/completions
+Fetch-Relay-Authorization: Bearer <relay-token>
+Fetch-Relay-Target: https://api.provider.example/v1/chat/completions
+Authorization: Bearer <provider-key>
 ```
 
-For compatibility with URL-based relays, a `PROXY_URL` containing exactly
-`{url}` is also supported. FreeLLMAPI replaces every placeholder with the
-percent-encoded provider URL and omits the target header:
+The Relay authentication and provider authentication are deliberately
+separate. The query-string and `{url}` compatibility formats are not supported.
+FreeLLMAPI overwrites caller-supplied Relay control headers, does not buffer the
+response body, and requests manual redirect handling so a redirect cannot turn
+into an accidental direct provider request.
 
-```dotenv
-PROXY_URL=https://relay.example.workers.dev/secret?url={url}
-```
-
-The header form is recommended because provider URLs can contain sensitive
-query parameters. Relay responses are returned without buffering. FreeLLMAPI
-uses manual redirect handling for the relay request, so a redirect cannot
-silently bypass the relay and connect to the provider directly.
+Dashboard-saved Relay tokens are encrypted at rest and the settings API never
+returns them. An empty token is supported for an intentionally unauthenticated
+relay, but is not recommended. In headless deployments, `FETCH_RELAY_TOKEN`
+takes precedence over the saved dashboard value.
 
 ## Security contract
 
-A Fetch Relay handles provider credentials and request content. Only use a
-relay controlled by an operator you trust. A production relay should:
-
-- require an unguessable secret or equivalent authentication;
-- allowlist exact provider hostnames and `https:` upstream URLs;
-- remove `X-FreeLLMAPI-Target-URL` before the upstream request;
-- not follow redirects without validating every new target;
-- never log provider authorization headers or complete target URLs;
-- stream request and response bodies instead of buffering them;
-- reject missing or malformed targets and fail closed when its allowlist is empty.
+A Relay can see provider credentials and request content. Use one controlled by
+an operator you trust. A production Relay should authenticate every request,
+remove all `Fetch-Relay-*` headers before fetching the target, reject local and
+metadata destinations, handle redirects manually, avoid cookies, never log
+credentials or complete target URLs, and stream rather than buffer bodies.
 
 ## Cloudflare Worker reference
 
-A deployable implementation, Wrangler configuration, and setup instructions
-live in [`examples/fetch-relay-worker`](../examples/fetch-relay-worker/README.md).
-It fails closed without a secret path and exact upstream-host allowlist, strips
-hop-by-hop and Relay-only headers, preserves cancellation, uses manual redirect
-handling, and returns `upstream.body` directly so SSE is not buffered.
+[`examples/fetch-relay-worker`](../examples/fetch-relay-worker/README.md)
+contains a provider-agnostic, single-file Worker. It keeps no target-site list:
+each request carries its complete public HTTP(S) target in `Fetch-Relay-Target`.
+The implementation authenticates with a Cloudflare secret, blocks obvious SSRF
+destinations and relay loops, strips hop-specific headers and cookies, exposes
+redirect locations without following them, and emits sanitized structured logs.

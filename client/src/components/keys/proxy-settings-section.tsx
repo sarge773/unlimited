@@ -15,6 +15,7 @@ import type { ProxyMode } from '../../../../shared/types'
 interface ProxySettings {
   proxyUrl: string
   proxyMode: ProxyMode
+  fetchRelayTokenConfigured: boolean
   enabled: boolean
   bypassPlatforms: string[]
   active: boolean
@@ -31,6 +32,8 @@ export function ProxySettingsSection() {
   const queryClient = useQueryClient()
   const [proxyUrl, setProxyUrl] = useState('')
   const [proxyMode, setProxyMode] = useState<ProxyMode>('forward')
+  const [fetchRelayToken, setFetchRelayToken] = useState('')
+  const [fetchRelayTokenChanged, setFetchRelayTokenChanged] = useState(false)
 
   const { data, isError } = useQuery<ProxySettings>({
     queryKey: ['proxy-url'],
@@ -59,12 +62,14 @@ export function ProxySettingsSection() {
 
   const saveProxy = useMutation({
     meta: { silenceToast: true },
-    mutationFn: (body: { proxyUrl?: string; proxyMode?: ProxyMode; enabled?: boolean; bypassPlatforms?: string[] }) =>
+    mutationFn: (body: { proxyUrl?: string; proxyMode?: ProxyMode; fetchRelayToken?: string; enabled?: boolean; bypassPlatforms?: string[] }) =>
       apiFetch<ProxySettings>('/api/settings/proxy', { method: 'PUT', body: JSON.stringify(body) }),
     onSuccess: (result: ProxySettings) => {
       queryClient.invalidateQueries({ queryKey: ['proxy-url'] })
       setProxyUrl(result.proxyUrl)
       setProxyMode(result.proxyMode)
+      setFetchRelayToken('')
+      setFetchRelayTokenChanged(false)
     },
   })
 
@@ -72,13 +77,17 @@ export function ProxySettingsSection() {
   // without saving anything. Result shown inline; failures carry the reason.
   const testProxy = useMutation({
     meta: { silenceToast: true },
-    mutationFn: (body: { proxyUrl?: string; proxyMode?: ProxyMode }) =>
+    mutationFn: (body: { proxyUrl?: string; proxyMode?: ProxyMode; fetchRelayToken?: string }) =>
       apiFetch<{ ok: boolean; latencyMs: number; status?: number; error?: string; target?: string }>('/api/settings/proxy/test', { method: 'POST', body: JSON.stringify(body) }),
   })
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    saveProxy.mutate({ proxyUrl, proxyMode })
+    saveProxy.mutate({
+      proxyUrl,
+      proxyMode,
+      ...(fetchRelayTokenChanged ? { fetchRelayToken } : {}),
+    })
   }
 
   const enabled = data?.enabled ?? true
@@ -129,16 +138,36 @@ export function ProxySettingsSection() {
             <Input
               value={proxyUrl}
               onChange={e => setProxyUrl(e.target.value)}
-              placeholder={proxyMode === 'fetch-relay' ? 'https://relay.example.workers.dev/secret-path' : 'socks5://127.0.0.1:1080'}
+              placeholder={proxyMode === 'fetch-relay' ? 'https://relay.example.workers.dev' : 'socks5://127.0.0.1:1080'}
               className="font-mono text-xs"
             />
           </div>
+          {proxyMode === 'fetch-relay' && (
+            <div className="space-y-1.5 flex-1">
+              <Label className="text-xs">Relay token</Label>
+              <Input
+                type="password"
+                autoComplete="new-password"
+                value={fetchRelayToken}
+                onChange={e => {
+                  setFetchRelayToken(e.target.value)
+                  setFetchRelayTokenChanged(true)
+                }}
+                placeholder={data?.fetchRelayTokenConfigured ? 'Configured — leave unchanged to keep' : 'Relay bearer token (optional)'}
+                className="font-mono text-xs"
+              />
+            </div>
+          )}
           <Button
             type="button"
             size="sm"
             variant="outline"
             disabled={testProxy.isPending}
-            onClick={() => testProxy.mutate({ proxyUrl, proxyMode })}
+            onClick={() => testProxy.mutate({
+              proxyUrl,
+              proxyMode,
+              ...(fetchRelayToken ? { fetchRelayToken } : {}),
+            })}
           >
             {testProxy.isPending ? t('keys.testingProxy') : t('keys.testProxy')}
           </Button>
@@ -209,9 +238,9 @@ export function ProxySettingsSection() {
         </p>
         {proxyMode === 'fetch-relay' ? (
           <p className="mt-1">
-            <code className="font-mono">X-FreeLLMAPI-Target-URL</code>
-            {' / '}
-            <code className="font-mono">{'?url={url}'}</code>
+            <code className="font-mono">Fetch-Relay-Target</code>
+            {' + '}
+            <code className="font-mono">Fetch-Relay-Authorization</code>
           </p>
         ) : (
           <ul className="list-disc list-inside mt-1 space-y-0.5">

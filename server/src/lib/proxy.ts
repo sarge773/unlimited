@@ -2,6 +2,7 @@ import http from 'http';
 import https from 'https';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { getSetting } from '../db/index.js';
+import { decrypt, encrypt } from './crypto.js';
 import { assertProviderUrlAllowed, isLoopbackOrPrivateHostname } from './url-guard.js';
 import type { ProxyMode } from '@freellmapi/shared/types.js';
 
@@ -48,7 +49,8 @@ const SOCKS_SCHEMES = ['socks5:', 'socks5h:', 'socks4:', 'socks4a:'] as const;
 /** Every proxy scheme the app accepts. Shared with the settings validator. */
 export const PROXY_SCHEMES: readonly string[] = ['http:', 'https:', ...SOCKS_SCHEMES];
 export const PROXY_MODES: readonly ProxyMode[] = ['forward', 'fetch-relay'];
-export const FETCH_RELAY_TARGET_HEADER = 'x-freellmapi-target-url';
+export const FETCH_RELAY_TARGET_HEADER = 'fetch-relay-target';
+export const FETCH_RELAY_AUTH_HEADER = 'fetch-relay-authorization';
 
 /** True when the URL names a SOCKS scheme (so it needs SocksProxyAgent, not undici). */
 export function isSocksProxyUrl(url: string): boolean {
@@ -143,6 +145,7 @@ function noProxyMatches(hostname: string): boolean {
 let _proxyUrl = '';
 let _proxyUrlSource = 'none';
 let _proxyMode: ProxyMode = 'forward';
+let _fetchRelayToken = '';
 let _proxyEnabled = true;
 let _bypassPlatforms = new Set<string>();
 let _noProxyRules: string[] = [];
@@ -228,6 +231,7 @@ export function applyProxyUrl(dbValue: string): void {
 export function restoreProxySettings(): void {
   applyProxyUrl(getSetting('proxy_url') ?? '');
   applyProxyMode(getSetting('proxy_mode') ?? 'forward');
+  applyFetchRelayToken(decodeFetchRelayToken(getSetting('fetch_relay_token') ?? ''));
   applyProxyEnabled(getSetting('proxy_enabled') !== '0'); // default: enabled
   applyProxyBypass(getSetting('proxy_bypass') ?? '');
 }
@@ -247,6 +251,37 @@ export function applyProxyMode(dbValue: string): void {
 
 export function getProxyMode(): ProxyMode {
   return _proxyMode;
+}
+
+/** Set the bearer token used only to authenticate FreeLLMAPI to a Fetch Relay.
+ * The environment wins so headless deployments never expose or overwrite it
+ * through the dashboard. This token is separate from the provider's
+ * Authorization header, which is preserved for the upstream request. */
+export function applyFetchRelayToken(dbValue: string): void {
+  _fetchRelayToken = readEnv('FETCH_RELAY_TOKEN') || dbValue.trim();
+}
+
+export function getFetchRelayToken(): string {
+  return _fetchRelayToken;
+}
+
+/** Encrypt the dashboard-saved Relay credential at rest. The environment form
+ * never enters the database. */
+export function encodeFetchRelayToken(value: string): string {
+  const trimmed = value.trim();
+  return trimmed ? JSON.stringify(encrypt(trimmed)) : '';
+}
+
+function decodeFetchRelayToken(value: string): string {
+  if (!value) return '';
+  try {
+    const parsed = JSON.parse(value) as { encrypted?: string; iv?: string; authTag?: string };
+    if (!parsed.encrypted || !parsed.iv || !parsed.authTag) return '';
+    return decrypt(parsed.encrypted, parsed.iv, parsed.authTag);
+  } catch {
+    console.warn('[proxy] Saved Fetch Relay token could not be decrypted; configure it again.');
+    return '';
+  }
 }
 
 /** Toggle the proxy on/off without losing the URL. */
@@ -681,7 +716,7 @@ async function dispatchFetch(
   }
 
   if (_proxyMode === 'fetch-relay' && _proxyUrl) {
-    return fetchRelayFetch(_proxyUrl, url, init);
+    return fetchRelayFetch(_proxyUrl, url, init, _fetchRelayToken);
   }
 
   const resolved = await resolveDispatcher();
@@ -709,11 +744,8 @@ async function fetchRelayFetch(
   relayUrl: string,
   targetUrl: string,
   init: RequestInit | undefined,
+  relayToken: string,
 ): Promise<Response> {
-  const usesTemplate = relayUrl.includes('{url}');
-  const destination = usesTemplate
-    ? relayUrl.replaceAll('{url}', encodeURIComponent(targetUrl))
-    : relayUrl;
   const headers = new Headers(init?.headers);
 
   // These describe the provider connection and must be recalculated for the
@@ -721,9 +753,14 @@ async function fetchRelayFetch(
   // header before calling the provider.
   headers.delete('host');
   headers.delete('content-length');
-  if (!usesTemplate) headers.set(FETCH_RELAY_TARGET_HEADER, targetUrl);
+  headers.set(FETCH_RELAY_TARGET_HEADER, targetUrl);
+  // Always overwrite caller-supplied Relay control headers. They belong to
+  // this hop and must not let an upstream request choose another target or
+  // credential. An empty token supports deliberately unauthenticated relays.
+  if (relayToken) headers.set(FETCH_RELAY_AUTH_HEADER, `Bearer ${relayToken}`);
+  else headers.delete(FETCH_RELAY_AUTH_HEADER);
 
-  return fetch(destination, {
+  return fetch(relayUrl, {
     ...init,
     headers,
     redirect: 'manual',
@@ -841,7 +878,7 @@ export const DEFAULT_PROXY_PROBE_TARGET = 'https://www.cloudflare.com/cdn-cgi/tr
  */
 export async function probeProxyUrl(
   proxyUrl: string | undefined,
-  options: { targetUrl?: string; timeoutMs?: number; mode?: ProxyMode } = {},
+  options: { targetUrl?: string; timeoutMs?: number; mode?: ProxyMode; relayToken?: string } = {},
 ): Promise<ProxyProbeResult> {
   const timeoutMs = options.timeoutMs ?? 10_000;
   const started = Date.now();
@@ -858,7 +895,7 @@ export async function probeProxyUrl(
       response = await fetchRelayFetch(url, target, {
         method: 'GET',
         signal: AbortSignal.timeout(timeoutMs),
-      });
+      }, options.relayToken ?? getFetchRelayToken());
     } else {
       const resolved = await resolvePerKeyDispatcher(url);
       if (!resolved) {

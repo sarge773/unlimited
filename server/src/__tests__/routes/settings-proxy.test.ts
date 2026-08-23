@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { Express } from 'express';
 import { createApp } from '../../app.js';
-import { initDb } from '../../db/index.js';
+import { getSetting, initDb } from '../../db/index.js';
 import { mintDashboardToken } from '../helpers/auth.js';
-import { applyProxyMode, applyProxyUrl } from '../../lib/proxy.js';
+import { applyFetchRelayToken, applyProxyMode, applyProxyUrl } from '../../lib/proxy.js';
 
 async function request(app: Express, method: string, path: string, body: any, token: string) {
   const server = app.listen(0, '127.0.0.1');
@@ -30,7 +30,7 @@ describe('PUT /api/settings/proxy scheme validation', () => {
 
   beforeAll(() => {
     process.env.ENCRYPTION_KEY = '0'.repeat(64);
-    for (const name of ['PROXY_MODE', 'PROXY_URL', 'ALL_PROXY', 'HTTPS_PROXY', 'HTTP_PROXY', 'NO_PROXY']) {
+    for (const name of ['PROXY_MODE', 'PROXY_URL', 'FETCH_RELAY_TOKEN', 'ALL_PROXY', 'HTTPS_PROXY', 'HTTP_PROXY', 'NO_PROXY']) {
       delete process.env[name];
       delete process.env[name.toLowerCase()];
     }
@@ -42,6 +42,7 @@ describe('PUT /api/settings/proxy scheme validation', () => {
   afterAll(() => {
     applyProxyMode('forward');
     applyProxyUrl('');
+    applyFetchRelayToken('');
   });
 
   const accepted = [
@@ -94,6 +95,23 @@ describe('PUT /api/settings/proxy scheme validation', () => {
     expect(status).toBe(200);
     expect(body.proxyMode).toBe('fetch-relay');
     expect(body.proxyUrl).toBe('https://relay.example.workers.dev/secret');
+  });
+
+  it('stores a Relay token without returning it from the settings API', async () => {
+    const { status, body } = await request(app, 'PUT', '/api/settings/proxy', {
+      proxyMode: 'fetch-relay',
+      proxyUrl: 'https://relay.example.workers.dev',
+      fetchRelayToken: 'relay-test-secret',
+    }, token);
+
+    expect(status).toBe(200);
+    expect(body.fetchRelayTokenConfigured).toBe(true);
+    expect(body).not.toHaveProperty('fetchRelayToken');
+    expect(getSetting('fetch_relay_token')).not.toContain('relay-test-secret');
+
+    const after = await request(app, 'GET', '/api/settings/proxy', undefined, token);
+    expect(after.body.fetchRelayTokenConfigured).toBe(true);
+    expect(after.body).not.toHaveProperty('fetchRelayToken');
   });
 
   it('rejects a SOCKS URL in fetch-relay mode without changing either setting', async () => {
