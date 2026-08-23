@@ -1,4 +1,4 @@
-// Generative-media routing (image generation + audio/TTS).
+// Generative-media routing (image, video, and audio/TTS).
 //
 // Self-contained, exactly like embeddings: media models live in their OWN
 // `media_models` table so they can NEVER enter the chat router's candidate pool
@@ -17,6 +17,11 @@ import { isOnCooldown, setCooldown } from './ratelimit.js';
  *  (decoupled from the chat provider registry — e.g. SiliconFlow is media-only). */
 export const MEDIA_PLATFORMS = new Set(['nvidia', 'pollinations', 'cloudflare', 'siliconflow', 'google']);
 
+/** Video uses a dedicated optional catalog registry so binaries that predate
+ *  this modality ignore the rows instead of accidentally ingesting them as
+ *  chat models. Keep its adapter allowlist separate for the same reason. */
+export const VIDEO_PLATFORMS = new Set(['pollinations', 'huggingface']);
+
 /** Platforms whose free media path needs no API key (anonymous). */
 const KEYLESS_CAPABLE = new Set(['pollinations']);
 
@@ -30,7 +35,7 @@ export const TRANSCRIPTION_PLATFORMS = new Set(['groq', 'cloudflare']);
 // catalog-sync), never via migrations. Their per-model adapter metadata
 // (native subtitle formats, upload ceiling, request flavor) rides in the
 // meta_json column — see TranscriptionMeta below.
-export type MediaModality = 'image' | 'audio' | 'transcription';
+export type MediaModality = 'image' | 'video' | 'audio' | 'transcription';
 
 export interface MediaModelRow {
   id: number;
@@ -67,8 +72,22 @@ export interface SpeechResult {
   audio: Buffer;
   contentType: string;
 }
+export interface VideoResult {
+  platform: string;
+  modelId: string;
+  video: Buffer;
+  contentType: string;
+}
 export interface ImageParams { prompt: string; n?: number; size?: string }
 export interface SpeechParams { input: string; voice?: string; format?: string }
+export interface VideoParams {
+  prompt: string;
+  duration?: number;
+  aspectRatio?: '16:9' | '9:16';
+  image?: string;
+  seed?: number;
+  audio?: boolean;
+}
 
 // OpenAI clients commonly send one of these voice names even when the user did
 // not choose a voice explicitly. Native TTS providers use unrelated voice
@@ -162,6 +181,9 @@ function geminiVoice(requested?: string): string {
 
 // Media generations are slower than chat — a cold FLUX/SDXL run can take 30-60s.
 const FETCH_TIMEOUT_MS = 60_000;
+// Video providers submit long-running jobs and can legitimately need several
+// minutes before the MP4 is ready. This is still bounded end-to-end.
+const VIDEO_FETCH_TIMEOUT_MS = 5 * 60_000;
 
 export function listMediaModels(modality: MediaModality): MediaModelRow[] {
   return getDb()
@@ -220,13 +242,14 @@ async function mediaFetch(
   platform: string,
   modality: MediaModality,
   init: RequestInit,
+  timeoutMs = FETCH_TIMEOUT_MS,
 ): Promise<Response> {
   const r = await proxyFetch(
     url,
-    { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) },
+    { ...init, signal: AbortSignal.timeout(timeoutMs) },
     platform,
     modality,
-    FETCH_TIMEOUT_MS,
+    timeoutMs,
   );
   if (!r.ok) {
     const body = await r.text().catch(() => '');
@@ -261,6 +284,22 @@ function mediaRequestStyle(row: MediaModelRow): string | null {
     return typeof parsed?.requestStyle === 'string' ? parsed.requestStyle : null;
   } catch {
     return null;
+  }
+}
+
+interface VideoMeta {
+  /** Provider-native deployment id. Hugging Face model ids are mapped to fal
+   *  queue ids in the catalog so runtime calls need no mutable discovery step. */
+  providerModelId?: string;
+}
+
+function videoMeta(row: MediaModelRow): VideoMeta {
+  if (!row.meta_json) return {};
+  try {
+    const parsed = JSON.parse(row.meta_json) as VideoMeta;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
   }
 }
 
@@ -417,6 +456,116 @@ async function callImageProvider(
   }
 }
 
+async function callHuggingFaceVideo(
+  row: MediaModelRow,
+  key: string | null,
+  p: VideoParams,
+): Promise<{ video: Buffer; contentType: string }> {
+  if (!key) throw new MediaError('huggingface key required', 401);
+  const providerModelId = videoMeta(row).providerModelId;
+  if (!providerModelId) {
+    throw new MediaError(`huggingface video model '${row.model_id}' is missing providerModelId metadata`, 500);
+  }
+
+  const deadline = Date.now() + VIDEO_FETCH_TIMEOUT_MS;
+  const remaining = () => Math.max(1, deadline - Date.now());
+  const query = '?_subdomain=queue';
+  const queueUrl = `https://router.huggingface.co/fal-ai/${providerModelId}${query}`;
+  const submitted = await mediaFetch(queueUrl, 'huggingface', 'video', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      prompt: p.prompt,
+      ...(p.seed !== undefined ? { seed: p.seed } : {}),
+    }),
+  }, remaining());
+  const queue = (await submitted.json()) as {
+    request_id?: string;
+    status?: string;
+    response_url?: string;
+  };
+  if (!queue.request_id || !queue.response_url) {
+    throw new MediaError('huggingface returned no video job id', 502);
+  }
+
+  // Hugging Face's fal router returns a fal queue response URL. Only reuse its
+  // path; all polling stays on router.huggingface.co so the HF token is never
+  // sent to an arbitrary host supplied in an upstream JSON body.
+  let responsePath: string;
+  try {
+    responsePath = new URL(queue.response_url, 'https://queue.fal.run').pathname;
+  } catch {
+    throw new MediaError('huggingface returned an invalid video job URL', 502);
+  }
+  const routedJobUrl = `https://router.huggingface.co/fal-ai${responsePath}`;
+  let status = queue.status ?? 'IN_QUEUE';
+  while (status !== 'COMPLETED') {
+    if (status === 'FAILED' || status === 'CANCELLED') {
+      throw new MediaError(`huggingface video job ${status.toLowerCase()}`, 502);
+    }
+    if (remaining() <= 1) throw new MediaError('huggingface video generation timed out', 504);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const polled = await mediaFetch(`${routedJobUrl}/status${query}`, 'huggingface', 'video', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${key}` },
+    }, remaining());
+    const state = (await polled.json()) as { status?: string; error?: string };
+    if (!state.status) throw new MediaError('huggingface returned an invalid video job status', 502);
+    status = state.status;
+  }
+
+  const completed = await mediaFetch(`${routedJobUrl}${query}`, 'huggingface', 'video', {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${key}` },
+  }, remaining());
+  const result = (await completed.json()) as { video?: { url?: string; content_type?: string } };
+  const videoUrl = result.video?.url;
+  if (!videoUrl) throw new MediaError('huggingface returned no video URL', 502);
+  const downloaded = await mediaFetch(videoUrl, 'huggingface', 'video', { method: 'GET' }, remaining());
+  const video = Buffer.from(await downloaded.arrayBuffer());
+  return {
+    video,
+    contentType: downloaded.headers.get('content-type') ?? result.video?.content_type ?? 'video/mp4',
+  };
+}
+
+async function callVideoProvider(
+  row: MediaModelRow,
+  credential: ProviderCredential,
+  p: VideoParams,
+): Promise<{ video: Buffer; contentType: string }> {
+  const key = credential.key;
+  switch (row.platform) {
+    case 'pollinations': {
+      if (!key) throw new MediaError('pollinations key required', 401);
+      const duration = p.duration ?? 6;
+      if (row.model_id === 'nova-reel' && (duration < 6 || duration > 120 || duration % 6 !== 0)) {
+        throw new MediaError('nova-reel duration must be a multiple of 6 between 6 and 120 seconds', 400);
+      }
+      const params = new URLSearchParams({ model: row.model_id, duration: String(duration) });
+      if (p.aspectRatio) params.set('aspectRatio', p.aspectRatio);
+      if (p.image) params.set('image', p.image);
+      if (p.seed !== undefined) params.set('seed', String(p.seed));
+      if (p.audio !== undefined) params.set('audio', String(p.audio));
+      const r = await mediaFetch(
+        `https://gen.pollinations.ai/video/${encodeURIComponent(p.prompt)}?${params}`,
+        'pollinations',
+        'video',
+        { method: 'GET', headers: { Authorization: `Bearer ${key}` } },
+        VIDEO_FETCH_TIMEOUT_MS,
+      );
+      return {
+        video: Buffer.from(await r.arrayBuffer()),
+        contentType: r.headers.get('content-type') ?? 'video/mp4',
+      };
+    }
+    case 'huggingface':
+      return callHuggingFaceVideo(row, key, p);
+    default:
+      throw new MediaError(`no video adapter for platform '${row.platform}'`, 500);
+  }
+}
+
 async function callSpeechProvider(
   row: MediaModelRow,
   credential: ProviderCredential,
@@ -549,9 +698,12 @@ function logMedia(row: Pick<MediaModelRow, 'platform' | 'model_id' | 'modality'>
 }
 
 function chainError(modality: MediaModality, lastError: MediaError | null): MediaError {
+  const status = lastError && [400, 401, 413, 429].includes(lastError.status)
+    ? lastError.status
+    : 502;
   return new MediaError(
     `All ${modality} providers failed${lastError ? ` (last: ${lastError.message.slice(0, 160)})` : ' (no usable keys)'}.`,
-    lastError && lastError.status === 429 ? 429 : 502,
+    status,
   );
 }
 
@@ -579,6 +731,30 @@ export async function runImageGeneration(model: string | undefined, params: Imag
     }
   }
   throw chainError('image', lastError);
+}
+
+/** Generate a video, failing over across catalogued text-to-video providers. */
+export async function runVideoGeneration(model: string | undefined, params: VideoParams): Promise<VideoResult> {
+  const chain = resolveMediaChain(model, 'video');
+  let lastError: MediaError | null = null;
+  for (const row of chain) {
+    const credential = getProviderCredential(row);
+    if (!credential) continue;
+    if (credential.id != null && isOnCooldown(row.platform, row.model_id, credential.id)) continue;
+    const started = Date.now();
+    try {
+      const out = await callVideoProvider(row, credential, params);
+      if (!out.video.length) throw new MediaError('upstream returned no video', 502);
+      logMedia(row, credential.id, 'success', Date.now() - started, null);
+      return { platform: row.platform, modelId: row.model_id, ...out };
+    } catch (err: any) {
+      const e = err instanceof MediaError ? err : new MediaError(String(err?.message ?? err), 502);
+      logMedia(row, credential.id, 'error', Date.now() - started, e.message.slice(0, 300));
+      if (e.status === 429 && credential.id != null) setCooldown(row.platform, row.model_id, credential.id);
+      lastError = e;
+    }
+  }
+  throw chainError('video', lastError);
 }
 
 // ---------------------------------------------------------------------------

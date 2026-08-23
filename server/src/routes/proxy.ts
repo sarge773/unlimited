@@ -6,7 +6,7 @@ import type { ChatMessage, ChatToolCall, ModelListRow, TokenUsage } from '@freel
 import { routeRequest, resolveRoutingChain, resolveModelGroupCandidates, resolveStickyPreference, recordRateLimitHit, recordSuccess, hasEnabledVisionModel, hasEnabledToolsModel, hasOtherUsableKey, routingReserveTokens, type RouteResult, type ResolvedChain, type ChainRow } from '../services/router.js';
 import { recordRequest, recordTokens, setCooldown, getCooldownDurationForLimit, PAYMENT_REQUIRED_COOLDOWN_MS, MODEL_FORBIDDEN_COOLDOWN_MS, learnLimitFromError } from '../services/ratelimit.js';
 import { runEmbeddings, EmbeddingsError } from '../services/embeddings.js';
-import { runImageGeneration, runSpeech, runTranscription, MediaError, MAX_TRANSCRIPTION_BYTES } from '../services/media.js';
+import { runImageGeneration, runVideoGeneration, runSpeech, runTranscription, MediaError, MAX_TRANSCRIPTION_BYTES } from '../services/media.js';
 import multer from 'multer';
 import { getDb } from '../db/index.js';
 import { resolveAuth, prependSystemPrompt, type ResolvedAuth } from '../lib/system-prompt.js';
@@ -626,6 +626,54 @@ proxyRouter.post('/images/generations', async (req: Request, res: Response) => {
     const status = err instanceof MediaError ? err.status : 502;
     const httpStatus = status >= 400 && status < 600 ? status : 502;
     res.status(httpStatus).json({ error: { message: `image generation error: ${err?.message ?? 'unknown'}`, type: mediaErrorType(status) } });
+  }
+});
+
+// Text-to-video generation. Providers may use a synchronous binary response
+// (Pollinations) or an asynchronous queue internally (Hugging Face/fal.ai), but
+// this gateway presents one bounded request and returns the completed MP4.
+const VideoBody = z.object({
+  model: z.string().optional(),
+  prompt: z.string().min(1),
+  duration: z.number().int().min(1).max(120).optional(),
+  aspect_ratio: z.enum(['16:9', '9:16']).optional(),
+  image: z.string().url().optional(),
+  seed: z.number().int().min(-1).max(2_147_483_647).optional(),
+  audio: z.boolean().optional(),
+});
+
+proxyRouter.post('/videos/generations', async (req: Request, res: Response) => {
+  if (!requireInferenceAuth(req, res)) return;
+  const parsed = VideoBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: {
+        message: 'Invalid request: `prompt` is required and video options must use supported values',
+        type: 'invalid_request_error',
+      },
+    });
+    return;
+  }
+  try {
+    const result = await runVideoGeneration(parsed.data.model, {
+      prompt: parsed.data.prompt,
+      duration: parsed.data.duration,
+      aspectRatio: parsed.data.aspect_ratio,
+      image: parsed.data.image,
+      seed: parsed.data.seed,
+      audio: parsed.data.audio,
+    });
+    res.setHeader('Content-Type', result.contentType);
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Provider', safeHeaderValue(result.platform));
+    res.setHeader('X-Model', safeHeaderValue(result.modelId));
+    res.send(result.video);
+  } catch (err: any) {
+    const status = err instanceof MediaError ? err.status : 502;
+    const httpStatus = status >= 400 && status < 600 ? status : 502;
+    res.status(httpStatus).json({
+      error: { message: `video generation error: ${err?.message ?? 'unknown'}`, type: mediaErrorType(status) },
+    });
   }
 });
 

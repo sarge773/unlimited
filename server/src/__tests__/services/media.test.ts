@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { initDb, getDb } from '../../db/index.js';
 import { encrypt } from '../../lib/crypto.js';
-import { runImageGeneration, runSpeech, MediaError } from '../../services/media.js';
+import { runImageGeneration, runVideoGeneration, runSpeech, MediaError } from '../../services/media.js';
 
 const realFetch = globalThis.fetch;
 
@@ -25,7 +25,7 @@ function addCustomKey(baseUrl: string, raw = 'custom-media-key'): number {
 function addMedia(
   platform: string,
   modelId: string,
-  modality: 'image' | 'audio',
+  modality: 'image' | 'video' | 'audio',
   priority = 1,
   keyId: number | null = null,
   metaJson: string | null = null,
@@ -218,6 +218,93 @@ describe('media service', () => {
       expect(body).toMatchObject({ model: 'local-image', prompt: 'a cat', n: 2, size: '512x512' });
       const log = getDb().prepare("SELECT key_id FROM requests WHERE request_type = 'image' ORDER BY id DESC LIMIT 1").get() as { key_id: number };
       expect(log.key_id).toBe(keyId);
+    });
+  });
+
+  describe('video generation', () => {
+    it('Pollinations: sends the authenticated nova-reel request and returns MP4 bytes', async () => {
+      addMedia('pollinations', 'nova-reel', 'video');
+      addKey('pollinations', 'sk_pollinations_test');
+      const fetchMock = vi.fn(async () =>
+        new Response(Buffer.from('MP4DATA'), { status: 200, headers: { 'content-type': 'video/mp4' } }));
+      globalThis.fetch = fetchMock as any;
+
+      const result = await runVideoGeneration('nova-reel', {
+        prompt: 'sunrise over a lake',
+        duration: 12,
+        aspectRatio: '16:9',
+        seed: 7,
+      });
+
+      expect(result.platform).toBe('pollinations');
+      expect(result.video.toString()).toBe('MP4DATA');
+      expect(result.contentType).toBe('video/mp4');
+      const url = new URL(String(fetchMock.mock.calls[0][0]));
+      expect(url.pathname).toBe('/video/sunrise%20over%20a%20lake');
+      expect(url.searchParams.get('model')).toBe('nova-reel');
+      expect(url.searchParams.get('duration')).toBe('12');
+      expect(url.searchParams.get('aspectRatio')).toBe('16:9');
+      expect((fetchMock.mock.calls[0][1] as RequestInit).headers).toMatchObject({
+        Authorization: 'Bearer sk_pollinations_test',
+      });
+    });
+
+    it('Pollinations: rejects unsupported nova-reel durations before calling upstream', async () => {
+      addMedia('pollinations', 'nova-reel', 'video');
+      addKey('pollinations');
+      const fetchMock = vi.fn();
+      globalThis.fetch = fetchMock as any;
+
+      await expect(runVideoGeneration('nova-reel', {
+        prompt: 'x',
+        duration: 7,
+      })).rejects.toMatchObject({ status: 400 });
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('Hugging Face: submits and resolves the fal.ai queue without leaking the token to the media URL', async () => {
+      addMedia(
+        'huggingface',
+        'Lightricks/LTX-Video-0.9.5',
+        'video',
+        1,
+        null,
+        JSON.stringify({ providerModelId: 'fal-ai/ltx-video-v095' }),
+      );
+      addKey('huggingface', 'hf_test_token');
+      const fetchMock = vi.fn(async (input: string | URL | Request) => {
+        const url = String(input);
+        if (url.includes('requests/job-1?_subdomain=queue')) {
+          return jsonResponse({ video: { url: 'https://cdn.example.test/video.mp4', content_type: 'video/mp4' } });
+        }
+        if (url === 'https://cdn.example.test/video.mp4') {
+          return new Response(Buffer.from('HFVIDEO'), { status: 200, headers: { 'content-type': 'video/mp4' } });
+        }
+        return jsonResponse({
+          request_id: 'job-1',
+          status: 'COMPLETED',
+          response_url: 'https://queue.fal.run/fal-ai/ltx-video-v095/requests/job-1',
+        });
+      });
+      globalThis.fetch = fetchMock as any;
+
+      const result = await runVideoGeneration('Lightricks/LTX-Video-0.9.5', {
+        prompt: 'paper boats on a stream',
+        seed: 42,
+      });
+
+      expect(result.video.toString()).toBe('HFVIDEO');
+      expect(String(fetchMock.mock.calls[0][0])).toBe(
+        'https://router.huggingface.co/fal-ai/fal-ai/ltx-video-v095?_subdomain=queue',
+      );
+      expect(JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body))).toEqual({
+        prompt: 'paper boats on a stream',
+        seed: 42,
+      });
+      expect(String(fetchMock.mock.calls[1][0])).toBe(
+        'https://router.huggingface.co/fal-ai/fal-ai/ltx-video-v095/requests/job-1?_subdomain=queue',
+      );
+      expect((fetchMock.mock.calls[2][1] as RequestInit).headers).toBeUndefined();
     });
   });
 

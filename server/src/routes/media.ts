@@ -9,7 +9,7 @@ import { listAllMediaModels } from '../services/media.js';
 
 export const mediaRouter = Router();
 
-// Generative-media models (image + audio/TTS) for the dashboard Image/Audio tabs.
+// Generative-media models for the dashboard Image/Video/Audio tabs.
 // Mirrors the embeddings tab: a flat list with an enable toggle per row. keyCount
 // surfaces whether the row's platform has a usable key configured.
 mediaRouter.get('/', (_req: Request, res: Response) => {
@@ -53,9 +53,9 @@ mediaRouter.get('/', (_req: Request, res: Response) => {
 // logMedia), so the Audio tab's STT section can show the same per-model
 // counts instead of dead-ending on a 400.
 mediaRouter.get('/usage', (req: Request, res: Response) => {
-  const parsed = z.enum(['image', 'audio', 'transcription']).safeParse(req.query.modality);
+  const parsed = z.enum(['image', 'video', 'audio', 'transcription']).safeParse(req.query.modality);
   if (!parsed.success) {
-    res.status(400).json({ error: { message: 'modality must be image, audio or transcription' } });
+    res.status(400).json({ error: { message: 'modality must be image, video, audio or transcription' } });
     return;
   }
   const modality = parsed.data;

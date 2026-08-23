@@ -33,6 +33,7 @@ import ModelDetailPage from '@/pages/ModelDetailPage'
 import FusionPage from '@/pages/FusionPage'
 import EmbeddingsPage from '@/pages/EmbeddingsPage'
 import ImagePage from '@/pages/ImagePage'
+import VideoPage from '@/pages/VideoPage'
 import AudioPage from '@/pages/AudioPage'
 import MediaDetailPage from '@/pages/MediaDetailPage'
 import EmbeddingDetailPage from '@/pages/EmbeddingDetailPage'
@@ -63,13 +64,14 @@ const navItems = [
   { to: '/premium', labelKey: 'nav.premium' },
 ]
 
-// The five modality pages behind "Models"; surfaced in the nav dropdown and
+// The modality pages behind "Models"; surfaced in the nav dropdown and
 // the mobile submenu so Fusion/Embeddings/Image/Audio are discoverable without
 // first landing on the chat table.
 const modelItems = [
   { to: '/models/chat', labelKey: 'models.chatModelsTab' },
   { to: '/models/embeddings', labelKey: 'models.embeddingsTab' },
   { to: '/models/image', labelKey: 'models.imageTab' },
+  { to: '/models/video', labelKey: 'models.videoTab' },
   { to: '/models/audio', labelKey: 'models.audioTab' },
   { to: '/models/fusion', labelKey: 'models.fusionTab' },
 ]
@@ -410,6 +412,8 @@ function App() {
                       <Route path="/models/embeddings/:id" element={<EmbeddingDetailPage />} />
                       <Route path="/models/image" element={<ImagePage />} />
                       <Route path="/models/image/:id" element={<MediaDetailPage modality="image" />} />
+                      <Route path="/models/video" element={<VideoPage />} />
+                      <Route path="/models/video/:id" element={<MediaDetailPage modality="video" />} />
                       <Route path="/models/audio" element={<AudioPage />} />
                       <Route path="/models/audio/:id" element={<MediaDetailPage modality="audio" />} />
                       <Route path="/models/transcription/:id" element={<MediaDetailPage modality="transcription" />} />

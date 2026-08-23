@@ -31,6 +31,7 @@ function seedModels() {
   `);
   insert.run('cloudflare', 'flux-1-schnell', 'FLUX.1 [schnell]', 'image', 1, 1, 'Shared 10k neurons/day');
   insert.run('pollinations', 'turbo', 'Turbo', 'image', 2, 1, '1024x1024 - 40 req/min free');
+  insert.run('pollinations', 'nova-reel', 'Nova Reel', 'video', 1, 1, 'Recurring daily Pollen refill');
   insert.run('groq', 'playai-tts', 'PlayAI TTS', 'audio', 1, 1, 'WAV/PCM - 30+ voices');
   // Disabled rows stay out of the summary entirely.
   insert.run('cloudflare', 'melotts', 'MeloTTS', 'audio', 2, 0, 'Shared 10k neurons/day');
@@ -60,7 +61,7 @@ describe('GET /api/media/usage', () => {
 
   it('rejects a missing or unknown modality', async () => {
     expect((await get(app, '/api/media/usage')).status).toBe(400);
-    expect((await get(app, '/api/media/usage?modality=video')).status).toBe(400);
+    expect((await get(app, '/api/media/usage?modality=not-real')).status).toBe(400);
   });
 
   it('counts this month\'s requests per model and separates today', async () => {
@@ -87,9 +88,11 @@ describe('GET /api/media/usage', () => {
 
   it('scopes to one modality and skips disabled rows', async () => {
     const image = await get(app, '/api/media/usage?modality=image');
+    const video = await get(app, '/api/media/usage?modality=video');
     const audio = await get(app, '/api/media/usage?modality=audio');
 
     expect(image.body.models.map((m: any) => m.modelId).sort()).toEqual(['flux-1-schnell', 'turbo']);
+    expect(video.body.models.map((m: any) => m.modelId)).toEqual(['nova-reel']);
     // MeloTTS is disabled, so only PlayAI is reported.
     expect(audio.body.models.map((m: any) => m.modelId)).toEqual(['playai-tts']);
   });

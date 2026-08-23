@@ -332,7 +332,7 @@ async function resolveDispatcher(): Promise<{ dispatcher: unknown; isSocks: bool
  * written to `requests.request_type` so the abort message and the row
  * column agree on terminology.
  */
-export type ProxyRequestType = 'chat' | 'embedding' | 'image' | 'audio' | 'transcription' | 'unknown';
+export type ProxyRequestType = 'chat' | 'embedding' | 'image' | 'video' | 'audio' | 'transcription' | 'unknown';
 
 /**
  * Build an AbortError DOMException whose `message` carries a compact triage
