@@ -42,6 +42,7 @@ import { FloatingBar } from '@/components/floating-bar'
 import { ModelsTabs } from '@/components/models-tabs'
 import { Tooltip } from '@/components/tooltip'
 import { PenaltyInspector } from '@/components/penalty-inspector'
+import { PeakHoursControls } from '@/components/peak-hours-controls'
 
 // `tKey` is the i18n suffix under `strategies.*` (label) and `strategies.*Blurb`.
 // It differs from the routing `key` for Manual, whose strategy id is 'priority'.
@@ -107,7 +108,10 @@ export default function FallbackPage() {
   })
 
   const strategyMutation = useMutation({
-    mutationFn: (payload: { strategy: RoutingStrategy; weights?: RoutingWeights; exploreEnabled?: boolean }) =>
+    mutationFn: (payload: {
+      strategy: RoutingStrategy; weights?: RoutingWeights; exploreEnabled?: boolean
+      peakHoursAdjust?: boolean; peakStartHour?: number; peakEndHour?: number; peakTimezone?: string
+    }) =>
       apiFetch('/api/fallback/routing', { method: 'PUT', body: JSON.stringify(payload) }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fallback', 'routing'] }),
   })
@@ -245,6 +249,15 @@ export default function FallbackPage() {
                   speed: Math.round(routing.weights.speed * 100),
                   intelligence: Math.round(routing.weights.intelligence * 100),
                 })}
+                {/* These numbers are not the preset's while the peak-hours
+                    adjustment is firing, so say so right where they are read. */}
+                {routing.peakAdjusted && (
+                  <Tooltip text={t('strategies.peakActiveHint')}>
+                    <span className="ml-1 cursor-help underline decoration-dotted underline-offset-2">
+                      {t('strategies.peakActive')}
+                    </span>
+                  </Tooltip>
+                )}
               </span>
             )}
           </div>
@@ -296,6 +309,19 @@ export default function FallbackPage() {
                 <span className="cursor-help underline decoration-dotted underline-offset-2">?</span>
               </Tooltip>
             </label>
+          )}
+
+          {/* Peak-hours adjustment (#760): same footnote tier as Explore, not a
+              card of its own — it is an opt-in tweak to the preset weights, and
+              off it does nothing at all. The window inputs only appear once the
+              toggle is on, so the default view gains a single line. */}
+          {!isManual && routing && (
+            <PeakHoursControls
+              routing={routing}
+              strategy={strategy}
+              saving={strategyMutation.isPending}
+              onSave={p => strategyMutation.mutate({ strategy, ...p })}
+            />
           )}
         </section>
 

@@ -7,8 +7,8 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { getDb } from '../db/index.js';
-import { getAllPenalties, getRoutingScores, getRoutingStrategy, setRoutingStrategy, setCustomWeights, getExploreEnabled, setExploreEnabled } from '../services/router.js';
-import { BANDIT_PRESETS, type RoutingStrategy } from '../services/scoring.js';
+import { getAllPenalties, getRoutingScores, getRoutingStrategy, setRoutingStrategy, setCustomWeights, getExploreEnabled, setExploreEnabled, getPeakHoursConfig, setPeakHoursConfig, getActiveRoutingWeights } from '../services/router.js';
+import { BANDIT_PRESETS, isValidTimezone, type RoutingStrategy } from '../services/scoring.js';
 import { parseBudget } from '../lib/budget.js';
 import { getModelGroups } from '../services/model-groups.js';
 import { getPenaltyInspector } from '../services/penalty-inspector.js';
@@ -22,7 +22,14 @@ export const fallbackRouter = Router();
 // GET  /routing → active strategy, preset weights, and the per-model score
 //                 breakdown (reliability / speed / intelligence + guardrails).
 fallbackRouter.get('/routing', (_req: Request, res: Response) => {
-  res.json(getRoutingScores());
+  const { peakHours, ...rest } = getRoutingScores();
+  res.json({
+    ...rest,
+    peakHoursAdjust: peakHours.enabled,
+    peakStartHour: peakHours.startHour,
+    peakEndHour: peakHours.endHour,
+    peakTimezone: peakHours.timezone,
+  });
 });
 
 fallbackRouter.get('/penalty-inspector', (_req: Request, res: Response) => {
@@ -40,6 +47,13 @@ const routingSchema = z.object({
   }).optional(),
   // Exploration toggle: give unmeasured models a guaranteed chance to be tried.
   exploreEnabled: z.boolean().optional(),
+  // Peak-hours adjustment (#760), off by default. Hours are whole numbers in
+  // 0-23 and are read in `peakTimezone`, never the server's local clock, so the
+  // window means the same thing on a UTC container as on the operator's laptop.
+  peakHoursAdjust: z.boolean().optional(),
+  peakStartHour: z.number().int().min(0).max(23, { message: 'peakStartHour must be an integer between 0 and 23' }).optional(),
+  peakEndHour: z.number().int().min(0).max(23, { message: 'peakEndHour must be an integer between 0 and 23' }).optional(),
+  peakTimezone: z.string().refine(isValidTimezone, { message: 'peakTimezone must be a valid IANA timezone name' }).optional(),
 });
 
 // PUT /routing → switch strategy. Presets are just weight vectors over the three
@@ -65,7 +79,34 @@ fallbackRouter.put('/routing', (req: Request, res: Response) => {
   if (parsed.data.exploreEnabled !== undefined) {
     setExploreEnabled(parsed.data.exploreEnabled);
   }
-  res.json({ strategy: getRoutingStrategy(), exploreEnabled: getExploreEnabled(), presets: BANDIT_PRESETS });
+  try {
+    setPeakHoursConfig({
+      enabled: parsed.data.peakHoursAdjust,
+      startHour: parsed.data.peakStartHour,
+      endHour: parsed.data.peakEndHour,
+      timezone: parsed.data.peakTimezone,
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { message: err?.message ?? 'Invalid peak-hours settings' } });
+    return;
+  }
+  // `presets` is the raw preset table (unchanged); `weights` is what the router
+  // will actually use right now, which differs from the preset while the
+  // peak-hours adjustment is firing. Returning both keeps the echo honest
+  // without breaking clients that read `presets` (#760).
+  const active = getActiveRoutingWeights();
+  const peak = getPeakHoursConfig();
+  res.json({
+    strategy: getRoutingStrategy(),
+    exploreEnabled: getExploreEnabled(),
+    presets: BANDIT_PRESETS,
+    weights: active.weights,
+    peakAdjusted: active.adjusted,
+    peakHoursAdjust: peak.enabled,
+    peakStartHour: peak.startHour,
+    peakEndHour: peak.endHour,
+    peakTimezone: peak.timezone,
+  });
 });
 
 // Get fallback chain (with dynamic penalties)

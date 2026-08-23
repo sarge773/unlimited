@@ -60,6 +60,12 @@ export type RoutingStrategy = 'priority' | 'balanced' | 'smartest' | 'fastest' |
 
 export type RoutingWeights = { reliability: number; speed: number; intelligence: number }
 
+/** Presets the peak-hours adjustment (#760) leaves alone: they already sit at
+ *  the two ends of the speed↔reliability axis, so reweighting them would make
+ *  one preset behave like another the user could have picked. Kept in sync with
+ *  PEAK_EXEMPT_STRATEGIES in server/src/services/scoring.ts. */
+export const PEAK_EXEMPT_STRATEGIES: RoutingStrategy[] = ['fastest', 'reliable']
+
 export interface RoutingScore {
   modelDbId: number
   reliability: number
@@ -79,6 +85,16 @@ export interface RoutingData {
    *  be tried so they build reliability/speed data (#685 follow-up). Required:
    *  the server always sends it, and the checkbox renders straight from it. */
   exploreEnabled: boolean
+  /** Peak-hours adjustment (#760): opt-in, off by default. `peakAdjusted` says
+   *  whether `weights` above is the raw preset or a peak-hours variant of it —
+   *  the weight summary is labelled from that flag so the numbers never change
+   *  under the operator without an explanation. */
+  peakHoursAdjust: boolean
+  peakStartHour: number
+  peakEndHour: number
+  /** IANA timezone the peak window is read in (default 'UTC'). */
+  peakTimezone: string
+  peakAdjusted: boolean
   scores: (RoutingScore & { platform: string; modelId: string; displayName: string; enabled: boolean })[]
 }
 

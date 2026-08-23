@@ -3,7 +3,9 @@ import {
   BANDIT_PRESETS, combineScore, speedScore, intelligenceScore, intelligenceComposite,
   headroomFactor, rateLimitFactor, sampleBeta, reliabilityPosterior,
   expectedReliability, SPEED_PRIOR, HEADROOM_FLOOR,
-  isPeakHours, timeOfDayWeights, PEAK_START_HOUR, PEAK_END_HOUR, PEAK_SPEED_TO_RELIABILITY,
+  isPeakHours, peakAdjustedWeights, hourInTimezone, isValidPeakHour, isValidTimezone,
+  isPeakExemptStrategy, DEFAULT_PEAK_HOURS, PEAK_SPEED_TO_RELIABILITY,
+  type PeakHoursConfig,
 } from '../../services/scoring.js';
 
 describe('scoring: reliability posterior', () => {
@@ -204,51 +206,117 @@ describe('scoring: Beta sampler (Thompson exploration)', () => {
 });
 
 describe('scoring: time-of-day dynamic ranking (#760)', () => {
-  function at(hour: number, minute = 0): Date {
-    return new Date(2026, 7, 18, hour, minute); // local time, Aug 18
-  }
+  // Every timestamp below is an absolute instant (Z), so the timezone under
+  // test — not the machine running the suite — decides which hour it is.
+  const cfg = (patch: Partial<PeakHoursConfig> = {}): PeakHoursConfig =>
+    ({ ...DEFAULT_PEAK_HOURS, enabled: true, ...patch });
 
-  it('marks peak hours 18:00–06:00 (inclusive start, exclusive end)', () => {
-    expect(isPeakHours(at(PEAK_START_HOUR))).toBe(true);      // 18:00 → peak
-    expect(isPeakHours(at(23, 59))).toBe(true);               // late night → peak
-    expect(isPeakHours(at(0))).toBe(true);                    // midnight → peak
-    expect(isPeakHours(at(5, 59))).toBe(true);                // just before 06:00 → peak
-    expect(isPeakHours(at(PEAK_END_HOUR))).toBe(false);       // 06:00 → off-peak
-    expect(isPeakHours(at(12))).toBe(false);                  // noon → off-peak
-  });
-
-  it('keeps off-peak weights unchanged', () => {
+  it('is off by default', () => {
+    expect(DEFAULT_PEAK_HOURS.enabled).toBe(false);
+    expect(DEFAULT_PEAK_HOURS.startHour).toBe(18);
+    expect(DEFAULT_PEAK_HOURS.endHour).toBe(6);
+    expect(DEFAULT_PEAK_HOURS.timezone).toBe('UTC');
     const base = BANDIT_PRESETS.balanced;
-    expect(timeOfDayWeights(base, at(12))).toEqual(base);
-    expect(timeOfDayWeights(base, at(PEAK_END_HOUR))).toEqual(base);
+    // 20:00 UTC is inside the default window, but the flag is off.
+    const out = peakAdjustedWeights(base, 'balanced', DEFAULT_PEAK_HOURS, new Date('2026-08-18T20:00:00Z'));
+    expect(out.weights).toEqual(base);
+    expect(out.adjusted).toBe(false);
   });
 
-  it('shifts speed→reliability during peak hours, intelligence untouched', () => {
+  it('reads the hour in the configured timezone, not the host clock', () => {
+    const noonUtc = new Date('2026-08-18T12:00:00Z');
+    expect(hourInTimezone(noonUtc, 'UTC')).toBe(12);
+    expect(hourInTimezone(noonUtc, 'Asia/Kolkata')).toBe(17);   // +5:30
+    expect(hourInTimezone(noonUtc, 'America/Los_Angeles')).toBe(5); // -7 (DST)
+    // Midnight must read as 0, never 24 (h23 vs h24 hour cycles).
+    expect(hourInTimezone(new Date('2026-08-18T00:00:00Z'), 'UTC')).toBe(0);
+    // An unknown zone degrades to UTC rather than throwing mid-route.
+    expect(hourInTimezone(noonUtc, 'Mars/Olympus_Mons')).toBe(12);
+  });
+
+  it('marks the window per timezone (spans midnight, end exclusive)', () => {
+    const utc = cfg();
+    expect(isPeakHours(utc, new Date('2026-08-18T18:00:00Z'))).toBe(true);
+    expect(isPeakHours(utc, new Date('2026-08-18T23:59:00Z'))).toBe(true);
+    expect(isPeakHours(utc, new Date('2026-08-18T00:00:00Z'))).toBe(true);
+    expect(isPeakHours(utc, new Date('2026-08-18T05:59:00Z'))).toBe(true);
+    expect(isPeakHours(utc, new Date('2026-08-18T06:00:00Z'))).toBe(false);
+    expect(isPeakHours(utc, new Date('2026-08-18T12:00:00Z'))).toBe(false);
+
+    // Same instant, two zones: 13:00 UTC is 18:30 in Kolkata (peak) and 13:00
+    // in London-summer... which is off-peak. The timezone is what decides.
+    const instant = new Date('2026-08-18T13:00:00Z');
+    expect(isPeakHours(cfg({ timezone: 'Asia/Kolkata' }), instant)).toBe(true);
+    expect(isPeakHours(cfg({ timezone: 'UTC' }), instant)).toBe(false);
+  });
+
+  it('supports a same-day window and treats start === end as empty', () => {
+    const lunch = cfg({ startHour: 9, endHour: 17 });
+    expect(isPeakHours(lunch, new Date('2026-08-18T09:00:00Z'))).toBe(true);
+    expect(isPeakHours(lunch, new Date('2026-08-18T16:59:00Z'))).toBe(true);
+    expect(isPeakHours(lunch, new Date('2026-08-18T17:00:00Z'))).toBe(false);
+    expect(isPeakHours(lunch, new Date('2026-08-18T03:00:00Z'))).toBe(false);
+
+    const empty = cfg({ startHour: 10, endHour: 10 });
+    for (const h of [0, 9, 10, 11, 23]) {
+      expect(isPeakHours(empty, new Date(`2026-08-18T${String(h).padStart(2, '0')}:30:00Z`))).toBe(false);
+    }
+  });
+
+  it('shifts speed→reliability inside the window, intelligence untouched', () => {
     const base = BANDIT_PRESETS.balanced; // { reliability: 0.5, speed: 0.25, intelligence: 0.25 }
-    const peak = timeOfDayWeights(base, at(20));
+    const { weights, adjusted } = peakAdjustedWeights(base, 'balanced', cfg(), new Date('2026-08-18T20:00:00Z'));
     const shift = base.speed * PEAK_SPEED_TO_RELIABILITY;
-    expect(peak.reliability).toBeCloseTo(base.reliability + shift, 5);
-    expect(peak.speed).toBeCloseTo(base.speed - shift, 5);
-    expect(peak.intelligence).toBe(base.intelligence);
-    // Weights still sum to 1.
-    expect(peak.reliability + peak.speed + peak.intelligence).toBeCloseTo(1, 5);
+    expect(adjusted).toBe(true);
+    expect(weights.reliability).toBeCloseTo(base.reliability + shift, 5);
+    expect(weights.speed).toBeCloseTo(base.speed - shift, 5);
+    expect(weights.intelligence).toBe(base.intelligence);
+    expect(weights.reliability + weights.speed + weights.intelligence).toBeCloseTo(1, 5);
   });
 
-  it('never returns a negative speed weight for any preset', () => {
-    for (const preset of Object.values(BANDIT_PRESETS)) {
-      const peak = timeOfDayWeights(preset, at(21));
-      expect(peak.speed).toBeGreaterThanOrEqual(0);
-      expect(peak.reliability + peak.speed + peak.intelligence).toBeCloseTo(1, 5);
+  it('leaves weights alone outside the window', () => {
+    const base = BANDIT_PRESETS.smartest;
+    const out = peakAdjustedWeights(base, 'smartest', cfg(), new Date('2026-08-18T12:00:00Z'));
+    expect(out.weights).toEqual(base);
+    expect(out.adjusted).toBe(false);
+  });
+
+  it('exempts fastest and reliable so no preset turns into another', () => {
+    const inWindow = new Date('2026-08-18T20:00:00Z');
+    for (const strategy of ['fastest', 'reliable'] as const) {
+      expect(isPeakExemptStrategy(strategy)).toBe(true);
+      const out = peakAdjustedWeights(BANDIT_PRESETS[strategy], strategy, cfg(), inWindow);
+      expect(out.weights).toEqual(BANDIT_PRESETS[strategy]);
+      expect(out.adjusted).toBe(false);
+    }
+    for (const strategy of ['balanced', 'smartest'] as const) {
+      expect(isPeakExemptStrategy(strategy)).toBe(false);
+      expect(peakAdjustedWeights(BANDIT_PRESETS[strategy], strategy, cfg(), inWindow).adjusted).toBe(true);
     }
   });
 
-  it('defaults to the current wall-clock time', () => {
-    const now = new Date();
+  it('never pushes an adjusted preset past the reliable preset', () => {
+    const inWindow = new Date('2026-08-18T20:00:00Z');
+    for (const strategy of ['balanced', 'smartest'] as const) {
+      const { weights } = peakAdjustedWeights(BANDIT_PRESETS[strategy], strategy, cfg(), inWindow);
+      expect(weights.speed).toBeGreaterThanOrEqual(0);
+      // The whole point of exempting the extremes: an adjusted mixed preset
+      // must not end up more reliability-heavy than `reliable` itself.
+      expect(weights.reliability).toBeLessThanOrEqual(BANDIT_PRESETS.reliable.reliability);
+      expect(weights.reliability + weights.speed + weights.intelligence).toBeCloseTo(1, 5);
+    }
+  });
+
+  it('rejects out-of-range hours and unknown timezones', () => {
+    for (const h of [0, 6, 18, 23]) expect(isValidPeakHour(h)).toBe(true);
+    for (const h of [-1, 24, 6.5, NaN, '6', null, undefined]) expect(isValidPeakHour(h)).toBe(false);
+    for (const tz of ['UTC', 'Asia/Kolkata', 'America/New_York']) expect(isValidTimezone(tz)).toBe(true);
+    for (const tz of ['', '  ', 'Not/AZone', 'GMT+5', 42, null]) expect(isValidTimezone(tz)).toBe(false);
+  });
+
+  it('ignores a stored config with a corrupt window', () => {
     const base = BANDIT_PRESETS.balanced;
-    if (isPeakHours(now)) {
-      expect(timeOfDayWeights(base)).not.toEqual(base);
-    } else {
-      expect(timeOfDayWeights(base)).toEqual(base);
-    }
+    const bad = { enabled: true, startHour: 99, endHour: 6, timezone: 'UTC' } as PeakHoursConfig;
+    expect(peakAdjustedWeights(base, 'balanced', bad, new Date('2026-08-18T20:00:00Z')).weights).toEqual(base);
   });
 });
