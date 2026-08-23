@@ -635,7 +635,24 @@
     "manualLabel": "Manual connection",
     "manualHint": "Base URL and key to enter in the tool's own settings.",
     "endpoint": "Endpoint",
-    "documentation": "Documentation"
+    "documentation": "Documentation",
+    "descriptions": {
+      "claude": "Anthropic's terminal agent: it plans, edits files, and runs commands in your repo.",
+      "codex": "OpenAI's terminal agent, which runs your task in a local sandbox first.",
+      "cline": "A VS Code extension that asks you to approve every edit and command.",
+      "continue": "A VS Code and JetBrains extension for inline autocomplete and chat while you type.",
+      "aider": "A command-line pair programmer that turns each change into its own git commit.",
+      "opencode": "A provider-agnostic terminal agent with a full-screen text interface.",
+      "goose": "Block's local agent, extended with MCP servers to reach past your code.",
+      "qwen": "A Gemini CLI fork tuned for Qwen models and large repositories.",
+      "roo": "A VS Code extension with switchable modes: architect, coder, debugger.",
+      "kilo": "A VS Code extension merging Roo and Cline, with an orchestrator that splits up work.",
+      "crush": "Charm's terminal agent, written in Go, with one session per project.",
+      "dsh": "DeepSeek's harness, which keeps every provider as a route you can switch between.",
+      "mimo": "Xiaomi's terminal agent, an OpenCode fork that takes any OpenAI-compatible provider.",
+      "cursor": "The AI-first editor; it calls through Cursor's cloud, so it needs a public URL.",
+      "generic": "Anything else that speaks the OpenAI API, set up by hand from a base URL and key."
+    }
   },
   "analytics": {
     "title": "Analytics",

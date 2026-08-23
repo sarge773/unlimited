@@ -991,7 +991,24 @@
     "manualLabel": "Manuelle Verbindung",
     "manualHint": "Basis-URL und Schlüssel für die eigenen Einstellungen des Tools.",
     "endpoint": "Endpunkt",
-    "documentation": "Dokumentation"
+    "documentation": "Dokumentation",
+    "descriptions": {
+      "claude": "Anthropics Terminal-Agent: plant, bearbeitet Dateien und führt Befehle in deinem Repository aus.",
+      "codex": "OpenAIs Terminal-Agent, der deine Aufgabe zuerst in einer lokalen Sandbox ausführt.",
+      "cline": "Eine VS-Code-Erweiterung, die jede Änderung und jeden Befehl von dir freigeben lässt.",
+      "continue": "Eine Erweiterung für VS Code und JetBrains mit Autovervollständigung und Chat beim Tippen.",
+      "aider": "Ein Pair-Programmer für die Kommandozeile, der jede Änderung als eigenen Git-Commit ablegt.",
+      "opencode": "Ein anbieterunabhängiger Terminal-Agent mit Vollbild-Textoberfläche.",
+      "goose": "Blocks lokaler Agent, per MCP-Server über den Code hinaus erweiterbar.",
+      "qwen": "Ein Gemini-CLI-Fork, abgestimmt auf Qwen-Modelle und große Repositories.",
+      "roo": "Eine VS-Code-Erweiterung mit umschaltbaren Modi: Architekt, Coder, Debugger.",
+      "kilo": "Eine VS-Code-Erweiterung, die Roo und Cline vereint und die Arbeit per Orchestrator aufteilt.",
+      "crush": "Charms Terminal-Agent in Go, mit einer Sitzung pro Projekt.",
+      "dsh": "DeepSeeks Harness, das jeden Anbieter als umschaltbare Route führt.",
+      "mimo": "Xiaomis Terminal-Agent, ein OpenCode-Fork für jeden OpenAI-kompatiblen Anbieter.",
+      "cursor": "Der KI-zentrierte Editor; er läuft über Cursors Cloud und braucht daher eine öffentliche URL.",
+      "generic": "Alles andere, was die OpenAI-API spricht — von Hand mit Basis-URL und Schlüssel eingerichtet."
+    }
   },
   "update": {
     "available": "New version available",

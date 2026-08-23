@@ -991,7 +991,24 @@
     "manualLabel": "Koneksi manual",
     "manualHint": "URL dasar dan kunci untuk dimasukkan ke pengaturan alat itu sendiri.",
     "endpoint": "Titik akhir",
-    "documentation": "Dokumentasi"
+    "documentation": "Dokumentasi",
+    "descriptions": {
+      "claude": "Agen terminal dari Anthropic: merencanakan, menyunting berkas, dan menjalankan perintah di repositori Anda.",
+      "codex": "Agen terminal dari OpenAI, yang menjalankan tugas Anda di kotak pasir lokal lebih dulu.",
+      "cline": "Ekstensi VS Code yang meminta persetujuan Anda untuk setiap suntingan dan perintah.",
+      "continue": "Ekstensi VS Code dan JetBrains: pelengkapan otomatis dan obrolan sambil mengetik.",
+      "aider": "Rekan pemrograman di baris perintah yang menjadikan tiap perubahan satu commit git.",
+      "opencode": "Agen terminal yang tidak terikat penyedia, dengan antarmuka teks layar penuh.",
+      "goose": "Agen lokal dari Block, diperluas dengan server MCP untuk menjangkau di luar kode.",
+      "qwen": "Cabang Gemini CLI yang disetel untuk model Qwen dan repositori besar.",
+      "roo": "Ekstensi VS Code dengan mode yang bisa ditukar: arsitek, pemrogram, penelusur galat.",
+      "kilo": "Ekstensi VS Code yang menyatukan Roo dan Cline, dengan orkestrator yang memecah pekerjaan.",
+      "crush": "Agen terminal dari Charm, ditulis dengan Go, satu sesi per proyek.",
+      "dsh": "Kerangka DeepSeek, yang menyimpan tiap penyedia sebagai rute yang bisa Anda ganti.",
+      "mimo": "Agen terminal dari Xiaomi, cabang OpenCode yang menerima penyedia apa pun yang kompatibel dengan OpenAI.",
+      "cursor": "Penyunting yang mengutamakan AI; lewat awan Cursor, jadi perlu URL publik.",
+      "generic": "Perkakas lain mana pun yang berbicara API OpenAI, disiapkan manual dengan URL dasar dan kunci."
+    }
   },
   "update": {
     "available": "New version available",

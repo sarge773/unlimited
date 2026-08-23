@@ -991,7 +991,24 @@
     "manualLabel": "Kết nối thủ công",
     "manualHint": "URL cơ sở và khóa để nhập vào cài đặt của chính công cụ.",
     "endpoint": "Điểm cuối",
-    "documentation": "Tài liệu"
+    "documentation": "Tài liệu",
+    "descriptions": {
+      "claude": "Tác nhân dòng lệnh của Anthropic: lên kế hoạch, sửa tệp và chạy lệnh trong kho mã của bạn.",
+      "codex": "Tác nhân dòng lệnh của OpenAI, chạy thử tác vụ trong hộp cát cục bộ trước.",
+      "cline": "Tiện ích VS Code, hỏi bạn duyệt từng chỉnh sửa và từng lệnh.",
+      "continue": "Tiện ích cho VS Code và JetBrains: gợi ý tự động và trò chuyện ngay khi gõ.",
+      "aider": "Bạn lập trình cặp trên dòng lệnh, biến mỗi thay đổi thành một commit git riêng.",
+      "opencode": "Tác nhân dòng lệnh không phụ thuộc nhà cung cấp, với giao diện văn bản toàn màn hình.",
+      "goose": "Tác nhân cục bộ của Block, mở rộng bằng máy chủ MCP để vượt ra ngoài mã nguồn.",
+      "qwen": "Nhánh của Gemini CLI, tinh chỉnh cho các mô hình Qwen và kho mã lớn.",
+      "roo": "Tiện ích VS Code với các chế độ chuyển đổi: kiến trúc sư, lập trình viên, gỡ lỗi.",
+      "kilo": "Tiện ích VS Code hợp nhất Roo và Cline, có bộ điều phối chia nhỏ công việc.",
+      "crush": "Tác nhân dòng lệnh của Charm, viết bằng Go, mỗi dự án một phiên.",
+      "dsh": "Bộ khung của DeepSeek, giữ mỗi nhà cung cấp thành một tuyến có thể chuyển đổi.",
+      "mimo": "Tác nhân dòng lệnh của Xiaomi, nhánh của OpenCode, nhận mọi nhà cung cấp tương thích OpenAI.",
+      "cursor": "Trình soạn thảo lấy AI làm gốc; đi qua đám mây của Cursor nên cần URL công khai.",
+      "generic": "Mọi công cụ khác nói API OpenAI, thiết lập thủ công bằng URL cơ sở và khóa."
+    }
   },
   "update": {
     "available": "New version available",

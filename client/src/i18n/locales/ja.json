@@ -991,7 +991,24 @@
     "manualLabel": "手動接続",
     "manualHint": "ツール自身の設定に入力するベース URL とキーです。",
     "endpoint": "エンドポイント",
-    "documentation": "ドキュメント"
+    "documentation": "ドキュメント",
+    "descriptions": {
+      "claude": "Anthropic のターミナルエージェント。計画を立て、ファイルを編集し、リポジトリでコマンドを実行します。",
+      "codex": "OpenAI のターミナルエージェント。まずローカルのサンドボックスでタスクを実行します。",
+      "cline": "VS Code 拡張機能。編集とコマンドを一つずつ承認してから実行します。",
+      "continue": "VS Code と JetBrains の拡張機能。入力しながら補完とチャットが使えます。",
+      "aider": "コマンドラインのペアプログラマー。変更ごとに個別の git コミットを作ります。",
+      "opencode": "プロバイダーを選ばないターミナルエージェント。全画面のテキスト画面で動きます。",
+      "goose": "Block のローカルエージェント。MCP サーバーでコードの外まで拡張できます。",
+      "qwen": "Gemini CLI のフォーク。Qwen モデルと大規模リポジトリ向けに調整されています。",
+      "roo": "VS Code 拡張機能。アーキテクト、コーダー、デバッガーとモードを切り替えられます。",
+      "kilo": "Roo と Cline を統合した VS Code 拡張機能。オーケストレーターが作業を分割します。",
+      "crush": "Charm が Go で書いたターミナルエージェント。プロジェクトごとにセッションを持ちます。",
+      "dsh": "DeepSeek のハーネス。各プロバイダーを切り替え可能なルートとして保持します。",
+      "mimo": "Xiaomi のターミナルエージェント。OpenCode のフォークで、OpenAI 互換なら何でも使えます。",
+      "cursor": "AI 前提のエディター。Cursor のクラウド経由なので公開 URL が必要です。",
+      "generic": "OpenAI API を話すその他のツール。ベース URL とキーを手動で設定します。"
+    }
   },
   "update": {
     "available": "New version available",

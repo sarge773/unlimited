@@ -991,7 +991,24 @@
     "manualLabel": "수동 연결",
     "manualHint": "도구 자체 설정에 입력할 기본 URL과 키입니다.",
     "endpoint": "엔드포인트",
-    "documentation": "문서"
+    "documentation": "문서",
+    "descriptions": {
+      "claude": "Anthropic의 터미널 에이전트. 저장소에서 계획을 세우고 파일을 고치고 명령을 실행합니다.",
+      "codex": "OpenAI의 터미널 에이전트. 작업을 먼저 로컬 샌드박스에서 실행합니다.",
+      "cline": "모든 편집과 명령을 하나씩 승인받는 VS Code 확장입니다.",
+      "continue": "VS Code와 JetBrains 확장. 입력하는 동안 자동 완성과 채팅을 제공합니다.",
+      "aider": "명령줄 페어 프로그래머. 변경마다 별도의 git 커밋을 남깁니다.",
+      "opencode": "공급자를 가리지 않는 터미널 에이전트. 전체 화면 텍스트 화면으로 동작합니다.",
+      "goose": "Block의 로컬 에이전트. MCP 서버로 코드 바깥까지 확장할 수 있습니다.",
+      "qwen": "Gemini CLI 포크. Qwen 모델과 대형 저장소에 맞춰 조정되었습니다.",
+      "roo": "아키텍트, 코더, 디버거 등 모드를 바꿔 쓰는 VS Code 확장입니다.",
+      "kilo": "Roo와 Cline을 합친 VS Code 확장. 오케스트레이터가 작업을 나눕니다.",
+      "crush": "Charm이 Go로 만든 터미널 에이전트. 프로젝트마다 세션을 하나씩 둡니다.",
+      "dsh": "DeepSeek의 하네스. 공급자마다 전환 가능한 경로로 보관합니다.",
+      "mimo": "샤오미의 터미널 에이전트. OpenCode 포크로 OpenAI 호환 공급자를 모두 받습니다.",
+      "cursor": "AI 중심 편집기. Cursor 클라우드를 거치므로 공개 URL이 필요합니다.",
+      "generic": "OpenAI API를 쓰는 다른 모든 도구. 기본 URL과 키로 직접 설정합니다."
+    }
   },
   "update": {
     "available": "New version available",

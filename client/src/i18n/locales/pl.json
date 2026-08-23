@@ -991,7 +991,24 @@
     "manualLabel": "Połączenie ręczne",
     "manualHint": "Bazowy adres URL i klucz do wpisania w ustawieniach samego narzędzia.",
     "endpoint": "Punkt końcowy",
-    "documentation": "Dokumentacja"
+    "documentation": "Dokumentacja",
+    "descriptions": {
+      "claude": "Agent terminalowy Anthropic: planuje, edytuje pliki i uruchamia polecenia w twoim repozytorium.",
+      "codex": "Agent terminalowy OpenAI, który najpierw wykonuje zadanie w lokalnej piaskownicy.",
+      "cline": "Rozszerzenie do VS Code, które prosi o zatwierdzenie każdej zmiany i każdego polecenia.",
+      "continue": "Rozszerzenie do VS Code i JetBrains: podpowiedzi i czat w trakcie pisania.",
+      "aider": "Partner do programowania w wierszu poleceń — każda zmiana to osobny commit git.",
+      "opencode": "Agent terminalowy niezależny od dostawcy, z pełnoekranowym interfejsem tekstowym.",
+      "goose": "Lokalny agent od Block, rozszerzalny serwerami MCP poza sam kod.",
+      "qwen": "Fork Gemini CLI dostrojony do modeli Qwen i dużych repozytoriów.",
+      "roo": "Rozszerzenie do VS Code z przełącznymi trybami: architekt, koder, debuger.",
+      "kilo": "Rozszerzenie do VS Code łączące Roo i Cline, z orkiestratorem dzielącym pracę.",
+      "crush": "Agent terminalowy od Charm, napisany w Go, po jednej sesji na projekt.",
+      "dsh": "Uprząż DeepSeeka, w której każdy dostawca to przełączalna trasa.",
+      "mimo": "Agent terminalowy Xiaomi, fork OpenCode przyjmujący dowolnego dostawcę zgodnego z OpenAI.",
+      "cursor": "Edytor pisany pod AI; działa przez chmurę Cursora, więc potrzebuje publicznego adresu URL.",
+      "generic": "Każde inne narzędzie mówiące API OpenAI, ustawiane ręcznie adresem bazowym i kluczem."
+    }
   },
   "update": {
     "available": "New version available",

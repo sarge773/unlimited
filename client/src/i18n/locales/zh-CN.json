@@ -991,7 +991,24 @@
     "manualLabel": "手动连接",
     "manualHint": "在该工具的设置中输入基础 URL 和密钥。",
     "endpoint": "端点",
-    "documentation": "文档"
+    "documentation": "文档",
+    "descriptions": {
+      "claude": "Anthropic 的终端智能体，会在你的仓库里规划、改文件、跑命令。",
+      "codex": "OpenAI 的终端智能体，先在本地沙箱里跑一遍你的任务。",
+      "cline": "VS Code 扩展，每一次改动和命令都要你点头才执行。",
+      "continue": "VS Code 和 JetBrains 扩展，边写边补全，随手就能提问。",
+      "aider": "命令行结对编程工具，每次改动都单独提交一个 git commit。",
+      "opencode": "不挑供应商的终端智能体，带全屏文字界面。",
+      "goose": "Block 出品的本地智能体，可用 MCP 服务器扩展到代码之外。",
+      "qwen": "Gemini CLI 的分支，为 Qwen 模型和大型仓库调校。",
+      "roo": "VS Code 扩展，可在架构师、编码、调试等模式间切换。",
+      "kilo": "VS Code 扩展，融合 Roo 与 Cline，并用编排器把任务拆开。",
+      "crush": "Charm 用 Go 写的终端智能体，每个项目一个会话。",
+      "dsh": "DeepSeek 的框架，把每个供应商都存成可随时切换的线路。",
+      "mimo": "小米的终端智能体，OpenCode 分支，可接任意 OpenAI 兼容供应商。",
+      "cursor": "以 AI 为核心的编辑器，请求走 Cursor 云端，因此需要公网 URL。",
+      "generic": "其他任何说 OpenAI 接口的工具，用基础 URL 和密钥手动配置。"
+    }
   },
   "update": {
     "available": "发现新版本",

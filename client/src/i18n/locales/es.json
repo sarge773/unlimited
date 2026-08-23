@@ -991,7 +991,24 @@
     "manualLabel": "Conexión manual",
     "manualHint": "URL base y clave para introducir en los ajustes de la herramienta.",
     "endpoint": "Endpoint",
-    "documentation": "Documentación"
+    "documentation": "Documentación",
+    "descriptions": {
+      "claude": "El agente de terminal de Anthropic: planifica, edita archivos y ejecuta comandos en tu repositorio.",
+      "codex": "El agente de terminal de OpenAI, que primero ejecuta la tarea en un entorno aislado local.",
+      "cline": "Una extensión de VS Code que te pide aprobar cada edición y cada comando.",
+      "continue": "Una extensión de VS Code y JetBrains con autocompletado en línea y chat mientras escribes.",
+      "aider": "Un compañero de programación en la terminal que convierte cada cambio en su propio commit.",
+      "opencode": "Un agente de terminal independiente del proveedor, con interfaz de texto a pantalla completa.",
+      "goose": "El agente local de Block, ampliable con servidores MCP para ir más allá del código.",
+      "qwen": "Una bifurcación de Gemini CLI ajustada a los modelos Qwen y a repositorios grandes.",
+      "roo": "Una extensión de VS Code con modos intercambiables: arquitecto, programador, depurador.",
+      "kilo": "Una extensión de VS Code que fusiona Roo y Cline, con un orquestador que reparte el trabajo.",
+      "crush": "El agente de terminal de Charm, escrito en Go, con una sesión por proyecto.",
+      "dsh": "El arnés de DeepSeek, que guarda cada proveedor como una ruta entre las que puedes cambiar.",
+      "mimo": "El agente de terminal de Xiaomi, una bifurcación de OpenCode que acepta cualquier proveedor compatible con OpenAI.",
+      "cursor": "El editor centrado en la IA; pasa por la nube de Cursor, así que necesita una URL pública.",
+      "generic": "Cualquier otra herramienta que hable la API de OpenAI, configurada a mano con la URL base y la clave."
+    }
   },
   "update": {
     "available": "New version available",
