@@ -14,7 +14,9 @@
     "switchToChinese": "Skift til kinesisk",
     "switchToEnglish": "Skift til engelsk",
     "modelsMenu": "Gennemse modeltyper",
-    "agents": "Agenter"
+    "agents": "Agenter",
+    "logs": "Log",
+    "analyticsMenu": "Analysesider"
   },
   "auth": {
     "createYourAccount": "Opret din konto",
@@ -635,6 +637,32 @@
     "requestedModel": "Efterspurgt model",
     "ttft": "TTFT",
     "requestsByAgent": "Anmodninger pr. agent"
+  },
+  "logs": {
+    "title": "Log",
+    "description": "Live serverlog. Nye poster strømmer ind, mens siden er åben.",
+    "pause": "Sæt på pause",
+    "resume": "Fortsæt",
+    "clear": "Ryd loggen",
+    "cleared": "Serverloggen er ryddet",
+    "levelFilter": "Logniveauer",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Advarsel",
+      "error": "Fejl"
+    },
+    "countsHint": "Tallene dækker hele logbufferen på serveren, ikke kun de poster, der matcher disse filtre.",
+    "searchPlaceholder": "Søg i logbeskeder…",
+    "jumpToLatest": "Gå til nyeste",
+    "showMore": "Vis mere",
+    "showLess": "Vis mindre",
+    "buffered": "Viser {count} af op til {max} poster i bufferen",
+    "emptyTitle": "Ingen logposter endnu",
+    "emptyDescription": "Poster vises her, efterhånden som serveren skriver dem. Udvid filtrene for niveau, udbyder eller søgning, hvis du forventede output.",
+    "noLevelsTitle": "Ingen niveauer valgt",
+    "noLevelsDescription": "Slå mindst ét niveau til for at se logoutput.",
+    "loadFailed": "Kunne ikke indlæse serverloggen."
   },
   "playground": {
     "title": "Legeplads",

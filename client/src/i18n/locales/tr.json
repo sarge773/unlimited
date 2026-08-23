@@ -14,7 +14,9 @@
     "switchToChinese": "Çinceye geç",
     "switchToEnglish": "İngilizceye geç",
     "modelsMenu": "Model türlerine göz atın",
-    "agents": "Ajanlar"
+    "agents": "Ajanlar",
+    "logs": "Günlükler",
+    "analyticsMenu": "Analitik sayfaları"
   },
   "auth": {
     "createYourAccount": "Hesabınızı oluşturun",
@@ -635,6 +637,32 @@
     "requestedModel": "İstenilen model",
     "ttft": "TTFT",
     "requestsByAgent": "Ajan başına istekler"
+  },
+  "logs": {
+    "title": "Günlükler",
+    "description": "Canlı sunucu günlüğü. Sayfa açıkken yeni kayıtlar akmaya devam eder.",
+    "pause": "Duraklat",
+    "resume": "Sürdür",
+    "clear": "Günlükleri temizle",
+    "cleared": "Sunucu günlüğü temizlendi",
+    "levelFilter": "Günlük düzeyleri",
+    "levels": {
+      "debug": "Hata ayıklama",
+      "info": "Bilgi",
+      "warn": "Uyarı",
+      "error": "Hata"
+    },
+    "countsHint": "Sayılar yalnızca bu filtrelere uyan kayıtları değil, sunucudaki günlük arabelleğinin tamamını kapsar.",
+    "searchPlaceholder": "Günlük mesajlarında ara…",
+    "jumpToLatest": "En sona git",
+    "showMore": "Daha fazla göster",
+    "showLess": "Daha az göster",
+    "buffered": "Arabellekteki en fazla {max} kayıttan {count} tanesi gösteriliyor",
+    "emptyTitle": "Henüz günlük kaydı yok",
+    "emptyDescription": "Sunucu kayıtları yazdıkça burada görünür. Çıktı bekliyorsanız düzey, sağlayıcı veya arama filtrelerini genişletin.",
+    "noLevelsTitle": "Düzey seçilmedi",
+    "noLevelsDescription": "Günlük çıktısını görmek için en az bir düzeyi açın.",
+    "loadFailed": "Sunucu günlüğü yüklenemedi."
   },
   "playground": {
     "title": "Bahçesi",

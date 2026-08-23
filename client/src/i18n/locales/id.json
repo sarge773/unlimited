@@ -14,7 +14,9 @@
     "switchToChinese": "Beralih ke bahasa Cina",
     "switchToEnglish": "Beralih ke bahasa Inggris",
     "modelsMenu": "Telusuri jenis model",
-    "agents": "Agen"
+    "agents": "Agen",
+    "logs": "Log",
+    "analyticsMenu": "Halaman analisis"
   },
   "auth": {
     "createYourAccount": "Buat akun Anda",
@@ -635,6 +637,32 @@
     "requestedModel": "Model yang diminta",
     "ttft": "TTFT",
     "requestsByAgent": "Permintaan per agen"
+  },
+  "logs": {
+    "title": "Log",
+    "description": "Log server langsung. Entri baru terus masuk selama halaman ini terbuka.",
+    "pause": "Jeda",
+    "resume": "Lanjutkan",
+    "clear": "Bersihkan log",
+    "cleared": "Log server dibersihkan",
+    "levelFilter": "Level log",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Peringatan",
+      "error": "Kesalahan"
+    },
+    "countsHint": "Jumlah ini adalah total untuk seluruh buffer log di server, bukan hanya entri yang cocok dengan filter ini.",
+    "searchPlaceholder": "Cari pesan log…",
+    "jumpToLatest": "Ke entri terbaru",
+    "showMore": "Tampilkan lebih banyak",
+    "showLess": "Tampilkan lebih sedikit",
+    "buffered": "Menampilkan {count} dari maksimal {max} entri di buffer",
+    "emptyTitle": "Belum ada entri log",
+    "emptyDescription": "Entri muncul di sini saat server menuliskannya. Perlebar filter level, penyedia, atau pencarian jika Anda mengharapkan ada keluaran.",
+    "noLevelsTitle": "Tidak ada level yang dipilih",
+    "noLevelsDescription": "Aktifkan setidaknya satu level untuk melihat keluaran log.",
+    "loadFailed": "Tidak dapat memuat log server."
   },
   "playground": {
     "title": "Taman bermain",

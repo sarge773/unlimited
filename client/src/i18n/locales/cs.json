@@ -14,7 +14,9 @@
     "switchToChinese": "Přechod na čínštinu",
     "switchToEnglish": "Přechod na angličtinu",
     "modelsMenu": "Procházet typy modelů",
-    "agents": "Agenti"
+    "agents": "Agenti",
+    "logs": "Logy",
+    "analyticsMenu": "Stránky analytiky"
   },
   "auth": {
     "createYourAccount": "Vytvořte si účet",
@@ -635,6 +637,32 @@
     "requestedModel": "Požadovaný model",
     "ttft": "TTFT",
     "requestsByAgent": "Požadavky podle agenta"
+  },
+  "logs": {
+    "title": "Logy",
+    "description": "Živý log serveru. Nové záznamy přibývají, dokud je stránka otevřená.",
+    "pause": "Pozastavit",
+    "resume": "Pokračovat",
+    "clear": "Vymazat logy",
+    "cleared": "Log serveru vymazán",
+    "levelFilter": "Úrovně logování",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Varování",
+      "error": "Chyba"
+    },
+    "countsHint": "Počty se vztahují k celé vyrovnávací paměti logu na serveru, ne jen k záznamům odpovídajícím těmto filtrům.",
+    "searchPlaceholder": "Hledat ve zprávách logu…",
+    "jumpToLatest": "Přejít na nejnovější",
+    "showMore": "Zobrazit více",
+    "showLess": "Zobrazit méně",
+    "buffered": "Zobrazeno {count} z maximálně {max} uložených záznamů",
+    "emptyTitle": "Zatím žádné záznamy v logu",
+    "emptyDescription": "Záznamy se zde objeví, jakmile je server zapíše. Pokud jste čekali výstup, rozšiřte filtry úrovně, poskytovatele nebo hledání.",
+    "noLevelsTitle": "Není vybrána žádná úroveň",
+    "noLevelsDescription": "Zapněte alespoň jednu úroveň, abyste viděli výstup logu.",
+    "loadFailed": "Log serveru se nepodařilo načíst."
   },
   "playground": {
     "title": "Hřiště",

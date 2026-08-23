@@ -14,7 +14,9 @@
     "switchToChinese": "Banye na Chinese",
     "switchToEnglish": "Banye na bekee",
     "modelsMenu": "Chọgharịa ụdị nlereanya",
-    "agents": "Ndị ejenti"
+    "agents": "Ndị ejenti",
+    "logs": "Ndekọ",
+    "analyticsMenu": "Ibe nchịkọta"
   },
   "auth": {
     "createYourAccount": "Mepụta akaụntụ gị",
@@ -635,6 +637,32 @@
     "requestedModel": "Ihe nlereanya achọrọ",
     "ttft": "TTFT",
     "requestsByAgent": "Arịrịọ site na ejenti"
+  },
+  "logs": {
+    "title": "Ndekọ",
+    "description": "Ndekọ sava dị ndụ. Ihe ndekọ ọhụrụ na-abata mgbe ibe a mepere emepe.",
+    "pause": "Kwụsịtụ",
+    "resume": "Gaa n'ihu",
+    "clear": "Kpochapụ ndekọ",
+    "cleared": "Ekpochapụla ndekọ sava",
+    "levelFilter": "Ọkwa ndekọ",
+    "levels": {
+      "debug": "Debug",
+      "info": "Ozi",
+      "warn": "Ịdọ aka ntị",
+      "error": "Njehie"
+    },
+    "countsHint": "Ọnụọgụgụ ndị a bụ ngụkọta nke ebe nchekwa ndekọ dum dị na sava, ọ bụghị naanị ihe ndekọ dabara na nzacha ndị a.",
+    "searchPlaceholder": "Chọọ ozi ndekọ…",
+    "jumpToLatest": "Wụga na nke ọhụrụ",
+    "showMore": "Gosi ihe ọzọ",
+    "showLess": "Gosi obere",
+    "buffered": "Na-egosi {count} n'ime ihe ndekọ {max} echekwara",
+    "emptyTitle": "Enweghị ihe ndekọ ruo ugbu a",
+    "emptyDescription": "Ihe ndekọ na-apụta ebe a ka sava na-ede ha. Gbasaa nzacha ọkwa, onye na-eweta ma ọ bụ ọchụchọ ma ọ bụrụ na ị tụrụ anya nsonaazụ.",
+    "noLevelsTitle": "Ahọrọghị ọkwa ọ bụla",
+    "noLevelsDescription": "Gbanye ma ọ dịkarịa ala otu ọkwa ka ị hụ ihe ndekọ.",
+    "loadFailed": "Enweghị ike ibugo ndekọ sava."
   },
   "playground": {
     "title": "Ebe egwuregwu",

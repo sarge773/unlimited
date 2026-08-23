@@ -14,7 +14,9 @@
     "switchToChinese": "Canja zuwa Sinanci",
     "switchToEnglish": "Canja zuwa Turanci",
     "modelsMenu": "Bincika nau'ikan samfuri",
-    "agents": "Wakilai"
+    "agents": "Wakilai",
+    "logs": "Logs",
+    "analyticsMenu": "Shafukan bincike"
   },
   "auth": {
     "createYourAccount": "Ƙirƙiri asusun ku",
@@ -635,6 +637,32 @@
     "requestedModel": "Samfurin da ake nema",
     "ttft": "Saukewa: TTFT",
     "requestsByAgent": "Bukatu ta kowane wakili"
+  },
+  "logs": {
+    "title": "Logs",
+    "description": "Log ɗin uwar garke kai tsaye. Sabbin shigarwa suna zuwa yayin da shafin yake a buɗe.",
+    "pause": "Dakatar",
+    "resume": "Ci gaba",
+    "clear": "Share logs",
+    "cleared": "An share log ɗin uwar garke",
+    "levelFilter": "Matakan log",
+    "levels": {
+      "debug": "Debug",
+      "info": "Bayani",
+      "warn": "Gargaɗi",
+      "error": "Kuskure"
+    },
+    "countsHint": "Ƙidayar ita ce jimillar duk ma'ajin log ɗin da ke kan uwar garke, ba kawai shigarwar da ta dace da waɗannan matatun ba.",
+    "searchPlaceholder": "Bincika saƙonnin log…",
+    "jumpToLatest": "Tsallaka zuwa na baya-bayan nan",
+    "showMore": "Nuna ƙari",
+    "showLess": "Nuna ƙasa",
+    "buffered": "Ana nuna {count} daga cikin shigarwa {max} da aka ajiye a ma'aji",
+    "emptyTitle": "Babu shigarwar log tukuna",
+    "emptyDescription": "Shigarwa na bayyana nan yayin da uwar garken ke rubuta su. Faɗaɗa matatun mataki, mai samarwa ko bincike idan kana tsammanin fitarwa.",
+    "noLevelsTitle": "Ba a zaɓi kowane mataki ba",
+    "noLevelsDescription": "Kunna aƙalla mataki ɗaya don ganin fitarwar log.",
+    "loadFailed": "An kasa loda log ɗin uwar garke."
   },
   "playground": {
     "title": "filin wasa",

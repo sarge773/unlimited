@@ -14,7 +14,9 @@
     "switchToChinese": "Wechseln Sie zu Chinesisch",
     "switchToEnglish": "Wechseln Sie zu Englisch",
     "modelsMenu": "Durchsuchen Sie Modelltypen",
-    "agents": "Agenten"
+    "agents": "Agenten",
+    "logs": "Protokoll",
+    "analyticsMenu": "Analytik-Seiten"
   },
   "auth": {
     "createYourAccount": "Erstellen Sie Ihr Konto",
@@ -635,6 +637,32 @@
     "requestedModel": "Angefragtes Modell",
     "ttft": "TTFT",
     "requestsByAgent": "Anfragen nach Agent"
+  },
+  "logs": {
+    "title": "Protokoll",
+    "description": "Live-Serverprotokoll. Neue Einträge kommen laufend hinzu, solange die Seite geöffnet ist.",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "clear": "Protokoll leeren",
+    "cleared": "Serverprotokoll geleert",
+    "levelFilter": "Protokollebenen",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Warnung",
+      "error": "Fehler"
+    },
+    "countsHint": "Die Zahlen beziehen sich auf den gesamten Protokollpuffer auf dem Server, nicht nur auf die Einträge, die diesen Filtern entsprechen.",
+    "searchPlaceholder": "Protokollmeldungen durchsuchen…",
+    "jumpToLatest": "Zu den neuesten springen",
+    "showMore": "Mehr anzeigen",
+    "showLess": "Weniger anzeigen",
+    "buffered": "{count} von bis zu {max} gepufferten Einträgen werden angezeigt",
+    "emptyTitle": "Noch keine Protokolleinträge",
+    "emptyDescription": "Einträge erscheinen hier, sobald der Server sie schreibt. Erweitern Sie die Filter für Ebene, Anbieter oder Suche, wenn Sie eine Ausgabe erwartet haben.",
+    "noLevelsTitle": "Keine Ebene ausgewählt",
+    "noLevelsDescription": "Schalten Sie mindestens eine Ebene ein, um die Protokollausgabe zu sehen.",
+    "loadFailed": "Das Serverprotokoll konnte nicht geladen werden."
   },
   "playground": {
     "title": "Spielplatz",

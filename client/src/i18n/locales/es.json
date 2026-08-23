@@ -14,7 +14,9 @@
     "switchToChinese": "Cambiar a chino",
     "switchToEnglish": "Cambiar a inglés",
     "modelsMenu": "Explorar tipos de modelos",
-    "agents": "Agentes"
+    "agents": "Agentes",
+    "logs": "Registros",
+    "analyticsMenu": "Páginas de analíticas"
   },
   "auth": {
     "createYourAccount": "Crea tu cuenta",
@@ -635,6 +637,32 @@
     "requestedModel": "Modelo solicitado",
     "ttft": "TTFT",
     "requestsByAgent": "Solicitudes por agente"
+  },
+  "logs": {
+    "title": "Registros",
+    "description": "Registro del servidor en vivo. Las entradas nuevas van llegando mientras la página está abierta.",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "clear": "Borrar registros",
+    "cleared": "Registro del servidor borrado",
+    "levelFilter": "Niveles de registro",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Aviso",
+      "error": "Error"
+    },
+    "countsHint": "Los recuentos corresponden a todo el búfer de registro del servidor, no solo a las entradas que coinciden con estos filtros.",
+    "searchPlaceholder": "Buscar en los mensajes del registro…",
+    "jumpToLatest": "Ir a lo más reciente",
+    "showMore": "Mostrar más",
+    "showLess": "Mostrar menos",
+    "buffered": "Mostrando {count} de hasta {max} entradas en el búfer",
+    "emptyTitle": "Aún no hay entradas de registro",
+    "emptyDescription": "Las entradas aparecen aquí a medida que el servidor las escribe. Amplía los filtros de nivel, proveedor o búsqueda si esperabas ver algo.",
+    "noLevelsTitle": "Ningún nivel seleccionado",
+    "noLevelsDescription": "Activa al menos un nivel para ver el registro.",
+    "loadFailed": "No se pudo cargar el registro del servidor."
   },
   "playground": {
     "title": "Entorno de pruebas",

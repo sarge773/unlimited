@@ -14,7 +14,9 @@
     "switchToChinese": "ወደ ቻይንኛ ቀይር",
     "switchToEnglish": "ወደ እንግሊዝኛ ቀይር",
     "modelsMenu": "የሞዴል አይነቶችን ያስሱ",
-    "agents": "ወኪሎች"
+    "agents": "ወኪሎች",
+    "logs": "መዝገቦች",
+    "analyticsMenu": "የአፈጻጸም ገጾች"
   },
   "auth": {
     "createYourAccount": "መለያዎን ይፍጠሩ",
@@ -635,6 +637,32 @@
     "requestedModel": "የተጠየቀው ሞዴል",
     "ttft": "TTFT",
     "requestsByAgent": "ጥያቄዎች በወኪል"
+  },
+  "logs": {
+    "title": "መዝገቦች",
+    "description": "የቀጥታ የአገልጋይ መዝገብ። ገጹ ክፍት ሆኖ ሳለ አዲስ ግቤቶች እየገቡ ይሄዳሉ።",
+    "pause": "አቁም",
+    "resume": "ቀጥል",
+    "clear": "መዝገቦችን አጽዳ",
+    "cleared": "የአገልጋይ መዝገብ ጸድቷል",
+    "levelFilter": "የመዝገብ ደረጃዎች",
+    "levels": {
+      "debug": "ማረሚያ",
+      "info": "መረጃ",
+      "warn": "ማስጠንቀቂያ",
+      "error": "ስህተት"
+    },
+    "countsHint": "ቁጥሮቹ በአገልጋዩ ላይ ላለው ሙሉ የመዝገብ ማጠራቀሚያ ጠቅላላ ናቸው፣ ከእነዚህ ማጣሪያዎች ጋር የሚዛመዱ ግቤቶች ብቻ አይደሉም።",
+    "searchPlaceholder": "የመዝገብ መልዕክቶችን ይፈልጉ...",
+    "jumpToLatest": "ወደ የቅርብ ጊዜው ዝለል",
+    "showMore": "ተጨማሪ አሳይ",
+    "showLess": "ያነሰ አሳይ",
+    "buffered": "ከተከማቹ እስከ {max} ግቤቶች ውስጥ {count} በማሳየት ላይ",
+    "emptyTitle": "እስካሁን ምንም የመዝገብ ግቤቶች የሉም",
+    "emptyDescription": "አገልጋዩ ሲጽፋቸው ግቤቶች እዚህ ይታያሉ። ውጤት የጠበቁ ከሆነ የደረጃ፣ የአቅራቢ ወይም የፍለጋ ማጣሪያዎችን ያስፉ።",
+    "noLevelsTitle": "ምንም ደረጃ አልተመረጠም",
+    "noLevelsDescription": "የመዝገብ ውጤትን ለማየት ቢያንስ አንድ ደረጃ ያብሩ።",
+    "loadFailed": "የአገልጋዩን መዝገብ መጫን አልተቻለም።"
   },
   "playground": {
     "title": "የመጫወቻ ሜዳ",

@@ -14,7 +14,9 @@
     "switchDark": "Switch to dark theme",
     "switchToChinese": "Switch to Chinese",
     "switchToEnglish": "Switch to English",
-    "modelsMenu": "Browse model types"
+    "modelsMenu": "Browse model types",
+    "logs": "Logs",
+    "analyticsMenu": "Analytics pages"
   },
   "auth": {
     "createYourAccount": "Create your account",
@@ -651,6 +653,32 @@
     "attemptTimingHint": "Start offset from request start · attempt duration",
     "requestedModel": "Requested model",
     "ttft": "TTFT"
+  },
+  "logs": {
+    "title": "Logs",
+    "description": "Live server log. New entries stream in while the page is open.",
+    "pause": "Pause",
+    "resume": "Resume",
+    "clear": "Clear logs",
+    "cleared": "Server log cleared",
+    "levelFilter": "Log levels",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Warn",
+      "error": "Error"
+    },
+    "countsHint": "Counts are totals for the whole log buffer on the server, not just the entries matching these filters.",
+    "searchPlaceholder": "Search log messages…",
+    "jumpToLatest": "Jump to latest",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "buffered": "Showing {count} of up to {max} buffered entries",
+    "emptyTitle": "No log entries yet",
+    "emptyDescription": "Entries appear here as the server writes them. Widen the level, provider or search filters if you expected output.",
+    "noLevelsTitle": "No levels selected",
+    "noLevelsDescription": "Turn on at least one level to see log output.",
+    "loadFailed": "Couldn't load the server log."
   },
   "playground": {
     "title": "Playground",

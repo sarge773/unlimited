@@ -14,7 +14,9 @@
     "switchToChinese": "Overgang til kinesisk",
     "switchToEnglish": "Bytte til engelsk",
     "modelsMenu": "Bla gjennom modelltyper",
-    "agents": "Agenter"
+    "agents": "Agenter",
+    "logs": "Logg",
+    "analyticsMenu": "Analysesider"
   },
   "auth": {
     "createYourAccount": "Opprett kontoen din",
@@ -635,6 +637,32 @@
     "requestedModel": "Etterspurt modell",
     "ttft": "TTFT",
     "requestsByAgent": "Forespørsler per agent"
+  },
+  "logs": {
+    "title": "Logg",
+    "description": "Live serverlogg. Nye oppføringer kommer inn mens siden er åpen.",
+    "pause": "Sett på pause",
+    "resume": "Fortsett",
+    "clear": "Tøm loggen",
+    "cleared": "Serverloggen er tømt",
+    "levelFilter": "Loggnivåer",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Advarsel",
+      "error": "Feil"
+    },
+    "countsHint": "Tallene gjelder hele loggbufferen på serveren, ikke bare oppføringene som treffer disse filtrene.",
+    "searchPlaceholder": "Søk i loggmeldinger…",
+    "jumpToLatest": "Gå til nyeste",
+    "showMore": "Vis mer",
+    "showLess": "Vis mindre",
+    "buffered": "Viser {count} av opptil {max} bufrede oppføringer",
+    "emptyTitle": "Ingen loggoppføringer ennå",
+    "emptyDescription": "Oppføringer vises her etter hvert som serveren skriver dem. Utvid filtrene for nivå, leverandør eller søk hvis du ventet utdata.",
+    "noLevelsTitle": "Ingen nivåer valgt",
+    "noLevelsDescription": "Slå på minst ett nivå for å se loggutdata.",
+    "loadFailed": "Kunne ikke laste inn serverloggen."
   },
   "playground": {
     "title": "Lekeplass",

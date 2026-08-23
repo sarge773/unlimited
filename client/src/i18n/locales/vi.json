@@ -14,7 +14,9 @@
     "switchToChinese": "Chuyển sang tiếng Trung",
     "switchToEnglish": "Chuyển sang tiếng Anh",
     "modelsMenu": "Duyệt các loại mô hình",
-    "agents": "Tác nhân"
+    "agents": "Tác nhân",
+    "logs": "Nhật ký",
+    "analyticsMenu": "Trang phân tích"
   },
   "auth": {
     "createYourAccount": "Tạo tài khoản của bạn",
@@ -635,6 +637,32 @@
     "requestedModel": "Mô hình được yêu cầu",
     "ttft": "TTFT",
     "requestsByAgent": "Yêu cầu theo tác nhân"
+  },
+  "logs": {
+    "title": "Nhật ký",
+    "description": "Nhật ký máy chủ trực tiếp. Mục mới sẽ hiện dần khi trang đang mở.",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "clear": "Xóa nhật ký",
+    "cleared": "Đã xóa nhật ký máy chủ",
+    "levelFilter": "Mức nhật ký",
+    "levels": {
+      "debug": "Gỡ lỗi",
+      "info": "Thông tin",
+      "warn": "Cảnh báo",
+      "error": "Lỗi"
+    },
+    "countsHint": "Số đếm là tổng của toàn bộ vùng đệm nhật ký trên máy chủ, không chỉ các mục khớp với những bộ lọc này.",
+    "searchPlaceholder": "Tìm trong nội dung nhật ký…",
+    "jumpToLatest": "Đến mục mới nhất",
+    "showMore": "Xem thêm",
+    "showLess": "Thu gọn",
+    "buffered": "Đang hiển thị {count} trong tối đa {max} mục được lưu đệm",
+    "emptyTitle": "Chưa có mục nhật ký nào",
+    "emptyDescription": "Các mục sẽ xuất hiện ở đây khi máy chủ ghi nhật ký. Hãy nới rộng bộ lọc mức, nhà cung cấp hoặc tìm kiếm nếu bạn mong có kết quả.",
+    "noLevelsTitle": "Chưa chọn mức nào",
+    "noLevelsDescription": "Bật ít nhất một mức để xem nội dung nhật ký.",
+    "loadFailed": "Không thể tải nhật ký máy chủ."
   },
   "playground": {
     "title": "Sân chơi",

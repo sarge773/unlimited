@@ -14,7 +14,9 @@
     "switchToChinese": "切換為中文",
     "switchToEnglish": "切換為英文",
     "modelsMenu": "瀏覽模型類型",
-    "agents": "代理程式"
+    "agents": "代理程式",
+    "logs": "日誌",
+    "analyticsMenu": "分析頁面"
   },
   "auth": {
     "createYourAccount": "建立您的帳號",
@@ -635,6 +637,32 @@
     "requestedModel": "請求的模型",
     "ttft": "首字延遲",
     "requestsByAgent": "按代理程式統計的請求"
+  },
+  "logs": {
+    "title": "日誌",
+    "description": "即時伺服器日誌。頁面開啟期間會持續接收新項目。",
+    "pause": "暫停",
+    "resume": "繼續",
+    "clear": "清空日誌",
+    "cleared": "伺服器日誌已清空",
+    "levelFilter": "日誌等級",
+    "levels": {
+      "debug": "偵錯",
+      "info": "資訊",
+      "warn": "警告",
+      "error": "錯誤"
+    },
+    "countsHint": "計數為伺服器上整個日誌緩衝區的總數，並非僅統計符合目前篩選條件的項目。",
+    "searchPlaceholder": "搜尋日誌內容…",
+    "jumpToLatest": "跳至最新",
+    "showMore": "展開",
+    "showLess": "收起",
+    "buffered": "已顯示 {count} 筆，緩衝區最多 {max} 筆",
+    "emptyTitle": "尚無日誌項目",
+    "emptyDescription": "伺服器寫入日誌時，項目會顯示在這裡。若預期會有輸出，請放寬等級、提供者或搜尋篩選條件。",
+    "noLevelsTitle": "未選擇等級",
+    "noLevelsDescription": "至少開啟一個等級才能看到日誌輸出。",
+    "loadFailed": "無法載入伺服器日誌。"
   },
   "playground": {
     "title": "遊樂場",

@@ -14,7 +14,9 @@
     "switchToChinese": "Xitoy tiliga o'tish",
     "switchToEnglish": "Ingliz tiliga o'tish",
     "modelsMenu": "Model turlarini ko'rib chiqing",
-    "agents": "Agentlar"
+    "agents": "Agentlar",
+    "logs": "Jurnal",
+    "analyticsMenu": "Analitika sahifalari"
   },
   "auth": {
     "createYourAccount": "Hisob qaydnomangizni yarating",
@@ -635,6 +637,32 @@
     "requestedModel": "So'ralgan model",
     "ttft": "TTFT",
     "requestsByAgent": "Agent bo'yicha so'rovlar"
+  },
+  "logs": {
+    "title": "Jurnal",
+    "description": "Serverning jonli jurnali. Sahifa ochiq turganda yangi yozuvlar kelib turadi.",
+    "pause": "Pauza",
+    "resume": "Davom ettirish",
+    "clear": "Jurnalni tozalash",
+    "cleared": "Server jurnali tozalandi",
+    "levelFilter": "Jurnal darajalari",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Ogohlantirish",
+      "error": "Xato"
+    },
+    "countsHint": "Sanoqlar serverdagi butun jurnal buferi boʻyicha umumiy hisoblanadi, faqat ushbu filtrlarga mos yozuvlar boʻyicha emas.",
+    "searchPlaceholder": "Jurnal xabarlarini qidirish…",
+    "jumpToLatest": "Eng soʻnggilariga oʻtish",
+    "showMore": "Koʻproq koʻrsatish",
+    "showLess": "Kamroq koʻrsatish",
+    "buffered": "Buferdagi koʻpi bilan {max} yozuvdan {count} tasi koʻrsatilmoqda",
+    "emptyTitle": "Hozircha jurnal yozuvlari yoʻq",
+    "emptyDescription": "Server yozuvlarni yozgani sari ular shu yerda paydo boʻladi. Natija kutgan boʻlsangiz, daraja, provayder yoki qidiruv filtrlarini kengaytiring.",
+    "noLevelsTitle": "Daraja tanlanmagan",
+    "noLevelsDescription": "Jurnal chiqishini koʻrish uchun kamida bitta darajani yoqing.",
+    "loadFailed": "Server jurnalini yuklab boʻlmadi."
   },
   "playground": {
     "title": "O'yin maydonchasi",

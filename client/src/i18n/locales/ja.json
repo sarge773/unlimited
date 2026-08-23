@@ -14,7 +14,9 @@
     "switchToChinese": "中国語に切り替える",
     "switchToEnglish": "英語に切り替える",
     "modelsMenu": "モデルタイプを参照する",
-    "agents": "エージェント"
+    "agents": "エージェント",
+    "logs": "ログ",
+    "analyticsMenu": "分析ページ"
   },
   "auth": {
     "createYourAccount": "アカウントを作成する",
@@ -635,6 +637,32 @@
     "requestedModel": "要求されたモデル",
     "ttft": "TTFT",
     "requestsByAgent": "エージェント別リクエスト"
+  },
+  "logs": {
+    "title": "ログ",
+    "description": "サーバーのライブログです。ページを開いている間、新しいエントリが順次流れてきます。",
+    "pause": "一時停止",
+    "resume": "再開",
+    "clear": "ログを消去",
+    "cleared": "サーバーログを消去しました",
+    "levelFilter": "ログレベル",
+    "levels": {
+      "debug": "デバッグ",
+      "info": "情報",
+      "warn": "警告",
+      "error": "エラー"
+    },
+    "countsHint": "件数はサーバー上のログバッファ全体の合計であり、これらのフィルターに一致するエントリだけの数ではありません。",
+    "searchPlaceholder": "ログメッセージを検索…",
+    "jumpToLatest": "最新へ移動",
+    "showMore": "さらに表示",
+    "showLess": "表示を少なくする",
+    "buffered": "バッファ内の最大 {max} 件のうち {count} 件を表示中",
+    "emptyTitle": "ログエントリはまだありません",
+    "emptyDescription": "サーバーが書き込むと、ここにエントリが表示されます。出力があるはずの場合は、レベル・プロバイダー・検索のフィルターを広げてください。",
+    "noLevelsTitle": "レベルが選択されていません",
+    "noLevelsDescription": "ログ出力を表示するには、レベルを 1 つ以上オンにしてください。",
+    "loadFailed": "サーバーログを読み込めませんでした。"
   },
   "playground": {
     "title": "遊び場",

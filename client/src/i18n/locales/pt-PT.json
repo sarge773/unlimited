@@ -14,7 +14,9 @@
     "switchToChinese": "Mudança para o chinês",
     "switchToEnglish": "Mudança para inglês",
     "modelsMenu": "Navegar pelos tipos de modelos",
-    "agents": "Agentes"
+    "agents": "Agentes",
+    "logs": "Registos",
+    "analyticsMenu": "Páginas de análise"
   },
   "auth": {
     "createYourAccount": "Crie a sua conta",
@@ -635,6 +637,32 @@
     "requestedModel": "Modelo solicitado",
     "ttft": "TTFT",
     "requestsByAgent": "Pedidos por agente"
+  },
+  "logs": {
+    "title": "Registos",
+    "description": "Registo do servidor em direto. As novas entradas vão surgindo enquanto a página estiver aberta.",
+    "pause": "Pausar",
+    "resume": "Retomar",
+    "clear": "Limpar registos",
+    "cleared": "Registo do servidor limpo",
+    "levelFilter": "Níveis de registo",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Aviso",
+      "error": "Erro"
+    },
+    "countsHint": "As contagens referem-se a todo o buffer de registo no servidor, não apenas às entradas que correspondem a estes filtros.",
+    "searchPlaceholder": "Pesquisar mensagens do registo…",
+    "jumpToLatest": "Ir para as mais recentes",
+    "showMore": "Mostrar mais",
+    "showLess": "Mostrar menos",
+    "buffered": "A mostrar {count} de até {max} entradas em buffer",
+    "emptyTitle": "Ainda sem entradas de registo",
+    "emptyDescription": "As entradas aparecem aqui à medida que o servidor as escreve. Alargue os filtros de nível, fornecedor ou pesquisa se esperava ver resultados.",
+    "noLevelsTitle": "Nenhum nível selecionado",
+    "noLevelsDescription": "Ative pelo menos um nível para ver o registo.",
+    "loadFailed": "Não foi possível carregar o registo do servidor."
   },
   "playground": {
     "title": "Parque infantil",

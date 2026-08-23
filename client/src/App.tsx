@@ -37,6 +37,7 @@ import AudioPage from '@/pages/AudioPage'
 import MediaDetailPage from '@/pages/MediaDetailPage'
 import EmbeddingDetailPage from '@/pages/EmbeddingDetailPage'
 import AnalyticsPage from '@/pages/AnalyticsPage'
+import LogsPage from '@/pages/LogsPage'
 import PremiumPage from '@/pages/PremiumPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import AgentsPage from '@/pages/AgentsPage'
@@ -72,6 +73,33 @@ const modelItems = [
   { to: '/models/audio', labelKey: 'models.audioTab' },
   { to: '/models/fusion', labelKey: 'models.fusionTab' },
 ]
+
+// The pages that hang off "Analytics". Logs is reachable only from here — it is
+// deliberately kept out of navItems so the top bar does not grow a seventh entry.
+const analyticsItems = [
+  { to: '/analytics', labelKey: 'nav.analytics' },
+  { to: '/logs', labelKey: 'nav.logs' },
+]
+
+// Nav entries rendered as a split control: the label still navigates, and a
+// chevron (desktop) / submenu (mobile) reveals the pages behind it. Keyed by the
+// nav entry's `to` so both branches below stay one lookup, not two hardcoded
+// special cases.
+const navMenus: Record<
+  string,
+  { ariaKey: string; items: { to: string; labelKey: string }[]; isActive: (pathname: string) => boolean }
+> = {
+  '/models': {
+    ariaKey: 'nav.modelsMenu',
+    items: modelItems,
+    isActive: (pathname) => pathname.startsWith('/models'),
+  },
+  '/analytics': {
+    ariaKey: 'nav.analyticsMenu',
+    items: analyticsItems,
+    isActive: (pathname) => pathname.startsWith('/analytics') || pathname.startsWith('/logs'),
+  },
+}
 
 const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform)
 
@@ -202,23 +230,24 @@ function Navbar() {
             className="ms-10 hidden items-center gap-6 md:flex"
             style={isDesktopApp ? ({ WebkitAppRegion: 'no-drag' } as React.CSSProperties) : undefined}
           >
-            {navItems.map((item) =>
-              item.to === '/models' ? (
+            {navItems.map((item) => {
+              const menu = navMenus[item.to]
+              return menu ? (
                 // Split control: the label navigates, the chevron reveals the
-                // five modality pages hiding behind "Models".
+                // pages hiding behind it.
                 <div key={item.to} className="flex items-center gap-0.5">
                   <NavItem to={item.to}>{t(item.labelKey)}</NavItem>
                   <DropdownMenu>
                     <DropdownMenuTrigger
-                      aria-label={t('nav.modelsMenu')}
+                      aria-label={t(menu.ariaKey)}
                       className="rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
                     >
                       <ChevronDown className="size-3.5" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-44">
-                      {modelItems.map((model) => (
-                        <DropdownMenuItem key={model.to} onClick={() => navigate(model.to)}>
-                          {t(model.labelKey)}
+                      {menu.items.map((entry) => (
+                        <DropdownMenuItem key={entry.to} onClick={() => navigate(entry.to)}>
+                          {t(entry.labelKey)}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -228,8 +257,8 @@ function Navbar() {
                 <NavItem key={item.to} to={item.to}>
                   {t(item.labelKey)}
                 </NavItem>
-              ),
-            )}
+              )
+            })}
           </nav>
           <div
             className="ms-auto hidden items-center gap-1 md:flex"
@@ -277,18 +306,19 @@ function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuGroup>
-                  {navItems.map((item) =>
-                    item.to === '/models' ? (
+                  {navItems.map((item) => {
+                    const menu = navMenus[item.to]
+                    return menu ? (
                       <DropdownMenuSub key={item.to}>
                         <DropdownMenuSubTrigger
-                          className={location.pathname.startsWith('/models') ? 'bg-accent text-accent-foreground font-medium' : undefined}
+                          className={menu.isActive(location.pathname) ? 'bg-accent text-accent-foreground font-medium' : undefined}
                         >
                           {t(item.labelKey)}
                         </DropdownMenuSubTrigger>
                         <DropdownMenuSubContent>
-                          {modelItems.map((model) => (
-                            <DropdownMenuItem key={model.to} onClick={() => navigate(model.to)}>
-                              {t(model.labelKey)}
+                          {menu.items.map((entry) => (
+                            <DropdownMenuItem key={entry.to} onClick={() => navigate(entry.to)}>
+                              {t(entry.labelKey)}
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuSubContent>
@@ -301,8 +331,8 @@ function Navbar() {
                       >
                         {t(item.labelKey)}
                       </DropdownMenuItem>
-                    ),
-                  )}
+                    )
+                  })}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <AccountMenuItems
@@ -388,6 +418,7 @@ function App() {
                       <Route path="/agents" element={<AgentsPage />} />
                       <Route path="/fallback" element={<Navigate to="/models/chat" replace />} />
                       <Route path="/analytics" element={<AnalyticsPage />} />
+                      <Route path="/logs" element={<LogsPage />} />
                       <Route path="/premium" element={<PremiumPage />} />
                       <Route path="/test" element={<Navigate to="/playground" replace />} />
                       <Route path="/health" element={<Navigate to="/keys" replace />} />

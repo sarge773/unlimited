@@ -14,7 +14,9 @@
     "switchToChinese": "Yipada si Kannada",
     "switchToEnglish": "Yipada si English",
     "modelsMenu": "Kiri awoṣe orisi",
-    "agents": "Awọn aṣoju"
+    "agents": "Awọn aṣoju",
+    "logs": "Àkọọlẹ",
+    "analyticsMenu": "Awọn oju-iwe atupale"
   },
   "auth": {
     "createYourAccount": "Ṣẹda akọọlẹ rẹ",
@@ -635,6 +637,32 @@
     "requestedModel": "Awoṣe ti a beere",
     "ttft": "TTFT",
     "requestsByAgent": "Awọn ibeere nipasẹ aṣoju"
+  },
+  "logs": {
+    "title": "Àkọọlẹ",
+    "description": "Àkọọlẹ olupin laaye. Awọn akọsilẹ tuntun yoo maa wọle nigba ti oju-iwe naa ba ṣi silẹ.",
+    "pause": "Dá dúró",
+    "resume": "Tẹsiwaju",
+    "clear": "Ko àkọọlẹ kuro",
+    "cleared": "A ti ko àkọọlẹ olupin kuro",
+    "levelFilter": "Awọn ipele àkọọlẹ",
+    "levels": {
+      "debug": "Debug",
+      "info": "Alaye",
+      "warn": "Ikilọ",
+      "error": "Aṣiṣe"
+    },
+    "countsHint": "Awọn nọmba naa jẹ apapọ gbogbo ibi ipamọ àkọọlẹ lori olupin, kii ṣe awọn akọsilẹ ti o baamu awọn asẹ wọnyi nikan.",
+    "searchPlaceholder": "Ṣewadii awọn ifiranṣẹ àkọọlẹ…",
+    "jumpToLatest": "Fo si tuntun",
+    "showMore": "Ṣe afihan diẹ sii",
+    "showLess": "Ṣe afihan kere si",
+    "buffered": "Fifi {count} ninu {max} akọsilẹ ti a fipamọ han",
+    "emptyTitle": "Ko si akọsilẹ àkọọlẹ sibẹsibẹ",
+    "emptyDescription": "Awọn akọsilẹ yoo han nibi bi olupin ṣe n kọ wọn. Fẹ awọn asẹ ipele, olupese tabi wiwa siwaju sii ti o ba nireti abajade.",
+    "noLevelsTitle": "Ko si ipele ti a yan",
+    "noLevelsDescription": "Tan o kere ju ipele kan lati ri abajade àkọọlẹ.",
+    "loadFailed": "A kò lè gbé àkọọlẹ olupin wọlé."
   },
   "playground": {
     "title": "Ibi isereile",

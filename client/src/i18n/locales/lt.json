@@ -14,7 +14,9 @@
     "switchToChinese": "Perėjimas prie kinų kalbos",
     "switchToEnglish": "Perėjimas prie anglų kalbos",
     "modelsMenu": "Naršyti modelių tipus",
-    "agents": "Agentai"
+    "agents": "Agentai",
+    "logs": "Žurnalas",
+    "analyticsMenu": "Analizės puslapiai"
   },
   "auth": {
     "createYourAccount": "Sukurkite savo paskyrą",
@@ -635,6 +637,32 @@
     "requestedModel": "Prašytas modelis",
     "ttft": "TTFT",
     "requestsByAgent": "Užklausos pagal agentą"
+  },
+  "logs": {
+    "title": "Žurnalas",
+    "description": "Tiesioginis serverio žurnalas. Nauji įrašai atsiranda tol, kol puslapis atidarytas.",
+    "pause": "Pristabdyti",
+    "resume": "Tęsti",
+    "clear": "Išvalyti žurnalą",
+    "cleared": "Serverio žurnalas išvalytas",
+    "levelFilter": "Žurnalo lygiai",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Įspėjimas",
+      "error": "Klaida"
+    },
+    "countsHint": "Skaičiai rodo viso serverio žurnalo buferio sumas, o ne tik šiuos filtrus atitinkančius įrašus.",
+    "searchPlaceholder": "Ieškoti žurnalo pranešimuose…",
+    "jumpToLatest": "Pereiti prie naujausių",
+    "showMore": "Rodyti daugiau",
+    "showLess": "Rodyti mažiau",
+    "buffered": "Rodoma: {count} iš daugiausiai {max} buferyje laikomų įrašų",
+    "emptyTitle": "Žurnale dar nėra įrašų",
+    "emptyDescription": "Įrašai atsiras čia, kai serveris juos užrašys. Jei tikėjotės rezultatų, išplėskite lygio, tiekėjo ar paieškos filtrus.",
+    "noLevelsTitle": "Nepasirinktas nė vienas lygis",
+    "noLevelsDescription": "Įjunkite bent vieną lygį, kad matytumėte žurnalo įrašus.",
+    "loadFailed": "Nepavyko įkelti serverio žurnalo."
   },
   "playground": {
     "title": "Žaidimų aikštelė",

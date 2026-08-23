@@ -14,7 +14,9 @@
     "switchToChinese": "Byt till kinesiska",
     "switchToEnglish": "Byta till engelska",
     "modelsMenu": "Bläddra bland modelltyper",
-    "agents": "Agenter"
+    "agents": "Agenter",
+    "logs": "Loggar",
+    "analyticsMenu": "Analyssidor"
   },
   "auth": {
     "createYourAccount": "Skapa ditt konto",
@@ -635,6 +637,32 @@
     "requestedModel": "Efterfrågad modell",
     "ttft": "TTFT",
     "requestsByAgent": "Begäranden per agent"
+  },
+  "logs": {
+    "title": "Loggar",
+    "description": "Serverns logg i realtid. Nya poster strömmar in medan sidan är öppen.",
+    "pause": "Pausa",
+    "resume": "Återuppta",
+    "clear": "Rensa loggen",
+    "cleared": "Serverloggen rensad",
+    "levelFilter": "Loggnivåer",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Varning",
+      "error": "Fel"
+    },
+    "countsHint": "Antalen gäller hela loggbufferten på servern, inte bara posterna som matchar de här filtren.",
+    "searchPlaceholder": "Sök i loggmeddelanden…",
+    "jumpToLatest": "Hoppa till senaste",
+    "showMore": "Visa mer",
+    "showLess": "Visa mindre",
+    "buffered": "Visar {count} av upp till {max} buffrade poster",
+    "emptyTitle": "Inga loggposter än",
+    "emptyDescription": "Poster visas här allteftersom servern skriver dem. Bredda filtren för nivå, leverantör eller sökning om du väntade dig utdata.",
+    "noLevelsTitle": "Inga nivåer valda",
+    "noLevelsDescription": "Slå på minst en nivå för att se loggutdata.",
+    "loadFailed": "Det gick inte att läsa in serverloggen."
   },
   "playground": {
     "title": "Lekplats",

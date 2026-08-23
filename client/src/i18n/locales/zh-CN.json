@@ -14,7 +14,9 @@
     "switchToChinese": "切换到中文",
     "switchToEnglish": "切换到英文",
     "modelsMenu": "浏览模型类型",
-    "agents": "智能体"
+    "agents": "智能体",
+    "logs": "日志",
+    "analyticsMenu": "分析页面"
   },
   "auth": {
     "createYourAccount": "创建账号",
@@ -635,6 +637,32 @@
     "requestedModel": "请求的模型",
     "ttft": "首个词元用时",
     "requestsByAgent": "按智能体统计的请求"
+  },
+  "logs": {
+    "title": "日志",
+    "description": "实时服务器日志。页面打开期间会持续接收新条目。",
+    "pause": "暂停",
+    "resume": "继续",
+    "clear": "清空日志",
+    "cleared": "服务器日志已清空",
+    "levelFilter": "日志级别",
+    "levels": {
+      "debug": "调试",
+      "info": "信息",
+      "warn": "警告",
+      "error": "错误"
+    },
+    "countsHint": "计数为服务器上整个日志缓冲区的总数，并非仅统计符合当前筛选条件的条目。",
+    "searchPlaceholder": "搜索日志内容…",
+    "jumpToLatest": "跳到最新",
+    "showMore": "展开",
+    "showLess": "收起",
+    "buffered": "已显示 {count} 条，缓冲区最多 {max} 条",
+    "emptyTitle": "暂无日志条目",
+    "emptyDescription": "服务器写入日志时，条目会显示在这里。如果预期会有输出，请放宽级别、提供方或搜索筛选条件。",
+    "noLevelsTitle": "未选择级别",
+    "noLevelsDescription": "至少启用一个级别才能查看日志输出。",
+    "loadFailed": "无法加载服务器日志。"
   },
   "playground": {
     "title": "试验场",

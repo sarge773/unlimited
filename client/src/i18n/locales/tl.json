@@ -14,7 +14,9 @@
     "switchToChinese": "Lumipat sa Chinese",
     "switchToEnglish": "Lumipat sa Ingles",
     "modelsMenu": "Mag-browse ng mga uri ng modelo",
-    "agents": "Mga Agent"
+    "agents": "Mga Agent",
+    "logs": "Mga Log",
+    "analyticsMenu": "Mga pahina ng analitika"
   },
   "auth": {
     "createYourAccount": "Gumawa ng iyong account",
@@ -635,6 +637,32 @@
     "requestedModel": "Hinihiling na modelo",
     "ttft": "TTFT",
     "requestsByAgent": "Mga kahilingan ayon sa agent"
+  },
+  "logs": {
+    "title": "Mga Log",
+    "description": "Live na server log. Dumarating ang mga bagong entry habang bukas ang pahina.",
+    "pause": "I-pause",
+    "resume": "Ipagpatuloy",
+    "clear": "I-clear ang mga log",
+    "cleared": "Na-clear ang server log",
+    "levelFilter": "Mga antas ng log",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Warn",
+      "error": "Error"
+    },
+    "countsHint": "Ang mga bilang ay kabuuan para sa buong log buffer sa server, hindi lang sa mga entry na tumutugma sa mga filter na ito.",
+    "searchPlaceholder": "Maghanap ng mga mensahe sa log...",
+    "jumpToLatest": "Pumunta sa pinakabago",
+    "showMore": "Ipakita ang higit pa",
+    "showLess": "Ipakita ang mas kaunti",
+    "buffered": "Ipinapakita ang {count} sa hanggang {max} na naka-buffer na entry",
+    "emptyTitle": "Wala pang log entry",
+    "emptyDescription": "Lumilitaw dito ang mga entry habang isinusulat ang mga ito ng server. Palawakin ang mga filter ng antas, provider o paghahanap kung umaasa ka ng output.",
+    "noLevelsTitle": "Walang napiling antas",
+    "noLevelsDescription": "Mag-on ng kahit isang antas para makita ang output ng log.",
+    "loadFailed": "Hindi ma-load ang server log."
   },
   "playground": {
     "title": "Palaruan",

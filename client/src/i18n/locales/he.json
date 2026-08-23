@@ -14,7 +14,9 @@
     "switchToChinese": "מעבר לסינית",
     "switchToEnglish": "מעבר לאנגלית",
     "modelsMenu": "דפדוף בסוגי דגמים",
-    "agents": "סוכנים"
+    "agents": "סוכנים",
+    "logs": "יומן",
+    "analyticsMenu": "דפי אנליטיקה"
   },
   "auth": {
     "createYourAccount": "צור את החשבון שלך",
@@ -635,6 +637,32 @@
     "requestedModel": "מודל מבוקש",
     "ttft": "TTFT",
     "requestsByAgent": "בקשות לפי סוכן"
+  },
+  "logs": {
+    "title": "יומן",
+    "description": "יומן השרת בזמן אמת. רשומות חדשות מגיעות כל עוד הדף פתוח.",
+    "pause": "השהה",
+    "resume": "המשך",
+    "clear": "נקה יומן",
+    "cleared": "יומן השרת נוקה",
+    "levelFilter": "רמות יומן",
+    "levels": {
+      "debug": "ניפוי באגים",
+      "info": "מידע",
+      "warn": "אזהרה",
+      "error": "שגיאה"
+    },
+    "countsHint": "הספירות מתייחסות לכל מאגר היומן שבשרת, ולא רק לרשומות שתואמות למסננים האלה.",
+    "searchPlaceholder": "חיפוש בהודעות היומן...",
+    "jumpToLatest": "מעבר לאחרונות",
+    "showMore": "הצג עוד",
+    "showLess": "הצג פחות",
+    "buffered": "מוצגות {count} מתוך עד {max} רשומות במאגר",
+    "emptyTitle": "אין עדיין רשומות ביומן",
+    "emptyDescription": "רשומות יופיעו כאן ככל שהשרת יכתוב אותן. אם ציפית לפלט, הרחב את מסנני הרמה, הספק או החיפוש.",
+    "noLevelsTitle": "לא נבחרו רמות",
+    "noLevelsDescription": "הפעל לפחות רמה אחת כדי לראות את פלט היומן.",
+    "loadFailed": "לא ניתן לטעון את יומן השרת."
   },
   "playground": {
     "title": "מגרש משחקים",

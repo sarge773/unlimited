@@ -14,7 +14,9 @@
     "switchToChinese": "Beralih ke Bahasa Cina",
     "switchToEnglish": "Beralih ke Bahasa Inggeris",
     "modelsMenu": "Semak jenis model",
-    "agents": "Ejen"
+    "agents": "Ejen",
+    "logs": "Log",
+    "analyticsMenu": "Halaman analitik"
   },
   "auth": {
     "createYourAccount": "Cipta akaun anda",
@@ -635,6 +637,32 @@
     "requestedModel": "Model yang diminta",
     "ttft": "TTFT",
     "requestsByAgent": "Permintaan mengikut ejen"
+  },
+  "logs": {
+    "title": "Log",
+    "description": "Log pelayan secara langsung. Entri baharu masuk selagi halaman ini dibuka.",
+    "pause": "Jeda",
+    "resume": "Sambung semula",
+    "clear": "Kosongkan log",
+    "cleared": "Log pelayan dikosongkan",
+    "levelFilter": "Aras log",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Amaran",
+      "error": "Ralat"
+    },
+    "countsHint": "Kiraan ini ialah jumlah keseluruhan penimbal log pada pelayan, bukan hanya entri yang sepadan dengan penapis ini.",
+    "searchPlaceholder": "Cari mesej log…",
+    "jumpToLatest": "Ke entri terkini",
+    "showMore": "Tunjukkan lagi",
+    "showLess": "Tunjukkan kurang",
+    "buffered": "Menunjukkan {count} daripada sehingga {max} entri dalam penimbal",
+    "emptyTitle": "Tiada entri log lagi",
+    "emptyDescription": "Entri akan muncul di sini apabila pelayan menulisnya. Luaskan penapis aras, penyedia atau carian jika anda menjangkakan ada output.",
+    "noLevelsTitle": "Tiada aras dipilih",
+    "noLevelsDescription": "Hidupkan sekurang-kurangnya satu aras untuk melihat output log.",
+    "loadFailed": "Tidak dapat memuatkan log pelayan."
   },
   "playground": {
     "title": "Taman Permainan",

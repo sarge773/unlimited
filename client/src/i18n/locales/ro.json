@@ -14,7 +14,9 @@
     "switchToChinese": "Trecerea la chineză",
     "switchToEnglish": "Trecerea la engleză",
     "modelsMenu": "Explorează tipurile de modele",
-    "agents": "Agenți"
+    "agents": "Agenți",
+    "logs": "Jurnale",
+    "analyticsMenu": "Pagini de analiză"
   },
   "auth": {
     "createYourAccount": "Creează-ți contul",
@@ -635,6 +637,32 @@
     "requestedModel": "Modelul cerut",
     "ttft": "TTFT",
     "requestsByAgent": "Cereri per agent"
+  },
+  "logs": {
+    "title": "Jurnale",
+    "description": "Jurnalul serverului în timp real. Intrările noi apar cât timp pagina este deschisă.",
+    "pause": "Pauză",
+    "resume": "Reia",
+    "clear": "Golește jurnalele",
+    "cleared": "Jurnalul serverului a fost golit",
+    "levelFilter": "Niveluri de jurnal",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Avertisment",
+      "error": "Eroare"
+    },
+    "countsHint": "Numărătorile se referă la întregul buffer de jurnal de pe server, nu doar la intrările care corespund acestor filtre.",
+    "searchPlaceholder": "Caută în mesajele din jurnal…",
+    "jumpToLatest": "Sari la cele mai recente",
+    "showMore": "Afișează mai mult",
+    "showLess": "Afișează mai puțin",
+    "buffered": "Se afișează {count} din cel mult {max} intrări din buffer",
+    "emptyTitle": "Încă nu există intrări în jurnal",
+    "emptyDescription": "Intrările apar aici pe măsură ce serverul le scrie. Lărgește filtrele de nivel, furnizor sau căutare dacă te așteptai la rezultate.",
+    "noLevelsTitle": "Niciun nivel selectat",
+    "noLevelsDescription": "Activează cel puțin un nivel pentru a vedea jurnalul.",
+    "loadFailed": "Nu s-a putut încărca jurnalul serverului."
   },
   "playground": {
     "title": "Locul de joacă",

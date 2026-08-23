@@ -14,7 +14,9 @@
     "switchToChinese": "Átállás kínaira",
     "switchToEnglish": "Átállás angolra",
     "modelsMenu": "Böngészés modelltípusok",
-    "agents": "Ügynökök"
+    "agents": "Ügynökök",
+    "logs": "Napló",
+    "analyticsMenu": "Elemzési oldalak"
   },
   "auth": {
     "createYourAccount": "Hozza létre a fiókot",
@@ -635,6 +637,32 @@
     "requestedModel": "Kért modell",
     "ttft": "TTFT",
     "requestsByAgent": "Kérések ügynökönként"
+  },
+  "logs": {
+    "title": "Napló",
+    "description": "A szerver élő naplója. Az új bejegyzések folyamatosan érkeznek, amíg az oldal nyitva van.",
+    "pause": "Szünet",
+    "resume": "Folytatás",
+    "clear": "Napló törlése",
+    "cleared": "A szerver naplója törölve",
+    "levelFilter": "Naplószintek",
+    "levels": {
+      "debug": "Debug",
+      "info": "Infó",
+      "warn": "Figyelmeztetés",
+      "error": "Hiba"
+    },
+    "countsHint": "A számok a szerver teljes naplópufferére vonatkoznak, nem csak a szűrőknek megfelelő bejegyzésekre.",
+    "searchPlaceholder": "Keresés a naplóüzenetekben…",
+    "jumpToLatest": "Ugrás a legújabbra",
+    "showMore": "Több megjelenítése",
+    "showLess": "Kevesebb megjelenítése",
+    "buffered": "{count} bejegyzés látható a legfeljebb {max} pufferelt bejegyzésből",
+    "emptyTitle": "Még nincs naplóbejegyzés",
+    "emptyDescription": "A bejegyzések itt jelennek meg, ahogy a szerver írja őket. Ha kimenetre számított, bővítse a szint-, szolgáltató- vagy keresési szűrőket.",
+    "noLevelsTitle": "Nincs kiválasztott szint",
+    "noLevelsDescription": "A naplókimenet megtekintéséhez kapcsoljon be legalább egy szintet.",
+    "loadFailed": "Nem sikerült betölteni a szerver naplóját."
   },
   "playground": {
     "title": "Játszótér",

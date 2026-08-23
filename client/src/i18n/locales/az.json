@@ -14,7 +14,9 @@
     "switchToChinese": "Çin dilinə keçid",
     "switchToEnglish": "İngiliscəyə keçid",
     "modelsMenu": "Model tiplərinə baxın",
-    "agents": "Agentlər"
+    "agents": "Agentlər",
+    "logs": "Loglar",
+    "analyticsMenu": "Analitika səhifələri"
   },
   "auth": {
     "createYourAccount": "Hesabınızı yaradın",
@@ -635,6 +637,32 @@
     "requestedModel": "Tələb olunan model",
     "ttft": "TTFT",
     "requestsByAgent": "Agent üzrə sorğular"
+  },
+  "logs": {
+    "title": "Loglar",
+    "description": "Serverin canlı logu. Səhifə açıq olduqca yeni qeydlər gəlməkdə davam edir.",
+    "pause": "Dayandır",
+    "resume": "Davam et",
+    "clear": "Logları təmizlə",
+    "cleared": "Server logu təmizləndi",
+    "levelFilter": "Log səviyyələri",
+    "levels": {
+      "debug": "Debug",
+      "info": "İnfo",
+      "warn": "Xəbərdarlıq",
+      "error": "Xəta"
+    },
+    "countsHint": "Saylar bu filtrlərə uyğun qeydlərə deyil, serverdəki bütün log buferinə aid ümumi göstəricilərdir.",
+    "searchPlaceholder": "Log mesajlarında axtar…",
+    "jumpToLatest": "Ən sonunculara keç",
+    "showMore": "Daha çox göstər",
+    "showLess": "Daha az göstər",
+    "buffered": "Buferdəki ən çoxu {max} qeyddən {count} göstərilir",
+    "emptyTitle": "Hələ log qeydi yoxdur",
+    "emptyDescription": "Server qeydləri yazdıqca onlar burada görünəcək. Nəticə gözləyirdinizsə, səviyyə, təchizatçı və ya axtarış filtrlərini genişləndirin.",
+    "noLevelsTitle": "Səviyyə seçilməyib",
+    "noLevelsDescription": "Log çıxışını görmək üçün ən azı bir səviyyəni aktivləşdirin.",
+    "loadFailed": "Server logu yüklənə bilmədi."
   },
   "playground": {
     "title": "Uşaq meydançası",

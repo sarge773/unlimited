@@ -14,7 +14,9 @@
     "switchToChinese": "Przełącz na język chiński",
     "switchToEnglish": "Przełącz na angielski",
     "modelsMenu": "Przeglądaj typy modeli",
-    "agents": "Agenci"
+    "agents": "Agenci",
+    "logs": "Logi",
+    "analyticsMenu": "Strony analityki"
   },
   "auth": {
     "createYourAccount": "Utwórz swoje konto",
@@ -635,6 +637,32 @@
     "requestedModel": "Żądany model",
     "ttft": "TTFT",
     "requestsByAgent": "Żądania według agenta"
+  },
+  "logs": {
+    "title": "Logi",
+    "description": "Log serwera na żywo. Nowe wpisy pojawiają się na bieżąco, gdy strona jest otwarta.",
+    "pause": "Wstrzymaj",
+    "resume": "Wznów",
+    "clear": "Wyczyść logi",
+    "cleared": "Log serwera wyczyszczony",
+    "levelFilter": "Poziomy logowania",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Ostrzeżenie",
+      "error": "Błąd"
+    },
+    "countsHint": "Liczby dotyczą całego bufora logów na serwerze, a nie tylko wpisów pasujących do tych filtrów.",
+    "searchPlaceholder": "Szukaj w komunikatach logu…",
+    "jumpToLatest": "Przejdź do najnowszych",
+    "showMore": "Pokaż więcej",
+    "showLess": "Pokaż mniej",
+    "buffered": "Wyświetlanie {count} z maksymalnie {max} buforowanych wpisów",
+    "emptyTitle": "Brak wpisów w logu",
+    "emptyDescription": "Wpisy pojawią się tutaj, gdy serwer zacznie je zapisywać. Poszerz filtry poziomu, dostawcy lub wyszukiwania, jeśli spodziewasz się wyników.",
+    "noLevelsTitle": "Nie wybrano poziomów",
+    "noLevelsDescription": "Włącz co najmniej jeden poziom, aby zobaczyć zawartość logu.",
+    "loadFailed": "Nie udało się wczytać logu serwera."
   },
   "playground": {
     "title": "Plac zabaw",

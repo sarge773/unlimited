@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { keysRouter } from './routes/keys.js';
 import { clientProfilesRouter } from './routes/client-profiles.js';
 import { conversationsRouter } from './routes/conversations.js';
+import { logsRouter } from './routes/logs.js';
 import { modelsRouter } from './routes/models.js';
 import { proxyRouter } from './routes/proxy.js';
 import { responsesRouter } from './routes/responses.js';
@@ -232,6 +233,10 @@ export function createApp(config?: Config) {
   // Saved Playground transcripts (the chat sidebar). Dashboard-session gated
   // like every other admin route; the unified /v1 key does not open it.
   app.use('/api/conversations', requireAuth, conversationsRouter);
+  // Server logs for the dashboard viewer. Dashboard-session gated like the rest
+  // of /api — these lines name providers, models and key ids, so the unified
+  // /v1 key must not open them.
+  app.use('/api/logs', requireAuth, logsRouter);
   app.use('/api/models', requireAuth, modelsRouter);
   app.use('/api/profiles', requireAuth, profilesRouter);
   app.use('/api/fallback', requireAuth, fallbackRouter);

@@ -23,6 +23,7 @@ import * as clientProfiles from '../migrations/20260805_000002_client_profiles.j
 import * as apiKeyProxy from '../migrations/20260810_000001_api_key_proxy.js';
 import * as playgroundConversations from '../migrations/20260820_000001_playground_conversations.js';
 import * as customModelTombstones from '../migrations/20260819_000001_custom_model_tombstones.js';
+import * as serverLogs from '../migrations/20260823_000001_server_logs.js';
 
 export interface MigrationModule {
   up(db: Db): void;
@@ -58,6 +59,7 @@ export const CLIENT_PROFILES_FILENAME = '20260805_000002_client_profiles.ts';
 export const API_KEY_PROXY_FILENAME = '20260810_000001_api_key_proxy.ts';
 export const PLAYGROUND_CONVERSATIONS_FILENAME = '20260820_000001_playground_conversations.ts';
 export const CUSTOM_MODEL_TOMBSTONES_FILENAME = '20260819_000001_custom_model_tombstones.ts';
+export const SERVER_LOGS_FILENAME = '20260823_000001_server_logs.ts';
 
 export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: LEGACY_BASELINE_FILENAME, module: legacyBaseline },
@@ -84,4 +86,5 @@ export const DEFAULT_MIGRATIONS: readonly DefaultMigration[] = [
   { filename: API_KEY_PROXY_FILENAME, module: apiKeyProxy },
   { filename: CUSTOM_MODEL_TOMBSTONES_FILENAME, module: customModelTombstones },
   { filename: PLAYGROUND_CONVERSATIONS_FILENAME, module: playgroundConversations },
+  { filename: SERVER_LOGS_FILENAME, module: serverLogs },
 ];

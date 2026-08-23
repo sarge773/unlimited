@@ -14,7 +14,9 @@
     "switchToChinese": "Siirtyminen kiinaan",
     "switchToEnglish": "Siirtyminen englanniksi",
     "modelsMenu": "Selaa mallityyppejä",
-    "agents": "Agentit"
+    "agents": "Agentit",
+    "logs": "Lokit",
+    "analyticsMenu": "Analytiikkasivut"
   },
   "auth": {
     "createYourAccount": "Luo tilisi",
@@ -635,6 +637,32 @@
     "requestedModel": "Pyydetty malli",
     "ttft": "TTFT",
     "requestsByAgent": "Pyynnöt agenteittain"
+  },
+  "logs": {
+    "title": "Lokit",
+    "description": "Palvelimen reaaliaikainen loki. Uudet merkinnät ilmestyvät näkyviin sivun ollessa auki.",
+    "pause": "Keskeytä",
+    "resume": "Jatka",
+    "clear": "Tyhjennä loki",
+    "cleared": "Palvelimen loki tyhjennetty",
+    "levelFilter": "Lokitasot",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Varoitus",
+      "error": "Virhe"
+    },
+    "countsHint": "Lukumäärät koskevat palvelimen koko lokipuskuria, eivät vain näitä suodattimia vastaavia merkintöjä.",
+    "searchPlaceholder": "Hae lokiviesteistä…",
+    "jumpToLatest": "Siirry uusimpaan",
+    "showMore": "Näytä lisää",
+    "showLess": "Näytä vähemmän",
+    "buffered": "Näytetään {count} / enintään {max} puskuroitua merkintää",
+    "emptyTitle": "Ei vielä lokimerkintöjä",
+    "emptyDescription": "Merkinnät ilmestyvät tähän sitä mukaa kun palvelin kirjoittaa niitä. Laajenna taso-, palveluntarjoaja- tai hakusuodattimia, jos odotit tulostetta.",
+    "noLevelsTitle": "Ei valittuja tasoja",
+    "noLevelsDescription": "Valitse vähintään yksi taso nähdäksesi lokitulosteen.",
+    "loadFailed": "Palvelimen lokia ei voitu ladata."
   },
   "playground": {
     "title": "Leikkipaikka",

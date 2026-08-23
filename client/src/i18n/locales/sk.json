@@ -14,7 +14,9 @@
     "switchToChinese": "Prechod na čínštinu",
     "switchToEnglish": "Prechod na angličtinu",
     "modelsMenu": "Prehliadať typy modelov",
-    "agents": "Agenti"
+    "agents": "Agenti",
+    "logs": "Logy",
+    "analyticsMenu": "Stránky analytiky"
   },
   "auth": {
     "createYourAccount": "Vytvorte si účet",
@@ -635,6 +637,32 @@
     "requestedModel": "Požadovaný model",
     "ttft": "TTFT",
     "requestsByAgent": "Požiadavky podľa agenta"
+  },
+  "logs": {
+    "title": "Logy",
+    "description": "Živý log servera. Nové záznamy pribúdajú, kým je stránka otvorená.",
+    "pause": "Pozastaviť",
+    "resume": "Pokračovať",
+    "clear": "Vymazať logy",
+    "cleared": "Log servera vymazaný",
+    "levelFilter": "Úrovne logovania",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Varovanie",
+      "error": "Chyba"
+    },
+    "countsHint": "Počty sa vzťahujú na celú vyrovnávaciu pamäť logu na serveri, nie len na záznamy zodpovedajúce týmto filtrom.",
+    "searchPlaceholder": "Hľadať v správach logu…",
+    "jumpToLatest": "Prejsť na najnovšie",
+    "showMore": "Zobraziť viac",
+    "showLess": "Zobraziť menej",
+    "buffered": "Zobrazených {count} z maximálne {max} uložených záznamov",
+    "emptyTitle": "Zatiaľ žiadne záznamy v logu",
+    "emptyDescription": "Záznamy sa tu objavia, hneď ako ich server zapíše. Ak ste čakali výstup, rozšírte filtre úrovne, poskytovateľa alebo hľadania.",
+    "noLevelsTitle": "Nie je vybraná žiadna úroveň",
+    "noLevelsDescription": "Zapnite aspoň jednu úroveň, aby ste videli výstup logu.",
+    "loadFailed": "Log servera sa nepodarilo načítať."
   },
   "playground": {
     "title": "Ihrisko",

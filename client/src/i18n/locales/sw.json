@@ -14,7 +14,9 @@
     "switchToChinese": "Badili hadi Kichina",
     "switchToEnglish": "Badili hadi Kiingereza",
     "modelsMenu": "Vinjari aina za mifano",
-    "agents": "Mawakala"
+    "agents": "Mawakala",
+    "logs": "Kumbukumbu",
+    "analyticsMenu": "Kurasa za uchanganuzi"
   },
   "auth": {
     "createYourAccount": "Fungua akaunti yako",
@@ -635,6 +637,32 @@
     "requestedModel": "Umeomba muundo",
     "ttft": "TTFT",
     "requestsByAgent": "Maombi kwa kila wakala"
+  },
+  "logs": {
+    "title": "Kumbukumbu",
+    "description": "Kumbukumbu ya seva ya moja kwa moja. Maingizo mapya huingia wakati ukurasa umefunguliwa.",
+    "pause": "Sitisha",
+    "resume": "Endelea",
+    "clear": "Futa kumbukumbu",
+    "cleared": "Kumbukumbu ya seva imefutwa",
+    "levelFilter": "Viwango vya kumbukumbu",
+    "levels": {
+      "debug": "Utatuzi",
+      "info": "Taarifa",
+      "warn": "Onyo",
+      "error": "Hitilafu"
+    },
+    "countsHint": "Idadi ni jumla ya bafa nzima ya kumbukumbu kwenye seva, si maingizo yanayolingana na vichujio hivi pekee.",
+    "searchPlaceholder": "Tafuta ujumbe wa kumbukumbu...",
+    "jumpToLatest": "Nenda kwenye za hivi punde",
+    "showMore": "Onyesha zaidi",
+    "showLess": "Onyesha kidogo",
+    "buffered": "Inaonyesha {count} kati ya maingizo {max} yaliyohifadhiwa kwenye bafa",
+    "emptyTitle": "Bado hakuna maingizo ya kumbukumbu",
+    "emptyDescription": "Maingizo huonekana hapa seva inapoyaandika. Panua vichujio vya kiwango, mtoa huduma au utafutaji ikiwa ulitarajia matokeo.",
+    "noLevelsTitle": "Hakuna kiwango kilichochaguliwa",
+    "noLevelsDescription": "Washa angalau kiwango kimoja ili kuona matokeo ya kumbukumbu.",
+    "loadFailed": "Imeshindwa kupakia kumbukumbu ya seva."
   },
   "playground": {
     "title": "Uwanja wa michezo",

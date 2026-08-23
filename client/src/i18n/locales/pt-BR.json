@@ -14,7 +14,9 @@
     "switchToChinese": "Mudar para chinês",
     "switchToEnglish": "Mudar para inglês",
     "modelsMenu": "Explorar tipos de modelo",
-    "agents": "Agentes"
+    "agents": "Agentes",
+    "logs": "Logs",
+    "analyticsMenu": "Páginas de análises"
   },
   "auth": {
     "createYourAccount": "Crie sua conta",
@@ -635,6 +637,32 @@
     "requestedModel": "Modelo solicitado",
     "ttft": "TTFT",
     "requestsByAgent": "Solicitações por agente"
+  },
+  "logs": {
+    "title": "Logs",
+    "description": "Log do servidor ao vivo. Novas entradas chegam enquanto a página está aberta.",
+    "pause": "Pausar",
+    "resume": "Retomar",
+    "clear": "Limpar logs",
+    "cleared": "Log do servidor limpo",
+    "levelFilter": "Níveis de log",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Aviso",
+      "error": "Erro"
+    },
+    "countsHint": "As contagens são totais de todo o buffer de log no servidor, não apenas das entradas que correspondem a estes filtros.",
+    "searchPlaceholder": "Buscar mensagens do log…",
+    "jumpToLatest": "Ir para as mais recentes",
+    "showMore": "Mostrar mais",
+    "showLess": "Mostrar menos",
+    "buffered": "Mostrando {count} de até {max} entradas no buffer",
+    "emptyTitle": "Ainda sem entradas de log",
+    "emptyDescription": "As entradas aparecem aqui conforme o servidor as grava. Amplie os filtros de nível, provedor ou busca se você esperava alguma saída.",
+    "noLevelsTitle": "Nenhum nível selecionado",
+    "noLevelsDescription": "Ative pelo menos um nível para ver a saída do log.",
+    "loadFailed": "Não foi possível carregar o log do servidor."
   },
   "playground": {
     "title": "Playground",

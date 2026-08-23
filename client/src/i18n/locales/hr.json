@@ -14,7 +14,9 @@
     "switchToChinese": "Prijelaz na kineski",
     "switchToEnglish": "Prijelaz na engleski",
     "modelsMenu": "Pregledajte vrste modela",
-    "agents": "Agenti"
+    "agents": "Agenti",
+    "logs": "Logovi",
+    "analyticsMenu": "Stranice analitike"
   },
   "auth": {
     "createYourAccount": "Kreirajte svoj račun",
@@ -635,6 +637,32 @@
     "requestedModel": "Traženi model",
     "ttft": "TTFT",
     "requestsByAgent": "Zahtjevi po agentu"
+  },
+  "logs": {
+    "title": "Logovi",
+    "description": "Log servera uživo. Novi unosi pristižu dok je stranica otvorena.",
+    "pause": "Pauziraj",
+    "resume": "Nastavi",
+    "clear": "Očisti logove",
+    "cleared": "Log servera očišćen",
+    "levelFilter": "Razine logiranja",
+    "levels": {
+      "debug": "Debug",
+      "info": "Info",
+      "warn": "Upozorenje",
+      "error": "Pogreška"
+    },
+    "countsHint": "Brojevi se odnose na cijeli međuspremnik loga na serveru, a ne samo na unose koji odgovaraju ovim filtrima.",
+    "searchPlaceholder": "Pretraži poruke loga…",
+    "jumpToLatest": "Skoči na najnovije",
+    "showMore": "Prikaži više",
+    "showLess": "Prikaži manje",
+    "buffered": "Prikazano {count} od najviše {max} spremljenih unosa",
+    "emptyTitle": "Još nema unosa u logu",
+    "emptyDescription": "Unosi se pojavljuju ovdje čim ih server zapiše. Proširite filtre razine, pružatelja ili pretrage ako ste očekivali izlaz.",
+    "noLevelsTitle": "Nije odabrana nijedna razina",
+    "noLevelsDescription": "Uključite barem jednu razinu da biste vidjeli sadržaj loga.",
+    "loadFailed": "Nije moguće učitati log servera."
   },
   "playground": {
     "title": "Igralište",
