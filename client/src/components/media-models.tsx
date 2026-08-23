@@ -241,7 +241,7 @@ export function MediaModelsView({ modality }: { modality: 'image' | 'audio' }) {
             {t('models.sttHint')} <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">/v1/audio/transcriptions</code>
           </p>
 
-          {sttUsage && (
+          {sttUsage && sttUsage.models.length > 0 && (
             <UsageSummaryCard
               rows={sttUsage.models.map(m => ({
                 label: m.displayName,
