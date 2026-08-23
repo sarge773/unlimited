@@ -416,6 +416,7 @@
     "addingCustom": "சேர்க்கிறது…",
     "discoverModels": "மாதிரிகளைப் பெறு",
     "probeNow": "எண்ட்பாயிண்டைச் சோதிக்கவும்",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} {latency}ms-இல் சோதிக்கப்பட்டது",
     "probeFailed": "சோதனை தோல்வியடைந்தது: {reason}",
     "discoverTitle": "இந்த எண்ட்பாயிண்டில் உள்ள மாதிரிகள்",

@@ -416,6 +416,7 @@
     "addingCustom": "ထပ်ထည့်နေသည်...",
     "discoverModels": "မော်ဒယ်များ ရယူရန်",
     "probeNow": "အဆုံးမှတ်ကို စမ်းသပ်ရန်",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} ကို {latency}ms အတွင်း စမ်းသပ်ပြီးပါပြီ",
     "probeFailed": "စမ်းသပ်မှု မအောင်မြင်ပါ: {reason}",
     "discoverTitle": "ဤအဆုံးမှတ်ရှိ မော်ဒယ်များ",

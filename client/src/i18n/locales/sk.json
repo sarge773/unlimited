@@ -416,6 +416,7 @@
     "addingCustom": "Pridávam...",
     "discoverModels": "Načítať modely",
     "probeNow": "Otestovať endpoint",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "Model {model} otestovaný za {latency} ms",
     "probeFailed": "Test zlyhal: {reason}",
     "discoverTitle": "Modely na tomto endpointe",

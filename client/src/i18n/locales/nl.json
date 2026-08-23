@@ -416,6 +416,7 @@
     "addingCustom": "En ik voeg toe...",
     "discoverModels": "Modellen ophalen",
     "probeNow": "Endpoint testen",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} getest in {latency} ms",
     "probeFailed": "Test mislukt: {reason}",
     "discoverTitle": "Modellen op dit endpoint",

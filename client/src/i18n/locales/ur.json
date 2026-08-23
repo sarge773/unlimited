@@ -416,6 +416,7 @@
     "addingCustom": "شامل کیا جا رہا ہے…",
     "discoverModels": "ماڈلز حاصل کریں",
     "probeNow": "اینڈ پوائنٹ کی جانچ کریں",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} کی جانچ {latency}ms میں مکمل ہوئی",
     "probeFailed": "جانچ ناکام ہوگئی: {reason}",
     "discoverTitle": "اس اینڈ پوائنٹ کے ماڈلز",

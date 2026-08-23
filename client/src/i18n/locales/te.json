@@ -416,6 +416,7 @@
     "addingCustom": "జోడిస్తోంది...",
     "discoverModels": "మోడల్‌లను తెచ్చు",
     "probeNow": "ఎండ్‌పాయింట్‌ను పరీక్షించండి",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} {latency}ms లో పరీక్షించబడింది",
     "probeFailed": "పరీక్ష విఫలమైంది: {reason}",
     "discoverTitle": "ఈ ఎండ్‌పాయింట్‌లోని మోడల్‌లు",

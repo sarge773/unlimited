@@ -416,6 +416,7 @@
     "addingCustom": "जोडत आहे...",
     "discoverModels": "मॉडेल आणा",
     "probeNow": "एंडपॉइंटची चाचणी करा",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} ची चाचणी {latency}ms मध्ये झाली",
     "probeFailed": "चाचणी अयशस्वी झाली: {reason}",
     "discoverTitle": "या एंडपॉइंटवरील मॉडेल",

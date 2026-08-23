@@ -416,6 +416,7 @@
     "addingCustom": "ଯୋଡ଼ିବା...",
     "discoverModels": "ମଡେଲ ଆଣନ୍ତୁ",
     "probeNow": "ଏଣ୍ଡପଏଣ୍ଟ ପରୀକ୍ଷା କରନ୍ତୁ",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} କୁ {latency}ms ରେ ପରୀକ୍ଷା କରାଗଲା",
     "probeFailed": "ପରୀକ୍ଷା ବିଫଳ ହେଲା: {reason}",
     "discoverTitle": "ଏହି ଏଣ୍ଡପଏଣ୍ଟର ମଡେଲ",

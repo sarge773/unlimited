@@ -416,6 +416,7 @@
     "addingCustom": "Prideda...",
     "discoverModels": "Gauti modelius",
     "probeNow": "Išbandyti galinį tašką",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} išbandytas per {latency} ms",
     "probeFailed": "Bandymas nepavyko: {reason}",
     "discoverTitle": "Modeliai šiame galiniame taške",

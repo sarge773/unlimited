@@ -416,6 +416,7 @@
     "addingCustom": "追加中…",
     "discoverModels": "モデルを取得",
     "probeNow": "エンドポイントをテスト",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} を {latency}ms でテストしました",
     "probeFailed": "テストに失敗しました: {reason}",
     "discoverTitle": "このエンドポイントのモデル",

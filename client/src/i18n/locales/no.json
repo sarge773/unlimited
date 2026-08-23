@@ -416,6 +416,7 @@
     "addingCustom": "Legger til...",
     "discoverModels": "Hent modeller",
     "probeNow": "Test endepunktet",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "Testet {model} på {latency} ms",
     "probeFailed": "Testen mislyktes: {reason}",
     "discoverTitle": "Modeller på dette endepunktet",

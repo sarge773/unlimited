@@ -416,6 +416,7 @@
     "addingCustom": "थप्दैछ...",
     "discoverModels": "मोडेल ल्याउनुहोस्",
     "probeNow": "एन्डपोइन्ट परीक्षण गर्नुहोस्",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} {latency}ms मा परीक्षण गरियो",
     "probeFailed": "परीक्षण असफल भयो: {reason}",
     "discoverTitle": "यो एन्डपोइन्टका मोडेलहरू",

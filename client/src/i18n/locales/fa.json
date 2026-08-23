@@ -416,6 +416,7 @@
     "addingCustom": "در حال افزودن…",
     "discoverModels": "دریافت مدل‌ها",
     "probeNow": "آزمایش نقطه پایانی",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} در {latency}ms آزمایش شد",
     "probeFailed": "آزمایش ناموفق بود: {reason}",
     "discoverTitle": "مدل‌های این نقطه پایانی",

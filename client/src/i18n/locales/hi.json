@@ -416,6 +416,7 @@
     "addingCustom": "जोड़ा जा रहा है...",
     "discoverModels": "मॉडल लाएँ",
     "probeNow": "एंडपॉइंट का परीक्षण करें",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} का परीक्षण {latency}ms में हुआ",
     "probeFailed": "परीक्षण विफल: {reason}",
     "discoverTitle": "इस एंडपॉइंट के मॉडल",

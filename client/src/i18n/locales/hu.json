@@ -416,6 +416,7 @@
     "addingCustom": "Hozzátéve...",
     "discoverModels": "Modellek lekérése",
     "probeNow": "Végpont tesztelése",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} tesztelve {latency} ms alatt",
     "probeFailed": "A teszt nem sikerült: {reason}",
     "discoverTitle": "Modellek ezen a végponton",

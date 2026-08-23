@@ -416,6 +416,7 @@
     "addingCustom": "추가 중…",
     "discoverModels": "모델 가져오기",
     "probeNow": "엔드포인트 테스트",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} 테스트 완료 ({latency}ms)",
     "probeFailed": "테스트 실패: {reason}",
     "discoverTitle": "이 엔드포인트의 모델",

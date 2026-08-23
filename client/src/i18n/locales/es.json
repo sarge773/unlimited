@@ -416,6 +416,7 @@
     "addingCustom": "Añadiendo…",
     "discoverModels": "Obtener modelos",
     "probeNow": "Probar el endpoint",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} probado en {latency} ms",
     "probeFailed": "La prueba falló: {reason}",
     "discoverTitle": "Modelos en este endpoint",

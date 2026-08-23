@@ -416,6 +416,7 @@
     "addingCustom": "Adăugând...",
     "discoverModels": "Preia modelele",
     "probeNow": "Testează endpointul",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} testat în {latency} ms",
     "probeFailed": "Testul a eșuat: {reason}",
     "discoverTitle": "Modele pe acest endpoint",

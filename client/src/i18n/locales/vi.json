@@ -416,6 +416,7 @@
     "addingCustom": "Đang thêm…",
     "discoverModels": "Lấy danh sách mô hình",
     "probeNow": "Kiểm thử endpoint",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "Đã kiểm thử {model} trong {latency}ms",
     "probeFailed": "Kiểm thử thất bại: {reason}",
     "discoverTitle": "Mô hình trên endpoint này",

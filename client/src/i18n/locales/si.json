@@ -416,6 +416,7 @@
     "addingCustom": "එකතු කරමින්...",
     "discoverModels": "ආකෘති ලබාගන්න",
     "probeNow": "අන්ත ලක්ෂ්‍යය පරීක්ෂා කරන්න",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} {latency}ms කින් පරීක්ෂා කරන ලදි",
     "probeFailed": "පරීක්ෂණය අසාර්ථක විය: {reason}",
     "discoverTitle": "මෙම අන්තයේ ඇති ආකෘති",

@@ -416,6 +416,7 @@
     "addingCustom": "Ekleniyor…",
     "discoverModels": "Modelleri getir",
     "probeNow": "Uç noktayı test et",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} {latency} ms içinde test edildi",
     "probeFailed": "Test başarısız oldu: {reason}",
     "discoverTitle": "Bu uç noktadaki modeller",

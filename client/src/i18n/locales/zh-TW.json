@@ -420,6 +420,7 @@
     "addingCustom": "新增中...",
     "discoverModels": "取得模型",
     "probeNow": "立即探測",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "已探測 {model}，耗時 {latency}ms",
     "probeFailed": "探測失敗：{reason}",
     "discoverTitle": "此端點上的模型",

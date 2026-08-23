@@ -416,6 +416,7 @@
     "addingCustom": "Menambahkan…",
     "discoverModels": "Ambil model",
     "probeNow": "Uji endpoint",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} diuji dalam {latency}ms",
     "probeFailed": "Pengujian gagal: {reason}",
     "discoverTitle": "Model di endpoint ini",

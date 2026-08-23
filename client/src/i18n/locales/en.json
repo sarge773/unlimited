@@ -442,6 +442,7 @@
     "addingCustom": "Adding…",
     "discoverModels": "Fetch models",
     "probeNow": "Probe endpoint",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "Probed {model} in {latency}ms",
     "probeFailed": "Probe failed: {reason}",
     "discoverTitle": "Models on this endpoint",

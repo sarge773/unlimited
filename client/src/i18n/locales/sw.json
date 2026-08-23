@@ -416,6 +416,7 @@
     "addingCustom": "Inaongeza...",
     "discoverModels": "Leta modeli",
     "probeNow": "Jaribu mwisho huu",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} imejaribiwa kwa {latency}ms",
     "probeFailed": "Jaribio limeshindwa: {reason}",
     "discoverTitle": "Modeli kwenye mwisho huu",

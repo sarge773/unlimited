@@ -416,6 +416,7 @@
     "addingCustom": "Ana ƙara…",
     "discoverModels": "Ɗauko samfura",
     "probeNow": "Gwada matattarar",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "An gwada {model} cikin {latency}ms",
     "probeFailed": "Gwajin ya gaza: {reason}",
     "discoverTitle": "Samfura a wannan matattarar",

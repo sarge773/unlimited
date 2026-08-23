@@ -416,6 +416,7 @@
     "addingCustom": "Əlavə edirəm...",
     "discoverModels": "Modelləri gətir",
     "probeNow": "Son nöqtəni test et",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} {latency}ms ərzində test edildi",
     "probeFailed": "Test alınmadı: {reason}",
     "discoverTitle": "Bu son nöqtədəki modellər",

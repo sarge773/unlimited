@@ -416,6 +416,7 @@
     "addingCustom": "กำลังเพิ่ม...",
     "discoverModels": "ดึงรายการโมเดล",
     "probeNow": "ทดสอบเอนด์พอยต์",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "ทดสอบ {model} ใน {latency}ms แล้ว",
     "probeFailed": "การทดสอบล้มเหลว: {reason}",
     "discoverTitle": "โมเดลบนเอนด์พอยต์นี้",

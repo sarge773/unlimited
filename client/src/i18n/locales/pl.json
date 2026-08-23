@@ -416,6 +416,7 @@
     "addingCustom": "Dodawanie…",
     "discoverModels": "Pobierz modele",
     "probeNow": "Przetestuj punkt końcowy",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "Przetestowano {model} w {latency} ms",
     "probeFailed": "Test nie powiódł się: {reason}",
     "discoverTitle": "Modele w tym punkcie końcowym",

@@ -416,6 +416,7 @@
     "addingCustom": "מוסיף...",
     "discoverModels": "משיכת מודלים",
     "probeNow": "בדיקת נקודת הקצה",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} נבדק תוך {latency}ms",
     "probeFailed": "הבדיקה נכשלה: {reason}",
     "discoverTitle": "מודלים בנקודת קצה זו",

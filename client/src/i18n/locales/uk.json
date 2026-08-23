@@ -416,6 +416,7 @@
     "addingCustom": "Додавання…",
     "discoverModels": "Отримати моделі",
     "probeNow": "Протестувати кінцеву точку",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} протестовано за {latency} мс",
     "probeFailed": "Не вдалося виконати тест: {reason}",
     "discoverTitle": "Моделі на цій кінцевій точці",

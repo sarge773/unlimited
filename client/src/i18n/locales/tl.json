@@ -416,6 +416,7 @@
     "addingCustom": "Dagdag pa...",
     "discoverModels": "Kunin ang mga modelo",
     "probeNow": "Subukan ang endpoint",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "Nasubukan ang {model} sa loob ng {latency}ms",
     "probeFailed": "Nabigo ang pagsubok: {reason}",
     "discoverTitle": "Mga modelo sa endpoint na ito",

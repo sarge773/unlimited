@@ -416,6 +416,7 @@
     "addingCustom": "Tilføjer...",
     "discoverModels": "Hent modeller",
     "probeNow": "Test endpointet",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "Testede {model} på {latency} ms",
     "probeFailed": "Testen mislykkedes: {reason}",
     "discoverTitle": "Modeller på dette endpoint",

@@ -416,6 +416,7 @@
     "addingCustom": "Na-agbakwụnye…",
     "discoverModels": "Weta ụdị",
     "probeNow": "Nwalee njedebe",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "A nwalere {model} n'ime {latency}ms",
     "probeFailed": "Nnwale dara: {reason}",
     "discoverTitle": "Ụdị dị na njedebe a",

@@ -416,6 +416,7 @@
     "addingCustom": "Προσθέτοντας...",
     "discoverModels": "Λήψη μοντέλων",
     "probeNow": "Δοκιμή του endpoint",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "Το {model} δοκιμάστηκε σε {latency}ms",
     "probeFailed": "Η δοκιμή απέτυχε: {reason}",
     "discoverTitle": "Μοντέλα σε αυτό το endpoint",

@@ -416,6 +416,7 @@
     "addingCustom": "جارٍ الإضافة…",
     "discoverModels": "جلب النماذج",
     "probeNow": "اختبار نقطة النهاية",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "تم اختبار {model} خلال {latency} مللي ثانية",
     "probeFailed": "فشل الاختبار: {reason}",
     "discoverTitle": "النماذج على نقطة النهاية هذه",

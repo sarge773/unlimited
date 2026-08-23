@@ -416,6 +416,7 @@
     "addingCustom": "Nfi…",
     "discoverModels": "Gba àwọn àwòṣe",
     "probeNow": "Dán ibùdó náà wò",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "A dán {model} wò ní {latency}ms",
     "probeFailed": "Ìdánwò kùnà: {reason}",
     "discoverTitle": "Àwọn àwòṣe lórí ibùdó yìí",

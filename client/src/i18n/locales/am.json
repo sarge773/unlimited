@@ -416,6 +416,7 @@
     "addingCustom": "በማከል ላይ...",
     "discoverModels": "ሞዴሎችን አምጣ",
     "probeNow": "የመጨረሻ ነጥቡን ይፈትሹ",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} በ{latency}ms ውስጥ ተፈትኗል",
     "probeFailed": "ፍተሻው አልተሳካም፦ {reason}",
     "discoverTitle": "በዚህ መዳረሻ ላይ ያሉ ሞዴሎች",

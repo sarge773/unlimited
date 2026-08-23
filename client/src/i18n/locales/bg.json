@@ -416,6 +416,7 @@
     "addingCustom": "Добавям...",
     "discoverModels": "Извличане на модели",
     "probeNow": "Тествай крайната точка",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} е тестван за {latency}ms",
     "probeFailed": "Тестът е неуспешен: {reason}",
     "discoverTitle": "Модели на тази крайна точка",

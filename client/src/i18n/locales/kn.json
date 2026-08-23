@@ -416,6 +416,7 @@
     "addingCustom": "ಸೇರಿಸಲಾಗುತ್ತಿದೆ...",
     "discoverModels": "ಮಾದರಿಗಳನ್ನು ತರಿಸಿ",
     "probeNow": "ಎಂಡ್‌ಪಾಯಿಂಟ್ ಪರೀಕ್ಷಿಸಿ",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} ಅನ್ನು {latency}ms ನಲ್ಲಿ ಪರೀಕ್ಷಿಸಲಾಗಿದೆ",
     "probeFailed": "ಪರೀಕ್ಷೆ ವಿಫಲವಾಗಿದೆ: {reason}",
     "discoverTitle": "ಈ ಎಂಡ್‌ಪಾಯಿಂಟ್‌ನ ಮಾದರಿಗಳು",

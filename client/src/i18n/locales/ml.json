@@ -416,6 +416,7 @@
     "addingCustom": "ചേർക്കുന്നു...",
     "discoverModels": "മോഡലുകൾ എടുക്കുക",
     "probeNow": "എൻഡ്‌പോയിന്റ് പരീക്ഷിക്കുക",
+    "probeConfirm": "Send 1 test request?",
     "probeSuccess": "{model} {latency}ms-ൽ പരീക്ഷിച്ചു",
     "probeFailed": "പരീക്ഷണം പരാജയപ്പെട്ടു: {reason}",
     "discoverTitle": "ഈ എൻഡ്‌പോയിന്റിലെ മോഡലുകൾ",
