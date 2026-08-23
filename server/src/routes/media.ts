@@ -48,11 +48,14 @@ mediaRouter.get('/', (_req: Request, res: Response) => {
 // token counts are reported. As with embeddings there is no budget
 // denominator — `media_models` only carries a free-text `quota_label`
 // ("Shared 10k neurons/day", "MP3 output - multilingual", which is not even a
-// quota) — so the summary shows spend and the label verbatim.
+// quota) — so the summary shows spend and the label verbatim. Transcription
+// rows are logged the same way (request_type='transcription', see
+// logMedia), so the Audio tab's STT section can show the same per-model
+// counts instead of dead-ending on a 400.
 mediaRouter.get('/usage', (req: Request, res: Response) => {
-  const parsed = z.enum(['image', 'audio']).safeParse(req.query.modality);
+  const parsed = z.enum(['image', 'audio', 'transcription']).safeParse(req.query.modality);
   if (!parsed.success) {
-    res.status(400).json({ error: { message: 'modality must be image or audio' } });
+    res.status(400).json({ error: { message: 'modality must be image, audio or transcription' } });
     return;
   }
   const modality = parsed.data;
