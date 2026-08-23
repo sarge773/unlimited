@@ -538,11 +538,19 @@ async function callVideoProvider(
   switch (row.platform) {
     case 'pollinations': {
       if (!key) throw new MediaError('pollinations key required', 401);
-      const duration = p.duration ?? 6;
-      if (row.model_id === 'nova-reel' && (duration < 6 || duration > 120 || duration % 6 !== 0)) {
+      // Every Pollinations video model advertises its own allowed durations
+      // (nova-reel 6-120 in steps of 6, veo 4/6/8, minimax-h3 exactly 5,
+      // wan 5/10/15, seedance-2.5 exactly 4...). There is no length that is
+      // valid everywhere, so an omitted `duration` is left off the query and
+      // the provider applies the model's own default instead of a guess that
+      // would 400 on most of the roster.
+      const duration = p.duration;
+      if (duration !== undefined && row.model_id === 'nova-reel'
+          && (duration < 6 || duration > 120 || duration % 6 !== 0)) {
         throw new MediaError('nova-reel duration must be a multiple of 6 between 6 and 120 seconds', 400);
       }
-      const params = new URLSearchParams({ model: row.model_id, duration: String(duration) });
+      const params = new URLSearchParams({ model: row.model_id });
+      if (duration !== undefined) params.set('duration', String(duration));
       if (p.aspectRatio) params.set('aspectRatio', p.aspectRatio);
       if (p.image) params.set('image', p.image);
       if (p.seed !== undefined) params.set('seed', String(p.seed));

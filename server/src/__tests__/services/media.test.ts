@@ -249,6 +249,23 @@ describe('media service', () => {
       });
     });
 
+    it('Pollinations: omits duration entirely when the caller did not ask for one', async () => {
+      // Allowed lengths differ per model (nova-reel 6-120 by 6, veo 4/6/8,
+      // minimax-h3 exactly 5), so guessing one would 400 on most of the
+      // roster. No duration means the provider uses the model's own default.
+      addMedia('pollinations', 'nova-reel', 'video');
+      addKey('pollinations', 'sk_pollinations_test');
+      const fetchMock = vi.fn(async () =>
+        new Response(Buffer.from('MP4DATA'), { status: 200, headers: { 'content-type': 'video/mp4' } }));
+      globalThis.fetch = fetchMock as any;
+
+      await runVideoGeneration('nova-reel', { prompt: 'sunrise over a lake' });
+
+      const url = new URL(String(fetchMock.mock.calls[0][0]));
+      expect(url.searchParams.has('duration')).toBe(false);
+      expect(url.searchParams.get('model')).toBe('nova-reel');
+    });
+
     it('Pollinations: rejects unsupported nova-reel durations before calling upstream', async () => {
       addMedia('pollinations', 'nova-reel', 'video');
       addKey('pollinations');
