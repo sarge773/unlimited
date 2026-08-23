@@ -551,7 +551,14 @@
     "bulkDelete": "批量删除",
     "bulkDeleteConfirm": "删除 {count} 个？",
     "bulkResult": "已更新 {done} 个；失败 {failed} 个。",
-    "bulkDeleteResult": "已删除 {done} 个；失败 {failed} 个。"
+    "bulkDeleteResult": "已删除 {done} 个；失败 {failed} 个。",
+    "degradedActive": "降级模式生效中",
+    "degradedNormal": "正常运行",
+    "degradedOverride": "手动覆盖：{mode}",
+    "degradedSummary": "{healthy}/{total} 个提供方健康（{pct}%）",
+    "degradedAuto": "自动",
+    "degradedForceNormal": "强制正常",
+    "degradedForceDegraded": "强制降级"
   },
   "status": {
     "healthy": "健康",

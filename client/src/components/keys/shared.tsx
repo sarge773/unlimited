@@ -128,4 +128,12 @@ export interface HealthData {
   platforms: HealthPlatform[]
   keys: { id: number; platform: string; status: string; lastCheckedAt: string | null; lastHealthError: string | null }[]
   quotaStates: ProviderQuotaState[]
+  degradation?: {
+    state: 'normal' | 'degraded'
+    degradedAt: number | null
+    override: 'auto' | 'normal' | 'degraded'
+    healthyProviders: number
+    totalProviders: number
+    ratio: number
+  }
 }

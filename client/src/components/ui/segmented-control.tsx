@@ -14,12 +14,14 @@ export function SegmentedControl<T extends string>({
   options,
   ariaLabel,
   className,
+  disabled = false,
 }: {
   value: T
   onValueChange: (value: T) => void
   options: SegmentOption<T>[]
   ariaLabel?: string
   className?: string
+  disabled?: boolean
 }) {
   return (
     <div role="tablist" aria-label={ariaLabel} className={cn('inline-flex gap-1 rounded-xl border p-1', className)}>
@@ -30,7 +32,8 @@ export function SegmentedControl<T extends string>({
           role="tab"
           aria-selected={value === o.value}
           onClick={() => onValueChange(o.value)}
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-colors ${
+          disabled={disabled}
+          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-colors disabled:opacity-50 ${
             value === o.value
               ? 'bg-foreground text-background font-medium'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted'

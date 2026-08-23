@@ -551,7 +551,14 @@
     "bulkDelete": "Delete all",
     "bulkDeleteConfirm": "Delete {count}?",
     "bulkResult": "Updated {done}; failed {failed}.",
-    "bulkDeleteResult": "Deleted {done}; failed {failed}."
+    "bulkDeleteResult": "Deleted {done}; failed {failed}.",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "status": {
     "healthy": "healthy",

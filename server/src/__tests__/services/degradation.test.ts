@@ -8,6 +8,7 @@ const {
   getDegradationStatus,
   isDegraded,
   resetDegradationState,
+  setDegradationOverride,
 } = await import('../../services/degradation.js');
 
 // #904 degraded-mode state machine: when the healthy-provider ratio stays
@@ -162,5 +163,57 @@ describe('degraded-mode state machine', () => {
     const status = getDegradationStatus();
     expect(status.totalProviders).toBe(1);
     expect(status.state).toBe('normal');
+  });
+
+  it('override "degraded" pins the gateway in even with a healthy fleet (#952)', () => {
+    seedKey('groq', { status: 'healthy' });
+    seedKey('cloudflare', { status: 'healthy' });
+    seedKey('mistral', { status: 'healthy' });
+    const status = setDegradationOverride('degraded', 0);
+    expect(status.state).toBe('degraded');
+    expect(status.override).toBe('degraded');
+    expect(isDegraded()).toBe(true);
+    // The next automatic pass must not pull the pin.
+    const later = updateDegradationState(60_000);
+    expect(later.state).toBe('degraded');
+    expect(isDegraded()).toBe(true);
+  });
+
+  it('override "normal" pins the gateway out even with a sick fleet (#952)', () => {
+    seedKey('groq', { status: 'error' });
+    seedKey('cloudflare', { status: 'error' });
+    seedKey('mistral', { status: 'error' });
+    const status = setDegradationOverride('normal', 0);
+    expect(status.state).toBe('normal');
+    expect(isDegraded()).toBe(false);
+    // Automatic passes must respect the pin regardless of the ratio.
+    const later = updateDegradationState(60_000);
+    expect(later.state).toBe('normal');
+    expect(isDegraded()).toBe(false);
+  });
+
+  it('override back to "auto" hands control to the ratio machine again (#952)', () => {
+    seedKey('groq', { status: 'healthy' });
+    seedKey('cloudflare', { status: 'error' });
+    seedKey('mistral', { status: 'error' });
+    setDegradationOverride('normal', 0);
+    expect(isDegraded()).toBe(false);
+    const status = setDegradationOverride('auto', 0);
+    expect(status.override).toBe('auto');
+    // Ratio is 1/3 < 0.5: after the entry grace elapses the machine degrades.
+    const later = updateDegradationState(60_001);
+    expect(later.state).toBe('degraded');
+    expect(isDegraded()).toBe(true);
+  });
+
+  it('resetDegradationState clears a manual override (#952)', () => {
+    seedKey('groq', { status: 'healthy' });
+    seedKey('cloudflare', { status: 'healthy' });
+    seedKey('mistral', { status: 'healthy' });
+    setDegradationOverride('degraded', 0);
+    expect(isDegraded()).toBe(true);
+    resetDegradationState();
+    expect(isDegraded()).toBe(false);
+    expect(getDegradationStatus().override).toBe('auto');
   });
 });
