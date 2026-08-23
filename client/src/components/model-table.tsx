@@ -123,6 +123,28 @@ export function ModelTableHead() {
 }
 
 // ── One row of the unified table ────────────────────────────────────────────
+// Time-window rate-limit pressure for one logical model or one provider row
+// (#876). Shared by the Models table group header, the model detail page's
+// summary badges and its per-provider rows so all three read identically.
+// Renders nothing when there is no usage to report.
+export function RateLimitBadge({ rows, size = 'sm' }: { rows: RateLimitUsageRow[]; size?: 'sm' | 'md' }) {
+  const { t } = useI18n()
+  const tightest = tightestRateLimit(rows)
+  if (!tightest) return null
+  const ratio = tightest.limit > 0 ? tightest.used / tightest.limit : 0
+  const tone = tightest.used >= tightest.limit
+    ? 'bg-red-600/15 text-red-700 dark:text-red-400'
+    : ratio >= 0.7
+      ? 'bg-amber-600/15 text-amber-700 dark:text-amber-400'
+      : 'bg-muted text-muted-foreground'
+  const scale = size === 'md' ? 'text-[11px] px-2 py-0.5' : 'text-[10px] px-1.5 py-0.5'
+  return (
+    <span title={t('models.rateLimitUsageTitle')} className={`rounded-full tabular-nums ${scale} ${tone}`}>
+      {t('models.rateLimitUsage', { kind: tightest.kind, used: tightest.used, limit: tightest.limit })}
+    </span>
+  )
+}
+
 export function RowContent({
   row,
   rank,
@@ -131,6 +153,7 @@ export function RowContent({
   onToggle,
   providerName,
   providerTitle,
+  rateUsage,
 }: {
   row: Row
   rank: number
@@ -144,6 +167,8 @@ export function RowContent({
   // disambiguate. Never derived from row.endpointScope here: every custom row
   // carries a scope, so doing so would leak the base URL of a lone endpoint.
   providerTitle?: string
+  // This provider's own time-window usage (#876), when the caller fetched it.
+  rateUsage?: RateLimitUsageRow
 }) {
   const { t } = useI18n()
   const guard = (row.headroom ?? 1) * (row.rateLimit ?? 1)
@@ -159,6 +184,7 @@ export function RowContent({
           <span className="text-xs text-muted-foreground" title={providerTitle}>
             {providerName ?? providerLabel(row)}
           </span>
+          <RateLimitBadge rows={rateUsage ? [rateUsage] : []} />
           {row.supportsVision && (
             <span
               title={t('models.visionTitle')}
@@ -266,9 +292,9 @@ export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup, allRo
   // Remaining time-window quota for this group (#876): the member with the most
   // headroom decides the badge, since the group stays routable while any one of
   // its providers can serve. Lookup is O(members) against the shared map.
-  const tightest = rateUsage
-    ? tightestRateLimit(group.members.flatMap(m => rateUsage.get(m.modelDbId) ?? []))
-    : null
+  const rateRows = rateUsage
+    ? group.members.flatMap(m => rateUsage.get(m.modelDbId) ?? [])
+    : []
   // Honest group display (#580): reliability/speed ranges come only from
   // members that were actually measured; when none were, show "no data" rather
   // than the shared exploration priors. Intelligence is catalog metadata, so
@@ -307,11 +333,7 @@ export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup, allRo
                 {quota.text}
               </span>
             )}
-            {tightest && (
-              <span title={t('models.rateLimitUsageTitle')} className={`text-[10px] rounded-full px-1.5 py-0.5 tabular-nums ${tightest.used >= tightest.limit ? 'bg-red-600/15 text-red-700 dark:text-red-400' : tightest.used / tightest.limit >= 0.7 ? 'bg-amber-600/15 text-amber-700 dark:text-amber-400' : 'bg-muted text-muted-foreground'}`}>
-                {t('models.rateLimitUsage', { kind: tightest.kind, used: tightest.used, limit: tightest.limit })}
-              </span>
-            )}
+            <RateLimitBadge rows={rateRows} />
             {maxCtx > 0 && (
               <span title={t('models.ctxTitle')} className="text-[10px] rounded-full px-1.5 py-0.5 bg-muted text-muted-foreground tabular-nums">
                 {t('models.ctxBadge', { size: formatContext(maxCtx) })}
