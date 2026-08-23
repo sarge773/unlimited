@@ -48,7 +48,9 @@ describe('desktop file sink', () => {
   });
 
   it('keeps appending across sink instances rather than truncating', () => {
-    createFileSink(dir).write('one');
+    const first = createFileSink(dir);
+    first.write('one');
+    first.close();
     const second = createFileSink(dir);
     second.write('two');
     second.close();
