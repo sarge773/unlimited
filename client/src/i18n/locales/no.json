@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Utforsk umålte modeller",
-    "exploreHint": "Gir modeller uten pålitelighets-/hastighetsdata 10 % sjanse til å bli prøvd slik at de bygger opp stikkprøver.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "Nøkkelvalg",
     "keySelectionAuto": "Automatisk",
     "keySelectionLeastRemaining": "Minst igjen",

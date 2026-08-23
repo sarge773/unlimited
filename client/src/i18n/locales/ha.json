@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Bincika samfuran da ba a auna ba",
-    "exploreHint": "Ba samfuran da ba su da bayanan aminci/sauri damar 10% a gwada su domin su tara bayanai.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "Zaɓin maɓalli",
     "keySelectionAuto": "Ta atomatik",
     "keySelectionLeastRemaining": "Mafi ƙarancin saura",

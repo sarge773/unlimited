@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "ମପାଯାଇନଥିବା ମଡେଲଗୁଡ଼ିକୁ ଅନୁସନ୍ଧାନ କରନ୍ତୁ",
-    "exploreHint": "ବିଶ୍ୱସନୀୟତା/ବେଗ ତଥ୍ୟ ନଥିବା ମଡେଲଗୁଡ଼ିକୁ ନମୁନା ସଂଗ୍ରହ ପାଇଁ 10% ଚେଷ୍ଟା କରିବାର ସୁଯୋଗ ଦିଅନ୍ତୁ।",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "କୀ ଚୟନ",
     "keySelectionAuto": "ସ୍ୱୟଂଚାଳିତ",
     "keySelectionLeastRemaining": "ସର୍ବନିମ୍ନ ଅବଶିଷ୍ଟ",

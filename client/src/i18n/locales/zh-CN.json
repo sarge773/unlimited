@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "探索未测模型",
-    "exploreHint": "给尚无可靠性/速度数据的模型 10% 的尝试机会，以便积累样本。",
+    "exploreHint": "让没有可靠性或速度数据的模型有 10% 的几率优先尝试，以便积累记录。发出的是你的真实请求，因此它可能由未经测试的模型来回答。若是自定义端点，可在「密钥」页面用「立即探测」测试，无需动用真实流量。",
     "keySelection": "密钥选择",
     "keySelectionAuto": "自动",
     "keySelectionLeastRemaining": "按剩余额度",

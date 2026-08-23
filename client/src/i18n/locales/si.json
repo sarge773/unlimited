@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "නොමැනූ ආකෘති ගවේෂණය කරන්න",
-    "exploreHint": "විශ්වසනීයත්වය/වේගය දත්ත නොමැති ආකෘතිවලට නියැදි එකතු කර ගැනීමට 10% උත්සාහ අවස්ථාවක් දෙන්න.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "යතුරු තේරීම",
     "keySelectionAuto": "ස්වයංක්‍රීය",
     "keySelectionLeastRemaining": "අවම ඉතිරි",

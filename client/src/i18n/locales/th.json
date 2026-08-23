@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "สำรวจโมเดลที่ยังไม่ได้วัดผล",
-    "exploreHint": "ให้โมเดลที่ไม่มีข้อมูลความน่าเชื่อถือ/ความเร็วมีโอกาส 10% ที่จะถูกลองใช้เพื่อสะสมตัวอย่าง",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "การเลือกคีย์",
     "keySelectionAuto": "อัตโนมัติ",
     "keySelectionLeastRemaining": "เหลือน้อยที่สุด",

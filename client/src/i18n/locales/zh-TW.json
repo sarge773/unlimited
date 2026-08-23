@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "探索未測模型",
-    "exploreHint": "給尚無可靠性/速度資料的模型 10% 的嘗試機會，以便累積樣本。",
+    "exploreHint": "讓沒有可靠性或速度資料的模型有 10% 的機率優先嘗試，以便累積紀錄。送出的是你的真實請求，因此可能由未經測試的模型回答。若是自訂端點，可在「金鑰」頁面用「立即探測」測試，不必動用真實流量。",
     "keySelection": "金鑰選擇",
     "keySelectionAuto": "自動",
     "keySelectionLeastRemaining": "依剩餘額度",

@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "അളക്കാത്ത മോഡലുകൾ പര്യവേക്ഷണം ചെയ്യുക",
-    "exploreHint": "വിശ്വാസ്യത/വേഗത ഡാറ്റ ഇല്ലാത്ത മോഡലുകൾക്ക് സാമ്പിളുകൾ ശേഖരിക്കാൻ 10% പരീക്ഷണ അവസരം നൽകുക.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "കീ തിരഞ്ഞെടുപ്പ്",
     "keySelectionAuto": "സ്വയം",
     "keySelectionLeastRemaining": "ഏറ്റവും കുറവ് ബാക്കി",

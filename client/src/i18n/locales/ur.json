@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "غیر پیمائش شدہ ماڈلز دریافت کریں",
-    "exploreHint": "جن ماڈلز کے پاس اعتماد/رفتار کا ڈیٹا نہیں انہیں نمونے جمع کرنے کے لیے 10% آزمائے جانے کا موقع دیں۔",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "کلید کا انتخاب",
     "keySelectionAuto": "خودکار",
     "keySelectionLeastRemaining": "کم ترین باقی",

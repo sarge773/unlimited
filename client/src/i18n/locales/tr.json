@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Ölçülmemiş modelleri keşfet",
-    "exploreHint": "Güvenilirlik/hız verisi olmayan modellere örnek toplayabilmeleri için %10 denenme şansı verir.",
+    "exploreHint": "Güvenilirlik veya hız verisi olmayan modellere sicil oluşturabilmeleri için %10 oranında ilk sırada denenme şansı verir. Giden şey gerçek isteğinizdir, dolayısıyla test edilmemiş bir model yanıtlayabilir. Özel bir uç nokta için Anahtarlar sayfasındaki «Uç noktayı test et» ile gerçek trafik harcamadan deneyin.",
     "keySelection": "Anahtar seçimi",
     "keySelectionAuto": "Otomatik",
     "keySelectionLeastRemaining": "En az kalan",

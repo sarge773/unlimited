@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Истражи неизмерене моделе",
-    "exploreHint": "Моделима без података о поузданости/брзини даје 10% шансе да буду испробани како би прикупили узорке.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "Избор кључа",
     "keySelectionAuto": "Аутоматски",
     "keySelectionLeastRemaining": "Најмање преостало",

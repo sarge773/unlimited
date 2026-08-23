@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "חקירת דגמים שטרם נמדדו",
-    "exploreHint": "נותן לדגמים ללא נתוני אמינות/מהירות סיכוי של 10% להיבחר לניסיון כדי שיצברו דגימות.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "בחירת מפתח",
     "keySelectionAuto": "אוטומטי",
     "keySelectionLeastRemaining": "הכי מעט נותר",

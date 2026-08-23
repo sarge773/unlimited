@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Explorar modelos sin mediciones",
-    "exploreHint": "Da a los modelos sin datos de fiabilidad/velocidad un 10 % de probabilidad de ser probados para que acumulen muestras.",
+    "exploreHint": "Da a los modelos sin datos de fiabilidad ni de velocidad un 10 % de probabilidad de ir primero, para que acumulen historial. Lo que se envía es tu solicitud real, así que puede responderla un modelo sin probar. Para un endpoint personalizado, usa «Probar el endpoint» en la página Claves y evita el tráfico real.",
     "keySelection": "Selección de clave",
     "keySelectionAuto": "Automática",
     "keySelectionLeastRemaining": "Menos restante",

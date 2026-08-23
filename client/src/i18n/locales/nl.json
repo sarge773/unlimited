@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Ongemeten modellen verkennen",
-    "exploreHint": "Geeft modellen zonder betrouwbaarheids-/snelheidsgegevens 10% kans om geprobeerd te worden zodat ze steekproeven opbouwen.",
+    "exploreHint": "Geeft modellen zonder betrouwbaarheids- of snelheidsgegevens 10% kans om als eerste te worden geprobeerd, zodat ze meetwaarden opbouwen. Wat er uitgaat is je echte verzoek, dus het kan door een ongetest model worden beantwoord. Test een eigen endpoint liever met «Endpoint testen» op de pagina Sleutels, zonder echt verkeer.",
     "keySelection": "Sleutelkeuze",
     "keySelectionAuto": "Automatisch",
     "keySelectionLeastRemaining": "Minste resterend",

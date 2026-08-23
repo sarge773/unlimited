@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "O'lchanmagan modellarni o'rganish",
-    "exploreHint": "Ishonchlilik/tezlik ma'lumotlari bo'lmagan modellarga namunalar to'plashi uchun 10% sinab ko'rish imkoniyati beriladi.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "Kalit tanlash",
     "keySelectionAuto": "Avtomatik",
     "keySelectionLeastRemaining": "Eng kam qolgan",

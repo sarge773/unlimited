@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "ਬਿਨਾਂ ਮਾਪੇ ਮਾਡਲਾਂ ਦੀ ਖੋਜ ਕਰੋ",
-    "exploreHint": "ਭਰੋਸੇਯੋਗਤਾ/ਸਪੀਡ ਡੇਟਾ ਤੋਂ ਬਿਨਾਂ ਮਾਡਲਾਂ ਨੂੰ ਨਮੂਨੇ ਇਕੱਠੇ ਕਰਨ ਲਈ 10% ਅਜ਼ਮਾਉਣ ਦਾ ਮੌਕਾ ਦਿਓ।",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "ਕੁੰਜੀ ਚੋਣ",
     "keySelectionAuto": "ਆਪਣੇ-ਆਪ",
     "keySelectionLeastRemaining": "ਸਭ ਤੋਂ ਘੱਟ ਬਾਕੀ",

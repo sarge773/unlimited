@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "ស្វែងរកម៉ូដែលដែលមិនទាន់វាស់វែង",
-    "exploreHint": "ផ្តល់ឱ្យម៉ូដែលដែលគ្មានទិន្នន័យភាពទុកចិត្ត/ល្បឿន ឱកាស 10% ដើម្បីសាកល្បង ដើម្បីប្រមូលគំរូ។",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "ការជ្រើសរើសកូនសោ",
     "keySelectionAuto": "ស្វ័យប្រវត្តិ",
     "keySelectionLeastRemaining": "នៅសល់តិចបំផុត",

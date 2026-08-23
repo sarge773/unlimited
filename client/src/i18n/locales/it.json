@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Esplora i modelli non misurati",
-    "exploreHint": "Dà ai modelli senza dati di affidabilità/velocità una probabilità del 10% di essere provati così da accumulare campioni.",
+    "exploreHint": "Dà ai modelli senza dati di affidabilità o velocità il 10 % di probabilità di essere provati per primi, così da accumulare storico. A partire è la tua richiesta reale, quindi può rispondere un modello non testato. Per un endpoint personalizzato usa «Testa l'endpoint» nella pagina Chiavi, senza traffico reale.",
     "keySelection": "Selezione della chiave",
     "keySelectionAuto": "Automatica",
     "keySelectionLeastRemaining": "Meno residuo",

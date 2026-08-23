@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Unvermessene Modelle erkunden",
-    "exploreHint": "Gibt Modellen ohne Zuverlässigkeits-/Geschwindigkeitsdaten eine 10-%-Chance, ausprobiert zu werden, damit sie Stichproben aufbauen.",
+    "exploreHint": "Gibt Modellen ohne Zuverlässigkeits- oder Geschwindigkeitsdaten eine Chance von 10 %, zuerst versucht zu werden, damit sie Messwerte sammeln. Gesendet wird Ihre echte Anfrage – sie kann also von einem ungetesteten Modell beantwortet werden. Einen benutzerdefinierten Endpunkt prüfen Sie stattdessen auf der Seite „Schlüssel“ mit „Endpunkt testen“, ganz ohne echten Datenverkehr.",
     "keySelection": "Schlüsselauswahl",
     "keySelectionAuto": "Automatisch",
     "keySelectionLeastRemaining": "Geringstes Restkontingent",

@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "გაუზომავი მოდელების შესწავლა",
-    "exploreHint": "საიმედოობის/სიჩქარის მონაცემების არმქონე მოდელებს აძლევს 10%-იან შანსს, რომ გამოიცადონ და ნიმუშები დააგროვონ.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "გასაღების არჩევა",
     "keySelectionAuto": "ავტომატური",
     "keySelectionLeastRemaining": "ყველაზე ნაკლები დარჩენილი",

@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Khám phá các mô hình chưa được đo",
-    "exploreHint": "Cho các mô hình chưa có dữ liệu độ tin cậy/tốc độ 10% cơ hội được thử để tích lũy mẫu.",
+    "exploreHint": "Cho các mô hình chưa có dữ liệu độ tin cậy hay tốc độ 10% cơ hội được thử trước để chúng tích lũy số liệu. Thứ được gửi đi là yêu cầu thật của bạn, nên một mô hình chưa được kiểm chứng có thể trả lời nó. Với endpoint tùy chỉnh, hãy dùng «Kiểm thử endpoint» ở trang Khóa để thử mà không tốn lưu lượng thật.",
     "keySelection": "Chọn khóa",
     "keySelectionAuto": "Tự động",
     "keySelectionLeastRemaining": "Còn lại ít nhất",

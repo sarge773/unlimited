@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "မတိုင်းတာရသေးသော မော်ဒယ်များကို စူးစမ်းရန်",
-    "exploreHint": "ယုံကြည်စိတ်ချမှု/အမြန်နှုန်း ဒေတာမရှိသော မော်ဒယ်များကို နမူနာစုဆောင်းနိုင်ရန် 10% စမ်းသပ်ခွင့် ပေးသည်။",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "သော့ရွေးချယ်မှု",
     "keySelectionAuto": "အလိုအလျောက်",
     "keySelectionLeastRemaining": "ကျန်အနည်းဆုံး",

@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Eksploruj niezmierzone modele",
-    "exploreHint": "Daje modelom bez danych o niezawodności/prędkości 10% szansy na wypróbowanie, aby zebrały próbki.",
+    "exploreHint": "Daje modelom bez danych o niezawodności i szybkości 10% szansy na pierwszeństwo, żeby zebrały pomiary. Wysyłane jest twoje prawdziwe żądanie, więc może na nie odpowiedzieć nieprzetestowany model. Własny punkt końcowy sprawdzisz przyciskiem «Przetestuj punkt końcowy» na stronie Klucze, bez ruchu produkcyjnego.",
     "keySelection": "Wybór klucza",
     "keySelectionAuto": "Automatycznie",
     "keySelectionLeastRemaining": "Najmniej pozostało",

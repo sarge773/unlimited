@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Preskúmavať nezmerané modely",
-    "exploreHint": "Dáva modelom bez údajov o spoľahlivosti/rýchlosti 10 % šancu na vyskúšanie, aby nazbierali vzorky.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "Výber kľúča",
     "keySelectionAuto": "Automaticky",
     "keySelectionLeastRemaining": "Najmenej zostáva",

@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "Explorar modelos sem medições",
-    "exploreHint": "Dá aos modelos sem dados de confiabilidade/velocidade 10% de chance de serem testados para que acumulem amostras.",
+    "exploreHint": "Dá aos modelos sem dados de confiabilidade ou de velocidade 10% de chance de irem primeiro, para que acumulem histórico. O que sai é a sua requisição real, então ela pode ser respondida por um modelo não testado. Para um endpoint personalizado, use «Testar o endpoint» na página Chaves e evite o tráfego real.",
     "keySelection": "Seleção de chave",
     "keySelectionAuto": "Automática",
     "keySelectionLeastRemaining": "Menor restante",

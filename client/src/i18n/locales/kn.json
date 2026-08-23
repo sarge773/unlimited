@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "ಅಳೆಯದ ಮಾದರಿಗಳನ್ನು ಅನ್ವೇಷಿಸಿ",
-    "exploreHint": "ವಿಶ್ವಾಸಾರ್ಹತೆ/ವೇಗ ಡೇಟಾ ಇಲ್ಲದ ಮಾದರಿಗಳಿಗೆ ಸ್ಯಾಂಪಲ್‌ಗಳನ್ನು ಸಂಗ್ರಹಿಸಲು 10% ಪ್ರಯತ್ನದ ಅವಕಾಶ ನೀಡಿ.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "ಕೀ ಆಯ್ಕೆ",
     "keySelectionAuto": "ಸ್ವಯಂ",
     "keySelectionLeastRemaining": "ಅತಿ ಕಡಿಮೆ ಉಳಿದಿರುವುದು",

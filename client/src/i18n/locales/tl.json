@@ -282,7 +282,7 @@
   },
   "strategies": {
     "explore": "I-explore ang mga hindi pa nasusukat na modelo",
-    "exploreHint": "Bigyan ang mga modelong walang data ng pagiging maaasahan/bilis ng 10% na tsansang masubukan para makaipon ng mga sample.",
+    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
     "keySelection": "Pagpili ng key",
     "keySelectionAuto": "Awto",
     "keySelectionLeastRemaining": "Pinakakaunti ang natitira",
