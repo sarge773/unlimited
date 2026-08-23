@@ -99,7 +99,10 @@ const customMediaSchema = z.object({
   baseUrl: z.string().url('baseUrl must be a valid URL'),
   model: z.string().min(1),
   displayName: z.string().optional(),
-  modality: z.enum(['image', 'audio']),
+  // 'transcription' is allowed so a custom STT endpoint can be registered —
+  // the data model, the /v1/audio/transcriptions handler and the usage
+  // endpoint all support it. (Same enum the usage endpoint uses.)
+  modality: z.enum(['image', 'audio', 'transcription']),
   apiKey: z.string().optional(),
   label: z.string().optional(),
   quotaLabel: z.string().optional(),
