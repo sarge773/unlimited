@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Enable or disable every shown model",
+    "enableAll": "Enable all",
+    "disableAll": "Disable all",
+    "enableAllHint": "Turn on every model shown, then Save",
+    "disableAllHint": "Turn off every model shown, then Save",
+    "enabledOfShown": "{enabled} of {shown} shown models are in the chain"
   },
   "strategies": {
     "explore": "I-explore ang mga hindi pa nasusukat na modelo",
@@ -1054,6 +1060,10 @@
     "create": "Create",
     "createPlaceholder": "Chain name",
     "createFailed": "Could not create the chain.",
-    "nameRules": "Up to 20 characters: letters, digits, hyphens and underscores."
+    "nameRules": "Up to 20 characters: letters, digits, hyphens and underscores.",
+    "startEmpty": "Start empty",
+    "startEmptyHint": "Create the chain with no models in it, and keep new catalog models out of it. Unchecked, it starts as a copy of the default chain.",
+    "curated": "Curated",
+    "curatedHint": "New catalog models are not added to this chain automatically."
   }
 }

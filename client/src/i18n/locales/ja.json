@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "表示中のモデルをまとめて有効化・無効化",
+    "enableAll": "すべて有効化",
+    "disableAll": "すべて無効化",
+    "enableAllHint": "表示中のモデルをすべて有効にして保存します",
+    "disableAllHint": "表示中のモデルをすべて無効にして保存します",
+    "enabledOfShown": "表示中の {shown} 件のうち {enabled} 件がチェーンに入っています"
   },
   "strategies": {
     "explore": "未計測のモデルを探索",
@@ -1054,6 +1060,10 @@
     "create": "作成",
     "createPlaceholder": "チェーン名",
     "createFailed": "チェーンを作成できませんでした。",
-    "nameRules": "20 文字まで：英数字、ハイフン、アンダースコア。"
+    "nameRules": "20 文字まで：英数字、ハイフン、アンダースコア。",
+    "startEmpty": "空の状態で作成",
+    "startEmptyHint": "モデルを入れずにチェーンを作り、新しいカタログモデルも自動では追加しません。チェックを外すと既定のチェーンの複製になります。",
+    "curated": "手動管理",
+    "curatedHint": "新しいカタログモデルはこのチェーンに自動追加されません。"
   }
 }

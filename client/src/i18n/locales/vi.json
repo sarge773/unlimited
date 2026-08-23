@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Bật hoặc tắt mọi mô hình đang hiển thị",
+    "enableAll": "Bật tất cả",
+    "disableAll": "Tắt tất cả",
+    "enableAllHint": "Bật mọi mô hình đang hiển thị rồi lưu",
+    "disableAllHint": "Tắt mọi mô hình đang hiển thị rồi lưu",
+    "enabledOfShown": "{enabled} trong {shown} mô hình đang hiển thị nằm trong chuỗi"
   },
   "strategies": {
     "explore": "Khám phá các mô hình chưa được đo",
@@ -1054,6 +1060,10 @@
     "create": "Tạo",
     "createPlaceholder": "Tên chuỗi",
     "createFailed": "Không tạo được chuỗi.",
-    "nameRules": "Tối đa 20 ký tự: chữ cái, chữ số, gạch nối và gạch dưới."
+    "nameRules": "Tối đa 20 ký tự: chữ cái, chữ số, gạch nối và gạch dưới.",
+    "startEmpty": "Bắt đầu rỗng",
+    "startEmptyHint": "Tạo chuỗi không có mô hình nào và không tự thêm mô hình mới từ danh mục. Bỏ chọn thì chuỗi bắt đầu như bản sao của chuỗi mặc định.",
+    "curated": "Tự chọn",
+    "curatedHint": "Mô hình mới trong danh mục không được thêm tự động vào chuỗi này."
   }
 }

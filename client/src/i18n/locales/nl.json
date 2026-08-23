@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Alle getoonde modellen aan- of uitzetten",
+    "enableAll": "Alles aan",
+    "disableAll": "Alles uit",
+    "enableAllHint": "Zet alle getoonde modellen aan en sla op",
+    "disableAllHint": "Zet alle getoonde modellen uit en sla op",
+    "enabledOfShown": "{enabled} van {shown} getoonde modellen zitten in de keten"
   },
   "strategies": {
     "explore": "Ongemeten modellen verkennen",
@@ -1054,6 +1060,10 @@
     "create": "Aanmaken",
     "createPlaceholder": "Ketennaam",
     "createFailed": "De keten kon niet worden aangemaakt.",
-    "nameRules": "Maximaal 20 tekens: letters, cijfers, koppel- en onderstrepingstekens."
+    "nameRules": "Maximaal 20 tekens: letters, cijfers, koppel- en onderstrepingstekens.",
+    "startEmpty": "Leeg beginnen",
+    "startEmptyHint": "Maakt de keten zonder modellen aan en houdt nieuwe catalogusmodellen erbuiten. Niet aangevinkt begint hij als kopie van de standaardketen.",
+    "curated": "Handmatig",
+    "curatedHint": "Nieuwe catalogusmodellen worden niet automatisch aan deze keten toegevoegd."
   }
 }

@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Alle angezeigten Modelle ein- oder ausschalten",
+    "enableAll": "Alle einschalten",
+    "disableAll": "Alle ausschalten",
+    "enableAllHint": "Alle angezeigten Modelle einschalten, dann speichern",
+    "disableAllHint": "Alle angezeigten Modelle ausschalten, dann speichern",
+    "enabledOfShown": "{enabled} von {shown} angezeigten Modellen sind in der Kette"
   },
   "strategies": {
     "explore": "Unvermessene Modelle erkunden",
@@ -1054,6 +1060,10 @@
     "create": "Anlegen",
     "createPlaceholder": "Kettenname",
     "createFailed": "Die Kette konnte nicht angelegt werden.",
-    "nameRules": "Bis zu 20 Zeichen: Buchstaben, Ziffern, Binde- und Unterstriche."
+    "nameRules": "Bis zu 20 Zeichen: Buchstaben, Ziffern, Binde- und Unterstriche.",
+    "startEmpty": "Leer beginnen",
+    "startEmptyHint": "Legt die Kette ohne Modelle an und hält neue Katalogmodelle heraus. Ohne Haken startet sie als Kopie der Standardkette.",
+    "curated": "Kuratiert",
+    "curatedHint": "Neue Katalogmodelle werden dieser Kette nicht automatisch hinzugefügt."
   }
 }

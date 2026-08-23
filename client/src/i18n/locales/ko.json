@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "표시된 모델 전체 사용 또는 해제",
+    "enableAll": "전체 사용",
+    "disableAll": "전체 해제",
+    "enableAllHint": "표시된 모델을 모두 켠 뒤 저장하세요",
+    "disableAllHint": "표시된 모델을 모두 끈 뒤 저장하세요",
+    "enabledOfShown": "표시된 {shown}개 중 {enabled}개가 체인에 있습니다"
   },
   "strategies": {
     "explore": "미측정 모델 탐색",
@@ -1054,6 +1060,10 @@
     "create": "만들기",
     "createPlaceholder": "체인 이름",
     "createFailed": "체인을 만들지 못했습니다.",
-    "nameRules": "최대 20자: 영문자, 숫자, 하이픈, 밑줄."
+    "nameRules": "최대 20자: 영문자, 숫자, 하이픈, 밑줄.",
+    "startEmpty": "비어 있는 상태로 만들기",
+    "startEmptyHint": "모델 없이 체인을 만들고, 새로 추가되는 카탈로그 모델도 넣지 않습니다. 해제하면 기본 체인의 복사본으로 시작합니다.",
+    "curated": "직접 관리",
+    "curatedHint": "새 카탈로그 모델이 이 체인에 자동으로 추가되지 않습니다."
   }
 }

@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Включить или выключить все показанные модели",
+    "enableAll": "Включить все",
+    "disableAll": "Выключить все",
+    "enableAllHint": "Включить все показанные модели, затем сохранить",
+    "disableAllHint": "Выключить все показанные модели, затем сохранить",
+    "enabledOfShown": "В цепочке {enabled} из {shown} показанных моделей"
   },
   "strategies": {
     "explore": "Исследовать неизмеренные модели",
@@ -1054,6 +1060,10 @@
     "create": "Создать",
     "createPlaceholder": "Имя цепочки",
     "createFailed": "Не удалось создать цепочку.",
-    "nameRules": "До 20 символов: буквы, цифры, дефисы и подчёркивания."
+    "nameRules": "До 20 символов: буквы, цифры, дефисы и подчёркивания.",
+    "startEmpty": "Создать пустой",
+    "startEmptyHint": "Создаёт цепочку без моделей и не добавляет в неё новые модели каталога. Без флажка она начинается как копия цепочки по умолчанию.",
+    "curated": "Ручная",
+    "curatedHint": "Новые модели каталога не добавляются в эту цепочку автоматически."
   }
 }

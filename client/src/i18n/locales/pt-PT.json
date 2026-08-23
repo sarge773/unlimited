@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Ativar ou desativar todos os modelos apresentados",
+    "enableAll": "Ativar todos",
+    "disableAll": "Desativar todos",
+    "enableAllHint": "Ative todos os modelos apresentados e guarde",
+    "disableAllHint": "Desative todos os modelos apresentados e guarde",
+    "enabledOfShown": "{enabled} de {shown} modelos apresentados estão na cadeia"
   },
   "strategies": {
     "explore": "Explorar modelos sem medições",
@@ -1054,6 +1060,10 @@
     "create": "Criar",
     "createPlaceholder": "Nome da cadeia",
     "createFailed": "Não foi possível criar a cadeia.",
-    "nameRules": "Até 20 caracteres: letras, dígitos, hífenes e sublinhados."
+    "nameRules": "Até 20 caracteres: letras, dígitos, hífenes e sublinhados.",
+    "startEmpty": "Começar vazia",
+    "startEmptyHint": "Cria a cadeia sem modelos e mantém de fora os novos modelos do catálogo. Sem marcar, começa como cópia da cadeia predefinida.",
+    "curated": "Curada",
+    "curatedHint": "Os novos modelos do catálogo não são adicionados automaticamente a esta cadeia."
   }
 }

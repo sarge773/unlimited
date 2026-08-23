@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Włącz lub wyłącz wszystkie pokazane modele",
+    "enableAll": "Włącz wszystkie",
+    "disableAll": "Wyłącz wszystkie",
+    "enableAllHint": "Włącz wszystkie pokazane modele, potem zapisz",
+    "disableAllHint": "Wyłącz wszystkie pokazane modele, potem zapisz",
+    "enabledOfShown": "{enabled} z {shown} pokazanych modeli jest w łańcuchu"
   },
   "strategies": {
     "explore": "Eksploruj niezmierzone modele",
@@ -1054,6 +1060,10 @@
     "create": "Utwórz",
     "createPlaceholder": "Nazwa łańcucha",
     "createFailed": "Nie udało się utworzyć łańcucha.",
-    "nameRules": "Do 20 znaków: litery, cyfry, myślniki i podkreślenia."
+    "nameRules": "Do 20 znaków: litery, cyfry, myślniki i podkreślenia.",
+    "startEmpty": "Zacznij pusty",
+    "startEmptyHint": "Tworzy łańcuch bez modeli i nie dodaje do niego nowych modeli z katalogu. Bez zaznaczenia zaczyna jako kopia łańcucha domyślnego.",
+    "curated": "Ręczny",
+    "curatedHint": "Nowe modele z katalogu nie są automatycznie dodawane do tego łańcucha."
   }
 }

@@ -219,6 +219,20 @@ export default function FallbackPage() {
     setLocalEntries(allEntries.map(e => (ids.has(e.modelDbId) ? { ...e, enabled } : e)))
   }
 
+  // Bulk on/off over what is currently on screen (#895). Curating a chain by
+  // hand means turning most of the catalog off, which one row at a time over
+  // 200 models nobody does. It deliberately follows the filters: "search groq,
+  // disable all" is the useful gesture, and touching hidden rows would be a
+  // surprise. Like every other edit here it stages into localEntries and waits
+  // for Save.
+  const visibleMemberIds = visibleGroups.flatMap(g => g.members.map(m => m.modelDbId))
+  const visibleEnabledCount = visibleGroups.filter(g => g.members.some(m => m.enabled)).length
+
+  function handleBulkToggle(enabled: boolean) {
+    const ids = new Set(visibleMemberIds)
+    setLocalEntries(allEntries.map(e => (ids.has(e.modelDbId) ? { ...e, enabled } : e)))
+  }
+
   // Serialize the displayed group order (group-major, member-minor) to the flat
   // priority list PUT /api/fallback expects; keyless rows keep their tail spot.
   function persistGroupOrder(groups: ModelGroupRow[]) {
@@ -434,8 +448,32 @@ export default function FallbackPage() {
                     </button>
                   ))}
                 </div>
+                <div className="inline-flex items-center gap-1 rounded-xl border p-1" role="group" aria-label={t('models.bulkToggle')}>
+                  <Tooltip text={t('models.enableAllHint')}>
+                    <button
+                      onClick={() => handleBulkToggle(true)}
+                      disabled={visibleEnabledCount === visibleGroups.length}
+                      className="rounded-lg px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
+                    >
+                      {t('models.enableAll')}
+                    </button>
+                  </Tooltip>
+                  <Tooltip text={t('models.disableAllHint')}>
+                    <button
+                      onClick={() => handleBulkToggle(false)}
+                      disabled={visibleEnabledCount === 0}
+                      className="rounded-lg px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
+                    >
+                      {t('models.disableAll')}
+                    </button>
+                  </Tooltip>
+                </div>
               </div>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              {t('models.enabledOfShown', { enabled: visibleEnabledCount, shown: visibleGroups.length })}
+            </p>
 
             {filtersActive && (
               <div className="flex items-center justify-between text-xs text-muted-foreground">

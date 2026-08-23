@@ -39,6 +39,9 @@ interface Chain {
   sort_order: number
   auto_sort: string | null
   layout_config: string | null
+  // 0 once the chain opts out of the catalog-sync backfill (#895), which is
+  // what an empty-created chain does — it stays exactly as hand-built.
+  auto_include_new_models: number
   created_at: string
 }
 
@@ -46,6 +49,7 @@ export function ChainManager() {
   const { t } = useI18n()
   const queryClient = useQueryClient()
   const [newName, setNewName] = useState('')
+  const [startEmpty, setStartEmpty] = useState(true)
   const [createError, setCreateError] = useState('')
   const [collapsed, setCollapsed] = useState<boolean>(readCollapsed)
 
@@ -67,8 +71,8 @@ export function ChainManager() {
   }
 
   const createChain = useMutation({
-    mutationFn: (name: string) =>
-      apiFetch('/api/profiles', { method: 'POST', body: JSON.stringify({ name }) }),
+    mutationFn: (payload: { name: string; empty: boolean }) =>
+      apiFetch('/api/profiles', { method: 'POST', body: JSON.stringify(payload) }),
     onSuccess: () => {
       invalidate()
       setNewName('')
@@ -156,6 +160,13 @@ export function ChainManager() {
                   {isProtected && !isActive && (
                     <span className="text-[11px] text-muted-foreground">{t('chains.default')}</span>
                   )}
+                  {chain.auto_include_new_models === 0 && (
+                    <Tooltip text={t('chains.curatedHint')}>
+                      <span className="cursor-help text-[11px] text-muted-foreground underline decoration-dotted underline-offset-2">
+                        {t('chains.curated')}
+                      </span>
+                    </Tooltip>
+                  )}
                   <span className="flex-1" />
                   {!isActive && (
                     <Tooltip text={t('chains.activateHint')}>
@@ -198,7 +209,7 @@ export function ChainManager() {
             onSubmit={e => {
               e.preventDefault()
               const name = newName.trim()
-              if (name && !createChain.isPending) createChain.mutate(name)
+              if (name && !createChain.isPending) createChain.mutate({ name, empty: startEmpty })
             }}
           >
             <Input
@@ -216,6 +227,19 @@ export function ChainManager() {
               {t('chains.create')}
             </Button>
           </form>
+          <label className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={startEmpty}
+              onChange={e => setStartEmpty(e.target.checked)}
+              className="size-3.5 accent-foreground"
+            />
+            <span>{t('chains.startEmpty')}</span>
+            <Tooltip text={t('chains.startEmptyHint')}>
+              <span className="cursor-help underline decoration-dotted underline-offset-2">?</span>
+            </Tooltip>
+          </label>
+
           {createError
             ? <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400">{createError}</p>
             : <p className="mt-1.5 text-xs text-muted-foreground">{t('chains.nameRules')}</p>}

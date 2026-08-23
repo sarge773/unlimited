@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "दिखाए गए सभी मॉडल चालू या बंद करें",
+    "enableAll": "सभी चालू करें",
+    "disableAll": "सभी बंद करें",
+    "enableAllHint": "दिखाए गए सभी मॉडल चालू करें, फिर सहेजें",
+    "disableAllHint": "दिखाए गए सभी मॉडल बंद करें, फिर सहेजें",
+    "enabledOfShown": "दिखाए गए {shown} में से {enabled} मॉडल चेन में हैं"
   },
   "strategies": {
     "explore": "बिना मापे गए मॉडल एक्सप्लोर करें",
@@ -1054,6 +1060,10 @@
     "create": "बनाएँ",
     "createPlaceholder": "चेन का नाम",
     "createFailed": "चेन नहीं बनाई जा सकी।",
-    "nameRules": "अधिकतम 20 अक्षर: अक्षर, अंक, हाइफ़न और अंडरस्कोर।"
+    "nameRules": "अधिकतम 20 अक्षर: अक्षर, अंक, हाइफ़न और अंडरस्कोर।",
+    "startEmpty": "खाली शुरू करें",
+    "startEmptyHint": "चेन को बिना किसी मॉडल के बनाएँ और नए कैटलॉग मॉडल भी इसमें न जोड़ें। अनचेक करने पर यह डिफ़ॉल्ट चेन की नकल से शुरू होती है।",
+    "curated": "हस्तचयनित",
+    "curatedHint": "नए कैटलॉग मॉडल इस चेन में अपने आप नहीं जुड़ते।"
   }
 }

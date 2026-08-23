@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Aktifkan atau nonaktifkan semua model yang tampil",
+    "enableAll": "Aktifkan semua",
+    "disableAll": "Nonaktifkan semua",
+    "enableAllHint": "Aktifkan semua model yang tampil, lalu simpan",
+    "disableAllHint": "Nonaktifkan semua model yang tampil, lalu simpan",
+    "enabledOfShown": "{enabled} dari {shown} model yang tampil ada di rantai"
   },
   "strategies": {
     "explore": "Jelajahi model yang belum terukur",
@@ -1054,6 +1060,10 @@
     "create": "Buat",
     "createPlaceholder": "Nama rantai",
     "createFailed": "Rantai tidak dapat dibuat.",
-    "nameRules": "Maksimal 20 karakter: huruf, angka, tanda hubung, dan garis bawah."
+    "nameRules": "Maksimal 20 karakter: huruf, angka, tanda hubung, dan garis bawah.",
+    "startEmpty": "Mulai kosong",
+    "startEmptyHint": "Membuat rantai tanpa model dan menjauhkan model katalog baru darinya. Jika tidak dicentang, rantai dimulai sebagai salinan rantai bawaan.",
+    "curated": "Dikurasi",
+    "curatedHint": "Model katalog baru tidak ditambahkan ke rantai ini secara otomatis."
   }
 }

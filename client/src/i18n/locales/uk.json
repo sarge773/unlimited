@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "Увімкнути або вимкнути всі показані моделі",
+    "enableAll": "Увімкнути всі",
+    "disableAll": "Вимкнути всі",
+    "enableAllHint": "Увімкніть усі показані моделі, потім збережіть",
+    "disableAllHint": "Вимкніть усі показані моделі, потім збережіть",
+    "enabledOfShown": "У ланцюжку {enabled} із {shown} показаних моделей"
   },
   "strategies": {
     "explore": "Досліджувати невиміряні моделі",
@@ -1054,6 +1060,10 @@
     "create": "Створити",
     "createPlaceholder": "Назва ланцюжка",
     "createFailed": "Не вдалося створити ланцюжок.",
-    "nameRules": "До 20 символів: літери, цифри, дефіси й підкреслення."
+    "nameRules": "До 20 символів: літери, цифри, дефіси й підкреслення.",
+    "startEmpty": "Почати з порожнього",
+    "startEmptyHint": "Створює ланцюжок без моделей і не додає до нього нові моделі каталогу. Без позначки він починається як копія типового ланцюжка.",
+    "curated": "Ручний",
+    "curatedHint": "Нові моделі каталогу не додаються до цього ланцюжка автоматично."
   }
 }

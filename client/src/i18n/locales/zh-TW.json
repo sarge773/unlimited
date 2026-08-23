@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "啟用或停用所有顯示的模型",
+    "enableAll": "全部啟用",
+    "disableAll": "全部停用",
+    "enableAllHint": "啟用所有顯示的模型，然後儲存",
+    "disableAllHint": "停用所有顯示的模型，然後儲存",
+    "enabledOfShown": "顯示的 {shown} 個模型中有 {enabled} 個在鏈中"
   },
   "strategies": {
     "explore": "探索未測模型",
@@ -1054,6 +1060,10 @@
     "create": "建立",
     "createPlaceholder": "鏈名稱",
     "createFailed": "無法建立此鏈。",
-    "nameRules": "最多 20 個字元：字母、數字、連字號與底線。"
+    "nameRules": "最多 20 個字元：字母、數字、連字號與底線。",
+    "startEmpty": "從空鏈開始",
+    "startEmptyHint": "建立時不放入任何模型，之後新增的目錄模型也不會自動加入。不勾選則複製預設鏈。",
+    "curated": "手動維護",
+    "curatedHint": "新的目錄模型不會自動加入這條鏈。"
   }
 }

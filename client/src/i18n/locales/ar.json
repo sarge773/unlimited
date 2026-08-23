@@ -274,7 +274,13 @@
     "aliasMergeHeading": "Merge model aliases",
     "aliasMergeHint": "Requests for the unified model id are also served through these custom-provider aliases (e.g. custom:my-alias).",
     "aliasMergeAdd": "Add",
-    "aliasMergeRemove": "Remove"
+    "aliasMergeRemove": "Remove",
+    "bulkToggle": "تفعيل أو تعطيل كل النماذج المعروضة",
+    "enableAll": "تفعيل الكل",
+    "disableAll": "تعطيل الكل",
+    "enableAllHint": "فعّل كل النماذج المعروضة ثم احفظ",
+    "disableAllHint": "عطّل كل النماذج المعروضة ثم احفظ",
+    "enabledOfShown": "{enabled} من {shown} من النماذج المعروضة داخل السلسلة"
   },
   "strategies": {
     "explore": "استكشاف النماذج غير المقيسة",
@@ -1054,6 +1060,10 @@
     "create": "إنشاء",
     "createPlaceholder": "اسم السلسلة",
     "createFailed": "تعذّر إنشاء السلسلة.",
-    "nameRules": "حتى 20 حرفًا: أحرف لاتينية وأرقام وشرطات وشرطات سفلية."
+    "nameRules": "حتى 20 حرفًا: أحرف لاتينية وأرقام وشرطات وشرطات سفلية.",
+    "startEmpty": "ابدأ فارغة",
+    "startEmptyHint": "ينشئ السلسلة بلا أي نماذج، ولا يضيف إليها نماذج الفهرس الجديدة. عند إلغاء التحديد تبدأ كنسخة من السلسلة الافتراضية.",
+    "curated": "مُنسّقة يدويًا",
+    "curatedHint": "لا تُضاف نماذج الفهرس الجديدة إلى هذه السلسلة تلقائيًا."
   }
 }
