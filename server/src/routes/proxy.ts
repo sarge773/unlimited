@@ -878,8 +878,11 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
   const messages = prependSystemPrompt(completionPromptToMessages(prompt, suffix), auth.systemPrompt);
   const estimatedInputTokens = messages.reduce((sum, m) => sum + Math.ceil(contentToString(m.content).length / 4), 0);
   // Cap the reserved output so a huge client-set max_tokens doesn't falsely
-  // exclude the whole model pool (#470); input is still counted in full.
-  const estimatedTotal = estimatedInputTokens + routingReserveTokens(max_tokens);
+  // exclude the whole model pool (#470); input is still counted in full. The
+  // reserve is passed to the router separately: it is an exact count and must
+  // not be inflated by the context-window safety margin (#956 review).
+  const outputReserve = routingReserveTokens(max_tokens);
+  const estimatedTotal = estimatedInputTokens + outputReserve;
 
   // Guardrail: per-request token budget (request_max_tokens_budget, default
   // off). max_tokens always has a value on this surface (default 128), so a
@@ -991,6 +994,7 @@ proxyRouter.post('/completions', async (req: Request, res: Response) => {
       groupChain ?? resolvedChain?.chain,
       false,
       state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined,
+      outputReserve,
     ),
     dispatch: async (route, attempt, ctx) => {
       traceRouteEvent('Proxy', {
@@ -1448,8 +1452,11 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   const imageCount = messages.reduce((n, m) =>
     n + (Array.isArray(m.content) ? m.content.filter(b => (b as { type?: string })?.type === 'image_url' || (b as { type?: string })?.type === 'image').length : 0), 0);
   // The reserved output is capped (routingReserveTokens, #470) so an oversized
-  // client max_tokens can't starve routing; input + images count in full.
-  const estimatedTotal = estimatedInputTokens + imageCount * IMAGE_TOKEN_ESTIMATE + routingReserveTokens(max_tokens);
+  // client max_tokens can't starve routing; input + images count in full. The
+  // reserve is threaded to the router separately: it is exact and must not be
+  // inflated by the context-window safety margin (#956 review).
+  const outputReserve = routingReserveTokens(max_tokens);
+  const estimatedTotal = estimatedInputTokens + imageCount * IMAGE_TOKEN_ESTIMATE + outputReserve;
 
   // Tool-bearing requests must route to a model that emits STRUCTURED
   // tool_calls. A model without real function-calling support serializes the
@@ -1814,7 +1821,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       // model is on record). Turns where injection can't happen — every turn 1, and
       // sessions that never switched — pay no headroom tax.
       const routingEstimate = handoffPossible ? estimatedTotal + HANDOFF_MAX_TOKENS : estimatedTotal;
-      return routeRequest(routingEstimate, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, groupChain ?? resolvedChain?.chain, samplingParams.response_format !== undefined, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined);
+      return routeRequest(routingEstimate, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, groupChain ?? resolvedChain?.chain, samplingParams.response_format !== undefined, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined, outputReserve);
     },
     dispatch: async (route, attempt, ctx) => {
     const modelKey = `${route.platform}:${route.modelId}`;
