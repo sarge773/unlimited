@@ -241,7 +241,7 @@ Anthropic's `document` content blocks are accepted on `/v1/messages` when their 
 
 ## Images, video & text-to-speech
 
-`POST /v1/images/generations`, `POST /v1/videos/generations`, and `POST /v1/audio/speech` route across the providers that serve media models. Browse and toggle them on the dashboard's **Models → Image / Video / Audio** tabs.
+`POST /v1/images/generations`, `POST /v1/videos/generations`, and `POST /v1/audio/speech` route across the providers that serve media models. Images and speech also accept custom OpenAI-compatible media endpoints; video does not. Browse and toggle them on the dashboard's **Models → Image / Video / Audio** tabs.
 
 Video generation accepts a JSON body with `prompt`, optional `model` (`auto` by default), and provider-dependent `duration`, `aspect_ratio`, `image`, `seed`, and `audio` options. It waits for queued providers to finish and returns the generated video as binary MP4 data:
 
