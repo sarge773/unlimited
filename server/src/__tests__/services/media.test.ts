@@ -289,19 +289,29 @@ describe('media service', () => {
         JSON.stringify({ providerModelId: 'fal-ai/ltx-video-v095' }),
       );
       addKey('huggingface', 'hf_test_token');
+      // The submit is answered with a job that is still queued, so the poll
+      // loop actually runs: an unmatched URL is a hard failure rather than
+      // falling through to a canned COMPLETED reply.
+      const submitUrl = 'https://router.huggingface.co/fal-ai/fal-ai/ltx-video-v095?_subdomain=queue';
+      const jobUrl = 'https://router.huggingface.co/fal-ai/fal-ai/ltx-video-v095/requests/job-1?_subdomain=queue';
+      const statusUrl = 'https://router.huggingface.co/fal-ai/fal-ai/ltx-video-v095/requests/job-1/status?_subdomain=queue';
       const fetchMock = vi.fn(async (input: string | URL | Request) => {
         const url = String(input);
-        if (url.includes('requests/job-1?_subdomain=queue')) {
+        if (url === submitUrl) {
+          return jsonResponse({
+            request_id: 'job-1',
+            status: 'IN_QUEUE',
+            response_url: 'https://queue.fal.run/fal-ai/ltx-video-v095/requests/job-1',
+          });
+        }
+        if (url === statusUrl) return jsonResponse({ status: 'COMPLETED' });
+        if (url === jobUrl) {
           return jsonResponse({ video: { url: 'https://cdn.example.test/video.mp4', content_type: 'video/mp4' } });
         }
         if (url === 'https://cdn.example.test/video.mp4') {
           return new Response(Buffer.from('HFVIDEO'), { status: 200, headers: { 'content-type': 'video/mp4' } });
         }
-        return jsonResponse({
-          request_id: 'job-1',
-          status: 'COMPLETED',
-          response_url: 'https://queue.fal.run/fal-ai/ltx-video-v095/requests/job-1',
-        });
+        throw new Error(`unexpected fetch: ${url}`);
       });
       globalThis.fetch = fetchMock as any;
 
@@ -311,17 +321,22 @@ describe('media service', () => {
       });
 
       expect(result.video.toString()).toBe('HFVIDEO');
-      expect(String(fetchMock.mock.calls[0][0])).toBe(
-        'https://router.huggingface.co/fal-ai/fal-ai/ltx-video-v095?_subdomain=queue',
-      );
+      expect(fetchMock.mock.calls.map(c => String(c[0]))).toEqual([
+        submitUrl,
+        statusUrl,
+        jobUrl,
+        'https://cdn.example.test/video.mp4',
+      ]);
       expect(JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body))).toEqual({
         prompt: 'paper boats on a stream',
         seed: 42,
       });
-      expect(String(fetchMock.mock.calls[1][0])).toBe(
-        'https://router.huggingface.co/fal-ai/fal-ai/ltx-video-v095/requests/job-1?_subdomain=queue',
-      );
-      expect((fetchMock.mock.calls[2][1] as RequestInit).headers).toBeUndefined();
+      // The status and result reads are authenticated; the CDN download is not,
+      // so the HF token never reaches a host named by an upstream response.
+      expect((fetchMock.mock.calls[1][1] as RequestInit).headers).toMatchObject({
+        Authorization: 'Bearer hf_test_token',
+      });
+      expect((fetchMock.mock.calls[3][1] as RequestInit).headers).toBeUndefined();
     });
 
     it('reports an upstream key rejection as an upstream failure, not a caller auth error', async () => {
