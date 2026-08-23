@@ -365,12 +365,45 @@ export interface HeadroomThresholds {
 
 export function headroomFactor(usedTokens: number, budgetTokens: number, opts?: HeadroomThresholds): number {
   if (!budgetTokens || budgetTokens <= 0) return 1; // unknown budget → no opinion
+  return headroomRamp(1 - usedTokens / budgetTokens, opts);
+}
+
+/** The shared ramp both headroom guardrails ride: 1 while `remaining` (a 0..1
+ *  fraction of the quota still available) is comfortable, then linear down to
+ *  `floor` as it reaches zero. Factored out so the monthly-budget guardrail and
+ *  the rate-window one below cannot drift apart — and so a single pair of
+ *  operator-tuned thresholds governs both (#899). */
+function headroomRamp(remainingRaw: number, opts?: HeadroomThresholds): number {
   const rampStart = clampUnit(opts?.rampStart, HEADROOM_RAMP_START);
   const floor = clampUnit(opts?.floor, HEADROOM_FLOOR);
-  const remaining = Math.max(0, 1 - usedTokens / budgetTokens);
+  const remaining = Math.max(0, Math.min(1, remainingRaw));
   if (remaining >= rampStart) return 1;
   // Linear from (0 remaining → floor) to (rampStart remaining → 1).
   return floor + (1 - floor) * (remaining / rampStart);
+}
+
+// ── Guardrail: rate-window headroom (#899) ──────────────────────────────────
+// The monthly-budget guardrail above only has an opinion about models that
+// declare a `monthly_token_budget`. The far more common free-tier shape is a
+// per-day request or token cap (rpd/tpd, plus the per-minute rpm/tpm), and
+// those were purely BINARY: canMakeRequest/canUseTokens reject at 100% and the
+// router happily keeps a model pinned at #1 until the very request that
+// exhausts it, then eats a 429 and falls through. That is exactly the
+// "deprioritize at 82% utilization, prefer the idle peer" behavior the issue
+// asks for.
+//
+// So: same ramp, same tunable thresholds, driven by live window utilization
+// instead of monthly tokens. `usedFraction` is the share of the binding window
+// limit already consumed (0 = idle, 1 = exhausted); null means the model
+// declares no window limits, or has no routable key to measure — in both cases
+// the guardrail has no opinion and returns 1.
+//
+// Recovery is automatic and needs no bookkeeping: the windows are sliding, so a
+// demoted model's utilization falls on its own as the minute or the day rolls
+// past, and the factor climbs straight back to 1.
+export function rateWindowHeadroomFactor(usedFraction: number | null, opts?: HeadroomThresholds): number {
+  if (usedFraction === null || !Number.isFinite(usedFraction)) return 1; // unknown → no opinion
+  return headroomRamp(1 - usedFraction, opts);
 }
 
 // Out-of-range / non-finite operator input falls back to the default rather

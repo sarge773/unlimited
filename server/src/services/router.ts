@@ -13,12 +13,14 @@ import {
   acquireLease,
   releaseLease,
   getSoonestCooldownExpiry,
+  modelWindowUsedFraction,
 } from './ratelimit.js';
 import {
   BANDIT_PRESETS, DEFAULT_STRATEGY, type RoutingStrategy, type RoutingWeights,
   type KeySelectionStrategy,
   reliabilityPosterior, expectedReliability, sampleBeta,
-  speedScore, intelligenceScore, intelligenceComposite, headroomFactor, rateLimitFactor, combineScore,
+  speedScore, intelligenceScore, intelligenceComposite, headroomFactor, rateWindowHeadroomFactor,
+  rateLimitFactor, combineScore,
   peakAdjustedWeights, isValidPeakHour, isValidTimezone,
   DEFAULT_PEAK_HOURS, type PeakHoursConfig,
   observedSpeedRank, TIMEOUT_LATENCY_CAP_MS,
@@ -966,7 +968,27 @@ function scoreChainEntry(
   // ONCE per chain by the caller, not per entry — getSetting is an uncached
   // SELECT, so reading it here cost two extra SQLite round-trips per model per
   // request, the same reason `weights` and `keyCounts` are hoisted.
-  const headroom = headroomFactor(stats?.monthlyUsedTokens ?? 0, budget, headroomCfg);
+  const monthlyHeadroom = headroomFactor(stats?.monthlyUsedTokens ?? 0, budget, headroomCfg);
+
+  // The same guardrail, driven by live rpm/rpd/tpm/tpd utilization instead of
+  // the monthly budget (#899). Most free tiers publish a daily request or token
+  // cap and no monthly figure at all, so without this a model sits at score #1
+  // until the request that finally 429s it. Reads a snapshot memoised inside
+  // ratelimit.ts, so this costs no query per model per request.
+  const windowHeadroom = rateWindowHeadroomFactor(
+    modelWindowUsedFraction(
+      { platform: entry.platform, modelId: entry.model_id, keyId: entry.key_id },
+      { rpm: entry.rpm_limit, rpd: entry.rpd_limit, tpm: entry.tpm_limit, tpd: entry.tpd_limit },
+    ),
+    headroomCfg,
+  );
+
+  // The WORSE of the two, not their product: both express the same "this model
+  // is close to burning out" opinion on different meters, and multiplying them
+  // would push a model that is low on both to floor², below the floor the
+  // operator configured. Taking the binding constraint keeps the floor meaning
+  // what it says — the same rule getKeyQuotaHeadroom applies across metrics.
+  const headroom = Math.min(monthlyHeadroom, windowHeadroom);
   const rl = rateLimitFactor(getPenalty(entry.model_db_id));
 
   // Per-model env overrides (#738) scale the final score so a slow or

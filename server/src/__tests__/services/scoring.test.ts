@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   BANDIT_PRESETS, combineScore, speedScore, intelligenceScore, intelligenceComposite,
-  headroomFactor, rateLimitFactor, sampleBeta, reliabilityPosterior,
+  headroomFactor, rateWindowHeadroomFactor, rateLimitFactor, sampleBeta, reliabilityPosterior,
   expectedReliability, SPEED_PRIOR, HEADROOM_FLOOR,
   isPeakHours, peakAdjustedWeights, hourInTimezone, isValidPeakHour, isValidTimezone,
   isPeakExemptStrategy, DEFAULT_PEAK_HOURS, PEAK_SPEED_TO_RELIABILITY,
@@ -147,6 +147,36 @@ describe('scoring: guardrails', () => {
 
   it('unknown budget yields no opinion (factor 1)', () => {
     expect(headroomFactor(123, 0)).toBe(1);
+  });
+
+  it('rate-window headroom rides the same ramp as the monthly one (#899)', () => {
+    expect(rateWindowHeadroomFactor(0)).toBe(1);      // idle
+    expect(rateWindowHeadroomFactor(0.5)).toBe(1);    // 50% left, ramp starts at 20%
+    // Exactly at the ramp start: 1 - 0.8 lands a float ulp under 0.2, so this
+    // is the very top of the ramp rather than the flat part. Same arithmetic
+    // the monthly guardrail has always done.
+    expect(rateWindowHeadroomFactor(0.8)).toBeCloseTo(1, 9);
+    // 5% of the window left → 0.1 + 0.9·(0.05/0.2)
+    expect(rateWindowHeadroomFactor(0.95)).toBeCloseTo(0.325, 5);
+    expect(rateWindowHeadroomFactor(1)).toBeCloseTo(HEADROOM_FLOOR, 5);
+    // Over-consumption (a provider counted more than we did) cannot go below
+    // the floor.
+    expect(rateWindowHeadroomFactor(1.4)).toBeCloseTo(HEADROOM_FLOOR, 5);
+    // The two guardrails agree wherever the remaining fraction agrees.
+    expect(rateWindowHeadroomFactor(0.95)).toBeCloseTo(headroomFactor(950, 1000), 10);
+  });
+
+  it('rate-window headroom takes the same tunable thresholds (#899)', () => {
+    const opts = { rampStart: 0.5, floor: 0.3 };
+    expect(rateWindowHeadroomFactor(0.4, opts)).toBe(1);            // 60% left
+    expect(rateWindowHeadroomFactor(0.6, opts)).toBeCloseTo(0.86, 5); // 0.3 + 0.7·(0.4/0.5)
+    expect(rateWindowHeadroomFactor(0.6, { rampStart: 5 }))
+      .toBe(rateWindowHeadroomFactor(0.6)); // out of range → defaults
+  });
+
+  it('no measurable window yields no opinion (factor 1)', () => {
+    expect(rateWindowHeadroomFactor(null)).toBe(1);
+    expect(rateWindowHeadroomFactor(NaN)).toBe(1);
   });
 
   it('rate-limit factor is 1 at no penalty and damped but non-zero at max', () => {
