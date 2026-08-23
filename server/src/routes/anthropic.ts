@@ -517,8 +517,11 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
     reasoning_effort: effortFromAnthropicThinking(body.thinking),
   };
   // Capped output reserve so a large max_tokens can't falsely exclude the model
-  // pool (#470); input + images count in full.
-  const estimatedTotal = estimatedInputTokens + imageCount * IMAGE_TOKEN_ESTIMATE + routingReserveTokens(max_tokens);
+  // pool (#470); input + images count in full. Threaded to the router
+  // separately: it is exact and must not be inflated by the context-window
+  // safety margin (#956 review).
+  const outputReserve = routingReserveTokens(max_tokens);
+  const estimatedTotal = estimatedInputTokens + imageCount * IMAGE_TOKEN_ESTIMATE + outputReserve;
 
   // Resolve the model through the operator's Claude-family map (opus/sonnet/
   // haiku/default → auto | a pinned catalog model). A concrete catalog id pins
@@ -569,7 +572,7 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
     attemptLog,
     clientGone: () => clientGone,
     abortInFlight: () => hedgeAbort.abort(newHedgeAbortError()),
-    route: () => routeRequest(estimatedTotal, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, undefined, false, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined),
+    route: () => routeRequest(estimatedTotal, state.skipKeys.size > 0 ? state.skipKeys : undefined, preferredModel, hasImage, wantsTools, state.skipModels.size > 0 ? state.skipModels : undefined, undefined, false, state.skipPlatforms.size > 0 ? state.skipPlatforms : undefined, outputReserve),
     dispatch: async (route, attempt, dispatchCtx) => {
       if (stream) {
         try {
