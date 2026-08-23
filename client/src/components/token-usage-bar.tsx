@@ -16,6 +16,24 @@ export function TokenUsageBar({ data }: { data: TokenUsageData }) {
   const remaining = Math.max(0, totalBudget - totalUsed)
   const remainingPct = totalBudget > 0 ? formatPercent(remaining / totalBudget) : '0%'
 
+  const modelsWithWidth = models.map(m => {
+    const usedTokens = m.used ?? 0
+    const remainingTokens = Math.max(0, m.budget - usedTokens)
+    return {
+      ...m,
+      usedTokens,
+      remainingTokens,
+      widthPct: totalBudget > 0 ? (remainingTokens / totalBudget) * 100 : 0,
+    }
+  })
+  const usedPct = totalBudget > 0 ? Math.min(100, (totalUsed / totalBudget) * 100) : 0
+
+  // A model with no published monthly quota has nothing to say in a
+  // remaining/budget legend, and one provider can contribute a hundred of them
+  // (#887) — drowning the models that do have a budget. Count them instead.
+  const budgeted = modelsWithWidth.filter(m => m.budget > 0)
+  const unpublishedCount = modelsWithWidth.length - budgeted.length
+
   // Collapse the per-model legend to a few rows; the chevron reveals the rest.
   // The toggle only appears when the legend actually overflows the collapsed
   // height (column count — and so row count — depends on viewport width).
@@ -30,19 +48,7 @@ export function TokenUsageBar({ data }: { data: TokenUsageData }) {
     const ro = new ResizeObserver(check)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [models.length])
-
-  const modelsWithWidth = models.map(m => {
-    const usedTokens = m.used ?? 0
-    const remainingTokens = Math.max(0, m.budget - usedTokens)
-    return {
-      ...m,
-      usedTokens,
-      remainingTokens,
-      widthPct: totalBudget > 0 ? (remainingTokens / totalBudget) * 100 : 0,
-    }
-  })
-  const usedPct = totalBudget > 0 ? Math.min(100, (totalUsed / totalBudget) * 100) : 0
+  }, [budgeted.length, unpublishedCount])
 
   return (
     <section className="rounded-3xl border bg-card p-5">
@@ -55,7 +61,11 @@ export function TokenUsageBar({ data }: { data: TokenUsageData }) {
           {totalUsed > 0 && (
             <>
               <span className="mx-1.5">·</span>
-              <span className="text-foreground font-medium">{formatTokens(totalUsed)}</span> {t('models.used')}
+              {/* Say out loud what this number counts (#887): it is not the
+                  analytics total, and custom endpoints are in it. */}
+              <span className="cursor-help underline decoration-dotted underline-offset-2" title={t('models.usedScopeHint')}>
+                <span className="text-foreground font-medium">{formatTokens(totalUsed)}</span> {t('models.used')}
+              </span>
             </>
           )}
         </span>
@@ -87,7 +97,7 @@ export function TokenUsageBar({ data }: { data: TokenUsageData }) {
         style={collapsible ? { maxHeight: expanded ? legendRef.current?.scrollHeight : LEGEND_COLLAPSED_PX } : undefined}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-1.5 text-xs tabular-nums">
-          {modelsWithWidth.map((m, i) => (
+          {budgeted.map((m, i) => (
             <div key={i} className="flex items-center gap-2 min-w-0">
               <span
                 className="size-2 rounded-sm flex-shrink-0"
@@ -95,18 +105,33 @@ export function TokenUsageBar({ data }: { data: TokenUsageData }) {
               />
               <span className="truncate">{m.displayName}</span>
               <span className="flex-1" />
-              <span className="font-mono text-muted-foreground">{formatTokens(m.remainingTokens)}</span>
+              {/* remaining / budget: a bare remaining figure gives no sense of
+                  how much of the allowance is gone (#887). */}
+              <span
+                className="font-mono text-muted-foreground"
+                title={t('models.legendRemainingTitle', { name: m.displayName, platform: m.platform })}
+              >
+                {formatTokens(m.remainingTokens)}<span className="mx-0.5">/</span>{formatTokens(m.budget)}
+              </span>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Outside the collapsible box on purpose: it is a summary of what the
+          legend is NOT showing, so it has to stay visible while collapsed. */}
+      {unpublishedCount > 0 && (
+        <p className="mt-1.5 text-xs text-muted-foreground" title={t('models.noPublishedQuotaTitle')}>
+          {t('models.noPublishedQuota', { count: unpublishedCount })}
+        </p>
+      )}
 
       {collapsible && (
         <button
           onClick={() => setExpanded(e => !e)}
           className="mt-2 flex w-full items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          {expanded ? t('models.showLess') : t('models.showAllModels', { count: models.length })}
+          {expanded ? t('models.showLess') : t('models.showAllModels', { count: budgeted.length })}
           <ChevronDown className={`size-3.5 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
         </button>
       )}
