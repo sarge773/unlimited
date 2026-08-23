@@ -323,6 +323,38 @@ describe('media service', () => {
       );
       expect((fetchMock.mock.calls[2][1] as RequestInit).headers).toBeUndefined();
     });
+
+    it('Hugging Face: refuses a result URL that points at a blocked address class', async () => {
+      // The result URL is the one URL in this adapter that comes out of an
+      // upstream JSON body, so it goes through the same guard custom-provider
+      // base URLs do (#440) instead of being fetched and streamed back.
+      addMedia(
+        'huggingface',
+        'Lightricks/LTX-Video-0.9.5',
+        'video',
+        1,
+        null,
+        JSON.stringify({ providerModelId: 'fal-ai/ltx-video-v095' }),
+      );
+      addKey('huggingface', 'hf_test_token');
+      const fetchMock = vi.fn(async (input: string | URL | Request) => {
+        const url = String(input);
+        if (url.includes('requests/job-1?_subdomain=queue')) {
+          return jsonResponse({ video: { url: 'http://169.254.169.254/latest/meta-data/' } });
+        }
+        return jsonResponse({
+          request_id: 'job-1',
+          status: 'COMPLETED',
+          response_url: 'https://queue.fal.run/fal-ai/ltx-video-v095/requests/job-1',
+        });
+      });
+      globalThis.fetch = fetchMock as any;
+
+      await expect(runVideoGeneration('Lightricks/LTX-Video-0.9.5', { prompt: 'x' }))
+        .rejects.toThrow(/unusable video URL/);
+      // Submit + result read only; the metadata address was never contacted.
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe('text-to-speech', () => {

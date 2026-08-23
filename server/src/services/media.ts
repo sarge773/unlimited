@@ -11,6 +11,7 @@ import { getDb } from '../db/index.js';
 import { getClientContext } from '../lib/client-context.js';
 import { decrypt } from '../lib/crypto.js';
 import { proxyFetch } from '../lib/proxy.js';
+import { assessProviderUrl } from '../lib/url-guard.js';
 import { isOnCooldown, setCooldown } from './ratelimit.js';
 
 /** Platforms with a media adapter below. catalog-sync gates media rows on this
@@ -521,6 +522,16 @@ async function callHuggingFaceVideo(
   const result = (await completed.json()) as { video?: { url?: string; content_type?: string } };
   const videoUrl = result.video?.url;
   if (!videoUrl) throw new MediaError('huggingface returned no video URL', 502);
+  // Every other URL this adapter contacts is built from constants; this one
+  // comes out of an upstream JSON body, which is exactly the shape #440's
+  // guard exists for. Refuse anything that is not plain http(s) on a routable
+  // address before spending a request on it — a result URL pointing at cloud
+  // metadata or a link-local address would otherwise be fetched and streamed
+  // straight back to the caller.
+  const verdict = await assessProviderUrl(videoUrl);
+  if (!verdict.allowed) {
+    throw new MediaError(`huggingface returned an unusable video URL: ${verdict.reason}`, 502);
+  }
   const downloaded = await mediaFetch(videoUrl, 'huggingface', 'video', { method: 'GET' }, remaining());
   const video = Buffer.from(await downloaded.arrayBuffer());
   return {
