@@ -132,6 +132,10 @@ export type Platform =
   // (never fall back to paid). Catalog rows live in the Oracle catalog
   // (premium now, free after the 30-day model-age gate).
   | 'orcarouter'
+  // UnoRouter — OpenAI-compatible aggregator (api.unorouter.com/v1). One key
+  // for hundreds of models; OpenAI Chat Completions / Anthropic Messages /
+  // OpenAI Responses formats. Catalog rows live in the hosted catalog.
+  | 'unorouter'
   // ModelScope (魔搭社区, Alibaba) — OpenAI-compatible inference API
   // (api-inference.modelscope.cn/v1). Free tier is 2000 requests/day
   // account-wide, but calls only work after the ModelScope account is bound to

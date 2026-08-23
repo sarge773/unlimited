@@ -376,6 +376,16 @@ register(new OpenAICompatProvider({
   baseUrl: 'https://api.orcarouter.ai/v1',
 }));
 
+// UnoRouter — OpenAI-compatible aggregator (api.unorouter.com/v1). One key
+// for hundreds of models; follows OpenAI Chat Completions / Anthropic Messages
+// / OpenAI Responses formats. Free tier per the awesome-free-llm-apis listing
+// (#875); catalog rows live in the hosted catalog and arrive via catalog-sync.
+register(new OpenAICompatProvider({
+  platform: 'unorouter',
+  name: 'UnoRouter',
+  baseUrl: 'https://api.unorouter.com/v1',
+}));
+
 // ModelScope (魔搭社区, Alibaba) — OpenAI-compatible inference API
 // (api-inference.modelscope.cn/v1, Bearer auth). Free tier: 2000 requests/day
 // account-wide. Token from modelscope.cn/my/myaccesstoken, BUT calls only work
