@@ -215,6 +215,7 @@ Every generator supports `--dry-run`, creates a timestamped backup before changi
 | Qwen Code | `setup-qwen` | `/v1` (or native `/v1beta`) |
 | Roo / Kilo / Crush | `setup-roo` / `setup-kilo` / `setup-crush` | `/v1` |
 | DeepSeek Harness | `setup-dsh` | `/v1` |
+| MiMo Code | `setup-mimo` | `/v1` |
 | Cursor | `setup-cursor` guide | public `/v1` URL |
 
 FreeLLMAPI is local-first and single-user by design. Your provider keys stay in your SQLite database, encrypted at rest, and requests go from your machine to the upstream providers you enabled.

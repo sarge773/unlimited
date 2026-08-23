@@ -512,6 +512,69 @@ function dsh(ctx: GenerateContext): Generation {
   };
 }
 
+// MiMo Code is an OpenCode derivative, so the config is the same shape as the
+// OpenCode one above: a custom `provider` entry backed by the AI SDK's
+// openai-compatible package, with credentials as `options.apiKey` /
+// `options.baseURL` (mimo.xiaomi.com/mimocode/models-provider). Two things
+// differ from OpenCode and both matter:
+//   * the file lives in MiMo's own global config directory. That is
+//     `$XDG_CONFIG_HOME/mimocode` (`~/.config/mimocode` on macOS and Linux),
+//     relocated wholesale to `$MIMOCODE_HOME/config` when that is set. The
+//     directory accepts `config.json`, `mimocode.json` and `mimocode.jsonc`
+//     and merges them in that order, so writing `config.json` — the first and
+//     weakest layer — leaves a hand-written `mimocode.json` in charge.
+//   * `provider.<id>.models.<id>.limit` requires BOTH `context` and `output`
+//     in MiMo's schema, unlike OpenCode which takes `context` alone.
+// There is no MIMOCODE_API_KEY or MIMOCODE_BASE_URL: MiMo's environment
+// variables locate resources and toggle features, they are not a fallback for
+// config fields. The key travels through the config file's own `{env:VAR}`
+// substitution instead, which keeps it off disk.
+function mimo(ctx: GenerateContext): Generation {
+  const model = primaryModel(ctx.models, ctx.requestedModelId);
+  const configDir = process.env.MIMOCODE_HOME?.trim()
+    ? path.join(process.env.MIMOCODE_HOME.trim(), 'config')
+    : path.join(
+      process.env.XDG_CONFIG_HOME?.trim() || path.join(ctx.homeDir, '.config'),
+      'mimocode',
+    );
+  // The default model is named as `freellmapi/<id>`, so it has to exist in the
+  // provider's own `models` map — `auto`, the usual default, is filtered out
+  // of the plain catalog roster, so put the chosen model back at the front.
+  const roster = catalogModels(ctx.models);
+  const modelEntries = Object.fromEntries(
+    [model, ...roster.filter(entry => entry.id !== model.id)].map(entry => [entry.id, {
+      name: entry.name ?? entry.id,
+      limit: { context: contextWindow(entry), output: outputLimit(entry) },
+    }]),
+  );
+  return {
+    files: [{
+      path: path.join(configDir, 'config.json'),
+      format: 'json',
+      value: {
+        $schema: 'https://mimo.xiaomi.com/mimocode/config.json',
+        provider: {
+          freellmapi: {
+            npm: '@ai-sdk/openai-compatible',
+            name: 'FreeLLMAPI',
+            options: {
+              baseURL: v1Url(ctx.url),
+              apiKey: '{env:FREELLMAPI_API_KEY}',
+            },
+            models: modelEntries,
+          },
+        },
+        model: `freellmapi/${model.id}`,
+      },
+    }],
+    notes: [
+      'Install MiMo Code with: curl -fsSL https://mimo.xiaomi.com/install | bash',
+      'Export FREELLMAPI_API_KEY before starting MiMo Code.',
+      `Start it with \`mimo\` — freellmapi/${model.id} is the default model.`,
+    ],
+  };
+}
+
 function cursor(ctx: GenerateContext): Generation {
   return {
     files: [],
@@ -551,6 +614,7 @@ const metadata = [
   ['kilo', 'Kilo Code', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-kilo', 'https://kilocode.ai/docs', kilo],
   ['crush', 'Crush', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-crush', 'https://github.com/charmbracelet/crush', crush],
   ['dsh', 'DeepSeek Harness', 'agent', 'file', 'OpenAI Chat', '/v1', 'setup-dsh', 'https://github.com/deepseek-ai/deepseek-harness', dsh],
+  ['mimo', 'MiMo Code', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-mimo', 'https://mimo.xiaomi.com/mimocode', mimo],
   ['cursor', 'Cursor', 'code', 'guide', 'OpenAI Chat', '/v1', 'setup-cursor', 'https://docs.cursor.com', cursor],
   ['generic', 'Generic OpenAI client', 'agent', 'guide', 'OpenAI Chat', '/v1', 'setup-generic', 'https://github.com/tashfeenahmed/freellmapi', generic],
 ] as const;

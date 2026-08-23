@@ -254,6 +254,55 @@ describe('tool generators', () => {
     expect(value['agent-default-model']).toBeUndefined();
   });
 
+  it('writes MiMo Code a custom provider its own schema accepts', () => {
+    const mimo = tools.find(tool => tool.id === 'mimo')!;
+    const [config] = mimo.generate(context).files;
+    // The global config directory is XDG-based, and `config.json` is the
+    // weakest of the three names it merges, so a hand-written
+    // `mimocode.json` still wins.
+    expect(config.path).toBe('/home/tester/.config/mimocode/config.json');
+    const value = config.value as {
+      model: string;
+      provider: {
+        freellmapi: {
+          npm: string;
+          options: Record<string, string>;
+          models: Record<string, { limit: Record<string, number> }>;
+        };
+      };
+    };
+    const provider = value.provider.freellmapi;
+    expect(provider.npm).toBe('@ai-sdk/openai-compatible');
+    expect(provider.options).toEqual({
+      baseURL: 'http://localhost:3000/v1',
+      apiKey: '{env:FREELLMAPI_API_KEY}',
+    });
+    // `provider.<id>.models.<id>.limit` requires context AND output.
+    expect(provider.models['fast-coder'].limit).toEqual({ context: 131072, output: 8192 });
+    // The default model has to name an entry that exists in that map.
+    expect(value.model).toBe('freellmapi/fast-coder');
+    expect(Object.keys(provider.models)).toContain(value.model.split('/')[1]);
+    // MIMOCODE_API_KEY and MIMOCODE_BASE_URL do not exist.
+    expect(JSON.stringify(mimo.generate(context))).not.toContain('MIMOCODE_');
+  });
+
+  it('keeps the MiMo Code default model in its own provider map when auto leads', () => {
+    const liveContext: GenerateContext = {
+      ...context,
+      models: [
+        { id: 'auto', name: 'Auto', available: true, context_window: 200_000 },
+        ...context.models,
+      ],
+    };
+    const value = tools.find(tool => tool.id === 'mimo')!
+      .generate(liveContext).files[0].value as {
+        model: string;
+        provider: { freellmapi: { models: Record<string, unknown> } };
+      };
+    expect(value.model).toBe('freellmapi/auto');
+    expect(Object.keys(value.provider.freellmapi.models)).toContain('auto');
+  });
+
   it('uses /v1 for every OpenAI-compatible generated base URL', () => {
     for (const tool of tools.filter(entry => entry.protocol.startsWith('OpenAI'))) {
       expect(tool.baseUrlSupport, tool.id).toBe('/v1');

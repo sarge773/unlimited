@@ -13,6 +13,7 @@ export const CLIENT_AGENTS = [
   'kilo-code',
   'crush',
   'deepseek-harness',
+  'mimo-code',
   'cursor',
   'gemini-cli',
   'zed',
@@ -55,6 +56,9 @@ export function classifyClientAgent(req: Request): ClientAgent {
   if (/\bcrush(?:\/|\s|$)/.test(ua)) return 'crush';
   // `deepseek-harness/<version> (+https://github.com/deepseek-ai/deepseek-harness)`
   if (/deepseek[- ]?harness|\bdsh\//.test(ua)) return 'deepseek-harness';
+  // MiMo Code is an OpenCode derivative and can carry either name in its UA,
+  // so it has to be tested before the plain `opencode` rule below.
+  if (/mimo[- ]?code|\bmimo\//.test(ua)) return 'mimo-code';
   if (/opencode/.test(ua)) return 'opencode';
   if (/\bcline\b/.test(ua)) return 'cline';
   if (/\broo[- /]/.test(ua) || /roo code/.test(ua)) return 'roo';

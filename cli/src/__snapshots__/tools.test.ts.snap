@@ -395,6 +395,52 @@ exports[`tool generators > setup-kilo has stable golden output 1`] = `
 }
 `;
 
+exports[`tool generators > setup-mimo has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "format": "json",
+      "path": "/home/tester/.config/mimocode/config.json",
+      "value": {
+        "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+        "model": "freellmapi/fast-coder",
+        "provider": {
+          "freellmapi": {
+            "models": {
+              "fast-coder": {
+                "limit": {
+                  "context": 131072,
+                  "output": 8192,
+                },
+                "name": "Fast Coder",
+              },
+              "reasoning-model": {
+                "limit": {
+                  "context": 262144,
+                  "output": 8192,
+                },
+                "name": "Reasoning Model",
+              },
+            },
+            "name": "FreeLLMAPI",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+              "apiKey": "{env:FREELLMAPI_API_KEY}",
+              "baseURL": "http://localhost:3000/v1",
+            },
+          },
+        },
+      },
+    },
+  ],
+  "notes": [
+    "Install MiMo Code with: curl -fsSL https://mimo.xiaomi.com/install | bash",
+    "Export FREELLMAPI_API_KEY before starting MiMo Code.",
+    "Start it with \`mimo\` — freellmapi/fast-coder is the default model.",
+  ],
+}
+`;
+
 exports[`tool generators > setup-opencode has stable golden output 1`] = `
 {
   "files": [

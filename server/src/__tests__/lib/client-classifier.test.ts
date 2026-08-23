@@ -39,6 +39,18 @@ describe('client agent classification', () => {
     }))).toBe('deepseek-harness');
   });
 
+  it('separates MiMo Code from the OpenCode it derives from', () => {
+    expect(classifyClientAgent(request('/v1/chat/completions', {
+      'user-agent': 'mimo/0.4.0',
+    }))).toBe('mimo-code');
+    expect(classifyClientAgent(request('/v1/chat/completions', {
+      'user-agent': 'MiMo-Code/0.4.0 (opencode)',
+    }))).toBe('mimo-code');
+    expect(classifyClientAgent(request('/v1/chat/completions', {
+      'user-agent': 'opencode/1.2.3',
+    }))).toBe('opencode');
+  });
+
   it('recognizes Claude Code by its real claude-cli user agent', () => {
     expect(classifyClientAgent(request('/v1/messages', {
       'user-agent': 'claude-cli/1.0.62 (external, cli)',

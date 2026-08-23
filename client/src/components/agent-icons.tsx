@@ -46,6 +46,8 @@ import { cn } from '@/lib/utils'
 //                          stuff.charm.sh/crush/charm-crush.png (Charm's `charple`)
 //   dsh       DeepSeek     lettermark only: DSH's brand guidelines ask third parties not    DeepSeek TM, nominative use
 //             Harness      to reuse official artwork; tinted with DeepSeek's brand blue
+//   mimo      MiMo Code    lettermark only: no vector published, only the 32px favicon      Xiaomi TM, nominative use
+//                          at cdn.cnbj1.fds.api.mi-img.com/.../mimo.ico, which is flat black
 //
 //   id        light tile        ratio  dark tile         ratio  dark-mode treatment
 //   claude    #D37152            3.08  #D97757            5.52  brand #D97757 on dark; light tile is
@@ -73,6 +75,8 @@ import { cn } from '@/lib/utils'
 //   cursor    #26251E           14.10  #EDECEC           14.61  published pair (CUBE_2D_LIGHT/DARK)
 //   crush     #6B50FF            4.57  #6B50FF            3.46  brand purple unchanged; clears on both tiles
 //   dsh       #4D6BFE            3.97  #4D6BFE            3.98  brand blue unchanged; clears on both tiles
+//   mimo      #000000           19.26  #FFFFFF           17.22  published pair (the favicon is black artwork on
+//                                                               transparent, so it inverts on the dark tile)
 //   generic   currentColor         —   currentColor         —   not a brand mark
 //
 // Cursor also publishes a 2.5D cube in five warm greys (#43413c #55544f #72716d
@@ -212,6 +216,13 @@ const brands: Record<string, Brand> = {
   // (BRAND_GUIDELINES.md), so the lettermark stands in, in DeepSeek's blue.
   dsh: {
     tint: '[--mk:#4D6BFE] dark:[--mk:#4D6BFE]',
+  },
+  // Xiaomi publishes no vector mark for MiMo Code — the only artwork on
+  // mimo.xiaomi.com is the 32px favicon — so the lettermark stands in. That
+  // favicon is drawn in flat black on transparent, which is the published
+  // pair treatment: black on the light tile, white on the dark one.
+  mimo: {
+    tint: '[--mk:#000000] dark:[--mk:#FFFFFF]',
   },
   // Any other OpenAI-compatible client: our own terminal glyph, not a brand
   // mark, so it keeps the page foreground colour on both tiles.
