@@ -1040,5 +1040,20 @@
     "metricNeurons": "neuron",
     "metricOther": "unit",
     "empty": "Tidak ada model aktif dengan data anggaran tingkat gratis."
+  },
+  "chains": {
+    "title": "Rantai fallback",
+    "description": "Rantai bernama, masing-masing dapat dipanggil sebagai auto:<name> di /v1/models.",
+    "count": "{count} rantai",
+    "active": "Aktif",
+    "default": "Bawaan",
+    "activate": "Aktifkan",
+    "activateHint": "Jadikan tabel di bawah mengedit rantai ini dan perutean auto memakainya",
+    "deleteHint": "Hapus rantai ini",
+    "deleteConfirm": "Hapus rantai \"{name}\"?",
+    "create": "Buat",
+    "createPlaceholder": "Nama rantai",
+    "createFailed": "Rantai tidak dapat dibuat.",
+    "nameRules": "Maksimal 20 karakter: huruf, angka, tanda hubung, dan garis bawah."
   }
 }

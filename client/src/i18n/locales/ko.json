@@ -1040,5 +1040,20 @@
     "metricNeurons": "뉴런",
     "metricOther": "단위",
     "empty": "무료 등급 예산 데이터가 있는 활성화된 모델이 없습니다."
+  },
+  "chains": {
+    "title": "폴백 체인",
+    "description": "이름이 있는 체인. /v1/models에서 auto:<name>으로 호출할 수 있습니다.",
+    "count": "체인 {count}개",
+    "active": "사용 중",
+    "default": "기본",
+    "activate": "활성화",
+    "activateHint": "아래 표에서 이 체인을 편집하고 auto 라우팅에도 사용",
+    "deleteHint": "이 체인 삭제",
+    "deleteConfirm": "체인 \"{name}\"을(를) 삭제할까요?",
+    "create": "만들기",
+    "createPlaceholder": "체인 이름",
+    "createFailed": "체인을 만들지 못했습니다.",
+    "nameRules": "최대 20자: 영문자, 숫자, 하이픈, 밑줄."
   }
 }

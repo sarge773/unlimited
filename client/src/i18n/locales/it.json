@@ -1040,5 +1040,20 @@
     "metricNeurons": "neuroni",
     "metricOther": "unità",
     "empty": "Nessun modello abilitato con dati di budget del piano gratuito."
+  },
+  "chains": {
+    "title": "Catene di fallback",
+    "description": "Catene con nome, ognuna richiamabile come auto:<name> in /v1/models.",
+    "count": "{count} catene",
+    "active": "Attiva",
+    "default": "Predefinita",
+    "activate": "Attiva",
+    "activateHint": "Fai modificare questa catena alla tabella qui sotto e usala per il routing auto",
+    "deleteHint": "Elimina questa catena",
+    "deleteConfirm": "Eliminare la catena «{name}»?",
+    "create": "Crea",
+    "createPlaceholder": "Nome della catena",
+    "createFailed": "Impossibile creare la catena.",
+    "nameRules": "Fino a 20 caratteri: lettere, cifre, trattini e trattini bassi."
   }
 }

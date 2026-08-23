@@ -1040,5 +1040,20 @@
     "metricNeurons": "neurones",
     "metricOther": "unités",
     "empty": "Aucun modèle activé avec des données de budget d'offre gratuite."
+  },
+  "chains": {
+    "title": "Chaînes de repli",
+    "description": "Chaînes nommées, chacune appelable via auto:<name> dans /v1/models.",
+    "count": "{count} chaînes",
+    "active": "Active",
+    "default": "Par défaut",
+    "activate": "Activer",
+    "activateHint": "Faire éditer cette chaîne par le tableau ci-dessous et l'utiliser pour le routage auto",
+    "deleteHint": "Supprimer cette chaîne",
+    "deleteConfirm": "Supprimer la chaîne « {name} » ?",
+    "create": "Créer",
+    "createPlaceholder": "Nom de la chaîne",
+    "createFailed": "Impossible de créer la chaîne.",
+    "nameRules": "Jusqu'à 20 caractères : lettres, chiffres, tirets et traits de soulignement."
   }
 }

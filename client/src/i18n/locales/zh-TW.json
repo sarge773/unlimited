@@ -1040,5 +1040,20 @@
     "metricNeurons": "neurons",
     "metricOther": "units",
     "empty": "No enabled models with free-tier budget data."
+  },
+  "chains": {
+    "title": "回退鏈",
+    "description": "具名鏈，每一條都能在 /v1/models 中以 auto:<name> 呼叫。",
+    "count": "{count} 條鏈",
+    "active": "使用中",
+    "default": "預設",
+    "activate": "啟用",
+    "activateHint": "讓下方表格編輯這條鏈，auto 路由也走這條鏈",
+    "deleteHint": "刪除此鏈",
+    "deleteConfirm": "刪除鏈「{name}」？",
+    "create": "建立",
+    "createPlaceholder": "鏈名稱",
+    "createFailed": "無法建立此鏈。",
+    "nameRules": "最多 20 個字元：字母、數字、連字號與底線。"
   }
 }

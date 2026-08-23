@@ -1040,5 +1040,20 @@
     "metricNeurons": "neuronów",
     "metricOther": "jednostek",
     "empty": "Brak włączonych modeli z danymi o budżecie darmowego poziomu."
+  },
+  "chains": {
+    "title": "Łańcuchy awaryjne",
+    "description": "Nazwane łańcuchy, każdy wywoływany jako auto:<name> w /v1/models.",
+    "count": "Łańcuchy: {count}",
+    "active": "Aktywny",
+    "default": "Domyślny",
+    "activate": "Aktywuj",
+    "activateHint": "Niech tabela poniżej edytuje ten łańcuch, a routing auto przez niego prowadzi",
+    "deleteHint": "Usuń ten łańcuch",
+    "deleteConfirm": "Usunąć łańcuch „{name}”?",
+    "create": "Utwórz",
+    "createPlaceholder": "Nazwa łańcucha",
+    "createFailed": "Nie udało się utworzyć łańcucha.",
+    "nameRules": "Do 20 znaków: litery, cyfry, myślniki i podkreślenia."
   }
 }

@@ -1040,5 +1040,20 @@
     "metricNeurons": "neuronas",
     "metricOther": "unidades",
     "empty": "No hay modelos habilitados con datos de presupuesto del nivel gratuito."
+  },
+  "chains": {
+    "title": "Cadenas de reserva",
+    "description": "Cadenas con nombre, cada una invocable como auto:<name> en /v1/models.",
+    "count": "{count} cadenas",
+    "active": "Activa",
+    "default": "Predeterminada",
+    "activate": "Activar",
+    "activateHint": "Hacer que la tabla de abajo edite esta cadena y que auto la use para enrutar",
+    "deleteHint": "Eliminar esta cadena",
+    "deleteConfirm": "¿Eliminar la cadena «{name}»?",
+    "create": "Crear",
+    "createPlaceholder": "Nombre de la cadena",
+    "createFailed": "No se pudo crear la cadena.",
+    "nameRules": "Hasta 20 caracteres: letras, dígitos, guiones y guiones bajos."
   }
 }

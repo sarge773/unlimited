@@ -1043,14 +1043,17 @@
   },
   "chains": {
     "title": "回退链",
-    "description": "命名链会以 auto:<name> 形式出现在 /v1/models 中。激活某条链后，可在下方表格中编辑它。",
+    "description": "命名链，每条都可在 /v1/models 中以 auto:<name> 调用。",
+    "count": "{count} 条链",
     "active": "使用中",
     "default": "默认",
     "activate": "激活",
-    "activateHint": "在下方表格中编辑此链",
+    "activateHint": "让下方表格编辑这条链，auto 路由也走这条链",
     "deleteHint": "删除此链",
     "deleteConfirm": "删除链「{name}」？",
     "create": "创建",
-    "createPlaceholder": "链名称"
+    "createPlaceholder": "链名称",
+    "createFailed": "无法创建该链。",
+    "nameRules": "最多 20 个字符：字母、数字、连字符和下划线。"
   }
 }

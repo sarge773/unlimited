@@ -1040,5 +1040,20 @@
     "metricNeurons": "nơ-ron",
     "metricOther": "đơn vị",
     "empty": "Không có mô hình đang bật nào có dữ liệu hạn mức miễn phí."
+  },
+  "chains": {
+    "title": "Chuỗi dự phòng",
+    "description": "Các chuỗi có tên, mỗi chuỗi gọi được bằng auto:<name> trong /v1/models.",
+    "count": "{count} chuỗi",
+    "active": "Đang dùng",
+    "default": "Mặc định",
+    "activate": "Kích hoạt",
+    "activateHint": "Để bảng bên dưới chỉnh sửa chuỗi này và định tuyến auto đi qua nó",
+    "deleteHint": "Xoá chuỗi này",
+    "deleteConfirm": "Xoá chuỗi \"{name}\"?",
+    "create": "Tạo",
+    "createPlaceholder": "Tên chuỗi",
+    "createFailed": "Không tạo được chuỗi.",
+    "nameRules": "Tối đa 20 ký tự: chữ cái, chữ số, gạch nối và gạch dưới."
   }
 }

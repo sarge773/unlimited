@@ -1040,5 +1040,20 @@
     "metricNeurons": "neurônios",
     "metricOther": "unidades",
     "empty": "Nenhum modelo ativado com dados de orçamento do nível gratuito."
+  },
+  "chains": {
+    "title": "Cadeias de fallback",
+    "description": "Cadeias nomeadas, cada uma chamável como auto:<name> em /v1/models.",
+    "count": "{count} cadeias",
+    "active": "Ativa",
+    "default": "Padrão",
+    "activate": "Ativar",
+    "activateHint": "Fazer a tabela abaixo editar esta cadeia e o roteamento auto usá-la",
+    "deleteHint": "Excluir esta cadeia",
+    "deleteConfirm": "Excluir a cadeia \"{name}\"?",
+    "create": "Criar",
+    "createPlaceholder": "Nome da cadeia",
+    "createFailed": "Não foi possível criar a cadeia.",
+    "nameRules": "Até 20 caracteres: letras, dígitos, hifens e sublinhados."
   }
 }

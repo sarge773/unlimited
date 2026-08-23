@@ -1040,5 +1040,20 @@
     "metricNeurons": "nöron",
     "metricOther": "birim",
     "empty": "Ücretsiz katman bütçe verisi olan etkin model yok."
+  },
+  "chains": {
+    "title": "Yedek zincirleri",
+    "description": "Adlandırılmış zincirler; her biri /v1/models içinde auto:<name> olarak çağrılabilir.",
+    "count": "{count} zincir",
+    "active": "Etkin",
+    "default": "Varsayılan",
+    "activate": "Etkinleştir",
+    "activateHint": "Aşağıdaki tablo bu zinciri düzenlesin ve auto yönlendirmesi bunu kullansın",
+    "deleteHint": "Bu zinciri sil",
+    "deleteConfirm": "\"{name}\" zinciri silinsin mi?",
+    "create": "Oluştur",
+    "createPlaceholder": "Zincir adı",
+    "createFailed": "Zincir oluşturulamadı.",
+    "nameRules": "En fazla 20 karakter: harf, rakam, tire ve alt çizgi."
   }
 }

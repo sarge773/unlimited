@@ -1040,5 +1040,20 @@
     "metricNeurons": "neuronen",
     "metricOther": "eenheden",
     "empty": "Geen ingeschakelde modellen met gegevens over het gratis budget."
+  },
+  "chains": {
+    "title": "Fallback-ketens",
+    "description": "Benoemde ketens, elk aan te roepen als auto:<name> in /v1/models.",
+    "count": "{count} ketens",
+    "active": "Actief",
+    "default": "Standaard",
+    "activate": "Activeren",
+    "activateHint": "Laat de tabel hieronder deze keten bewerken en auto hierlangs routeren",
+    "deleteHint": "Deze keten verwijderen",
+    "deleteConfirm": "Keten \"{name}\" verwijderen?",
+    "create": "Aanmaken",
+    "createPlaceholder": "Ketennaam",
+    "createFailed": "De keten kon niet worden aangemaakt.",
+    "nameRules": "Maximaal 20 tekens: letters, cijfers, koppel- en onderstrepingstekens."
   }
 }

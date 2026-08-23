@@ -1040,5 +1040,20 @@
     "metricNeurons": "neurons",
     "metricOther": "units",
     "empty": "No enabled models with free-tier budget data."
+  },
+  "chains": {
+    "title": "Ланцюжки резервування",
+    "description": "Іменовані ланцюжки; кожен викликається як auto:<name> у /v1/models.",
+    "count": "Ланцюжків: {count}",
+    "active": "Активний",
+    "default": "За замовчуванням",
+    "activate": "Активувати",
+    "activateHint": "Редагувати цей ланцюжок у таблиці нижче й маршрутизувати auto через нього",
+    "deleteHint": "Видалити цей ланцюжок",
+    "deleteConfirm": "Видалити ланцюжок «{name}»?",
+    "create": "Створити",
+    "createPlaceholder": "Назва ланцюжка",
+    "createFailed": "Не вдалося створити ланцюжок.",
+    "nameRules": "До 20 символів: літери, цифри, дефіси й підкреслення."
   }
 }

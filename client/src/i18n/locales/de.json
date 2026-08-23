@@ -1040,5 +1040,20 @@
     "metricNeurons": "Neuronen",
     "metricOther": "Einheiten",
     "empty": "Keine aktivierten Modelle mit Free-Tier-Budgetdaten."
+  },
+  "chains": {
+    "title": "Fallback-Ketten",
+    "description": "Benannte Ketten, jede in /v1/models als auto:<name> aufrufbar.",
+    "count": "{count} Ketten",
+    "active": "Aktiv",
+    "default": "Standard",
+    "activate": "Aktivieren",
+    "activateHint": "Diese Kette in der Tabelle unten bearbeiten und für das Auto-Routing verwenden",
+    "deleteHint": "Diese Kette löschen",
+    "deleteConfirm": "Kette „{name}“ löschen?",
+    "create": "Anlegen",
+    "createPlaceholder": "Kettenname",
+    "createFailed": "Die Kette konnte nicht angelegt werden.",
+    "nameRules": "Bis zu 20 Zeichen: Buchstaben, Ziffern, Binde- und Unterstriche."
   }
 }

@@ -1040,5 +1040,20 @@
     "metricNeurons": "न्यूरॉन",
     "metricOther": "इकाई",
     "empty": "फ्री टियर बजट डेटा वाला कोई सक्षम मॉडल नहीं।"
+  },
+  "chains": {
+    "title": "फ़ॉलबैक चेन",
+    "description": "नामित चेन, हर एक /v1/models में auto:<name> के रूप में उपलब्ध।",
+    "count": "{count} चेन",
+    "active": "सक्रिय",
+    "default": "डिफ़ॉल्ट",
+    "activate": "सक्रिय करें",
+    "activateHint": "नीचे की तालिका इसी चेन को संपादित करे और auto रूटिंग इसी से हो",
+    "deleteHint": "इस चेन को हटाएँ",
+    "deleteConfirm": "चेन \"{name}\" हटाएँ?",
+    "create": "बनाएँ",
+    "createPlaceholder": "चेन का नाम",
+    "createFailed": "चेन नहीं बनाई जा सकी।",
+    "nameRules": "अधिकतम 20 अक्षर: अक्षर, अंक, हाइफ़न और अंडरस्कोर।"
   }
 }

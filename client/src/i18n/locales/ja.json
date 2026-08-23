@@ -1040,5 +1040,20 @@
     "metricNeurons": "ニューロン",
     "metricOther": "単位",
     "empty": "無料枠の予算データを持つ有効なモデルがありません。"
+  },
+  "chains": {
+    "title": "フォールバックチェーン",
+    "description": "名前付きチェーン。/v1/models では auto:<name> として呼び出せます。",
+    "count": "{count} 件のチェーン",
+    "active": "使用中",
+    "default": "デフォルト",
+    "activate": "有効にする",
+    "activateHint": "下の表でこのチェーンを編集し、auto ルーティングにも使う",
+    "deleteHint": "このチェーンを削除",
+    "deleteConfirm": "チェーン「{name}」を削除しますか？",
+    "create": "作成",
+    "createPlaceholder": "チェーン名",
+    "createFailed": "チェーンを作成できませんでした。",
+    "nameRules": "20 文字まで：英数字、ハイフン、アンダースコア。"
   }
 }
