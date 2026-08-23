@@ -24,7 +24,7 @@ import { TIMEOUT_ERROR_MARKERS } from '../lib/error-classify.js';
 import { applyModelWeightOverride, getModelWeightOverrides } from './model-weight-overrides.js';
 import { modelsWithOverriddenField } from './model-state.js';
 import { parseBudget } from '../lib/budget.js';
-import { platformDropsResponseFormat } from '../lib/sampling-params.js';
+import { platformDropsResponseFormat, modelSupportsStructuredOutput } from '../lib/sampling-params.js';
 import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from './model-groups.js';
 import { getActiveProfileId } from './profile-models.js';
 import { customEndpointKeyIds } from './custom-endpoint.js';
@@ -1611,7 +1611,7 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
       if (skipPlatforms?.has(e.platform)) return false;
       if (requireVision && !e.supports_vision) return false;
       if (requireTools && !e.supports_tools) return false;
-      if (requireStructured && platformDropsResponseFormat(e.platform)) return false;
+      if (requireStructured && (platformDropsResponseFormat(e.platform) || !modelSupportsStructuredOutput(e.platform, e.model_id))) return false;
       if (e.context_window != null && estimatedTokens > e.context_window) return false;
       if (e.tpm_limit != null && estimatedTokens > e.tpm_limit) return false;
       return true;
@@ -1690,8 +1690,12 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
     // (the param would be dropped before send, so the model would answer in
     // prose and burn a failover hop). Platform-level fast path — model-level
     // capability isn't in the catalog; models that accept the param but ignore
-    // it are caught by the non-stream JSON enforcement downstream.
-    if (requireStructured && platformDropsResponseFormat(entry.platform)) { diag.push(`${label}: platform drops response_format`); continue; }
+    // it are caught by the non-stream JSON enforcement downstream. The
+    // model-level check below (#933) skips families with observed evidence of
+    // ignoring response_format (hermes/gemma/nemotron-nano/…) so a
+    // structured request doesn't burn its first hop on a model known to
+    // answer in prose.
+    if (requireStructured && (platformDropsResponseFormat(entry.platform) || !modelSupportsStructuredOutput(entry.platform, entry.model_id))) { diag.push(`${label}: platform drops response_format or model ignores it`); continue; }
 
     // Context-aware routing: skip a model whose context window can't hold the
     // request, so a large prompt never selects a small-context model and burns
