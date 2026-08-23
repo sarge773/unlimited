@@ -880,9 +880,13 @@ keysRouter.post('/custom/probe', async (req: Request, res: Response) => {
   // (#619), and knowing the id up front also skips the discovery round-trip.
   // Only an endpoint with nothing registered falls back to discovery.
   let registeredModelId: string | null = null;
+  // The endpoint's key pool, hoisted so the capability write-back below can
+  // scope its UPDATE to the same keys (an unscoped model_id match would touch
+  // every unrelated custom endpoint that happens to serve the same id).
+  let poolIds: number[] = [];
   if (endpoint.keyId != null) {
     const db = getDb();
-    const poolIds = [...customEndpointKeyIds(db, endpoint.keyId)];
+    poolIds = [...customEndpointKeyIds(db, endpoint.keyId)];
     const placeholders = poolIds.map(() => '?').join(', ');
     const row = db.prepare(
       `SELECT model_id FROM models WHERE platform = 'custom' AND key_id IN (${placeholders}) ORDER BY id LIMIT 1`,
@@ -911,10 +915,17 @@ keysRouter.post('/custom/probe', async (req: Request, res: Response) => {
     // row so the tool-aware router can pick it. Only a POSITIVE result writes
     // (the "only write success samples" philosophy); a negative/unknown result
     // leaves the existing flag untouched.
-    if (probe.toolCalls) {
+    //
+    // Scoped to THIS endpoint's key pool: `model_id` alone is not unique across
+    // custom endpoints (two relays both serving 'gpt-4o-mini' are two different
+    // upstreams), so an unscoped UPDATE would claim tool support for endpoints
+    // that were never probed.
+    if (probe.toolCalls && poolIds.length > 0) {
+      const placeholders = poolIds.map(() => '?').join(', ');
       getDb().prepare(
-        `UPDATE models SET supports_tools = 1 WHERE platform = 'custom' AND model_id = ?`,
-      ).run(probe.modelId);
+        `UPDATE models SET supports_tools = 1
+          WHERE platform = 'custom' AND model_id = ? AND key_id IN (${placeholders})`,
+      ).run(probe.modelId, ...poolIds);
     }
 
     // Response stays { modelId, latencyMs } for backward compat; capability

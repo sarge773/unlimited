@@ -530,4 +530,108 @@ describe('median seeding for custom models (#488)', () => {
     const row = getDb().prepare("SELECT supports_tools FROM models WHERE platform = 'custom' AND model_id = 'relay-a'").get() as { supports_tools: number };
     expect(row.supports_tools).toBe(0);
   });
+
+  it('reports the ping round trip as latency, not the sum of the capability probes (#874)', async () => {
+    await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-a', apiKey: 'relay-secret' });
+    const keyId = customKeyIds()[0]!;
+
+    // The ping answers instantly; both capability probes are deliberately slow.
+    // `latencyMs` measures the endpoint's per-request speed and feeds the
+    // bandit's speed axis, so it must reflect the PING alone — timing it after
+    // the capability probes would report roughly three round trips.
+    const SLOW_PROBE_MS = 300;
+    const mock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (String(url).endsWith('/models')) {
+        return jsonResponse({ object: 'list', data: [{ id: 'relay-a' }] });
+      }
+      const reqBody = JSON.parse(String(init?.body ?? '{}')) as any;
+      if (reqBody.tools || reqBody.max_tokens === 16) {
+        await new Promise(resolve => setTimeout(resolve, SLOW_PROBE_MS));
+      }
+      return jsonResponse({ id: 'c', object: 'chat.completion', created: 0, model: 'relay-a',
+        choices: [{ index: 0, message: { role: 'assistant', content: 'pong' }, finish_reason: 'stop' }],
+        usage: { prompt_tokens: 3, completion_tokens: 1, total_tokens: 4 } });
+    });
+    globalThis.fetch = mock as any;
+
+    const { status, body } = await post(app, '/api/keys/custom/probe', { keyId });
+
+    expect(status).toBe(200);
+    // Both capability probes ran (so this is not a "the probes did not fire" pass).
+    expect(mock.mock.calls.filter(([u]) => String(u).endsWith('/chat/completions'))).toHaveLength(3);
+    expect(body.latencyMs).toBeLessThan(SLOW_PROBE_MS);
+    // The recorded sample carries the same ping-only number.
+    const sample = getDb().prepare("SELECT latency_ms FROM requests WHERE platform = 'custom'").get() as { latency_ms: number };
+    expect(sample.latency_ms).toBeLessThan(SLOW_PROBE_MS);
+  });
+
+  it('scopes the supports_tools write-back to the probed endpoint key pool (#874)', async () => {
+    // Two unrelated custom endpoints that happen to serve the SAME model id —
+    // a very common case with OpenAI-compatible relays. Probing one must not
+    // claim tool support for the other.
+    const OTHER_ENDPOINT = 'http://127.0.0.1:18098/v1';
+    await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'shared-model', apiKey: 'relay-secret' });
+    await post(app, '/api/keys/custom', { baseUrl: OTHER_ENDPOINT, model: 'shared-model', apiKey: 'other-secret' });
+    const probedKeyId = customKeyIds(ENDPOINT)[0]!;
+    const otherKeyId = customKeyIds(OTHER_ENDPOINT)[0]!;
+    getDb().prepare("UPDATE models SET supports_tools = 0 WHERE platform = 'custom' AND model_id = 'shared-model'").run();
+
+    const mock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (String(url).endsWith('/models')) {
+        return jsonResponse({ object: 'list', data: [{ id: 'shared-model' }] });
+      }
+      const reqBody = JSON.parse(String(init?.body ?? '{}')) as any;
+      if (reqBody.tools) {
+        return jsonResponse({ id: 'c', object: 'chat.completion', created: 0, model: 'shared-model',
+          choices: [{ index: 0, message: { role: 'assistant', content: null, tool_calls: [{ id: 'call_1', type: 'function', function: { name: 'get_weather', arguments: '{}' } }] }, finish_reason: 'tool_calls' }],
+          usage: { prompt_tokens: 20, completion_tokens: 2, total_tokens: 22 } });
+      }
+      return jsonResponse({ id: 'c', object: 'chat.completion', created: 0, model: 'shared-model',
+        choices: [{ index: 0, message: { role: 'assistant', content: 'pong' }, finish_reason: 'stop' }],
+        usage: { prompt_tokens: 3, completion_tokens: 1, total_tokens: 4 } });
+    });
+    globalThis.fetch = mock as any;
+
+    const { status, body } = await post(app, '/api/keys/custom/probe', { keyId: probedKeyId });
+
+    expect(status).toBe(200);
+    expect(body.toolCalls).toBe(true);
+    const flagFor = (keyId: number) => (getDb().prepare(
+      "SELECT supports_tools FROM models WHERE platform = 'custom' AND model_id = 'shared-model' AND key_id = ?",
+    ).get(keyId) as { supports_tools: number }).supports_tools;
+    expect(flagFor(probedKeyId)).toBe(1);
+    expect(flagFor(otherKeyId)).toBe(0);
+  });
+
+  it('leaves capability flags absent (unknown) when the capability probes fail (#874)', async () => {
+    await post(app, '/api/keys/custom', { baseUrl: ENDPOINT, model: 'relay-a', apiKey: 'relay-secret' });
+    const keyId = customKeyIds()[0]!;
+
+    // The ping succeeds, both capability probes blow up. "Unknown" is not the
+    // same claim as "no": the response must OMIT the flags so the UI can say so.
+    const mock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (String(url).endsWith('/models')) {
+        return jsonResponse({ object: 'list', data: [{ id: 'relay-a' }] });
+      }
+      const reqBody = JSON.parse(String(init?.body ?? '{}')) as any;
+      if (reqBody.tools || reqBody.max_tokens === 16) {
+        throw new Error('capability probe exploded');
+      }
+      return jsonResponse({ id: 'c', object: 'chat.completion', created: 0, model: 'relay-a',
+        choices: [{ index: 0, message: { role: 'assistant', content: 'pong' }, finish_reason: 'stop' }],
+        usage: { prompt_tokens: 3, completion_tokens: 1, total_tokens: 4 } });
+    });
+    globalThis.fetch = mock as any;
+
+    const { status, body } = await post(app, '/api/keys/custom/probe', { keyId });
+
+    // The ping is still the sample-of-record — a broken capability probe never
+    // fails the probe as a whole.
+    expect(status).toBe(200);
+    expect(body.modelId).toBe('relay-a');
+    expect(body).not.toHaveProperty('reasoning');
+    expect(body).not.toHaveProperty('toolCalls');
+    const count = (getDb().prepare("SELECT COUNT(*) AS c FROM requests WHERE platform = 'custom'").get() as { c: number }).c;
+    expect(count).toBe(1);
+  });
 });

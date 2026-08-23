@@ -372,15 +372,22 @@ export const PROBE_MAX_TOKENS = 4;
  *  keeps working (backward compatible). A probe that answers `ping` but then
  *  errors on a capability probe leaves that capability undefined — the caller
  *  only writes `supports_tools` when `toolCalls === true`. */
-export interface ProbeEndpointModelResult {
+export interface ProbeCapabilities {
+  /** True when the reasoning probe's answer contained the expected token;
+   *  false when it answered something else; undefined when the probe errored
+   *  or timed out (unknown). */
+  reasoning?: boolean;
+  /** True when the tool probe returned `finish_reason: 'tool_calls'`; false
+   *  when it finished some other way; undefined when the probe errored or
+   *  timed out (unknown). */
+  toolCalls?: boolean;
+}
+
+export interface ProbeEndpointModelResult extends ProbeCapabilities {
   modelId: string;
   latencyMs: number;
   inputTokens: number;
   outputTokens: number;
-  /** True when the reasoning probe's answer contained the expected token. */
-  reasoning?: boolean;
-  /** True when the tool probe returned `finish_reason: 'tool_calls'`. */
-  toolCalls?: boolean;
 }
 
 /**
@@ -443,6 +450,12 @@ export async function probeEndpointModel(
     const reason = isAbortLikeError(err) ? 'timed out' : ((err as Error)?.message ?? 'unknown error');
     throw new ModelDiscoveryError(502, `Probe request to ${modelId} failed: ${reason}`);
   }
+  // Stop the clock HERE. `latencyMs` is the endpoint's per-request round trip
+  // — it feeds the bandit's speed axis and the operator's toast — so it must
+  // measure the ping alone. Reading it after the capability probes below would
+  // report the sum of three round trips and make every probed endpoint look
+  // roughly three times slower than it is.
+  const latencyMs = Date.now() - startedAt;
 
   // Phase 1 (#874): the ping only proved the key works and the model answers.
   // Fire two extra best-effort probes — reasoning + tool calls — so the
@@ -452,12 +465,12 @@ export async function probeEndpointModel(
   const capabilities = await probeModelCapabilities(provider, apiKey, modelId).catch(() => {
     // A capability probe that throws (timeout, non-OpenAI error, …) is not a
     // probe failure — the ping already succeeded. Swallow and leave flags unset.
-    return {} as Partial<Pick<ProbeEndpointModelResult, 'reasoning' | 'toolCalls'>>;
+    return {} as ProbeCapabilities;
   });
 
   return {
     modelId,
-    latencyMs: Date.now() - startedAt,
+    latencyMs,
     inputTokens: response.usage?.prompt_tokens ?? 0,
     outputTokens: response.usage?.completion_tokens ?? 0,
     ...capabilities,
@@ -515,11 +528,13 @@ export async function probeModelCapabilities(
   provider: OpenAICompatProvider,
   apiKey: string,
   modelId: string,
-): Promise<{ reasoning: boolean; toolCalls: boolean }> {
+): Promise<ProbeCapabilities> {
   // Reasoning probe: a deterministic arithmetic puzzle. A reply containing the
   // expected answer token is counted as "reasons". We allow a little headroom
   // (max_tokens 16) so the model can emit "63" without being cut off mid-number.
-  let reasoning = false;
+  // `undefined` is the honest starting value: it means "we did not find out".
+  // Only a completed probe may downgrade it to `false`.
+  let reasoning: boolean | undefined;
   try {
     const reasoningMessages: ChatMessage[] = [
       { role: 'user', content: REASONING_PROBE_PROMPT },
@@ -531,15 +546,17 @@ export async function probeModelCapabilities(
     const text = textOfCompletion(reasoningRes);
     reasoning = text.includes(REASONING_PROBE_ANSWER_TOKEN);
   } catch {
-    // Best-effort: an error means "unknown", not "false".
-    reasoning = false;
+    // An error means "unknown", not "false" — leave it undefined so the caller
+    // (and the UI) can tell "the model does not reason" apart from "the probe
+    // never got an answer".
+    reasoning = undefined;
   }
 
   // Tool probe: offer a dummy `get_weather` tool with `tool_choice: 'auto'` and
   // inspect `finish_reason`. A `tool_calls` finish is positive evidence the
   // model speaks the OpenAI tool-call protocol; anything else (stop, length,
   // content_filter, …) means "not via this protocol" and leaves the flag false.
-  let toolCalls = false;
+  let toolCalls: boolean | undefined;
   try {
     const toolMessages: ChatMessage[] = [
       { role: 'user', content: 'What is the weather in Paris? Use the get_weather tool.' },
@@ -553,8 +570,8 @@ export async function probeModelCapabilities(
     const finishReason = toolRes.choices?.[0]?.finish_reason;
     toolCalls = finishReason === 'tool_calls';
   } catch {
-    // Best-effort: an error means "unknown", not "false".
-    toolCalls = false;
+    // An error means "unknown", not "false" — see the reasoning probe above.
+    toolCalls = undefined;
   }
 
   return { reasoning, toolCalls };
