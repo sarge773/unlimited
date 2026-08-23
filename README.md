@@ -132,7 +132,7 @@ The full, always-current list lives at **[freellmapi.co/models](https://freellma
 
 </div>
 
-Most of these configure themselves with one command — `npx freellmapi setup-claude`, `setup-codex`, `setup-aider`, and ten more generators that fetch your live catalog, back up existing config, and never clobber what's already there. Claude Code and Codex also get zero-persistence launchers (`freellmapi launch`, `freellmapi launch-codex`) that inject credentials into the child process only. Zed and JetBrains AI connect through the opt-in [Ollama emulation](docs/clients.md#ollama-clients); Gemini CLI speaks its native wire on `/v1beta`.
+Most of these configure themselves with one command — `npx freellmapi setup-claude`, `setup-codex`, `setup-aider`, `setup-dsh` (DeepSeek Harness), and ten more generators that fetch your live catalog, back up existing config, and never clobber what's already there. Claude Code and Codex also get zero-persistence launchers (`freellmapi launch`, `freellmapi launch-codex`) that inject credentials into the child process only. Zed and JetBrains AI connect through the opt-in [Ollama emulation](docs/clients.md#ollama-clients); Gemini CLI speaks its native wire on `/v1beta`.
 
 Per-tool recipes, the setup CLI reference, revocable URL tokens for headerless clients, and the MCP server all live in **[Clients & coding agents →](docs/clients.md)**
 
@@ -213,6 +213,7 @@ Every generator supports `--dry-run`, creates a timestamped backup before changi
 | Goose | `setup-goose` | `/v1` |
 | Qwen Code | `setup-qwen` | `/v1` (or native `/v1beta`) |
 | Roo / Kilo / Crush | `setup-roo` / `setup-kilo` / `setup-crush` | `/v1` |
+| DeepSeek Harness | `setup-dsh` | `/v1` |
 | Cursor | `setup-cursor` guide | public `/v1` URL |
 
 FreeLLMAPI is local-first and single-user by design. Your provider keys stay in your SQLite database, encrypted at rest, and requests go from your machine to the upstream providers you enabled.

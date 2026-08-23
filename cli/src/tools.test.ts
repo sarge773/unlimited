@@ -213,6 +213,47 @@ describe('tool generators', () => {
     }
   });
 
+  it('declares a complete DeepSeek Harness route and claims the default model', () => {
+    const dsh = tools.find(tool => tool.id === 'dsh')!;
+    const generation = dsh.generate(context);
+    const [settings, env] = generation.files;
+    expect(settings.path).toBe('/home/tester/.dsh/settings.yaml');
+    expect(settings.format).toBe('yaml');
+    const value = settings.value as {
+      'llm-pi-ai': { providers: Record<string, { api: string; baseURL: string; apiKeyEnv: string; models: { id: string }[] }> };
+      'agent-default-model': { provider: string; model: string; reasoningEffort?: string };
+    };
+    const route = value['llm-pi-ai'].providers.freellmapi;
+    // A hand-declared route must carry api, baseURL, and a non-empty models
+    // list, or DSH refuses the whole section where it is written.
+    expect(route.api).toBe('openai-completions');
+    expect(route.baseURL).toBe('http://localhost:3000/v1');
+    expect(route.apiKeyEnv).toBe('FREELLMAPI_API_KEY');
+    expect(route.models.map(model => model.id)).toEqual(['fast-coder', 'reasoning-model']);
+    expect(value['agent-default-model']).toEqual({
+      provider: 'freellmapi',
+      model: 'fast-coder',
+      reasoningEffort: undefined,
+    });
+    expect('reasoningEffort' in value['agent-default-model']).toBe(true);
+    // DSH loads $DSH_HOME/.env as its user environment layer, which is how
+    // `apiKeyEnv` resolves without an export.
+    expect(env).toMatchObject({
+      path: '/home/tester/.dsh/.env',
+      format: 'env',
+      sensitive: true,
+      content: 'FREELLMAPI_API_KEY=freellmapi-test-key\n',
+    });
+  });
+
+  it('adds a named DeepSeek Harness profile as a second route without moving the default', () => {
+    const dsh = tools.find(tool => tool.id === 'dsh')!;
+    const value = dsh.generate({ ...context, profile: 'Work Laptop' }).files[0].value as Record<string, unknown>;
+    const providers = (value['llm-pi-ai'] as { providers: Record<string, unknown> }).providers;
+    expect(Object.keys(providers)).toEqual(['freellmapi-work-laptop']);
+    expect(value['agent-default-model']).toBeUndefined();
+  });
+
   it('uses /v1 for every OpenAI-compatible generated base URL', () => {
     for (const tool of tools.filter(entry => entry.protocol.startsWith('OpenAI'))) {
       expect(tool.baseUrlSupport, tool.id).toBe('/v1');

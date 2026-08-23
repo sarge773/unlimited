@@ -12,6 +12,7 @@ export const CLIENT_AGENTS = [
   'qwen-code',
   'kilo-code',
   'crush',
+  'deepseek-harness',
   'cursor',
   'gemini-cli',
   'zed',
@@ -52,6 +53,8 @@ export function classifyClientAgent(req: Request): ClientAgent {
   if (/gemini[- /]?cli/.test(ua)) return 'gemini-cli';
   if (/kilo[- ]?code|\bkilocode\b/.test(ua)) return 'kilo-code';
   if (/\bcrush(?:\/|\s|$)/.test(ua)) return 'crush';
+  // `deepseek-harness/<version> (+https://github.com/deepseek-ai/deepseek-harness)`
+  if (/deepseek[- ]?harness|\bdsh\//.test(ua)) return 'deepseek-harness';
   if (/opencode/.test(ua)) return 'opencode';
   if (/\bcline\b/.test(ua)) return 'cline';
   if (/\broo[- /]/.test(ua) || /roo code/.test(ua)) return 'roo';

@@ -34,6 +34,9 @@ describe('client agent classification', () => {
     expect(classifyClientAgent(request('/v1/chat/completions', {
       'user-agent': 'crush/0.8',
     }))).toBe('crush');
+    expect(classifyClientAgent(request('/v1/chat/completions', {
+      'user-agent': 'deepseek-harness/0.3.1 (+https://github.com/deepseek-ai/deepseek-harness)',
+    }))).toBe('deepseek-harness');
   });
 
   it('recognizes Claude Code by its real claude-cli user agent', () => {

@@ -40,6 +40,7 @@ const analyticsIds: Record<string, string> = {
   roo: 'roo',
   kilo: 'kilo-code',
   crush: 'crush',
+  dsh: 'deepseek-harness',
   cursor: 'cursor',
 }
 

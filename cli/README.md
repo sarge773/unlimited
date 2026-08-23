@@ -26,6 +26,7 @@ dashboard (or the tray popover in the desktop app).
 | `setup-roo` | Roo Code |
 | `setup-kilo` | Kilo Code |
 | `setup-crush` | Crush |
+| `setup-dsh` | DeepSeek Harness (`dsh`) |
 | `setup-cursor` | Cursor |
 | `setup-generic` | Any OpenAI-compatible client |
 | `launch` | Run Claude Code with credentials injected into the child process |
