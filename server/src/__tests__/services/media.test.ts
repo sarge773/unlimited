@@ -324,6 +324,21 @@ describe('media service', () => {
       expect((fetchMock.mock.calls[2][1] as RequestInit).headers).toBeUndefined();
     });
 
+    it('reports an upstream key rejection as an upstream failure, not a caller auth error', async () => {
+      // A 401 from the provider means the OPERATOR's key was refused. Passing
+      // it to the caller would tell an OpenAI SDK that its own gateway key is
+      // bad; a caller-attributable 400 does travel through.
+      addMedia('pollinations', 'nova-reel', 'video');
+      addKey('pollinations', 'sk_pollinations_test');
+      globalThis.fetch = vi.fn(async () => new Response('nope', { status: 401 })) as any;
+      await expect(runVideoGeneration('nova-reel', { prompt: 'x' }))
+        .rejects.toMatchObject({ status: 502 });
+
+      globalThis.fetch = vi.fn(async () => new Response('bad prompt', { status: 400 })) as any;
+      await expect(runVideoGeneration('nova-reel', { prompt: 'x' }))
+        .rejects.toMatchObject({ status: 400 });
+    });
+
     it('Hugging Face: refuses a result URL that points at a blocked address class', async () => {
       // The result URL is the one URL in this adapter that comes out of an
       // upstream JSON body, so it goes through the same guard custom-provider

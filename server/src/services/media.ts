@@ -717,7 +717,14 @@ function logMedia(row: Pick<MediaModelRow, 'platform' | 'model_id' | 'modality'>
 }
 
 function chainError(modality: MediaModality, lastError: MediaError | null): MediaError {
-  const status = lastError && [400, 401, 413, 429].includes(lastError.status)
+  // Only statuses the CALLER can act on are passed through. 400 (bad prompt,
+  // duration the model does not accept) and 413 (upload too large) describe
+  // the caller's own request, and 429 is the long-standing rate-limit signal.
+  // An upstream 401 is deliberately NOT among them: it means the operator's
+  // provider key was rejected, and forwarding it would tell an OpenAI client
+  // its own gateway key is bad — which sends SDKs into a credential error
+  // instead of the retryable upstream failure this actually is.
+  const status = lastError && [400, 413, 429].includes(lastError.status)
     ? lastError.status
     : 502;
   return new MediaError(
