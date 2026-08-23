@@ -27,7 +27,7 @@ Aggregate free tiers from dozens of providers, plus custom OpenAI-compatible cha
 ![FreeLLMAPI dashboard — Models page with the monthly token budget](repo-assets/github-hero.png)
 
 
-Your router updates its own model catalog from a signed feed: new free models, quota changes, and compatibility fixes land without a `git pull`.
+Your router updates its own model catalog from a signed feed: new free models, quota changes, and compatibility fixes land without a `git pull`. Free installs get the monthly snapshot, so a model reaches them 30 days after it joins the live feed; premium routers get it the same day.
 **[Go live at freellmapi.co](https://freellmapi.co/?utm_source=github&utm_medium=readme&utm_campaign=premium&utm_content=readme_top#pricing)** ($19/yr, cancel anytime).
 
 </div>
@@ -157,7 +157,7 @@ Based on public documentation, July 2026 — corrections welcome.
 - **Smart routing, six strategies** — live per-model speed/capability/reliability scores rank your chain; automatic fallover retries the next model on 429/5xx with cooldowns and key rotation. [Routing in detail →](docs/architecture.md#routing-in-detail)
 - **Unified models & profiles** — the same model on several providers collapses into one entry with strict in-group failover; named fallback-chain profiles (a coding chain, a vision chain) switch from the dashboard or per request via `auto:<profile>`.
 - **Per-key rate tracking** — RPM/RPD/TPM/TPD counters per `(platform, model, key)` that learn providers' reported ceilings, so routing always stays under every cap.
-- **Self-updating model catalog** — the router syncs a signed catalog from freellmapi.co twice a day: new models, quota changes, and provider quirk fixes land automatically. [Premium →](#premium-live-catalog)
+- **Self-updating model catalog** — the router syncs a signed catalog from freellmapi.co twice a day: new models, quota changes, and provider quirk fixes land automatically. Free installs track the monthly snapshot, which each model joins 30 days after it lands in the live feed; premium routers get it same-day. [Premium →](#premium-live-catalog)
 - **Sticky sessions & context handoff** — conversations stay on one model for 30 minutes; an optional compact handoff note keeps the thread coherent when a mid-chat switch does happen. [Details →](docs/clients.md#context-handoff)
 - **Prompt compression (opt-in)** — a shared, fail-open request pipeline can deduplicate prompts, filter tool output, compact repeated JSON, and trim stale context before cache lookup and routing. [Details →](docs/compression.md)
 - **Encrypted keys, one token out** — provider keys are AES-256-GCM encrypted in SQLite and decrypted in-memory per request; your apps only ever see a single unified `freellmapi-…` bearer token.
@@ -259,9 +259,14 @@ video), and roughly **7.4 billion tokens per month** of listed free-tier
 capacity. Browse the full set at
 **[freellmapi.co/models](https://freellmapi.co/models.html)**.
 
+Free installs pull the same signed catalog, but from the monthly snapshot: a
+model joins it 30 days after it lands in the live feed, so the free build
+currently sits about 303 models behind. Nothing expires and nothing is
+crippled — it just arrives later.
+
 Premium keeps that signed catalog live on every router you run. When a provider
 launches a strong free model, quietly tightens a quota, or breaks a wire format,
-live-feed routers receive the update as soon as we ship it.
+live-feed routers receive the update the same day we ship it.
 
 **[Go live at freellmapi.co →](https://freellmapi.co/?utm_source=github&utm_medium=readme&utm_campaign=premium&utm_content=readme_bottom#pricing)**
 
