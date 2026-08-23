@@ -25,7 +25,7 @@ export interface MediaModel {
 interface MediaData { models: MediaModel[] }
 
 interface MediaUsage {
-  modality: 'image' | 'audio'
+  modality: 'image' | 'audio' | 'transcription'
   models: {
     id: number
     platform: string
@@ -152,6 +152,15 @@ export function MediaModelsView({ modality }: { modality: 'image' | 'audio' }) {
     refetchInterval: 30_000,
   })
 
+  // The Audio tab carries both directions of the modality, so the STT section
+  // gets its own usage summary (the endpoint accepts modality=transcription).
+  const { data: sttUsage } = useQuery<MediaUsage>({
+    queryKey: ['media', 'usage', 'transcription'],
+    queryFn: () => apiFetch('/api/media/usage?modality=transcription'),
+    enabled: modality === 'audio',
+    refetchInterval: 30_000,
+  })
+
   const toggle = useMutation({
     mutationFn: ({ id, enabled }: { id: number; enabled: boolean }) =>
       apiFetch(`/api/media/${id}`, { method: 'PUT', body: JSON.stringify({ enabled }) }),
@@ -231,6 +240,21 @@ export function MediaModelsView({ modality }: { modality: 'image' | 'audio' }) {
           <p className="text-xs text-muted-foreground">
             {t('models.sttHint')} <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">/v1/audio/transcriptions</code>
           </p>
+
+          {sttUsage && sttUsage.models.length > 0 && (
+            <UsageSummaryCard
+              rows={sttUsage.models.map(m => ({
+                label: m.displayName,
+                platform: m.platform,
+                quotaLabel: [m.platform, m.quotaLabel].filter(Boolean).join(' · '),
+                amount: m.requestsMonth,
+                requestsToday: m.requestsToday,
+              }))}
+              total={sttUsage.totalRequestsMonth}
+              requestsToday={sttUsage.totalRequestsToday}
+              unit="requests"
+            />
+          )}
 
           {isLoading ? (
             <CardSkeleton />
