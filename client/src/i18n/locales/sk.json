@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Preskúmavať nezmerané modely",
     "exploreHint": "Dáva modelom bez údajov o spoľahlivosti/rýchlosti 10 % šancu na vyskúšanie, aby nazbierali vzorky.",
+    "keySelection": "Výber kľúča",
+    "keySelectionAuto": "Automaticky",
+    "keySelectionLeastRemaining": "Najmenej zostáva",
+    "keySelectionHint": "Ako sa vyberá spomedzi viacerých kľúčov toho istého poskytovateľa. Automaticky zachová súčasné striedanie; Najmenej zostáva zoradí kľúče podľa zistenej kvóty a najskôr skúsi ten, ktorému zostáva najviac.",
     "peakActive": "(špička)",
     "peakActiveHint": "Úprava pre špičku je práve aktívna, takže toto nie sú váhy samotnej predvoľby: 60 % váhy rýchlosti sa presunulo na spoľahlivosť.",
     "peakAdjust": "Úprava pre špičku",

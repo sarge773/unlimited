@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Tyrinėti neišmatuotus modelius",
     "exploreHint": "Modeliams be patikimumo/greičio duomenų suteikiama 10 % tikimybė būti išbandytiems, kad jie sukauptų imtis.",
+    "keySelection": "Rakto parinkimas",
+    "keySelectionAuto": "Automatinis",
+    "keySelectionLeastRemaining": "Mažiausiai likę",
+    "keySelectionHint": "Kaip renkamasi tarp kelių to paties tiekėjo raktų. Automatinis išlaiko dabartinę rotaciją; Mažiausiai likę surikiuoja raktus pagal stebimą kvotą ir pirmiausia išbando tą, kuriam likę daugiausia.",
     "peakActive": "(piko valandos)",
     "peakActiveHint": "Piko valandų korekcija dabar veikia, todėl tai nėra paties nustatymo svoriai: 60 % greičio svorio perkelta patikimumui.",
     "peakAdjust": "Piko valandų korekcija",

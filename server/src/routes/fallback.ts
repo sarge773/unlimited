@@ -7,7 +7,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { getDb } from '../db/index.js';
-import { getAllPenalties, getRoutingScores, getRoutingStrategy, setRoutingStrategy, setCustomWeights, getExploreEnabled, setExploreEnabled, getPeakHoursConfig, setPeakHoursConfig, getActiveRoutingWeights } from '../services/router.js';
+import { getAllPenalties, getRoutingScores, getRoutingStrategy, setRoutingStrategy, setCustomWeights, getExploreEnabled, setExploreEnabled, getPeakHoursConfig, setPeakHoursConfig, getActiveRoutingWeights, getKeySelectionStrategy, setKeySelectionStrategy } from '../services/router.js';
 import { BANDIT_PRESETS, isValidTimezone, type RoutingStrategy } from '../services/scoring.js';
 import { parseBudget } from '../lib/budget.js';
 import { getModelGroups } from '../services/model-groups.js';
@@ -55,6 +55,10 @@ const routingSchema = z.object({
   peakStartHour: z.number().int().min(0).max(23, { message: 'peakStartHour must be an integer between 0 and 23' }).optional(),
   peakEndHour: z.number().int().min(0).max(23, { message: 'peakEndHour must be an integer between 0 and 23' }).optional(),
   peakTimezone: z.string().refine(isValidTimezone, { message: 'peakTimezone must be a valid IANA timezone name' }).optional(),
+  // How to pick between several keys of one platform (#919). Independent of
+  // `strategy`, which ranks MODELS — the two are set from the same form, so
+  // they round-trip through the same request.
+  keySelectionStrategy: z.enum(['auto', 'least-remaining']).optional(),
 });
 
 // PUT /routing → switch strategy. Presets are just weight vectors over the three
@@ -80,6 +84,9 @@ fallbackRouter.put('/routing', (req: Request, res: Response) => {
   if (parsed.data.exploreEnabled !== undefined) {
     setExploreEnabled(parsed.data.exploreEnabled);
   }
+  if (parsed.data.keySelectionStrategy !== undefined) {
+    setKeySelectionStrategy(parsed.data.keySelectionStrategy);
+  }
   try {
     setPeakHoursConfig({
       enabled: parsed.data.peakHoursAdjust,
@@ -100,6 +107,7 @@ fallbackRouter.put('/routing', (req: Request, res: Response) => {
   res.json({
     strategy: getRoutingStrategy(),
     exploreEnabled: getExploreEnabled(),
+    keySelectionStrategy: getKeySelectionStrategy(),
     presets: BANDIT_PRESETS,
     weights: active.weights,
     peakAdjusted: active.adjusted,

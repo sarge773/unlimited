@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Ṣawari awọn awoṣe ti a ko ti wọn",
     "exploreHint": "Fun awọn awoṣe ti ko ni data igbẹkẹle/iyara ni anfani 10% lati dan wo ki wọn le ko apẹẹrẹ jọ.",
+    "keySelection": "Yíyan kọ́kọ́rọ́",
+    "keySelectionAuto": "Aládàáṣe",
+    "keySelectionLeastRemaining": "Èyí tó kù jù",
+    "keySelectionHint": "Bí a ṣe ń yan láàrin àwọn kọ́kọ́rọ́ púpọ̀ ti olùpèsè kan náà. Aládàáṣe ń pa ìyípo tó wà lọ́wọ́ mọ́; Èyí tó kù jù ń tò àwọn kọ́kọ́rọ́ nípa ìwọ̀n tí a rí, ó sì kọ́kọ́ gbìyànjú èyí tó ní ìwọ̀n tó pọ̀ jù tó kù.",
     "peakActive": "(àkókò ìdààmú)",
     "peakActiveHint": "Àtúnṣe àkókò ìdààmú ń ṣiṣẹ́ nísinsìnyí, nítorí náà àwọn ìwọ̀n wọ̀nyí kìí ṣe ti ìṣàkóso fúnra rẹ̀: 60% ìwọ̀n ìyára ti kọjá sí ìgbẹ́kẹ̀lé.",
     "peakAdjust": "Àtúnṣe àkókò ìdààmú",

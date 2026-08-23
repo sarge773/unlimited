@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Nyochaa ụdị a na-atụbeghị",
     "exploreHint": "Nye ụdị na-enweghị data ntụkwasị obi/ọsọ ohere 10% ka a nwalee ha ka ha wee chịkọta data.",
+    "keySelection": "Nhọrọ igodo",
+    "keySelectionAuto": "Akpaghị aka",
+    "keySelectionLeastRemaining": "Nke fọdụrụ kacha nta",
+    "keySelectionHint": "Otú e si ahọrọ n'etiti ọtụtụ igodo nke otu onye na-eweta. Akpaghị aka na-edobe ntụgharị dị ugbu a; Nke fọdụrụ kacha nta na-ahazi igodo site na oke a hụrụ ma nwaa nke fọdụrụ nke kacha ukwuu mbụ.",
     "peakActive": "(oge ọrụ kachasị)",
     "peakActiveHint": "Ndozi oge ọrụ kachasị na-arụ ọrụ ugbu a, ya mere ndị a abụghị ibu nke preset n'onwe ya: 60% nke ibu ọsọ agafeela na ntụkwasị obi.",
     "peakAdjust": "Ndozi oge ọrụ kachasị",

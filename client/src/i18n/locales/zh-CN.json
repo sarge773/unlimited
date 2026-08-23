@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "探索未测模型",
     "exploreHint": "给尚无可靠性/速度数据的模型 10% 的尝试机会，以便积累样本。",
+    "keySelection": "密钥选择",
+    "keySelectionAuto": "自动",
+    "keySelectionLeastRemaining": "按剩余额度",
+    "keySelectionHint": "当同一提供商配置了多个密钥时如何选择。自动保持当前轮换；按剩余额度会根据观测到的配额排序，优先使用剩余最多的密钥。",
     "peakActive": "（高峰时段）",
     "peakActiveHint": "高峰时段调整当前已生效，因此这些不是预设本身的权重：60% 的速度权重已转移到可靠性上。",
     "peakAdjust": "高峰时段调整",

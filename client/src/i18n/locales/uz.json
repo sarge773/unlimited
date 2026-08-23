@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "O'lchanmagan modellarni o'rganish",
     "exploreHint": "Ishonchlilik/tezlik ma'lumotlari bo'lmagan modellarga namunalar to'plashi uchun 10% sinab ko'rish imkoniyati beriladi.",
+    "keySelection": "Kalit tanlash",
+    "keySelectionAuto": "Avtomatik",
+    "keySelectionLeastRemaining": "Eng kam qolgan",
+    "keySelectionHint": "Bitta provayderning bir nechta kaliti orasidan qanday tanlanadi. Avtomatik joriy navbatni saqlaydi; Eng kam qolgan kalitlarni kuzatilgan kvota bo‘yicha tartiblaydi va eng ko‘p qolgan kalitni birinchi sinaydi.",
     "peakActive": "(eng band soatlar)",
     "peakActiveHint": "Eng band soatlar moslashuvi hozir yoqilgan, shuning uchun bular andozaning oʻz vaznlari emas: tezlik vaznining 60% ishonchlilikka koʻchirilgan.",
     "peakAdjust": "Eng band soatlar moslashuvi",

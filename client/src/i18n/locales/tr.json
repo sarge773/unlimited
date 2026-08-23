@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Ölçülmemiş modelleri keşfet",
     "exploreHint": "Güvenilirlik/hız verisi olmayan modellere örnek toplayabilmeleri için %10 denenme şansı verir.",
+    "keySelection": "Anahtar seçimi",
+    "keySelectionAuto": "Otomatik",
+    "keySelectionLeastRemaining": "En az kalan",
+    "keySelectionHint": "Aynı sağlayıcıdaki birden çok anahtar arasında nasıl seçim yapılacağı. Otomatik mevcut sırayı korur; En az kalan, anahtarları gözlenen kotaya göre sıralar ve en çok kotası kalanı önce dener.",
     "peakActive": "(yoğun saatler)",
     "peakActiveHint": "Yoğun saat ayarı şu anda etkin, dolayısıyla bunlar hazır ayarın kendi ağırlıkları değil: hız ağırlığının %60'ı güvenilirliğe aktarıldı.",
     "peakAdjust": "Yoğun saat ayarı",

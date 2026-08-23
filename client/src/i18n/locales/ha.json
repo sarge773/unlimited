@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Bincika samfuran da ba a auna ba",
     "exploreHint": "Ba samfuran da ba su da bayanan aminci/sauri damar 10% a gwada su domin su tara bayanai.",
+    "keySelection": "Zaɓin maɓalli",
+    "keySelectionAuto": "Ta atomatik",
+    "keySelectionLeastRemaining": "Mafi ƙarancin saura",
+    "keySelectionHint": "Yadda ake zaɓi tsakanin maɓallai da yawa na mai bayarwa ɗaya. Ta atomatik yana riƙe da jujjuyawar yanzu; Mafi ƙarancin saura yana jera maɓallai bisa ƙimar da aka lura da ita kuma yana gwada wanda ya fi sauran da farko.",
     "peakActive": "(lokutan cunkoso)",
     "peakActiveHint": "Gyaran lokutan cunkoso yana aiki yanzu, don haka waɗannan ba nauyin saitin kansa ba ne: kashi 60 na nauyin gudu an mayar da shi ga aminci.",
     "peakAdjust": "Gyaran lokutan cunkoso",

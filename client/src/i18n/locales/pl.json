@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Eksploruj niezmierzone modele",
     "exploreHint": "Daje modelom bez danych o niezawodności/prędkości 10% szansy na wypróbowanie, aby zebrały próbki.",
+    "keySelection": "Wybór klucza",
+    "keySelectionAuto": "Automatycznie",
+    "keySelectionLeastRemaining": "Najmniej pozostało",
+    "keySelectionHint": "Jak wybierać spośród kilku kluczy tego samego dostawcy. Automatycznie zachowuje bieżącą rotację; Najmniej pozostało porządkuje klucze według zaobserwowanego limitu i najpierw próbuje ten, któremu zostało najwięcej.",
     "peakActive": "(godziny szczytu)",
     "peakActiveHint": "Korekta na godziny szczytu jest teraz aktywna, więc to nie są wagi samego presetu: 60% wagi szybkości przeniesiono na niezawodność.",
     "peakAdjust": "Korekta na godziny szczytu",

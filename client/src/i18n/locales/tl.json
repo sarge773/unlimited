@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "I-explore ang mga hindi pa nasusukat na modelo",
     "exploreHint": "Bigyan ang mga modelong walang data ng pagiging maaasahan/bilis ng 10% na tsansang masubukan para makaipon ng mga sample.",
+    "keySelection": "Pagpili ng key",
+    "keySelectionAuto": "Awto",
+    "keySelectionLeastRemaining": "Pinakakaunti ang natitira",
+    "keySelectionHint": "Kung paano pumili sa ilang key ng iisang provider. Pinapanatili ng Awto ang kasalukuyang rotasyon; ini-ranggo ng Pinakakaunti ang natitira ang mga key ayon sa naobserbahang quota at sinusubukan muna ang may pinakamaraming natitira.",
     "peakActive": "(oras ng rurok)",
     "peakActiveHint": "Aktibo ngayon ang pag-aayos para sa oras ng rurok, kaya hindi ito ang mismong timbang ng preset: 60% ng timbang ng bilis ay inilipat sa pagiging maaasahan.",
     "peakAdjust": "Pag-aayos sa oras ng rurok",

@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Teroka model yang belum diukur",
     "exploreHint": "Beri model tanpa data kebolehpercayaan/kelajuan peluang 10% untuk dicuba supaya sampel terkumpul.",
+    "keySelection": "Pemilihan kunci",
+    "keySelectionAuto": "Auto",
+    "keySelectionLeastRemaining": "Paling sedikit baki",
+    "keySelectionHint": "Cara memilih antara beberapa kunci pembekal yang sama. Auto mengekalkan giliran semasa; Paling sedikit baki menyusun kunci mengikut kuota yang diperhatikan dan mencuba yang paling banyak baki dahulu.",
     "peakActive": "(waktu puncak)",
     "peakActiveHint": "Pelarasan waktu puncak sedang aktif, jadi ini bukan pemberat praset itu sendiri: 60% pemberat kelajuan telah dipindahkan ke kebolehpercayaan.",
     "peakAdjust": "Pelarasan waktu puncak",

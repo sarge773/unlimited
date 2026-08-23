@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Explorar modelos sem medições",
     "exploreHint": "Dá aos modelos sem dados de confiabilidade/velocidade 10% de chance de serem testados para que acumulem amostras.",
+    "keySelection": "Seleção de chave",
+    "keySelectionAuto": "Automática",
+    "keySelectionLeastRemaining": "Menor restante",
+    "keySelectionHint": "Como escolher entre várias chaves do mesmo provedor. Automática mantém o rodízio atual; Menor restante ordena as chaves pela cota observada e tenta primeiro a que tem mais sobrando.",
     "peakActive": "(horário de pico)",
     "peakActiveHint": "O ajuste de horário de pico está ativo agora, então estes não são os pesos do próprio preset: 60% do peso de velocidade foi transferido para confiabilidade.",
     "peakAdjust": "Ajuste de horário de pico",

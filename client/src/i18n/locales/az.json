@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Ölçülməmiş modelləri araşdır",
     "exploreHint": "Etibarlılıq/sürət məlumatı olmayan modellərə nümunə toplamaları üçün 10% sınaq şansı verin.",
+    "keySelection": "Açar seçimi",
+    "keySelectionAuto": "Avtomatik",
+    "keySelectionLeastRemaining": "Ən az qalan",
+    "keySelectionHint": "Eyni provayderin bir neçə açarı arasında necə seçim ediləcəyi. Avtomatik cari növbəni saxlayır; Ən az qalan açarları müşahidə olunan kvotaya görə sıralayır və ən çox qalanı ilk sınayır.",
     "peakActive": "(pik saatlar)",
     "peakActiveHint": "Pik saat tənzimləməsi hazırda aktivdir, ona görə bunlar hazır dəstin öz çəkiləri deyil: sürət çəkisinin 60%-i etibarlılığa keçirilib.",
     "peakAdjust": "Pik saat tənzimləməsi",

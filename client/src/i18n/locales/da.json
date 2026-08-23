@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Udforsk umålte modeller",
     "exploreHint": "Giver modeller uden pålideligheds-/hastighedsdata en chance på 10 % for at blive prøvet, så de opbygger stikprøver.",
+    "keySelection": "Nøglevalg",
+    "keySelectionAuto": "Automatisk",
+    "keySelectionLeastRemaining": "Mindst tilbage",
+    "keySelectionHint": "Hvordan der vælges mellem flere nøgler hos samme udbyder. Automatisk beholder den nuværende rotation; Mindst tilbage rangordner nøglerne efter observeret kvote og prøver først den, der har mest tilbage.",
     "peakActive": "(spidsbelastning)",
     "peakActiveHint": "Justeringen for spidsbelastning er aktiv lige nu, så det er ikke forudindstillingens egne vægte: 60 % af hastighedsvægten er flyttet til pålidelighed.",
     "peakAdjust": "Justering for spidsbelastning",

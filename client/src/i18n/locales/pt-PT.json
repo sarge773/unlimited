@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Explorar modelos sem medições",
     "exploreHint": "Dá aos modelos sem dados de fiabilidade/velocidade 10% de probabilidade de serem experimentados para que acumulem amostras.",
+    "keySelection": "Seleção de chave",
+    "keySelectionAuto": "Automática",
+    "keySelectionLeastRemaining": "Menor restante",
+    "keySelectionHint": "Como escolher entre várias chaves do mesmo fornecedor. Automática mantém a rotação atual; Menor restante ordena as chaves pela quota observada e tenta primeiro a que tem mais disponível.",
     "peakActive": "(horas de ponta)",
     "peakActiveHint": "O ajuste de horas de ponta está ativo neste momento, por isso estes não são os pesos do próprio preset: 60% do peso da velocidade passou para a fiabilidade.",
     "peakAdjust": "Ajuste de horas de ponta",

@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Explorar modelos sin mediciones",
     "exploreHint": "Da a los modelos sin datos de fiabilidad/velocidad un 10 % de probabilidad de ser probados para que acumulen muestras.",
+    "keySelection": "Selección de clave",
+    "keySelectionAuto": "Automática",
+    "keySelectionLeastRemaining": "Menos restante",
+    "keySelectionHint": "Cómo elegir entre varias claves del mismo proveedor. Automática mantiene la rotación actual; Menos restante ordena las claves por la cuota observada y prueba primero la que más le queda.",
     "peakActive": "(horas punta)",
     "peakActiveHint": "El ajuste de horas punta está activo ahora mismo, así que estos no son los pesos propios del preajuste: el 60 % del peso de velocidad se ha trasladado a fiabilidad.",
     "peakAdjust": "Ajuste de horas punta",

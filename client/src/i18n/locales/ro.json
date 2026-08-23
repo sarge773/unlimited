@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Explorează modelele nemăsurate",
     "exploreHint": "Oferă modelelor fără date de fiabilitate/viteză o șansă de 10% de a fi încercate, ca să acumuleze eșantioane.",
+    "keySelection": "Selectarea cheii",
+    "keySelectionAuto": "Automat",
+    "keySelectionLeastRemaining": "Cel mai puțin rămas",
+    "keySelectionHint": "Cum se alege între mai multe chei ale aceluiași furnizor. Automat păstrează rotația actuală; Cel mai puțin rămas ordonează cheile după cota observată și o încearcă prima pe cea cu cel mai mult rămas.",
     "peakActive": "(ore de vârf)",
     "peakActiveHint": "Ajustarea pentru orele de vârf este activă acum, deci acestea nu sunt ponderile presetării în sine: 60% din ponderea vitezei a trecut la fiabilitate.",
     "peakAdjust": "Ajustare pentru orele de vârf",

@@ -58,6 +58,11 @@ export interface FallbackEntry {
 
 export type RoutingStrategy = 'priority' | 'balanced' | 'smartest' | 'fastest' | 'reliable' | 'custom'
 
+// How the gateway picks between several keys of ONE platform, once a model has
+// been chosen (#919). Separate from RoutingStrategy, which ranks models: the
+// two are independent knobs and the Fallback page sets them side by side.
+export type KeySelectionStrategy = 'auto' | 'least-remaining'
+
 export type RoutingWeights = { reliability: number; speed: number; intelligence: number }
 
 /** Presets the peak-hours adjustment (#760) leaves alone: they already sit at
@@ -95,6 +100,9 @@ export interface RoutingData {
   /** IANA timezone the peak window is read in (default 'UTC'). */
   peakTimezone: string
   peakAdjusted: boolean
+  /** Key-selection policy (#919). Required for the same reason as
+   *  exploreEnabled: the picker renders straight from GET /routing. */
+  keySelectionStrategy: KeySelectionStrategy
   scores: (RoutingScore & { platform: string; modelId: string; displayName: string; enabled: boolean })[]
 }
 

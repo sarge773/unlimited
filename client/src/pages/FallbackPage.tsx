@@ -28,6 +28,7 @@ import {
   type RoutingData,
   type RoutingStrategy,
   type RoutingWeights,
+  type KeySelectionStrategy,
   type Row,
   type TokenUsageData,
 } from '@/lib/routing'
@@ -125,12 +126,14 @@ export default function FallbackPage() {
     mutationFn: (payload: {
       strategy: RoutingStrategy; weights?: RoutingWeights; exploreEnabled?: boolean
       peakHoursAdjust?: boolean; peakStartHour?: number; peakEndHour?: number; peakTimezone?: string
+      keySelectionStrategy?: KeySelectionStrategy
     }) =>
       apiFetch('/api/fallback/routing', { method: 'PUT', body: JSON.stringify(payload) }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fallback', 'routing'] }),
   })
 
   const strategy: RoutingStrategy = routing?.strategy ?? 'balanced'
+  const keySelection: KeySelectionStrategy = routing?.keySelectionStrategy ?? 'auto'
   const isManual = strategy === 'priority'
 
   // Merge fallback metadata with live scores, keyed by model.
@@ -276,29 +279,51 @@ export default function FallbackPage() {
             )}
           </div>
 
-          <div className="inline-flex flex-wrap items-center gap-1 rounded-xl border p-1">
-            {STRATEGIES.map(s => (
-              <Tooltip key={s.key} text={t(`strategies.${s.tKey}Blurb`)}>
-                <button
-                  disabled={strategyMutation.isPending}
-                  onClick={() => strategyMutation.mutate({ strategy: s.key })}
-                  className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-                    s.key === strategy
-                      ? 'bg-foreground text-background font-medium'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  }`}
-                >
-                  {t(`strategies.${s.tKey}`)}
-                </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex flex-wrap items-center gap-1 rounded-xl border p-1">
+              {STRATEGIES.map(s => (
+                <Tooltip key={s.key} text={t(`strategies.${s.tKey}Blurb`)}>
+                  <button
+                    disabled={strategyMutation.isPending}
+                    onClick={() => strategyMutation.mutate({ strategy: s.key })}
+                    className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
+                      s.key === strategy
+                        ? 'bg-foreground text-background font-medium'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    }`}
+                  >
+                    {t(`strategies.${s.tKey}`)}
+                  </button>
+                </Tooltip>
+              ))}
+              {strategy === 'custom' && routing && (
+                <CustomWeightsPopover
+                  saved={routing.customWeights}
+                  saving={strategyMutation.isPending}
+                  onSave={w => strategyMutation.mutate({ strategy: 'custom', weights: w })}
+                />
+              )}
+            </div>
+
+            {/* Key selection (#919). A separate knob from the strategy above:
+                that one ranks MODELS, this one picks between several keys of
+                the same provider. Shown in every mode — manual chain order
+                still leaves the choice of key open. */}
+            <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{t('strategies.keySelection')}</span>
+              <select
+                value={keySelection}
+                disabled={strategyMutation.isPending}
+                onChange={e => strategyMutation.mutate({ strategy, keySelectionStrategy: e.target.value as KeySelectionStrategy })}
+                className="rounded-lg border bg-background px-2 py-1.5 text-xs text-foreground"
+              >
+                <option value="auto">{t('strategies.keySelectionAuto')}</option>
+                <option value="least-remaining">{t('strategies.keySelectionLeastRemaining')}</option>
+              </select>
+              <Tooltip text={t('strategies.keySelectionHint')}>
+                <span className="cursor-help underline decoration-dotted underline-offset-2">?</span>
               </Tooltip>
-            ))}
-            {strategy === 'custom' && routing && (
-              <CustomWeightsPopover
-                saved={routing.customWeights}
-                saving={strategyMutation.isPending}
-                onSave={w => strategyMutation.mutate({ strategy: 'custom', weights: w })}
-              />
-            )}
+            </label>
           </div>
 
           <p className="mt-2 text-xs text-muted-foreground">

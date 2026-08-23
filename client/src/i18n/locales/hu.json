@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Nem mért modellek felfedezése",
     "exploreHint": "A megbízhatósági/sebességi adatok nélküli modellek 10% eséllyel kipróbálásra kerülnek, hogy mintákat gyűjtsenek.",
+    "keySelection": "Kulcsválasztás",
+    "keySelectionAuto": "Automatikus",
+    "keySelectionLeastRemaining": "Legkevesebb maradt",
+    "keySelectionHint": "Hogyan válasszon a rendszer ugyanazon szolgáltató több kulcsa közül. Az Automatikus megtartja a jelenlegi váltogatást; a Legkevesebb maradt a megfigyelt kvóta szerint rendezi a kulcsokat, és először azt próbálja, amelyiknek a legtöbb maradt.",
     "peakActive": "(csúcsidő)",
     "peakActiveHint": "A csúcsidei kiigazítás éppen aktív, tehát ezek nem az előbeállítás saját súlyai: a sebességsúly 60%-a a megbízhatóságra került át.",
     "peakAdjust": "Csúcsidei kiigazítás",

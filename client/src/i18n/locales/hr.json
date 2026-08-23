@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Istraži nemjerene modele",
     "exploreHint": "Modelima bez podataka o pouzdanosti/brzini daje 10 % šanse da budu isprobani kako bi prikupili uzorke.",
+    "keySelection": "Odabir ključa",
+    "keySelectionAuto": "Automatski",
+    "keySelectionLeastRemaining": "Najmanje preostalo",
+    "keySelectionHint": "Kako se bira između više ključeva istog pružatelja. Automatski zadržava trenutačnu rotaciju; Najmanje preostalo rangira ključeve prema opaženoj kvoti i prvo isprobava onaj kojemu je najviše preostalo.",
     "peakActive": "(vršni sati)",
     "peakActiveHint": "Prilagodba za vršne sate trenutno je aktivna, pa ovo nisu težine same postavke: 60 % težine brzine prebačeno je na pouzdanost.",
     "peakAdjust": "Prilagodba za vršne sate",

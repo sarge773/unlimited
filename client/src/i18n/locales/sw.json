@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Chunguza mifano isiyopimwa",
     "exploreHint": "Ipe mifano isiyo na data ya kuegemea/kasi nafasi ya 10% ya kujaribiwa ili ikusanye sampuli.",
+    "keySelection": "Uteuzi wa ufunguo",
+    "keySelectionAuto": "Otomatiki",
+    "keySelectionLeastRemaining": "Iliyobaki kidogo zaidi",
+    "keySelectionHint": "Jinsi ya kuchagua kati ya funguo kadhaa za mtoa huduma mmoja. Otomatiki huhifadhi mzunguko wa sasa; Iliyobaki kidogo zaidi hupanga funguo kwa kiasi kilichoonekana na hujaribu kwanza ile yenye kiasi kikubwa zaidi kilichobaki.",
     "peakActive": "(saa za msongamano)",
     "peakActiveHint": "Marekebisho ya saa za msongamano yanatumika sasa hivi, hivyo hizi si uzito wa kiolezo chenyewe: asilimia 60 ya uzito wa kasi umehamishiwa kwenye uaminifu.",
     "peakAdjust": "Marekebisho ya saa za msongamano",

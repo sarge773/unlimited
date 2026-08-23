@@ -279,6 +279,10 @@
   "strategies": {
     "explore": "Jelajahi model yang belum terukur",
     "exploreHint": "Beri model tanpa data keandalan/kecepatan peluang 10% untuk dicoba agar mengumpulkan sampel.",
+    "keySelection": "Pemilihan kunci",
+    "keySelectionAuto": "Otomatis",
+    "keySelectionLeastRemaining": "Sisa paling sedikit",
+    "keySelectionHint": "Cara memilih di antara beberapa kunci pada penyedia yang sama. Otomatis mempertahankan rotasi saat ini; Sisa paling sedikit mengurutkan kunci berdasarkan kuota yang teramati dan mencoba yang sisanya paling banyak lebih dulu.",
     "peakActive": "(jam sibuk)",
     "peakActiveHint": "Penyesuaian jam sibuk sedang aktif, jadi ini bukan bobot preset itu sendiri: 60% bobot kecepatan telah dipindahkan ke keandalan.",
     "peakAdjust": "Penyesuaian jam sibuk",
