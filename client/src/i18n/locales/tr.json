@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Oran sınırlı — sabit aylık token bütçesi yok",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Zaman penceresi hız sınırı kullanımı (kullanılan / sınır), en fazla boşluğu olan sağlayıcı",
     "splitOut": "Bu kopyayı birleştirme",
     "splitOutHint": "Bu sağlayıcının kopyasına, birleşik modelle birleştirmek yerine kendi ayrı girişini verin. Kopyanın kendi sayfasından tekrar birleştirebilirsiniz.",
     "splitUndo": "Geri birleştir",

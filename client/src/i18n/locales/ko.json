@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "비율 제한 — 고정된 월간 토큰 예산 없음",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "시간 창 속도 제한 사용량(사용 / 한도), 여유가 가장 많은 제공자 기준",
     "splitOut": "이 사본을 병합하지 마세요",
     "splitOutHint": "이 공급자의 사본을 통합 모델에 병합하는 대신 별도의 항목을 제공하십시오. 사본의 자체 페이지에서 다시 병합할 수 있습니다.",
     "splitUndo": "다시 병합",

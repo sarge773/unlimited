@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Kadar terhad — tiada bajet token bulanan tetap",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Penggunaan had kadar dalam tetingkap masa (digunakan / had) bagi penyedia dengan baki kapasiti terbanyak",
     "splitOut": "Jangan gabungkan salinan ini",
     "splitOutHint": "Berikan salinan pembekal ini entri berasingan sendiri dan bukannya menggabungkannya ke dalam model bersatu. Anda boleh menggabungkannya kembali dari halaman salinan itu sendiri.",
     "splitUndo": "Gabung kembali",

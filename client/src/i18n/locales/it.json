@@ -231,7 +231,7 @@
     "rateRpd": "{count} GPD",
     "rateTitle": "Limitato — nessun budget mensile fisso di token",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Utilizzo del limite di frequenza nella finestra temporale (usato / limite) per il provider con più margine",
     "splitOut": "Non unire questa copia",
     "splitOutHint": "Dai alla copia di questo fornitore una voce separata invece di unirla nel modello unificato. Puoi riunirla dalla pagina della copia.",
     "splitUndo": "Riunisci",

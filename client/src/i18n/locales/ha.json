@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Rate-iyakance - babu ƙayyadadden kasafin kuɗin alamar wata-wata",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Amfani da iyakar gudu a cikin tagar lokaci (an yi amfani / iyaka) ga mai bayarwa mai sauran karfi mafi yawa",
     "splitOut": "Kar a haɗa wannan kwafin",
     "splitOutHint": "Ba da kwafin wannan mai bada shigarwar nasa daban maimakon haɗa shi zuwa ƙirar haɗin kai. Kuna iya haɗa shi baya daga shafin kwafin.",
     "splitUndo": "Haɗa baya",

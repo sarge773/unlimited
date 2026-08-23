@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Prisbegränsad – ingen fast månatlig tokenbudget",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Hastighetsgränsanvändning i tidsfönstret (använt / gräns) för leverantören med mest marginal",
     "splitOut": "Slå inte samman denna kopia",
     "splitOutHint": "Ge denna leverantörs kopia en egen separat post istället för att slå samman den i den enhetliga modellen. Du kan slå tillbaka den från kopians egen sida.",
     "splitUndo": "Slå ihop tillbaka",

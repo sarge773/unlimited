@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "จำกัดอัตรา — ไม่มีงบประมาณโทเค็นรายเดือนคงที่",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "การใช้งานขีดจำกัดอัตราในช่วงเวลา (ใช้ไป / ขีดจำกัด) ของผู้ให้บริการที่เหลือโควตามากที่สุด",
     "splitOut": "อย่ารวมสำเนานี้",
     "splitOutHint": "มอบสำเนาของผู้ให้บริการรายนี้ให้รายการแยกต่างหาก แทนที่จะรวมเข้ากับโมเดลแบบรวม คุณสามารถรวมกลับได้จากหน้าสำเนาของตัวเอง",
     "splitUndo": "รวมกลับ",

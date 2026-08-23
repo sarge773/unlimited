@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Ograničenje cijene — nema fiksnog mjesečnog budžeta tokena",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Iskorištenost ograničenja brzine u vremenskom prozoru (iskorišteno / ograničenje) kod pružatelja s najviše prostora",
     "splitOut": "Nemojte spajati ovu kopiju",
     "splitOutHint": "Dajte kopiji ovog davatelja vlastiti zasebni unos umjesto da je spojite u objedinjeni model. Možete ga spojiti natrag s vlastite stranice kopije.",
     "splitUndo": "Spajanje natrag",

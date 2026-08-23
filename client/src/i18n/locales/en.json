@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Rate-limited — no fixed monthly token budget",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit) for the provider with the most headroom",
     "splitOut": "Don't merge this copy",
     "splitOutHint": "Give this provider's copy its own separate entry instead of merging it into the unified model. You can merge it back from the copy's own page.",
     "splitUndo": "Merge back",

@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "ተመን-የተገደበ - ምንም ቋሚ ወርሃዊ የማስመሰያ በጀት የለም።",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "የጊዜ መስኮት የፍጥነት ገደብ አጠቃቀም (ጥቅም ላይ የዋለ / ገደብ) ለቀረው አቅም ከፍተኛ ለሆነው አቅራቢ",
     "splitOut": "ይህን ቅጂ አያዋህዱት",
     "splitOutHint": "የዚህን አቅራቢ ቅጂ ወደ የተዋሃደ ሞዴል ከማዋሃድ ይልቅ የራሱ የሆነ ግቤት ይስጡት። ከቅጂው ገጽ መልሰው ሊያዋህዱት ይችላሉ።",
     "splitUndo": "መልሰው ይቀላቀሉ",

@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Oṣuwọn-opin - ko si isuna ti oṣooṣu tokini ti o wa titi",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Lílo ààlà ìwọ̀n nínú fèrèsé àkókò (tí a lò / ààlà) fún olùpèsè tí ó ní àyè tó pọ̀ jù",
     "splitOut": "Maṣe da ẹda yii pọ",
     "splitOutHint": "Fun ẹda olupese yii ni titẹ sii lọtọ tirẹ dipo ti o dapọ mọ awoṣe iṣọkan. O le dapọ mọ pada lati oju-iwe ti ẹda naa.",
     "splitUndo": "Dapọ pada",

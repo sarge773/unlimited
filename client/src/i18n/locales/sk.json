@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Obmedzené sadzby — žiadny pevný mesačný rozpočet tokenov",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Využitie limitu rýchlosti v časovom okne (využité / limit) u poskytovateľa s najväčšou rezervou",
     "splitOut": "Nezlučujte túto kópiu",
     "splitOutHint": "Dajte kópii tohto poskytovateľa vlastný samostatný záznam namiesto toho, aby ste ju zlúčili do jednotného modelu. Môžete ho zlúčiť späť z vlastnej stránky kópie.",
     "splitUndo": "Zlúčiť späť",

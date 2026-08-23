@@ -2,9 +2,7 @@ import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useQuery } from '@tanstack/react-query'
 import { useI18n } from '@/i18n'
-import { apiFetch } from '@/lib/api'
 import { CopyButton } from '@/components/copy-button'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip } from '@/components/tooltip'
@@ -18,7 +16,7 @@ import {
   providerLabel,
   tightestRateLimit,
   type ModelGroupRow,
-  type RateLimitUsageData,
+  type RateLimitUsageRow,
   type Row,
 } from '@/lib/routing'
 
@@ -246,7 +244,7 @@ export const dragDots = (
 // The collapsed header row for a logical-model group: name, provider count,
 // union vision/tools badges, the best member's axis bars + score, and a single
 // switch that enables/disables every provider in the group.
-export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup, allRows }: {
+export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup, allRows, rateUsage }: {
   group: ModelGroupRow
   rank: number
   dragHandle?: ReactNode
@@ -255,21 +253,22 @@ export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup, allRo
   // model id land in different display groups the moment one copy is renamed,
   // so the group's own members are not a complete sibling set (#651).
   allRows?: readonly Row[]
+  // Time-window rate-limit usage by model db id (#876). Fetched ONCE at the page
+  // level and passed down: a query hook here would open one observer and one
+  // 15s poll timer per row, i.e. hundreds of them on a real catalog.
+  rateUsage?: ReadonlyMap<number, RateLimitUsageRow>
 }) {
   const { t } = useI18n()
   const anyEnabled = group.members.some(m => m.enabled)
   const solo = group.members.length === 1
   const best = group.members.reduce((b, m) => ((m.score ?? -1) > (b.score ?? -1) ? m : b), group.members[0])
   const guard = (best.headroom ?? 1) * (best.rateLimit ?? 1)
-  // Remaining time-window quota for this group's members (#876): busiest usable
-  // window across the members decides the badge.
-  const { data: rateUsage } = useQuery<RateLimitUsageData>({
-    queryKey: ['fallback', 'rate-limit-usage'],
-    queryFn: () => apiFetch('/api/fallback/rate-limit-usage'),
-    refetchInterval: 15_000,
-  })
-  const memberIds = new Set(group.members.map(m => m.modelDbId))
-  const tightest = tightestRateLimit((rateUsage?.rows ?? []).filter(r => memberIds.has(r.modelDbId)))
+  // Remaining time-window quota for this group (#876): the member with the most
+  // headroom decides the badge, since the group stays routable while any one of
+  // its providers can serve. Lookup is O(members) against the shared map.
+  const tightest = rateUsage
+    ? tightestRateLimit(group.members.flatMap(m => rateUsage.get(m.modelDbId) ?? []))
+    : null
   // Honest group display (#580): reliability/speed ranges come only from
   // members that were actually measured; when none were, show "no data" rather
   // than the shared exploration priors. Intelligence is catalog metadata, so
@@ -359,11 +358,12 @@ export function GroupHeaderCells({ group, rank, dragHandle, onToggleGroup, allRo
   )
 }
 
-export function SortableGroupRow({ group, rank, onToggleGroup, allRows }: {
+export function SortableGroupRow({ group, rank, onToggleGroup, allRows, rateUsage }: {
   group: ModelGroupRow
   rank: number
   onToggleGroup: (memberIds: number[], enabled: boolean) => void
   allRows?: readonly Row[]
+  rateUsage?: ReadonlyMap<number, RateLimitUsageRow>
 }) {
   const { t } = useI18n()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: `grp:${group.key}` })
@@ -388,7 +388,7 @@ export function SortableGroupRow({ group, rank, onToggleGroup, allRows }: {
       onClick={() => navigate(`/models/chat/${detailId}`)}
       className={`group/row border-b last:border-0 bg-card cursor-pointer transition-colors hover:[&>td]:bg-muted/50 [&>td:first-child]:rounded-l-lg [&>td:last-child]:rounded-r-lg ${isDragging ? 'opacity-50' : ''} ${anyEnabled ? '' : 'opacity-50'}`}
     >
-      <GroupHeaderCells group={group} rank={rank} dragHandle={handle} onToggleGroup={onToggleGroup} allRows={allRows} />
+      <GroupHeaderCells group={group} rank={rank} dragHandle={handle} onToggleGroup={onToggleGroup} allRows={allRows} rateUsage={rateUsage} />
     </tr>
   )
 }

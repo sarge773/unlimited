@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Limitat de rată — fără buget lunar fix pentru tokenuri",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Utilizarea limitei de rată pe fereastra de timp (utilizat / limită) pentru furnizorul cu cea mai mare marjă",
     "splitOut": "Nu îmbina această copie",
     "splitOutHint": "Dați copiei acestui furnizor propria intrare separată în loc să o îmbinați în modelul unificat. Îl puteți îmbina din nou din propria pagină a copiei.",
     "splitUndo": "Îmbinați înapoi",

@@ -15,7 +15,7 @@ import { getPenaltyInspector } from '../services/penalty-inspector.js';
 import { getActiveProfileId } from '../services/profile-models.js';
 import { qualifiedModelMemberId } from '../lib/endpoint-scope.js';
 import { overriddenFieldNames } from '../services/model-state.js';
-import { getRateLimitStatus } from '../services/ratelimit.js';
+import { parseModelScope, scopeAllows } from '../lib/model-scope.js';
 
 export const fallbackRouter = Router();
 
@@ -442,56 +442,147 @@ fallbackRouter.get('/token-usage', (_req: Request, res: Response) => {
 // Per-model time-window rate-limit usage (RPM/RPD/TPM: used vs limit), for the
 // dashboard's remaining-quota display (#876). The monthly-budget metric says
 // nothing about windowed limits, so this surfaces what the router actually
-// enforces. Each model is checked per usable key (enabled + healthy/unknown,
-// same set the router routes to), and the busiest key's usage is reported —
-// that is the constraint that will reject the next request.
+// enforces.
+//
+// Which key's numbers to report matters. The badge answers "how close is this
+// model to being unroutable", so it has to follow the key the router would pick
+// NEXT, not the worst key on the account: a platform with one exhausted key and
+// one idle key routes fine, and reporting the exhausted one paints a red badge
+// over a model that is wide open. So we mirror the router's key eligibility
+// (`selectKeyForModel`) — enabled + healthy/unknown, model scope allows this
+// model (#657), and for a custom model the key must belong to the model's own
+// endpoint (#212, #619) — and then report the ELIGIBLE key with the most
+// headroom (lowest used/limit ratio across its windows), which is the key the
+// router lands on once the busier ones fail their gates.
+//
+// Cost: the naive shape is three SQL counts per model × key, which is thousands
+// of statements on a real catalog. All of it comes from one table, so the whole
+// page is a single grouped scan of `rate_limit_usage` over the last day.
+const RATE_LIMIT_MINUTE_MS = 60 * 1000;
+const RATE_LIMIT_DAY_MS = 24 * 60 * RATE_LIMIT_MINUTE_MS;
+
+interface KeyUsage { rpm: number; rpd: number; tpm: number }
+const NO_USAGE: KeyUsage = { rpm: 0, rpd: 0, tpm: 0 };
+
+/** used/limit for one window, or null when the model has no such limit. */
+function windowRatio(used: number, limit: number | null): number | null {
+  if (limit == null || limit <= 0) return null;
+  return used / limit;
+}
+
+/** The busiest window of one key: what would reject this key's next request. */
+function keyPressure(usage: KeyUsage, limits: { rpm: number | null; rpd: number | null; tpm: number | null }): number {
+  let worst = 0;
+  for (const r of [
+    windowRatio(usage.rpm, limits.rpm),
+    windowRatio(usage.rpd, limits.rpd),
+    windowRatio(usage.tpm, limits.tpm),
+  ]) {
+    if (r !== null && r > worst) worst = r;
+  }
+  return worst;
+}
+
 fallbackRouter.get('/rate-limit-usage', (_req: Request, res: Response) => {
   const db = getDb();
   const now = Date.now();
 
   const models = db.prepare(`
-    SELECT id AS model_db_id, platform, model_id, rpm_limit, rpd_limit, tpm_limit, tpd_limit
+    SELECT id AS model_db_id, platform, model_id, key_id, rpm_limit, rpd_limit, tpm_limit
       FROM models
      WHERE enabled = 1
   `).all() as Array<{
     model_db_id: number;
     platform: string;
     model_id: string;
+    key_id: number | null;
     rpm_limit: number | null;
     rpd_limit: number | null;
     tpm_limit: number | null;
-    tpd_limit: number | null;
   }>;
 
-  const keys = db.prepare(`
-    SELECT id, platform FROM api_keys
-     WHERE enabled = 1 AND status IN ('healthy', 'unknown')
-  `).all() as Array<{ id: number; platform: string }>;
-  const keysByPlatform = new Map<string, number[]>();
-  for (const k of keys) {
-    const list = keysByPlatform.get(k.platform) ?? [];
-    list.push(k.id);
-    keysByPlatform.set(k.platform, list);
+  // Every key row once: the routable pool needs enabled+healthy rows, while the
+  // custom-endpoint pool is keyed on base_url and has to resolve a model's own
+  // key_id even when that row is disabled.
+  const allKeys = db.prepare(`
+    SELECT id, platform, base_url, model_scope_json, enabled, status FROM api_keys
+  `).all() as Array<{
+    id: number;
+    platform: string;
+    base_url: string | null;
+    model_scope_json: string | null;
+    enabled: number;
+    status: string;
+  }>;
+
+  const baseUrlByKeyId = new Map(allKeys.map(k => [k.id, k.base_url]));
+  const routableByPlatform = new Map<string, Array<{ id: number; baseUrl: string | null; scope: Set<string> | null }>>();
+  for (const k of allKeys) {
+    if (k.enabled !== 1 || (k.status !== 'healthy' && k.status !== 'unknown')) continue;
+    const list = routableByPlatform.get(k.platform) ?? [];
+    list.push({ id: k.id, baseUrl: k.base_url, scope: parseModelScope(k.model_scope_json) });
+    routableByPlatform.set(k.platform, list);
+  }
+
+  // One grouped scan replaces three counts per model × key. Same windows the
+  // ratelimit service enforces: a sliding minute for RPM/TPM, a sliding day for
+  // RPD. Rows older than a day are pruned on write, but the WHERE keeps this
+  // correct even if a prune has not run yet.
+  const usageRows = db.prepare(`
+    SELECT platform, model_id, key_id,
+           SUM(CASE WHEN kind = 'request' AND created_at_ms > ? THEN 1 ELSE 0 END) AS rpm_used,
+           SUM(CASE WHEN kind = 'request' THEN 1 ELSE 0 END) AS rpd_used,
+           SUM(CASE WHEN kind = 'tokens' AND created_at_ms > ? THEN tokens ELSE 0 END) AS tpm_used
+      FROM rate_limit_usage
+     WHERE created_at_ms > ?
+     GROUP BY platform, model_id, key_id
+  `).all(now - RATE_LIMIT_MINUTE_MS, now - RATE_LIMIT_MINUTE_MS, now - RATE_LIMIT_DAY_MS) as Array<{
+    platform: string; model_id: string; key_id: number;
+    rpm_used: number; rpd_used: number; tpm_used: number;
+  }>;
+  const usageByKey = new Map<string, KeyUsage>();
+  for (const u of usageRows) {
+    usageByKey.set(`${u.platform}\u0000${u.model_id}\u0000${u.key_id}`, {
+      rpm: u.rpm_used, rpd: u.rpd_used, tpm: u.tpm_used,
+    });
   }
 
   const rows = models.map(m => {
-    const keyIds = keysByPlatform.get(m.platform) ?? [];
-    const limits = { rpm: m.rpm_limit, rpd: m.rpd_limit, tpm: m.tpm_limit, tpd: m.tpd_limit };
-    // Busiest usable key decides remaining headroom.
-    let rpmUsed = 0, rpdUsed = 0, tpmUsed = 0;
-    for (const keyId of keyIds) {
-      const s = getRateLimitStatus(m.platform, m.model_id, keyId, limits);
-      if (s.rpm.used > rpmUsed) rpmUsed = s.rpm.used;
-      if (s.rpd.used > rpdUsed) rpdUsed = s.rpd.used;
-      if (s.tpm.used > tpmUsed) tpmUsed = s.tpm.used;
+    const limits = { rpm: m.rpm_limit, rpd: m.rpd_limit, tpm: m.tpm_limit };
+    const pool = routableByPlatform.get(m.platform) ?? [];
+    // A custom model belongs to one endpoint; only that endpoint's credentials
+    // can serve it. Legacy rows (key_id NULL) keep the any-key match.
+    const endpointBaseUrl = m.platform === 'custom' && m.key_id != null
+      ? baseUrlByKeyId.get(m.key_id) ?? null
+      : null;
+
+    let best: KeyUsage | null = null;
+    let bestPressure = Infinity;
+    for (const k of pool) {
+      if (!scopeAllows(k.scope, m.model_id)) continue;
+      if (m.platform === 'custom' && m.key_id != null) {
+        if (endpointBaseUrl == null ? k.id !== m.key_id : k.baseUrl !== endpointBaseUrl) continue;
+      }
+      const usage = usageByKey.get(`${m.platform}\u0000${m.model_id}\u0000${k.id}`) ?? NO_USAGE;
+      const pressure = keyPressure(usage, limits);
+      if (pressure < bestPressure) {
+        bestPressure = pressure;
+        best = usage;
+      }
+    }
+
+    // No routable key at all: the model cannot be served, and a usage number
+    // would be fiction. Report no windows so the dashboard shows no badge.
+    if (!best) {
+      return { modelDbId: m.model_db_id, platform: m.platform, modelId: m.model_id, rpm: null, rpd: null, tpm: null };
     }
     return {
       modelDbId: m.model_db_id,
       platform: m.platform,
       modelId: m.model_id,
-      rpm: m.rpm_limit != null ? { used: rpmUsed, limit: m.rpm_limit } : null,
-      rpd: m.rpd_limit != null ? { used: rpdUsed, limit: m.rpd_limit } : null,
-      tpm: m.tpm_limit != null ? { used: tpmUsed, limit: m.tpm_limit } : null,
+      rpm: m.rpm_limit != null ? { used: best.rpm, limit: m.rpm_limit } : null,
+      rpd: m.rpd_limit != null ? { used: best.rpd, limit: m.rpd_limit } : null,
+      tpm: m.tpm_limit != null ? { used: best.tpm, limit: m.tpm_limit } : null,
     };
   });
 

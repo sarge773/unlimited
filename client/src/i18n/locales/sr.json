@@ -231,7 +231,7 @@
     "rateRpd": "{count} RPD",
     "rateTitle": "Ограничено на стопу — нема фиксног месечног буџета за токене",
     "rateLimitUsage": "{kind} {used}/{limit}",
-    "rateLimitUsageTitle": "Time-window rate-limit usage (used / limit), busiest provider window",
+    "rateLimitUsageTitle": "Искоришћеност ограничења брзине у временском прозору (искоришћено / ограничење) код добављача са највише резерве",
     "splitOut": "Немојте спајати ову копију",
     "splitOutHint": "Дајте копији овог добављача посебан унос уместо да је спајате у јединствени модел. Можете га поново спојити са сопствене странице копије.",
     "splitUndo": "Споји назад",
