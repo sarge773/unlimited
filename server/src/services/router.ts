@@ -22,6 +22,7 @@ import {
   peakAdjustedWeights, isValidPeakHour, isValidTimezone,
   DEFAULT_PEAK_HOURS, type PeakHoursConfig,
   observedSpeedRank, TIMEOUT_LATENCY_CAP_MS,
+  type HeadroomThresholds,
 } from './scoring.js';
 import { TIMEOUT_ERROR_MARKERS } from '../lib/error-classify.js';
 import { applyModelWeightOverride, getModelWeightOverrides } from './model-weight-overrides.js';
@@ -936,6 +937,7 @@ function scoreChainEntry(
   intelMax: number,
   sampled: boolean,
   keyCounts: Map<string, number>,
+  headroomCfg: HeadroomThresholds,
 ): ScoredEntry {
   const stats = statsCache?.get(modelStatsKey(entry.platform, entry.model_id, entry.endpoint_scope));
   const successes = stats?.successes ?? 0;
@@ -960,8 +962,10 @@ function scoreChainEntry(
   // model whose platform currently has no usable key isn't handed a 0 budget.
   const budget = parseBudget(entry.monthly_token_budget) * Math.max(1, keyCounts.get(entry.platform) ?? 1);
   // Tunable headroom thresholds (#899): persisted overrides for when demotion
-  // starts and its floor; absent settings keep the scoring.ts defaults.
-  const headroomCfg = getHeadroomThresholds();
+  // starts and its floor; absent settings keep the scoring.ts defaults. Read
+  // ONCE per chain by the caller, not per entry — getSetting is an uncached
+  // SELECT, so reading it here cost two extra SQLite round-trips per model per
+  // request, the same reason `weights` and `keyCounts` are hoisted.
   const headroom = headroomFactor(stats?.monthlyUsedTokens ?? 0, budget, headroomCfg);
   const rl = rateLimitFactor(getPenalty(entry.model_db_id));
 
@@ -1034,9 +1038,10 @@ function orderChain(chain: ChainRow[], strategy: RoutingStrategy, sampled = true
   const intelMin = composites.length ? Math.min(...composites) : 0;
   const intelMax = composites.length ? Math.max(...composites) : 0;
   const keyCounts = usableKeyCountsByPlatform(getDb());
+  const headroomCfg = getHeadroomThresholds();
 
   return chain
-    .map(e => ({ e, s: scoreChainEntry(e, weights, intelMin, intelMax, sampled, keyCounts).score }))
+    .map(e => ({ e, s: scoreChainEntry(e, weights, intelMin, intelMax, sampled, keyCounts, headroomCfg).score }))
     // Higher score first WITHIN a tier; manual priority breaks ties so the chain
     // still matters.
     .sort((a, b) => tier(a.e) - tier(b.e) || b.s - a.s || a.e.priority - b.e.priority)
@@ -2022,9 +2027,10 @@ export function getRoutingScores(): { strategy: RoutingStrategy; keySelectionStr
   const intelMin = composites.length ? Math.min(...composites) : 0;
   const intelMax = composites.length ? Math.max(...composites) : 0;
   const keyCounts = usableKeyCountsByPlatform(db);
+  const headroomCfg = getHeadroomThresholds();
 
   const scores: RoutingScore[] = chain.map(entry => {
-    const scored = scoreChainEntry(entry, weights, intelMin, intelMax, false, keyCounts);
+    const scored = scoreChainEntry(entry, weights, intelMin, intelMax, false, keyCounts, headroomCfg);
     const stats = statsCache?.get(modelStatsKey(entry.platform, entry.model_id, entry.endpoint_scope));
     return {
       modelDbId: entry.model_db_id,
