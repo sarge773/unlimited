@@ -1,8 +1,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { tools } from './tools.js';
 import type { GenerateContext } from './types.js';
+
+// CI runners export XDG_CONFIG_HOME (and could export MIMOCODE_HOME / DSH_HOME),
+// which the XDG-aware generators honour over ctx.homeDir. Pin them so golden
+// output is stable everywhere.
+beforeEach(() => {
+  vi.stubEnv('XDG_CONFIG_HOME', '');
+  vi.stubEnv('MIMOCODE_HOME', '');
+  vi.stubEnv('DSH_HOME', '');
+});
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 const context: GenerateContext = {
   url: 'http://localhost:3000',
