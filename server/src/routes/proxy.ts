@@ -654,6 +654,15 @@ proxyRouter.post('/videos/generations', async (req: Request, res: Response) => {
     });
     return;
   }
+  // A video job runs for minutes, so a caller that hangs up must actually stop
+  // the work: without this the gateway would keep polling the provider and then
+  // fail over to a second one, both charged to the operator, for a response
+  // nobody is waiting for. 'close' also fires on normal completion, which
+  // writableEnded distinguishes.
+  const clientAbort = new AbortController();
+  res.on('close', () => {
+    if (!res.writableEnded) clientAbort.abort();
+  });
   try {
     const result = await runVideoGeneration(parsed.data.model, {
       prompt: parsed.data.prompt,
@@ -662,13 +671,15 @@ proxyRouter.post('/videos/generations', async (req: Request, res: Response) => {
       image: parsed.data.image,
       seed: parsed.data.seed,
       audio: parsed.data.audio,
-    });
+    }, clientAbort.signal);
     res.setHeader('Content-Type', result.contentType);
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Provider', safeHeaderValue(result.platform));
     res.setHeader('X-Model', safeHeaderValue(result.modelId));
     res.send(result.video);
   } catch (err: any) {
+    // Nothing to report to a socket that is already gone.
+    if (clientAbort.signal.aborted || res.writableEnded) return;
     const status = err instanceof MediaError ? err.status : 502;
     const httpStatus = status >= 400 && status < 600 ? status : 502;
     res.status(httpStatus).json({

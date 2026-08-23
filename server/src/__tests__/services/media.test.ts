@@ -339,6 +339,23 @@ describe('media service', () => {
       expect((fetchMock.mock.calls[3][1] as RequestInit).headers).toBeUndefined();
     });
 
+    it('stops the chain when the API caller hangs up instead of paying for a second provider', async () => {
+      addMedia('pollinations', 'nova-reel', 'video', 1);
+      addMedia('pollinations', 'wan-fast', 'video', 2);
+      addKey('pollinations', 'sk_pollinations_test');
+      const controller = new AbortController();
+      const fetchMock = vi.fn(async () => {
+        controller.abort();
+        throw new Error('socket hang up');
+      });
+      globalThis.fetch = fetchMock as any;
+
+      await expect(runVideoGeneration('auto', { prompt: 'x' }, controller.signal))
+        .rejects.toMatchObject({ status: 499 });
+      // The second catalogued provider is never attempted.
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
     it('reports an upstream key rejection as an upstream failure, not a caller auth error', async () => {
       // A 401 from the provider means the OPERATOR's key was refused. Passing
       // it to the caller would tell an OpenAI SDK that its own gateway key is

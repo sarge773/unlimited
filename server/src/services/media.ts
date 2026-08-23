@@ -186,6 +186,14 @@ const FETCH_TIMEOUT_MS = 60_000;
 // minutes before the MP4 is ready. This is still bounded end-to-end.
 const VIDEO_FETCH_TIMEOUT_MS = 5 * 60_000;
 
+/** Bail out of a long-running media job whose API caller has hung up. Video is
+ *  the only surface here that can poll for minutes, so without this a client
+ *  that disconnects after two seconds still costs a full generation — and a
+ *  second one, when the chain fails over to the next provider. */
+function throwIfClientGone(signal?: AbortSignal): void {
+  if (signal?.aborted) throw new MediaError('client closed the request', 499);
+}
+
 export function listMediaModels(modality: MediaModality): MediaModelRow[] {
   return getDb()
     .prepare('SELECT * FROM media_models WHERE modality = ? AND enabled = 1 ORDER BY priority, id')
@@ -244,10 +252,16 @@ async function mediaFetch(
   modality: MediaModality,
   init: RequestInit,
   timeoutMs = FETCH_TIMEOUT_MS,
+  /** The caller's own cancellation (a disconnected API client), folded in on
+   *  top of the per-request timeout so a departed client drops the upstream
+   *  request instead of leaving it to run out the clock. */
+  clientSignal?: AbortSignal,
 ): Promise<Response> {
+  const timeoutSignal = AbortSignal.timeout(timeoutMs);
+  const signal = clientSignal ? AbortSignal.any([timeoutSignal, clientSignal]) : timeoutSignal;
   const r = await proxyFetch(
     url,
-    { ...init, signal: AbortSignal.timeout(timeoutMs) },
+    { ...init, signal },
     platform,
     modality,
     timeoutMs,
@@ -461,6 +475,7 @@ async function callHuggingFaceVideo(
   row: MediaModelRow,
   key: string | null,
   p: VideoParams,
+  clientSignal?: AbortSignal,
 ): Promise<{ video: Buffer; contentType: string }> {
   if (!key) throw new MediaError('huggingface key required', 401);
   const providerModelId = videoMeta(row).providerModelId;
@@ -479,7 +494,7 @@ async function callHuggingFaceVideo(
       prompt: p.prompt,
       ...(p.seed !== undefined ? { seed: p.seed } : {}),
     }),
-  }, remaining());
+  }, remaining(), clientSignal);
   const queue = (await submitted.json()) as {
     request_id?: string;
     status?: string;
@@ -505,11 +520,12 @@ async function callHuggingFaceVideo(
       throw new MediaError(`huggingface video job ${status.toLowerCase()}`, 502);
     }
     if (remaining() <= 1) throw new MediaError('huggingface video generation timed out', 504);
+    throwIfClientGone(clientSignal);
     await new Promise(resolve => setTimeout(resolve, 500));
     const polled = await mediaFetch(`${routedJobUrl}/status${query}`, 'huggingface', 'video', {
       method: 'GET',
       headers: { Authorization: `Bearer ${key}` },
-    }, remaining());
+    }, remaining(), clientSignal);
     const state = (await polled.json()) as { status?: string; error?: string };
     if (!state.status) throw new MediaError('huggingface returned an invalid video job status', 502);
     status = state.status;
@@ -518,7 +534,7 @@ async function callHuggingFaceVideo(
   const completed = await mediaFetch(`${routedJobUrl}${query}`, 'huggingface', 'video', {
     method: 'GET',
     headers: { Authorization: `Bearer ${key}` },
-  }, remaining());
+  }, remaining(), clientSignal);
   const result = (await completed.json()) as { video?: { url?: string; content_type?: string } };
   const videoUrl = result.video?.url;
   if (!videoUrl) throw new MediaError('huggingface returned no video URL', 502);
@@ -532,7 +548,7 @@ async function callHuggingFaceVideo(
   if (!verdict.allowed) {
     throw new MediaError(`huggingface returned an unusable video URL: ${verdict.reason}`, 502);
   }
-  const downloaded = await mediaFetch(videoUrl, 'huggingface', 'video', { method: 'GET' }, remaining());
+  const downloaded = await mediaFetch(videoUrl, 'huggingface', 'video', { method: 'GET' }, remaining(), clientSignal);
   const video = Buffer.from(await downloaded.arrayBuffer());
   return {
     video,
@@ -544,6 +560,7 @@ async function callVideoProvider(
   row: MediaModelRow,
   credential: ProviderCredential,
   p: VideoParams,
+  clientSignal?: AbortSignal,
 ): Promise<{ video: Buffer; contentType: string }> {
   const key = credential.key;
   switch (row.platform) {
@@ -572,6 +589,7 @@ async function callVideoProvider(
         'video',
         { method: 'GET', headers: { Authorization: `Bearer ${key}` } },
         VIDEO_FETCH_TIMEOUT_MS,
+        clientSignal,
       );
       return {
         video: Buffer.from(await r.arrayBuffer()),
@@ -579,7 +597,7 @@ async function callVideoProvider(
       };
     }
     case 'huggingface':
-      return callHuggingFaceVideo(row, key, p);
+      return callHuggingFaceVideo(row, key, p, clientSignal);
     default:
       throw new MediaError(`no video adapter for platform '${row.platform}'`, 500);
   }
@@ -759,17 +777,24 @@ export async function runImageGeneration(model: string | undefined, params: Imag
   throw chainError('image', lastError);
 }
 
-/** Generate a video, failing over across catalogued text-to-video providers. */
-export async function runVideoGeneration(model: string | undefined, params: VideoParams): Promise<VideoResult> {
+/** Generate a video, failing over across catalogued text-to-video providers.
+ *  `clientSignal` is the API caller's connection: when it aborts, the in-flight
+ *  upstream request is dropped and no further provider is tried. */
+export async function runVideoGeneration(
+  model: string | undefined,
+  params: VideoParams,
+  clientSignal?: AbortSignal,
+): Promise<VideoResult> {
   const chain = resolveMediaChain(model, 'video');
   let lastError: MediaError | null = null;
   for (const row of chain) {
+    throwIfClientGone(clientSignal);
     const credential = getProviderCredential(row);
     if (!credential) continue;
     if (credential.id != null && isOnCooldown(row.platform, row.model_id, credential.id)) continue;
     const started = Date.now();
     try {
-      const out = await callVideoProvider(row, credential, params);
+      const out = await callVideoProvider(row, credential, params, clientSignal);
       if (!out.video.length) throw new MediaError('upstream returned no video', 502);
       logMedia(row, credential.id, 'success', Date.now() - started, null);
       return { platform: row.platform, modelId: row.model_id, ...out };
@@ -778,6 +803,8 @@ export async function runVideoGeneration(model: string | undefined, params: Vide
       logMedia(row, credential.id, 'error', Date.now() - started, e.message.slice(0, 300));
       if (e.status === 429 && credential.id != null) setCooldown(row.platform, row.model_id, credential.id);
       lastError = e;
+      // A caller that hung up gets no second generation charged to its account.
+      throwIfClientGone(clientSignal);
     }
   }
   throw chainError('video', lastError);
