@@ -573,9 +573,12 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
     }
 
     // Remove media models the catalog no longer lists (own table, no
-    // fallback_config). Scoped to the generative modalities: transcription
-    // rows are maintained by the `transcriptionModels` snapshot below, and
-    // must survive here even when its key is absent from an older catalog.
+    // fallback_config). Deliberately an ALLOWLIST of the two modalities that
+    // `models[]` maintains, not "everything except transcription": video and
+    // transcription rows come from their own optional snapshots below, so a
+    // catalog that omits those keys must leave them alone. Widening this back
+    // to a `!=` filter would silently delete every video row on the first sync
+    // from an older catalog.
     const mediaCandidates = db
       .prepare("SELECT id, platform, model_id FROM media_models WHERE modality IN ('image', 'audio')")
       .all() as { id: number; platform: string; model_id: string }[];
@@ -587,7 +590,6 @@ export function applyCatalog(db: Db, catalog: Catalog): NonNullable<SyncResult['
         counts.removed++;
       }
     }
-
 
     // Prune video rows only when this catalog actually carries the dedicated
     // snapshot. An older catalog cannot know whether a video row was retired.
