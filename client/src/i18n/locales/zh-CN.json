@@ -1040,5 +1040,17 @@
     "metricNeurons": "神经元",
     "metricOther": "单位",
     "empty": "没有启用且带免费额度数据的模型。"
+  },
+  "chains": {
+    "title": "回退链",
+    "description": "命名链会以 auto:<name> 形式出现在 /v1/models 中。激活某条链后，可在下方表格中编辑它。",
+    "active": "使用中",
+    "default": "默认",
+    "activate": "激活",
+    "activateHint": "在下方表格中编辑此链",
+    "deleteHint": "删除此链",
+    "deleteConfirm": "删除链「{name}」？",
+    "create": "创建",
+    "createPlaceholder": "链名称"
   }
 }

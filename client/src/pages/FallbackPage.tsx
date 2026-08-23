@@ -45,6 +45,7 @@ import { ModelsTabs } from '@/components/models-tabs'
 import { Tooltip } from '@/components/tooltip'
 import { PenaltyInspector } from '@/components/penalty-inspector'
 import { PeakHoursControls } from '@/components/peak-hours-controls'
+import { ChainManager } from '@/components/chain-manager'
 
 // `tKey` is the i18n suffix under `strategies.*` (label) and `strategies.*Blurb`.
 // It differs from the routing `key` for Manual, whose strategy id is 'priority'.
@@ -363,6 +364,10 @@ export default function FallbackPage() {
             />
           )}
         </section>
+
+        {/* Named fallback chains (#960/#895): list/create/activate/delete.
+            Activating a chain makes the table below edit that chain. */}
+        <ChainManager />
 
         <PenaltyInspector />
 

@@ -1040,5 +1040,17 @@
     "metricNeurons": "neurons",
     "metricOther": "units",
     "empty": "No enabled models with free-tier budget data."
+  },
+  "chains": {
+    "title": "Fallback chains",
+    "description": "Named chains exposed as auto:<name> in /v1/models. Activate one to edit it in the table below.",
+    "active": "Active",
+    "default": "Default",
+    "activate": "Activate",
+    "activateHint": "Edit this chain in the table below",
+    "deleteHint": "Delete this chain",
+    "deleteConfirm": "Delete chain \"{name}\"?",
+    "create": "Create",
+    "createPlaceholder": "Chain name"
   }
 }
