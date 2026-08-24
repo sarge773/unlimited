@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, CircleAlert, FileText, Paperclip, X } from 'lucide-react'
+import { ArrowUp, ChevronRight, CircleAlert, FileText, Paperclip, X } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { buildModelOptions } from '@/lib/model-groups'
@@ -208,6 +208,10 @@ export default function PlaygroundPage() {
   // Files staged for the NEXT message: images already downscaled to a data URI,
   // text-like files already decoded. Cleared on send. (#325)
   const [attachments, setAttachments] = useState<Attachment[]>([])
+  // Purely cosmetic: the composer row centres its buttons against a one-line
+  // box, but pins them to the bottom once the textarea has grown, which is
+  // where the eye expects them on a tall message.
+  const [composerGrown, setComposerGrown] = useState(false)
   const [dragging, setDragging] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const transcriptRef = useRef<HTMLDivElement>(null)
@@ -990,7 +994,7 @@ export default function PlaygroundPage() {
         </div>
 
         <div
-          className={`border-t bg-background/50 p-3 transition-colors ${dragging ? 'bg-primary/5 ring-1 ring-inset ring-primary/40' : ''}`}
+          className={`bg-background/50 p-3 transition-colors ${dragging ? 'bg-primary/5 ring-1 ring-inset ring-primary/40' : ''}`}
           onDragOver={e => { e.preventDefault(); setDragging(true) }}
           onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false) }}
           onDrop={e => {
@@ -1026,7 +1030,7 @@ export default function PlaygroundPage() {
               <span>{t('playground.visionWarning', { model: activeModelLabel })}</span>
             </div>
           )}
-          <div className="flex gap-2 items-end">
+          <div className={`flex gap-2 ${composerGrown ? 'items-end' : 'items-center'}`}>
             <input
               ref={fileInputRef}
               type="file"
@@ -1039,8 +1043,9 @@ export default function PlaygroundPage() {
               }}
             />
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => fileInputRef.current?.click()}
               disabled={loading}
               aria-label={t('playground.attach')}
@@ -1068,11 +1073,20 @@ export default function PlaygroundPage() {
               onInput={e => {
                 const el = e.target as HTMLTextAreaElement
                 el.style.height = 'auto'
-                el.style.height = Math.min(el.scrollHeight, 160) + 'px'
+                const height = Math.min(el.scrollHeight, 160)
+                el.style.height = height + 'px'
+                setComposerGrown(height > 44)
               }}
             />
-            <Button onClick={handleSend} disabled={loading || (!input.trim() && attachments.length === 0)} size="default">
-              {loading ? t('playground.sending') : t('playground.send')}
+            <Button
+              onClick={handleSend}
+              disabled={loading || (!input.trim() && attachments.length === 0)}
+              size="icon"
+              className="rounded-full"
+              aria-label={loading ? t('playground.sending') : t('playground.send')}
+              title={loading ? t('playground.sending') : t('playground.send')}
+            >
+              <ArrowUp className="size-4" />
             </Button>
           </div>
         </div>
