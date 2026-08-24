@@ -175,7 +175,7 @@
     "videoTab": "Vidéo",
     "audioTab": "Audio",
     "imageDesc": "Modèles de génération texte-image.",
-    "videoDesc": "Modèles de génération texte-vers-vidéo.",
+    "videoDesc": "Modèles de génération texte-vidéo.",
     "audioDesc": "Modèles de synthèse et de reconnaissance vocales.",
     "mediaHint": "Générer via",
     "mediaEmpty": "Aucun modèle pour l'instant. Ils se synchronisent depuis le catalogue.",
@@ -400,7 +400,7 @@
     "exportFormat": "Format",
     "exportHealthyOnly": "Clés saines uniquement",
     "exportHealthyOnlyDesc": "Exclure les clés qui échouent actuellement aux vérifications de santé",
-    "exportWillExport": "Sera exporté",
+    "exportWillExport": "À exporter",
     "exportKey": "clé",
     "exportKeys plural": "clés",
     "exporting": "Exportation…",
@@ -611,7 +611,7 @@
     "download": "Télécharger",
     "restore": "Restaurer",
     "confirmRestore": "Remplacer les données ?",
-    "restored": "Restauré. Les données précédentes ont été enregistrées sous {filename}.",
+    "restored": "Restauration effectuée. Les données précédentes ont été enregistrées sous {filename}.",
     "delete": "Supprimer la sauvegarde",
     "prevPage": "Précédent",
     "nextPage": "Suivant",
@@ -621,7 +621,7 @@
     "intervalDays": "Tous les N jours",
     "path": "Dossier",
     "pathPlaceholder": "backups",
-    "pathHint": "Relatif au répertoire de la base de données. Les sauvegardes ne peuvent pas être écrites en dehors.",
+    "pathHint": "Relatif au répertoire de la base de données. Les sauvegardes ne peuvent pas être écrites en dehors de ce répertoire.",
     "save": "Enregistrer la planification",
     "saved": "Enregistré"
   },
@@ -1026,10 +1026,10 @@
     "available": "Nouvelle version disponible",
     "whatsNew": "Nouveautés de la v{version}",
     "publishedOn": "Publié le {date}",
-    "noNotes": "Aucune note de version n'est disponible pour cette version.",
+    "noNotes": "Aucune note de version n'a été publiée pour cette version.",
     "openRelease": "Ouvrir la page de la version",
     "dismissVersion": "Ignorer cette version",
-    "dismiss": "Fermer"
+    "dismiss": "Ignorer"
   },
   "freeTier": {
     "poolsToggle": "Pools de l'offre gratuite ({count})",
