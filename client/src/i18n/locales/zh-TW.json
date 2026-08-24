@@ -293,6 +293,7 @@
     "keySelectionAuto": "自動",
     "keySelectionLeastRemaining": "依剩餘額度",
     "keySelectionHint": "當同一供應商設定了多把金鑰時如何選擇。自動維持目前輪換；依剩餘額度會依觀測到的配額排序，優先使用剩餘最多的金鑰。",
+    "moreOptions": "更多選項",
     "peakActive": "（尖峰時段）",
     "peakActiveHint": "尖峰時段調整目前已生效，因此這些不是預設本身的權重：60% 的速度權重已轉移到可靠性上。",
     "peakAdjust": "尖峰時段調整",

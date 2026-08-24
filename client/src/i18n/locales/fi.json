@@ -293,6 +293,7 @@
     "keySelectionAuto": "Automaattinen",
     "keySelectionLeastRemaining": "Vähiten jäljellä",
     "keySelectionHint": "Miten valitaan saman palveluntarjoajan useista avaimista. Automaattinen säilyttää nykyisen kierron; Vähiten jäljellä järjestää avaimet havaitun kiintiön mukaan ja kokeilee ensin sitä, jolla on eniten jäljellä.",
+    "moreOptions": "Lisäasetukset",
     "peakActive": "(ruuhka-aika)",
     "peakActiveHint": "Ruuhka-ajan säätö on nyt käytössä, joten nämä eivät ole esiasetuksen omat painot: 60 % nopeuden painosta on siirretty luotettavuudelle.",
     "peakAdjust": "Ruuhka-ajan säätö",

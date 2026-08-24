@@ -293,6 +293,7 @@
     "keySelectionAuto": "Auto",
     "keySelectionLeastRemaining": "Reste le moins",
     "keySelectionHint": "Comment choisir entre plusieurs clés d'un même fournisseur. Auto conserve la rotation actuelle ; Reste le moins classe les clés selon le quota observé et essaie d'abord celle qui en a le plus.",
+    "moreOptions": "Plus d'options",
     "peakActive": "(heures de pointe)",
     "peakActiveHint": "L'ajustement des heures de pointe est actif en ce moment, donc ce ne sont pas les pondérations propres au préréglage : 60 % du poids de la vitesse a été reporté sur la fiabilité.",
     "peakAdjust": "Ajustement des heures de pointe",

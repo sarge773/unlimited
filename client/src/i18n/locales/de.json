@@ -293,6 +293,7 @@
     "keySelectionAuto": "Automatisch",
     "keySelectionLeastRemaining": "Geringstes Restkontingent",
     "keySelectionHint": "Wie zwischen mehreren Schlüsseln desselben Anbieters gewählt wird. Automatisch behält die bisherige Rotation bei; Geringstes Restkontingent sortiert die Schlüssel nach beobachtetem Kontingent und probiert zuerst den mit dem meisten Rest.",
+    "moreOptions": "Weitere Optionen",
     "peakActive": "(Stoßzeiten)",
     "peakActiveHint": "Die Stoßzeiten-Anpassung ist gerade aktiv, das sind also nicht die Gewichte des Presets selbst: 60 % des Geschwindigkeitsgewichts sind auf Zuverlässigkeit verschoben.",
     "peakAdjust": "Stoßzeiten-Anpassung",

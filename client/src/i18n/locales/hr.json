@@ -293,6 +293,7 @@
     "keySelectionAuto": "Automatski",
     "keySelectionLeastRemaining": "Najmanje preostalo",
     "keySelectionHint": "Kako se bira između više ključeva istog pružatelja. Automatski zadržava trenutačnu rotaciju; Najmanje preostalo rangira ključeve prema opaženoj kvoti i prvo isprobava onaj kojemu je najviše preostalo.",
+    "moreOptions": "Više opcija",
     "peakActive": "(vršni sati)",
     "peakActiveHint": "Prilagodba za vršne sate trenutno je aktivna, pa ovo nisu težine same postavke: 60 % težine brzine prebačeno je na pouzdanost.",
     "peakAdjust": "Prilagodba za vršne sate",

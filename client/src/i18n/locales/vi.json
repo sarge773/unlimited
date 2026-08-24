@@ -293,6 +293,7 @@
     "keySelectionAuto": "Tự động",
     "keySelectionLeastRemaining": "Còn lại ít nhất",
     "keySelectionHint": "Cách chọn giữa nhiều khóa của cùng một nhà cung cấp. Tự động giữ nguyên vòng xoay hiện tại; Còn lại ít nhất sắp xếp khóa theo hạn mức quan sát được và thử khóa còn nhiều nhất trước.",
+    "moreOptions": "Tùy chọn khác",
     "peakActive": "(giờ cao điểm)",
     "peakActiveHint": "Điều chỉnh giờ cao điểm đang hoạt động, nên đây không phải là trọng số của chính preset: 60% trọng số tốc độ đã chuyển sang độ tin cậy.",
     "peakAdjust": "Điều chỉnh giờ cao điểm",

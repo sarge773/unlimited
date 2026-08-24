@@ -293,6 +293,7 @@
     "keySelectionAuto": "Automatica",
     "keySelectionLeastRemaining": "Meno residuo",
     "keySelectionHint": "Come scegliere tra più chiavi dello stesso provider. Automatica mantiene la rotazione attuale; Meno residuo ordina le chiavi in base alla quota osservata e prova per prima quella con più margine.",
+    "moreOptions": "Altre opzioni",
     "peakActive": "(ore di punta)",
     "peakActiveHint": "La regolazione per le ore di punta è attiva in questo momento, quindi questi non sono i pesi del preset: il 60% del peso della velocità è passato all'affidabilità.",
     "peakAdjust": "Regolazione per le ore di punta",

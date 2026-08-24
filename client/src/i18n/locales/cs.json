@@ -293,6 +293,7 @@
     "keySelectionAuto": "Automaticky",
     "keySelectionLeastRemaining": "Nejméně zbývá",
     "keySelectionHint": "Jak se vybírá mezi několika klíči téhož poskytovatele. Automaticky zachová stávající střídání; Nejméně zbývá seřadí klíče podle zjištěné kvóty a nejdřív zkusí ten, kterému zbývá nejvíc.",
+    "moreOptions": "Další možnosti",
     "peakActive": "(špička)",
     "peakActiveHint": "Úprava pro špičku je právě aktivní, takže tohle nejsou váhy samotné předvolby: 60 % váhy rychlosti se přesunulo na spolehlivost.",
     "peakAdjust": "Úprava pro špičku",

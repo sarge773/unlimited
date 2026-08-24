@@ -293,6 +293,7 @@
     "keySelectionAuto": "자동",
     "keySelectionLeastRemaining": "잔여량 기준",
     "keySelectionHint": "같은 제공자에 여러 키가 있을 때 선택하는 방식입니다. 자동은 현재 순환을 유지합니다. 잔여량 기준은 관측된 할당량으로 키를 정렬하고 남은 양이 가장 많은 키를 먼저 시도합니다.",
+    "moreOptions": "추가 옵션",
     "peakActive": "(피크 시간대)",
     "peakActiveHint": "피크 시간대 조정이 현재 적용 중이므로 이 값은 프리셋 자체의 가중치가 아닙니다. 속도 가중치의 60%가 신뢰성으로 옮겨졌습니다.",
     "peakAdjust": "피크 시간대 조정",

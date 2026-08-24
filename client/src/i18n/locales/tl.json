@@ -293,6 +293,7 @@
     "keySelectionAuto": "Awto",
     "keySelectionLeastRemaining": "Pinakakaunti ang natitira",
     "keySelectionHint": "Kung paano pumili sa ilang key ng iisang provider. Pinapanatili ng Awto ang kasalukuyang rotasyon; ini-ranggo ng Pinakakaunti ang natitira ang mga key ayon sa naobserbahang quota at sinusubukan muna ang may pinakamaraming natitira.",
+    "moreOptions": "Higit pang mga opsyon",
     "peakActive": "(oras ng rurok)",
     "peakActiveHint": "Aktibo ngayon ang pag-aayos para sa oras ng rurok, kaya hindi ito ang mismong timbang ng preset: 60% ng timbang ng bilis ay inilipat sa pagiging maaasahan.",
     "peakAdjust": "Pag-aayos sa oras ng rurok",

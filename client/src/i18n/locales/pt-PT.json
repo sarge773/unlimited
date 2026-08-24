@@ -293,6 +293,7 @@
     "keySelectionAuto": "Automática",
     "keySelectionLeastRemaining": "Menor restante",
     "keySelectionHint": "Como escolher entre várias chaves do mesmo fornecedor. Automática mantém a rotação atual; Menor restante ordena as chaves pela quota observada e tenta primeiro a que tem mais disponível.",
+    "moreOptions": "Mais opções",
     "peakActive": "(horas de ponta)",
     "peakActiveHint": "O ajuste de horas de ponta está ativo neste momento, por isso estes não são os pesos do próprio preset: 60% do peso da velocidade passou para a fiabilidade.",
     "peakAdjust": "Ajuste de horas de ponta",

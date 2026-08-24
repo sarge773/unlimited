@@ -293,6 +293,7 @@
     "keySelectionAuto": "Automatisk",
     "keySelectionLeastRemaining": "Minst igjen",
     "keySelectionHint": "Hvordan det velges mellom flere nøkler hos samme leverandør. Automatisk beholder gjeldende rotasjon; Minst igjen rangerer nøklene etter observert kvote og prøver først den som har mest igjen.",
+    "moreOptions": "Flere alternativer",
     "peakActive": "(rushtid)",
     "peakActiveHint": "Justeringen for rushtid er aktiv akkurat nå, så dette er ikke forhåndsinnstillingens egne vekter: 60 % av hastighetsvekten er flyttet til pålitelighet.",
     "peakAdjust": "Justering for rushtid",

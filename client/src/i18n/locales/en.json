@@ -293,6 +293,7 @@
     "keySelectionAuto": "Auto",
     "keySelectionLeastRemaining": "Least remaining",
     "keySelectionHint": "How to choose between several keys on the same provider. Auto keeps the current rotation; Least remaining ranks keys by observed quota and tries the one with the most left first.",
+    "moreOptions": "More options",
     "peakActive": "(peak hours)",
     "peakActiveHint": "The peak-hours adjustment is active right now, so these are not the preset's own weights: 60% of the speed weight has moved onto reliability.",
     "peakAdjust": "Peak-hours adjustment",

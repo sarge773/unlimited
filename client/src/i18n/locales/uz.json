@@ -293,6 +293,7 @@
     "keySelectionAuto": "Avtomatik",
     "keySelectionLeastRemaining": "Eng kam qolgan",
     "keySelectionHint": "Bitta provayderning bir nechta kaliti orasidan qanday tanlanadi. Avtomatik joriy navbatni saqlaydi; Eng kam qolgan kalitlarni kuzatilgan kvota bo‘yicha tartiblaydi va eng ko‘p qolgan kalitni birinchi sinaydi.",
+    "moreOptions": "Qo'shimcha sozlamalar",
     "peakActive": "(eng band soatlar)",
     "peakActiveHint": "Eng band soatlar moslashuvi hozir yoqilgan, shuning uchun bular andozaning oʻz vaznlari emas: tezlik vaznining 60% ishonchlilikka koʻchirilgan.",
     "peakAdjust": "Eng band soatlar moslashuvi",

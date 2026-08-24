@@ -293,6 +293,7 @@
     "keySelectionAuto": "Automatiskt",
     "keySelectionLeastRemaining": "Minst kvar",
     "keySelectionHint": "Hur systemet väljer mellan flera nycklar hos samma leverantör. Automatiskt behåller nuvarande rotation; Minst kvar rangordnar nycklarna efter observerad kvot och provar först den som har mest kvar.",
+    "moreOptions": "Fler alternativ",
     "peakActive": "(rusningstid)",
     "peakActiveHint": "Justeringen för rusningstid är aktiv just nu, så det här är inte förinställningens egna vikter: 60 % av hastighetsvikten har flyttats till tillförlitlighet.",
     "peakAdjust": "Justering för rusningstid",

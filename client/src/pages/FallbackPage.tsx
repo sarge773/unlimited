@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { Boxes, Search, X } from 'lucide-react'
+import { Boxes, ChevronDown, Search, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useI18n } from '@/i18n'
 import { apiFetch } from '@/lib/api'
@@ -72,12 +72,29 @@ const CTX_BUCKETS: { key: number; label?: string; tKey?: string }[] = [
 // hundreds without a virtualization dependency (which would fight dnd-kit).
 const RENDER_CHUNK = 50
 
+// The secondary routing knobs (key selection, exploration, peak hours) live
+// behind a "More options" disclosure so the card opens on the strategy pills
+// alone. Collapse state is remembered per browser, the same way the chain
+// manager and the penalty inspector below remember theirs; a fresh install
+// (no stored value) starts collapsed.
+const OPTIONS_COLLAPSED_KEY = 'freellmapi.routingMoreOptions.collapsed'
+
+function readOptionsCollapsed(): boolean {
+  try {
+    const stored = localStorage.getItem(OPTIONS_COLLAPSED_KEY)
+    return stored === null ? true : stored === '1'
+  } catch {
+    return true
+  }
+}
+
 
 export default function FallbackPage() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [localEntries, setLocalEntries] = useState<FallbackEntry[] | null>(null)
+  const [optionsCollapsed, setOptionsCollapsed] = useState(readOptionsCollapsed)
 
   // Catalog search + filter state (#343).
   const [search, setSearch] = useState('')
@@ -154,6 +171,14 @@ export default function FallbackPage() {
 
   function handleSave() {
     saveMutation.mutate(allEntries.map(e => ({ modelDbId: e.modelDbId, priority: e.priority, enabled: e.enabled })))
+  }
+
+  function toggleOptions() {
+    setOptionsCollapsed(prev => {
+      const next = !prev
+      try { localStorage.setItem(OPTIONS_COLLAPSED_KEY, next ? '1' : '0') } catch { /* ignore */ }
+      return next
+    })
   }
 
   const hasChanges = localEntries !== null
@@ -294,7 +319,9 @@ export default function FallbackPage() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Pills left, the quiet "More options" disclosure right. Everything
+              secondary hangs off that toggle so the card reads as one choice. */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex flex-wrap items-center gap-1 rounded-xl border p-1">
               {STRATEGIES.map(s => (
                 <Tooltip key={s.key} text={t(`strategies.${s.tKey}Blurb`)}>
@@ -320,63 +347,78 @@ export default function FallbackPage() {
               )}
             </div>
 
-            {/* Key selection (#919). A separate knob from the strategy above:
-                that one ranks MODELS, this one picks between several keys of
-                the same provider. Shown in every mode — manual chain order
-                still leaves the choice of key open. */}
-            <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{t('strategies.keySelection')}</span>
-              <select
-                value={keySelection}
-                disabled={strategyMutation.isPending}
-                onChange={e => strategyMutation.mutate({ strategy, keySelectionStrategy: e.target.value as KeySelectionStrategy })}
-                className="rounded-lg border bg-background px-2 py-1.5 text-xs text-foreground"
-              >
-                <option value="auto">{t('strategies.keySelectionAuto')}</option>
-                <option value="least-remaining">{t('strategies.keySelectionLeastRemaining')}</option>
-              </select>
-              <Tooltip text={t('strategies.keySelectionHint')}>
-                <span className="cursor-help underline decoration-dotted underline-offset-2">?</span>
-              </Tooltip>
-            </label>
+            <button
+              type="button"
+              onClick={toggleOptions}
+              aria-expanded={!optionsCollapsed}
+              className="inline-flex items-center gap-1 rounded-lg px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              {t('strategies.moreOptions')}
+              <ChevronDown className={`size-3.5 transition-transform ${optionsCollapsed ? '-rotate-90' : ''}`} />
+            </button>
           </div>
 
           <p className="mt-2 text-xs text-muted-foreground">
             {isManual ? t('strategies.modeManualHint') : t('strategies.modeScoreHint')}
           </p>
 
-          {/* Exploration toggle (#685 follow-up): footnote-level on purpose —
-              a niche knob that gives unmeasured models a guaranteed chance to
-              be tried so they build reliability/speed data. Hidden in Manual
-              mode, where routeRequest ignores it. */}
-          {!isManual && (
-            <label className="mt-2 inline-flex items-center gap-2 text-xs text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={routing?.exploreEnabled ?? false}
-                disabled={strategyMutation.isPending}
-                onChange={e => strategyMutation.mutate({ strategy, exploreEnabled: e.target.checked })}
-                className="size-3.5 accent-foreground"
-              />
-              <span>{t('strategies.explore')}</span>
-              <Tooltip text={t('strategies.exploreHint')}>
-                <span className="cursor-help underline decoration-dotted underline-offset-2">?</span>
-              </Tooltip>
-            </label>
+          {!optionsCollapsed && (
+            <div className="mt-3 flex flex-col items-start gap-2 border-t pt-3">
+              {/* Key selection (#919). A separate knob from the strategy above:
+                  that one ranks MODELS, this one picks between several keys of
+                  the same provider. Shown in every mode — manual chain order
+                  still leaves the choice of key open. */}
+              <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                <span>{t('strategies.keySelection')}</span>
+                <select
+                  value={keySelection}
+                  disabled={strategyMutation.isPending}
+                  onChange={e => strategyMutation.mutate({ strategy, keySelectionStrategy: e.target.value as KeySelectionStrategy })}
+                  className="rounded-lg border bg-background px-2 py-1.5 text-xs text-foreground"
+                >
+                  <option value="auto">{t('strategies.keySelectionAuto')}</option>
+                  <option value="least-remaining">{t('strategies.keySelectionLeastRemaining')}</option>
+                </select>
+                <Tooltip text={t('strategies.keySelectionHint')}>
+                  <span className="cursor-help underline decoration-dotted underline-offset-2">?</span>
+                </Tooltip>
+              </label>
+
+              {/* Exploration toggle (#685 follow-up): a niche knob that gives
+                  unmeasured models a guaranteed chance to be tried so they build
+                  reliability/speed data. Hidden in Manual mode, where
+                  routeRequest ignores it. */}
+              {!isManual && (
+                <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={routing?.exploreEnabled ?? false}
+                    disabled={strategyMutation.isPending}
+                    onChange={e => strategyMutation.mutate({ strategy, exploreEnabled: e.target.checked })}
+                    className="size-3.5 accent-foreground"
+                  />
+                  <span>{t('strategies.explore')}</span>
+                  <Tooltip text={t('strategies.exploreHint')}>
+                    <span className="cursor-help underline decoration-dotted underline-offset-2">?</span>
+                  </Tooltip>
+                </label>
+              )}
+
+              {/* Peak-hours adjustment (#760): an opt-in tweak to the preset
+                  weights, and off it does nothing at all. Its "(peak hours)"
+                  marker on the weight summary above stays visible either way —
+                  that one explains live behaviour. */}
+              {!isManual && routing && (
+                <PeakHoursControls
+                  routing={routing}
+                  strategy={strategy}
+                  saving={strategyMutation.isPending}
+                  onSave={p => strategyMutation.mutate({ strategy, ...p })}
+                />
+              )}
+            </div>
           )}
 
-          {/* Peak-hours adjustment (#760): same footnote tier as Explore, not a
-              card of its own — it is an opt-in tweak to the preset weights, and
-              off it does nothing at all. The window inputs only appear once the
-              toggle is on, so the default view gains a single line. */}
-          {!isManual && routing && (
-            <PeakHoursControls
-              routing={routing}
-              strategy={strategy}
-              saving={strategyMutation.isPending}
-              onSave={p => strategyMutation.mutate({ strategy, ...p })}
-            />
-          )}
         </section>
 
         {/* Named fallback chains (#960/#895): list/create/activate/delete.

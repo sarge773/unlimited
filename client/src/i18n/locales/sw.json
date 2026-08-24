@@ -293,6 +293,7 @@
     "keySelectionAuto": "Otomatiki",
     "keySelectionLeastRemaining": "Iliyobaki kidogo zaidi",
     "keySelectionHint": "Jinsi ya kuchagua kati ya funguo kadhaa za mtoa huduma mmoja. Otomatiki huhifadhi mzunguko wa sasa; Iliyobaki kidogo zaidi hupanga funguo kwa kiasi kilichoonekana na hujaribu kwanza ile yenye kiasi kikubwa zaidi kilichobaki.",
+    "moreOptions": "Chaguo zaidi",
     "peakActive": "(saa za msongamano)",
     "peakActiveHint": "Marekebisho ya saa za msongamano yanatumika sasa hivi, hivyo hizi si uzito wa kiolezo chenyewe: asilimia 60 ya uzito wa kasi umehamishiwa kwenye uaminifu.",
     "peakAdjust": "Marekebisho ya saa za msongamano",

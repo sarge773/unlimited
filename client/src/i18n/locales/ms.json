@@ -293,6 +293,7 @@
     "keySelectionAuto": "Auto",
     "keySelectionLeastRemaining": "Paling sedikit baki",
     "keySelectionHint": "Cara memilih antara beberapa kunci pembekal yang sama. Auto mengekalkan giliran semasa; Paling sedikit baki menyusun kunci mengikut kuota yang diperhatikan dan mencuba yang paling banyak baki dahulu.",
+    "moreOptions": "Pilihan lain",
     "peakActive": "(waktu puncak)",
     "peakActiveHint": "Pelarasan waktu puncak sedang aktif, jadi ini bukan pemberat praset itu sendiri: 60% pemberat kelajuan telah dipindahkan ke kebolehpercayaan.",
     "peakAdjust": "Pelarasan waktu puncak",

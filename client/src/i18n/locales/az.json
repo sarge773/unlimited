@@ -293,6 +293,7 @@
     "keySelectionAuto": "Avtomatik",
     "keySelectionLeastRemaining": "Ən az qalan",
     "keySelectionHint": "Eyni provayderin bir neçə açarı arasında necə seçim ediləcəyi. Avtomatik cari növbəni saxlayır; Ən az qalan açarları müşahidə olunan kvotaya görə sıralayır və ən çox qalanı ilk sınayır.",
+    "moreOptions": "Daha çox seçim",
     "peakActive": "(pik saatlar)",
     "peakActiveHint": "Pik saat tənzimləməsi hazırda aktivdir, ona görə bunlar hazır dəstin öz çəkiləri deyil: sürət çəkisinin 60%-i etibarlılığa keçirilib.",
     "peakAdjust": "Pik saat tənzimləməsi",
