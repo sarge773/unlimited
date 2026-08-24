@@ -29,7 +29,7 @@ function readCollapsed(): boolean {
   }
 }
 
-interface Chain {
+export interface Chain {
   id: number
   name: string
   emoji: string

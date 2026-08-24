@@ -93,7 +93,10 @@ export default function FallbackPage() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [localEntries, setLocalEntries] = useState<FallbackEntry[] | null>(null)
+  // Staged edits carry the chain they were made against, so switching chains
+  // in the manager below discards them instead of letting one chain's unsaved
+  // rows be saved into another (#1021).
+  const [staged, setStaged] = useState<{ profileId: number | null; entries: FallbackEntry[] } | null>(null)
   const [optionsCollapsed, setOptionsCollapsed] = useState(readOptionsCollapsed)
 
   // Catalog search + filter state (#343).
@@ -102,10 +105,27 @@ export default function FallbackPage() {
   const [filterTools, setFilterTools] = useState(false)
   const [minContext, setMinContext] = useState(0)
 
-  const { data: entries = [], isLoading } = useQuery<FallbackEntry[]>({
-    queryKey: ['fallback'],
-    queryFn: () => apiFetch('/api/fallback'),
+  // The table edits the ACTIVE chain, so it is part of this query's identity
+  // (#1021): keyed on 'fallback' alone, switching chains in the manager below
+  // re-rendered the previous chain's rows from cache, and a save then wrote
+  // them into the newly activated one. Held back until the active chain is
+  // known so the first paint is already the right chain's.
+  const { data: active, isPending: activePending } = useQuery<{ activeProfileId: number | null }>({
+    queryKey: ['profiles', 'active'],
+    queryFn: () => apiFetch('/api/profiles/active'),
   })
+  const activeProfileId = active?.activeProfileId ?? null
+
+  const { data: entries = [], isLoading: entriesLoading } = useQuery<FallbackEntry[]>({
+    queryKey: ['fallback', 'chain', activeProfileId],
+    queryFn: () => apiFetch('/api/fallback'),
+    enabled: !activePending,
+  })
+  const isLoading = activePending || entriesLoading
+
+  const localEntries = staged && staged.profileId === activeProfileId ? staged.entries : null
+  const setLocalEntries = (entries: FallbackEntry[] | null) =>
+    setStaged(entries === null ? null : { profileId: activeProfileId, entries })
 
   const { data: tokenUsage } = useQuery<TokenUsageData>({
     queryKey: ['fallback', 'token-usage'],

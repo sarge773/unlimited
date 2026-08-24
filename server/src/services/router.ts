@@ -1108,10 +1108,20 @@ const GLOBAL_SORT_ALIASES: Record<string, string> = {
   balanced: 'balanced',
 };
 
+/**
+ * The chain auto-routing walks.
+ *
+ * When a profile is active it IS the chain, empty or not (#1021). Falling
+ * through to `fallback_config` on an empty one meant a chain the operator had
+ * deliberately built by hand — or had not filled in yet — silently routed over
+ * the entire catalog instead, while the same chain addressed by name
+ * (`auto:<name>`) correctly refused. `fallback_config` is the chain only for an
+ * install with no profile at all.
+ */
 function getActiveChain(db: Db): ChainRow[] {
   const profileId = getActiveProfileId(db);
   if (profileId != null) {
-    const chain = db.prepare(`
+    return db.prepare(`
       SELECT pm.model_db_id, pm.priority, pm.enabled,
              m.platform, m.model_id, m.display_name, m.intelligence_rank,
              m.size_label, m.monthly_token_budget,
@@ -1122,8 +1132,6 @@ function getActiveChain(db: Db): ChainRow[] {
       WHERE pm.profile_id = ?
       ORDER BY pm.priority ASC
     `).all(profileId) as ChainRow[];
-    
-    if (chain.length > 0) return chain;
   }
 
   return db.prepare(`
@@ -1188,21 +1196,45 @@ function getChainByGlobalSort(db: Db, globalAxis: string): ChainRow[] {
   return orderChain(allEnabled, strat);
 }
 
+/**
+ * The active chain, or a client-facing refusal when it has nothing enabled.
+ *
+ * Mirrors what `auto:<name>` already does for a named chain: say the chain is
+ * empty rather than routing the request over models the operator never put in
+ * it. Only when a profile is active — a legacy install with none keeps the
+ * ordinary "all models exhausted" exhaustion path.
+ */
+function activeChainOrThrow(db: Db): ChainRow[] {
+  const chain = getActiveChain(db);
+  if (chain.some(entry => entry.enabled)) return chain;
+
+  const profileId = getActiveProfileId(db);
+  if (profileId == null) return chain;
+
+  const profile = db.prepare('SELECT name FROM profiles WHERE id = ?').get(profileId) as { name: string } | undefined;
+  const err = new Error(
+    `The active fallback chain${profile ? ` '${profile.name}'` : ''} has no enabled models. `
+    + 'Enable models for it on the Models page, switch the active chain, or name another one with "auto:<chain>".',
+  ) as any;
+  err.status = 400;
+  throw err;
+}
+
 export function resolveRoutingChain(modelString: string | undefined): ResolvedChain {
   const db = getDb();
 
   if (!modelString || modelString.toLowerCase() === 'auto') {
-    return { chain: getActiveChain(db), strategyKey: 'auto' };
+    return { chain: activeChainOrThrow(db), strategyKey: 'auto' };
   }
 
   const lower = modelString.toLowerCase();
   if (!lower.startsWith('auto:')) {
-    return { chain: getActiveChain(db), strategyKey: 'auto' };
+    return { chain: activeChainOrThrow(db), strategyKey: 'auto' };
   }
 
   const suffix = lower.slice('auto:'.length).trim();
   if (!suffix) {
-    return { chain: getActiveChain(db), strategyKey: 'auto' };
+    return { chain: activeChainOrThrow(db), strategyKey: 'auto' };
   }
 
   const globalAxis = GLOBAL_SORT_ALIASES[suffix];
