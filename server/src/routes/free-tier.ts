@@ -18,8 +18,8 @@ import type { Platform, QuotaMetric } from '@freellmapi/shared/types.js';
  * reports them.
  *
  * The model set, the key-count scaling and the enabled semantics deliberately
- * match GET /api/fallback/token-usage (the stacked bar this table sits under),
- * so the two never disagree about the same pool:
+ * match GET /api/fallback/token-usage (the stacked bar whose legend these pools
+ * group), so the two never disagree about the same pool:
  *   - only platforms that actually have an enabled key are counted;
  *   - a documented budget is per account, so it is scaled by the usable
  *     (enabled + healthy/unknown) key count for the platform;
@@ -32,6 +32,12 @@ export const freeTierRouter = Router();
 interface PoolAgg {
   poolKey: string;
   platform: string;
+  // Which chain models this pool holds, as their provider model ids. The
+  // dashboard legend lists models, not pools, so it needs this to put each
+  // model row under its own pool header; without it the client would have to
+  // re-implement inferQuotaPoolKey (which is provider knowledge that lives
+  // here). Ordered as the chain returns them.
+  memberModelIds: string[];
   modelCount: number;
   disabledModelCount: number;
   keyCount: number;
@@ -142,6 +148,7 @@ freeTierRouter.get('/', (_req: Request, res: Response) => {
       p = {
         poolKey,
         platform: row.platform,
+        memberModelIds: [],
         modelCount: 0,
         disabledModelCount: 0,
         keyCount: keyCountMap.get(row.platform) ?? 0,
@@ -151,6 +158,7 @@ freeTierRouter.get('/', (_req: Request, res: Response) => {
       };
       pools.set(poolKey, p);
     }
+    p.memberModelIds.push(row.model_id);
     p.modelCount += 1;
     if (row.chain_enabled === 0) p.disabledModelCount += 1;
     // One budget per pool: keep the largest documented value.

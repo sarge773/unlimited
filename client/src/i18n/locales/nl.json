@@ -1050,7 +1050,15 @@
     "metricCredits": "tegoeden",
     "metricNeurons": "neuronen",
     "metricOther": "eenheden",
-    "empty": "Geen ingeschakelde modellen met gegevens over het gratis budget."
+    "empty": "Geen ingeschakelde modellen met gegevens over het gratis budget.",
+    "poolLabel": "{platform} · shared {scope} pool",
+    "poolLabelBare": "{platform} · shared pool",
+    "poolModels": "{count} models",
+    "poolBudget": "{budget}/mo",
+    "poolBudgetTitle": "One monthly allowance for the whole pool, scaled by the {count} usable keys on this platform. Every model listed under it draws from the same budget.",
+    "poolNoQuota": "no published quota",
+    "poolResets": "resets {time}",
+    "independentBudgets": "independent budgets"
   },
   "chains": {
     "title": "Fallback-ketens",

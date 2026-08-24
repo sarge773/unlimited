@@ -1050,7 +1050,15 @@
     "metricCredits": "积分",
     "metricNeurons": "神经元",
     "metricOther": "单位",
-    "empty": "没有启用且带免费额度数据的模型。"
+    "empty": "没有启用且带免费额度数据的模型。",
+    "poolLabel": "{platform} · {scope} 共享池",
+    "poolLabelBare": "{platform} · 共享池",
+    "poolModels": "{count} 个模型",
+    "poolBudget": "{budget}/月",
+    "poolBudgetTitle": "整个额度池共用一份月度额度，已按该平台 {count} 个可用密钥换算。池中列出的每个模型都从同一份额度里扣。",
+    "poolNoQuota": "未公布额度",
+    "poolResets": "{time} 重置",
+    "independentBudgets": "独立额度"
   },
   "chains": {
     "title": "回退链",

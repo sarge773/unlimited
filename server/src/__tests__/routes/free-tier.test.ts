@@ -44,9 +44,10 @@ function observe(row: {
 }
 
 // GET /api/free-tier reports one budget per provider pool (#905). The pools it
-// reports are read by the collapsed table under the stacked token bar, so it
-// has to agree with /api/fallback/token-usage about key scaling, and it must
-// never present a request counter as if it were a token budget.
+// reports group the per-model legend under the stacked token bar, so it
+// has to agree with /api/fallback/token-usage about key scaling and about which
+// models are in play, and it must never present a request counter as if it were
+// a token budget.
 describe('free-tier pool overview (#905)', () => {
   let app: Express;
   let groqKey = 0;
@@ -152,6 +153,34 @@ describe('free-tier pool overview (#905)', () => {
     expect(groq.disabledModelCount).toBe(1);
     // The disabled row does not reduce the pool's documented budget.
     expect(groq.documentedBudget).toBe(15_000_000);
+  });
+
+  it('names the models in each pool so the legend can group its rows', async () => {
+    const { body } = await get(app, '/api/free-tier');
+    const groq = body.pools.find((p: any) => p.poolKey === 'groq::account');
+    // The legend joins its own per-model rows on platform + model id, so the
+    // pool has to name its members; the count has to agree with modelCount, and
+    // the chain-disabled row is a member like any other.
+    expect(groq.memberModelIds).toHaveLength(groq.modelCount);
+    expect(new Set(groq.memberModelIds).size).toBe(groq.modelCount);
+
+    const usage = await get(app, '/api/fallback/token-usage');
+    const chainIds = (usage.body.models as any[])
+      .filter(m => m.platform === 'groq')
+      .map(m => m.modelId)
+      .sort();
+    expect([...groq.memberModelIds].sort()).toEqual(chainIds);
+
+    // Every model of every pool maps back to exactly one pool: the join the
+    // legend does cannot put one row under two headers.
+    const seen = new Set<string>();
+    for (const pool of body.pools) {
+      for (const id of pool.memberModelIds) {
+        const qualified = `${pool.platform}::${id}`;
+        expect(seen.has(qualified)).toBe(false);
+        seen.add(qualified);
+      }
+    }
   });
 
   it('classifies a credits-only pool and skips platforms with no key', async () => {

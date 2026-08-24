@@ -1050,7 +1050,15 @@
     "metricCredits": "kredytów",
     "metricNeurons": "neuronów",
     "metricOther": "jednostek",
-    "empty": "Brak włączonych modeli z danymi o budżecie darmowego poziomu."
+    "empty": "Brak włączonych modeli z danymi o budżecie darmowego poziomu.",
+    "poolLabel": "{platform} · shared {scope} pool",
+    "poolLabelBare": "{platform} · shared pool",
+    "poolModels": "{count} models",
+    "poolBudget": "{budget}/mo",
+    "poolBudgetTitle": "One monthly allowance for the whole pool, scaled by the {count} usable keys on this platform. Every model listed under it draws from the same budget.",
+    "poolNoQuota": "no published quota",
+    "poolResets": "resets {time}",
+    "independentBudgets": "independent budgets"
   },
   "chains": {
     "title": "Łańcuchy awaryjne",

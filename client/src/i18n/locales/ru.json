@@ -1050,7 +1050,15 @@
     "metricCredits": "кредитов",
     "metricNeurons": "нейронов",
     "metricOther": "единиц",
-    "empty": "Нет включённых моделей с данными о бесплатном лимите."
+    "empty": "Нет включённых моделей с данными о бесплатном лимите.",
+    "poolLabel": "{platform} · shared {scope} pool",
+    "poolLabelBare": "{platform} · shared pool",
+    "poolModels": "{count} models",
+    "poolBudget": "{budget}/mo",
+    "poolBudgetTitle": "One monthly allowance for the whole pool, scaled by the {count} usable keys on this platform. Every model listed under it draws from the same budget.",
+    "poolNoQuota": "no published quota",
+    "poolResets": "resets {time}",
+    "independentBudgets": "independent budgets"
   },
   "chains": {
     "title": "Цепочки резервирования",

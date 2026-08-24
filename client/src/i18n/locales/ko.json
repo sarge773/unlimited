@@ -1050,7 +1050,15 @@
     "metricCredits": "크레딧",
     "metricNeurons": "뉴런",
     "metricOther": "단위",
-    "empty": "무료 등급 예산 데이터가 있는 활성화된 모델이 없습니다."
+    "empty": "무료 등급 예산 데이터가 있는 활성화된 모델이 없습니다.",
+    "poolLabel": "{platform} · shared {scope} pool",
+    "poolLabelBare": "{platform} · shared pool",
+    "poolModels": "{count} models",
+    "poolBudget": "{budget}/mo",
+    "poolBudgetTitle": "One monthly allowance for the whole pool, scaled by the {count} usable keys on this platform. Every model listed under it draws from the same budget.",
+    "poolNoQuota": "no published quota",
+    "poolResets": "resets {time}",
+    "independentBudgets": "independent budgets"
   },
   "chains": {
     "title": "폴백 체인",
