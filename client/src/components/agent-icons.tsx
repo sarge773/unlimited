@@ -224,6 +224,15 @@ const brands: Record<string, Brand> = {
   mimo: {
     tint: '[--mk:#000000] dark:[--mk:#FFFFFF]',
   },
+  // AtomCode has no published vector mark — the brand site uses a stylized
+  // "AC" monogram, but the asset is not distributed as a reusable SVG. Per
+  // the file's colour rule, a lettermark stands in, tinted with the brand's
+  // primary cyan (#00E5FF) — the accent colour used across atomcode.atomgit.com
+  // marketing. Clears 3:1 on the light tile; dark tile uses the same hue
+  // nudged to a slightly deeper shade (#00B8D4) for comfortable contrast.
+  atomcode: {
+    tint: '[--mk:#00E5FF] dark:[--mk:#00B8D4]',
+  },
   // Any other OpenAI-compatible client: our own terminal glyph, not a brand
   // mark, so it keeps the page foreground colour on both tiles.
   generic: {
