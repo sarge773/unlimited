@@ -123,3 +123,18 @@ export function openLogsFolder(): void {
     console.warn('[desktop] could not open the logs folder:', err);
   }
 }
+
+// Tray → "Open Backups Folder". The server writes dumps to <db dir>/backups
+// (server/src/services/backups.ts dataDir()) and main.ts puts the DB at
+// <userData>/freeapi.db, so this is where they land — the dashboard's Backups
+// panel only ever shows paths relative to that directory, which a desktop
+// user has no other way to locate.
+export function openBackupsFolder(): void {
+  try {
+    const dir = path.join(app.getPath('userData'), 'backups');
+    fs.mkdirSync(dir, { recursive: true });
+    void shell.openPath(dir);
+  } catch (err) {
+    console.warn('[desktop] could not open the backups folder:', err);
+  }
+}
