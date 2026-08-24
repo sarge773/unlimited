@@ -117,7 +117,7 @@ export class OpenAICompatProvider extends BaseProvider {
   /** Keyless providers (Kilo's anonymous free tier) must send NO Authorization
    * header — a stored sentinel like `Bearer no-key` could be treated as an
    * invalid key. Everyone else sends the bearer as usual. */
-  private authHeader(apiKey: string): Record<string, string> {
+  protected authHeader(apiKey: string): Record<string, string> {
     return this.keyless ? {} : { 'Authorization': `Bearer ${apiKey}` };
   }
 

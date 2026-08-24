@@ -487,6 +487,8 @@ register(new OpenAICompatProvider({
 register(new AIHordeProvider());
 
 // Dots AI — OpenAI-compatible gateway (dots.ai). Free tier available.
+// Auth uses an `api-key` header (not Bearer). Default endpoint is the docs
+// example host `https://note3-prev-api.askdiandian.com/v1` (#1008).
 // Docs: https://dots.ai/platform/docs
 register(new DotsAIProvider({}));
 
