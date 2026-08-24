@@ -376,12 +376,24 @@ const FULL_BLEED_ROUTES = new Set(['/playground'])
 
 // The shell's content container. A full-bleed route drops the max-width and the
 // padding and becomes a flex child that fills the rest of the screen; every
-// other route keeps the exact classes it always had.
+// other route gets a centred column that is always exactly max-w-6xl wide.
+//
+// `w-full` is load-bearing, not decoration. This <main> is an item of a COLUMN
+// flex container, so its cross axis is the horizontal one — and flexbox only
+// stretches an item across the cross axis when neither cross-axis margin is
+// auto (CSS Flexbox §9.6). `mx-auto` sets both, so without an explicit width
+// the column shrink-to-fits its content instead: the page is only ever as wide
+// as the widest thing that has finished rendering. On a page that fills in from
+// several independent queries — Analytics fires ten — that turns every arriving
+// response into a visible horizontal jump as the column re-fits, and pages
+// whose content never reaches 72rem (Analytics, Premium) settle narrower than
+// they were designed to be. A definite width makes the column 72rem from the
+// first paint, and `mx-auto` goes back to only centring it.
 function PageContainer({ children }: { children: ReactNode }) {
   const location = useLocation()
   const fullBleed = FULL_BLEED_ROUTES.has(location.pathname)
   return (
-    <main className={fullBleed ? 'flex min-h-0 flex-1 flex-col' : 'mx-auto max-w-6xl px-6 py-8'}>
+    <main className={fullBleed ? 'flex min-h-0 flex-1 flex-col' : 'mx-auto w-full max-w-6xl px-6 py-8'}>
       {children}
     </main>
   )
