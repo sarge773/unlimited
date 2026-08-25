@@ -1,6 +1,6 @@
 # Clients & coding agents
 
-[← Back to README](../README.md) · [Documentation index](README.md)
+[← Back to README](../README.md) · [Documentation index](../README.md)
 
 - [OpenAI-compatible clients](#openai-compatible-clients)
 - [Coding agents](#coding-agents)
@@ -28,6 +28,7 @@ Use the generator instead of hand-editing a client configuration:
 export FREELLMAPI_API_KEY=<unified-key>   # or pass --api-key on each command
 npx freellmapi setup-claude --url http://localhost:3001 --dry-run
 npx freellmapi setup-claude --url http://localhost:3001
+npx freellmapi setup-dsh --url http://localhost:3001 --api-key <unified-key>
 ```
 
 `--dry-run` prints a diff. Real writes merge with the existing configuration
