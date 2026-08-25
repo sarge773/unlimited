@@ -1019,7 +1019,8 @@
       "dsh": "Kerangka DeepSeek, yang menyimpan tiap penyedia sebagai rute yang bisa Anda ganti.",
       "mimo": "Agen terminal dari Xiaomi, cabang OpenCode yang menerima penyedia apa pun yang kompatibel dengan OpenAI.",
       "cursor": "Penyunting yang mengutamakan AI; lewat awan Cursor, jadi perlu URL publik.",
-      "generic": "Perkakas lain mana pun yang berbicara API OpenAI, disiapkan manual dengan URL dasar dan kunci."
+      "generic": "Perkakas lain mana pun yang berbicara API OpenAI, disiapkan manual dengan URL dasar dan kunci.",
+      "atomcode": "AtomCode is an open-source, terminal-based AI coding agent built in Rust. It connects to any OpenAI-compatible API, reads your codebase, edits files, runs commands, and verifies its work — autonomously."
     }
   },
   "update": {

@@ -1019,7 +1019,8 @@
       "dsh": "DeepSeeks harnas, dat elke aanbieder als een omschakelbare route bewaart.",
       "mimo": "Xiaomi's terminalagent, een OpenCode-fork die elke OpenAI-compatibele aanbieder aankan.",
       "cursor": "De AI-gerichte editor; hij loopt via de cloud van Cursor en heeft dus een publieke URL nodig.",
-      "generic": "Elk ander hulpmiddel dat de OpenAI-API spreekt, met de hand ingesteld via basis-URL en sleutel."
+      "generic": "Elk ander hulpmiddel dat de OpenAI-API spreekt, met de hand ingesteld via basis-URL en sleutel.",
+      "atomcode": "AtomCode is an open-source, terminal-based AI coding agent built in Rust. It connects to any OpenAI-compatible API, reads your codebase, edits files, runs commands, and verifies its work — autonomously."
     }
   },
   "update": {
