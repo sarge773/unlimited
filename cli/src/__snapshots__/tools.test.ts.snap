@@ -25,14 +25,14 @@ exports[`tool generators > setup-atomcode has stable golden output 1`] = `
 {
   "files": [
     {
-      "format": "toml",
-      "path": "/home/tester/.atomcode/config.toml",
-      "sensitive": true,
-      "value": "[provider]
+      "content": "[provider]
 name = "freellmapi"
 base_url = "http://localhost:3000/v1"
 api_key = "freellmapi-test-key"
-model = "fast-coder"",
+model = "fast-coder",
+      "format": "toml",
+      "path": "/home/tester/.atomcode/config.toml",
+      "sensitive": true,
     },
   ],
   "notes": [
