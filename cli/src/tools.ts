@@ -596,7 +596,7 @@ function atomcode(ctx: GenerateContext): Generation {
       path: path.join(configDir, 'config.toml'),
       format: 'toml',
       sensitive: true,
-      value: `[provider]
+      content: `[provider]
 name = "freellmapi"
 base_url = ${JSON.stringify(v1Url(ctx.url))}
 api_key = ${JSON.stringify(ctx.apiKey)}
