@@ -57,7 +57,9 @@ export const PLATFORMS: { value: Platform; label: string; url: string; keyless?:
   { value: 'sealion', label: 'SEA-LION (free key)', url: 'https://sea-lion.ai' },
   { value: 'orcarouter', label: 'OrcaRouter (free key)', url: 'https://www.orcarouter.ai' },
   { value: 'unorouter', label: 'UnoRouter (free key)', url: 'https://unorouter.com' },
-  { value: 'xkiro', label: 'xKiro (free key)', url: 'https://xkiro.com' }
+  { value: 'xkiro', label: 'xKiro (free key)', url: 'https://xkiro.com' },
+  // AnyAPI advertises 100K tokens/day free, but live testing on 2026-08-10
+  // could not get a single free-tier request served (see
   // CATALOG-ANYAPI-SMOKE-2026-08-10 in the ops repo). No quota claim until
   // their free tier demonstrably works.
   { value: 'anyapi', label: 'AnyAPI (free key)', url: 'https://anyapi.ai' },
@@ -86,9 +88,10 @@ export const CUSTOM_MODEL_KIND_LABEL: Record<ApiKeyModel['kind'], string> = {
   embedding: 'keys.customTypeEmbedding',
   image: 'keys.customTypeImage',
   audio: 'keys.customTypeAudio',
+  transcription: 'keys.customTypeTranscription',
 }
 
-  transcription: 'keys.customTypeTranscription',
+export function customModelDeleteKey(model: ApiKeyModel): string {
   return `${model.kind}:${model.id}`
 }
 
@@ -136,3 +139,5 @@ export interface HealthData {
     totalProviders: number
     ratio: number
   }
+}
+

@@ -13,6 +13,7 @@ import { UnifiedKeySection } from '@/components/keys/unified-key-section'
 import { ClientProfilesSection } from '@/components/keys/client-profiles-section'
 import { ProxySettingsSection } from '@/components/keys/proxy-settings-section'
 import { BackupsSection } from '@/components/keys/backups-section'
+import { AnthropicSection } from '@/components/keys/anthropic-section'
 import { ProviderList } from '@/components/keys/provider-list'
 import { ProviderChecklistSection } from '@/components/keys/provider-checklist-section'
 import { AddKeyDialog } from '@/components/keys/add-key-dialog'
@@ -30,6 +31,8 @@ const KEYS_TABS: { id: KeysTab; labelKey: string }[] = [
 
 type DegradationOverride = 'auto' | 'normal' | 'degraded'
 
+export default function KeysPage() {
+  const { t } = useI18n()
   const queryClient = useQueryClient()
   const [tab, setTab] = useState<KeysTab>('providers')
   const [addOpen, setAddOpen] = useState(false)
@@ -79,6 +82,23 @@ type DegradationOverride = 'auto' | 'normal' | 'degraded'
   const degradation = healthData?.degradation
   const degradedNow = degradation?.state === 'degraded' || degradation?.override === 'degraded'
 
+  return (
+    <div>
+      <PageHeader
+        title={t('keys.pageTitle')}
+        description={t('keys.pageDescription')}
+        actions={
+          <>
+            {(tab === 'providers' || tab === 'quotaSignals') && keys.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => checkAll.mutate()} disabled={checkAll.isPending}>
+                {checkAll.isPending ? t('keys.checking') : t('keys.checkAll')}
+              </Button>
+            )}
+            {keys.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setExportOpen(true)}>
+                <Download className="size-3.5" />
+                {t('keys.export')}
+              </Button>
             )}
             {tab === 'providers' && (
               <Button size="sm" onClick={() => openAddKey()}>
@@ -87,8 +107,7 @@ type DegradationOverride = 'auto' | 'normal' | 'degraded'
               </Button>
             )}
             <SegmentedControl
-              value={tadiff3: invalid print range
-b}
+              value={tab}
               onValueChange={setTab}
               options={KEYS_TABS.map(tb => ({ value: tb.id, label: t(tb.labelKey) }))}
               ariaLabel={t('keys.pageTitle')}
@@ -134,3 +153,34 @@ b}
           </div>
         )}
 
+        {tab === 'apiKey' && (
+          <>
+            <UnifiedKeySection />
+            <ClientProfilesSection />
+            <ProxySettingsSection />
+            <BackupsSection />
+          </>
+        )}
+
+        {tab === 'anthropic' && <AnthropicSection />}
+        {tab === 'agents' && <AgentCompatibilitySection />}
+
+        {tab === 'quotaSignals' && (
+          <QuotaSignalsSection states={(healthData?.quotaStates ?? []).slice(0, 24)} />
+        )}
+
+        {tab === 'providers' && (
+          <>
+            <ProviderChecklistSection onAddKey={platform => openAddKey(platform as Platform)} />
+            <ProviderList onAddKey={() => openAddKey()} />
+          </>
+        )}
+      </div>
+
+      <AddKeyDialog open={addOpen} onOpenChange={setAddOpen} initialPlatform={addPlatform || undefined} />
+      {/* Mounted only while open so the export flow always starts at step one
+          and never retains a previously typed password. */}
+      {exportOpen && <ExportKeysDialog open={exportOpen} onOpenChange={setExportOpen} />}
+    </div>
+  )
+}
