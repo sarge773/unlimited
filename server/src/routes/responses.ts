@@ -12,7 +12,8 @@ import type {
 import { routeRequest, hasEnabledVisionModel, hasEnabledToolsModel, resolveStickyPreference, routingReserveTokens, resolveModelGroupCandidates, type RouteResult, type ChainRow } from '../services/router.js';
 import { getDb } from '../db/index.js';
 import { resolveAuth, prependSystemPrompt } from '../lib/system-prompt.js';
-import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from '../services/model-groups.js';
+import { isUnifyEnabled } from '../services/model-groups.js';
+import { dispatchChainOptions, resolveDispatchTarget } from '../services/routing-profiles.js';
 import { contentToString, messageHasImage } from '../lib/content.js';
 import { normalizeMessageImages } from '../lib/image-normalize.js';
 import { repairToolArguments, toolSchemaMap } from '../lib/tool-args.js';
@@ -675,10 +676,10 @@ responsesRouter.post('/responses', async (req: Request, res: Response) => {
     preferredModel = resolveStickyPreference(getStickyModel(messages, sessionIdHeader));
   } else {
     const db = getDb();
-    const resolved = isUnifyEnabled() ? resolveRequestedIdForDispatch(requestedModelLabel, getModelGroups()) : null;
+    const resolved = isUnifyEnabled() ? resolveDispatchTarget(requestedModelLabel) : null;
     const members = resolved?.memberDbIds ?? null;
     if (members && members.length > 0) {
-      groupChain = resolveModelGroupCandidates(members, resolved!.demotedDbIds);
+      groupChain = resolveModelGroupCandidates(members, resolved!.demotedDbIds, dispatchChainOptions(resolved));
       if (groupChain.length === 0) {
         const placeholders = members.map(() => '?').join(',');
         const anyEnabled = db.prepare(`SELECT 1 FROM models WHERE id IN (${placeholders}) AND enabled = 1 LIMIT 1`).get(...members);

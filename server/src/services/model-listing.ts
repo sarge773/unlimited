@@ -1,6 +1,7 @@
 import type { ModelListRow } from '@freellmapi/shared/types.js';
 import { getDb } from '../db/index.js';
 import { isUnifyEnabled, getModelGroups } from './model-groups.js';
+import { getRoutingProfiles, expandProfile } from './routing-profiles.js';
 
 // Shared catalog-listing logic behind both the OpenAI `GET /v1/models` and the
 // Anthropic `GET /v1/models` endpoints, so the two wire formats list the exact
@@ -97,6 +98,49 @@ export function buildModelListing(): ModelListing {
   // Stable order: usable first, then enabled, then smartest, then name.
   allListed.sort((a, b) =>
     (b.available - a.available) || (b.enabled - a.enabled) || (a.intel - b.intel) || a.name.localeCompare(b.name));
+
+  // Routing profiles (#1026): advertised as first-class model ids so agents can
+  // request a capability ("coding", "fast", …) straight from discovery. A
+  // profile is available when ANY member is; its context window is the best
+  // among resolvable members and intelligence the best rank — honest upper
+  // bounds, since the chain degrades member by member on failure.
+  const groups = getModelGroups();
+  const profiles = getRoutingProfiles();
+  if (profiles.length > 0) {
+    type AvailRow = { id: number; available: number; enabled: number; context_window: number | null; intelligence_rank: number };
+    const ids = [...new Set(profiles.flatMap(p => expandProfile(p, groups)?.memberDbIds ?? []))];
+    if (ids.length > 0) {
+      const placeholders = ids.map(() => '?').join(',');
+      const rows = db.prepare(`
+        SELECT m.id,
+          (CASE WHEN m.enabled = 1 AND EXISTS (
+            SELECT 1 FROM api_keys k
+            WHERE k.platform = m.platform AND k.enabled = 1 AND (m.key_id IS NULL OR k.id = m.key_id)
+          ) THEN 1 ELSE 0 END) AS available,
+          m.enabled AS enabled, m.context_window, m.intelligence_rank
+        FROM models m WHERE m.id IN (${placeholders})
+      `).all(...ids) as AvailRow[];
+      const byId = new Map(rows.map(r => [r.id, r]));
+      for (const profile of profiles) {
+        const members = (expandProfile(profile, groups)?.memberDbIds ?? [])
+          .map(id => byId.get(id))
+          .filter(Boolean) as AvailRow[];
+        if (members.length === 0) continue;
+        const ctxs = members.map(m => m.context_window).filter((c): c is number => c != null);
+        allListed.push({
+          id: profile.slug,
+          name: profile.name,
+          ownedBy: 'freellmapi-profile',
+          available: members.some(m => m.available === 1) ? 1 : 0,
+          enabled: 1,
+          contextWindow: ctxs.length ? Math.max(...ctxs) : null,
+          intel: members.length ? Math.min(...members.map(m => m.intelligence_rank)) : Number.MAX_SAFE_INTEGER,
+          platforms: [],
+          supportsTools: true,
+        });
+      }
+    }
+  }
 
   const availableContextWindows = allListed
     .filter(m => m.available === 1 && m.contextWindow != null)
