@@ -42,6 +42,7 @@ import LogsPage from '@/pages/LogsPage'
 import PremiumPage from '@/pages/PremiumPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import AgentsPage from '@/pages/AgentsPage'
+import RoutingProfilesPage from '@/pages/RoutingProfilesPage'
 
 // Every failed mutation surfaces as an error toast, so no action fails
 // silently. A page that already shows the failure inline can opt out with
@@ -420,6 +421,7 @@ function App() {
                       <Route path="/models/chat" element={<FallbackPage />} />
                       <Route path="/models/chat/:id" element={<ModelDetailPage />} />
                       <Route path="/models/fusion" element={<FusionPage />} />
+                      <Route path="/models/profiles" element={<RoutingProfilesPage />} />
                       <Route path="/models/embeddings" element={<EmbeddingsPage />} />
                       <Route path="/models/embeddings/:id" element={<EmbeddingDetailPage />} />
                       <Route path="/models/image" element={<ImagePage />} />
