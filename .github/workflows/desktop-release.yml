@@ -224,6 +224,51 @@ jobs:
           # uploads. The "Attach installer to release" step below owns publishing.
           npx --no-install electron-builder ${{ matrix.ebArgs }} --publish never
 
+      # electron-builder notarizes and staples the .app, then wraps it in a DMG
+      # it never submits. The DMG is the file users download, so it is the file
+      # macOS quarantines and assesses — until it carries its own stapled
+      # ticket, `spctl -t install` on the download reports "no usable
+      # signature", which is #373's "damaged" block. The .app is signed inside
+      # the build (dmg.sign in electron-builder.yml makes the DMG eligible to
+      # submit); this finishes the job for the container.
+      - name: Notarize and staple the DMG
+        if: steps.maccreds.outputs.signed == 'true' && steps.maccreds.outputs.apikey == 'true'
+        shell: bash
+        env:
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          dmgs=(desktop/dist-electron/*.dmg)
+          if [ ${#dmgs[@]} -eq 0 ]; then
+            echo "::error::signing was enabled but electron-builder produced no DMG"
+            exit 1
+          fi
+          # app-builder ships the blockmap generator electron-builder itself uses.
+          app_builder=$(cd desktop && node -p "require('app-builder-bin').appBuilderPath")
+          for dmg in "${dmgs[@]}"; do
+            echo "== notarizing $(basename "$dmg") =="
+            # --wait turns a rejection into a non-zero exit, so a failed
+            # notarization fails the release instead of publishing a blocked DMG.
+            xcrun notarytool submit "$dmg" \
+              --key "$APPLE_API_KEY" \
+              --key-id "$APPLE_API_KEY_ID" \
+              --issuer "$APPLE_API_ISSUER" \
+              --wait --timeout 30m
+            xcrun stapler staple "$dmg"
+            xcrun stapler validate "$dmg"
+            # The verdict Gatekeeper will give the download.
+            spctl -a -vv -t install "$dmg"
+            # Stapling rewrites the DMG in place, so the size, hash and blockmap
+            # electron-builder computed a moment ago no longer describe it.
+            # electron-updater verifies that hash, so leaving it stale would
+            # break updates for every installed copy.
+            node desktop/scripts/refresh-mac-update-metadata.mjs \
+              "$dmg" desktop/dist-electron/latest-mac.yml
+            "$app_builder" blockmap --input "$dmg" --output "$dmg.blockmap" --compression gzip
+          done
+
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
