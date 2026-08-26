@@ -142,40 +142,58 @@ export class OpenAICompatProvider extends BaseProvider {
    * and returns 422 for provider-private replay fields that other gateways
    * ignore. Keep the OpenAI wire shape, but strip our internal reasoning /
    * thought-signature extensions before sending to Mistral. */
-  private messagesForPlatform(messages: ChatMessage[]): ChatMessage[] {
-    if (this.platform !== 'mistral') return messages;
+  private messagesForPlatform(messages: ChatMessage[], modelId: string): ChatMessage[] {
+    // Moonshot's `partial` prefill flag is only understood by Moonshot/Kimi
+    // models; other OpenAI-compatible providers reject unknown keys inside the
+    // message object, so strip it unless the target model is Moonshot. (#1038)
+    const isMoonshot = /moonshot|kimi/i.test(modelId);
 
+    if (this.platform === 'mistral') {
+      return messages.map((m) => {
+        if (m.role === 'assistant') {
+          return {
+            role: m.role,
+            content: m.content,
+            ...(m.name ? { name: m.name } : {}),
+            ...(m.tool_calls && m.tool_calls.length > 0 ? {
+              tool_calls: m.tool_calls.map((tc) => ({
+                id: tc.id,
+                type: tc.type,
+                function: {
+                  name: tc.function.name,
+                  arguments: tc.function.arguments,
+                },
+              })),
+            } : {}),
+          };
+        }
+        if (m.role === 'tool') {
+          return {
+            role: m.role,
+            content: m.content,
+            ...(m.tool_call_id ? { tool_call_id: m.tool_call_id } : {}),
+            ...(m.name ? { name: m.name } : {}),
+          };
+        }
+        return {
+          role: m.role,
+          content: m.content,
+          ...(m.name ? { name: m.name } : {}),
+        };
+      });
+    }
+
+    if (isMoonshot) return messages;
+
+    // Non-Moonshot OpenAI-compatible providers reject unknown message keys, so
+    // strip the Moonshot-only `partial` flag before forwarding. Everything else
+    // (reasoning_content, thought_signature, tool_calls) passes through intact.
     return messages.map((m) => {
-      if (m.role === 'assistant') {
-        return {
-          role: m.role,
-          content: m.content,
-          ...(m.name ? { name: m.name } : {}),
-          ...(m.tool_calls && m.tool_calls.length > 0 ? {
-            tool_calls: m.tool_calls.map((tc) => ({
-              id: tc.id,
-              type: tc.type,
-              function: {
-                name: tc.function.name,
-                arguments: tc.function.arguments,
-              },
-            })),
-          } : {}),
-        };
+      if (m.role === 'assistant' && m.partial === true) {
+        const { partial: _partial, ...rest } = m;
+        return rest;
       }
-      if (m.role === 'tool') {
-        return {
-          role: m.role,
-          content: m.content,
-          ...(m.tool_call_id ? { tool_call_id: m.tool_call_id } : {}),
-          ...(m.name ? { name: m.name } : {}),
-        };
-      }
-      return {
-        role: m.role,
-        content: m.content,
-        ...(m.name ? { name: m.name } : {}),
-      };
+      return m;
     });
   }
 
@@ -196,7 +214,7 @@ export class OpenAICompatProvider extends BaseProvider {
       },
       body: JSON.stringify({
         model: modelId,
-        messages: this.messagesForPlatform(messages),
+        messages: this.messagesForPlatform(messages, modelId),
         temperature: sampling.temperature,
         max_tokens: resolveMaxTokens(this.platform, options?.max_tokens),
         top_p: sampling.topP,
@@ -315,7 +333,7 @@ export class OpenAICompatProvider extends BaseProvider {
       },
       body: JSON.stringify({
         model: modelId,
-        messages: this.messagesForPlatform(messages),
+        messages: this.messagesForPlatform(messages, modelId),
         temperature: sampling.temperature,
         max_tokens: resolveMaxTokens(this.platform, options?.max_tokens),
         top_p: sampling.topP,

@@ -499,6 +499,10 @@ const assistantMessageSchema = z.object({
   // unless the prior turn's reasoning_content is replayed, so keep it through
   // validation instead of stripping it. See issue #255.
   reasoning_content: z.string().nullable().optional(),
+  // Moonshot's "partial" prefill flag. A plain z.object (no .passthrough())
+  // would silently strip it; keep it through validation so it can be forwarded
+  // to Moonshot/Kimi models, which document it. See issue #1038.
+  partial: z.boolean().optional(),
 });
 
 // Tool results may arrive with null/missing content (a tool that returned
@@ -1468,6 +1472,10 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
         ...(typeof m.reasoning_content === 'string' && m.reasoning_content.length > 0
           ? { reasoning_content: m.reasoning_content }
           : {}),
+        // Moonshot's "partial" prefill flag: keep it through the message build
+        // (the schema already preserves it); the provider layer decides whether
+        // the routed model understands it and strips it otherwise. (#1038)
+        ...(m.partial === true ? { partial: true } : {}),
         // hasToolCalls (not a bare truthiness check) so null AND empty-array
         // tool_calls are dropped rather than forwarded — strict upstreams
         // reject both shapes. (#200)
