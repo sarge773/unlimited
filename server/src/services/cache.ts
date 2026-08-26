@@ -146,6 +146,9 @@ function stableStringify(value: unknown): string {
 export interface CacheKeyInput {
   model: string | undefined; // the client's `model` field ('auto'/pinned/omitted)
   messages: ChatMessage[];
+  // Server-injected system prompt (per profile). Part of the answered request,
+  // so it must separate cache buckets the way the pre-compression messages do.
+  system?: string;
   temperature?: number;
   top_p?: number;
   max_tokens?: number;
@@ -182,9 +185,10 @@ function normModel(model: string | undefined): string {
 
 export function computeCacheKey(input: CacheKeyInput): string {
   const canonical = stableStringify({
-    v: 4, // explicit-but-default-valued sampling params dropped from the key
+    v: 4, // key now uses pre-compression messages + injected system prompt
     model: normModel(input.model),
     messages: input.messages,
+    system: input.system,
     temperature: input.temperature,
     top_p: defaultableNumber(input.top_p, 1),
     max_tokens: input.max_tokens,

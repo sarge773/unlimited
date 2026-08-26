@@ -3,6 +3,7 @@ import type { Express } from 'express';
 import { createApp } from '../../app.js';
 import { initDb, getDb, getUnifiedApiKey } from '../../db/index.js';
 import { clearCache } from '../../services/cache.js';
+import * as compressionPipeline from '../../services/compression/pipeline.js';
 import { mintDashboardToken, isGatedApiPath } from '../helpers/auth.js';
 
 let dashToken = '';
@@ -239,5 +240,40 @@ describe('Response cache (proxy integration)', () => {
     expect(cleared.body.cleared).toBe(1);
     stats = await request(app, 'GET', '/api/cache/stats');
     expect(stats.body.entries).toBe(0);
+  });
+
+  it('different prompts that compress to the same output do NOT collide (key uses pre-compression messages)', async () => {
+    // Regression guard: the cache key must be derived from the client's
+    // ORIGINAL messages, not the lossily-compressed ones. If it used the
+    // compressed messages, two distinct prompts that happen to compress to
+    // identical output would share a bucket and one would be served the
+    // other's cached answer.
+    const mockCompressed = [{ role: 'user', content: 'collapsed common tail' }];
+    vi.spyOn(compressionPipeline, 'compressRequest').mockImplementation(
+      (_messages: any, _options: any) => ({
+        messages: mockCompressed,
+        mode: 'none' as const,
+        cacheKey: 'fixed-compression-fingerprint',
+        stats: { originalTokens: 0, compressedTokens: 0, ratio: 1, saved: 0 },
+      }),
+    );
+
+    const counter = mockGroq('answer derived from the original prompt');
+
+    // Distinct original prompts — they MUST NOT share a cache bucket.
+    const first = await chat({ messages: [{ role: 'user', content: 'tell me about apples' }] });
+    expect(first.status).toBe(200);
+    expect(first.headers.get('x-freellm-cache')).toBe('MISS');
+
+    const second = await chat({ messages: [{ role: 'user', content: 'tell me about oranges' }] });
+    expect(second.status).toBe(200);
+    expect(second.headers.get('x-freellm-cache')).toBe('MISS'); // no collision
+    expect(counter.calls).toBe(2); // each reached the provider
+
+    // Repeating the first original prompt IS a hit (key is stable per original).
+    const repeat = await chat({ messages: [{ role: 'user', content: 'tell me about apples' }] });
+    expect(repeat.status).toBe(200);
+    expect(repeat.headers.get('x-freellm-cache')).toBe('HIT');
+    expect(counter.calls).toBe(2); // no new provider call
   });
 });

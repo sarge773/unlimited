@@ -1527,6 +1527,12 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
       cacheControlPrefixLength = index + 1;
     }
   });
+  // Snapshot the pre-compression messages for the cache key. Compression is
+  // lossy (aging/hard-budget/relevance/toolfilter stages can collapse two
+  // distinct prompts into identical output), so keying on the compressed
+  // messages would let one prompt's cached answer be replayed for a different
+  // one. The client's actual request is what must never collide.
+  const originalMessages = messages;
   const compressionResult = compressRequest(messages, {
     header: req.headers['x-freellm-compress'],
     tools,
@@ -1743,7 +1749,7 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
   const cacheDirective = parseCacheDirective(req.headers['x-freellm-cache'], req.headers['cache-control']);
   const cacheKey = (!stream && cacheActive(cacheDirective) && isCacheableTemperature(temperature))
     ? computeCacheKey({
-        model: requestedModel, messages, temperature, top_p, max_tokens, tools, tool_choice,
+        model: requestedModel, messages: originalMessages, temperature, top_p, max_tokens, tools, tool_choice,
         // Normalized stop (providerSafeStop), i.e. what is actually forwarded.
         stop,
         // The knobs below are NOT in chatCompletionSchema, so zod strips them
@@ -1764,6 +1770,10 @@ proxyRouter.post('/chat/completions', async (req: Request, res: Response) => {
         // effort asks for a different answer, so it must never collide.
         reasoning_effort: samplingParams.reasoning_effort ?? undefined,
         compression: compressionResult.cacheKey,
+        // Server-injected system prompt is part of the request the client is
+        // answered under; two profiles with different prompts but the same user
+        // messages must not share a cache bucket.
+        system: auth.systemPrompt ?? undefined,
       })
     : null;
   if (cacheKey) {
