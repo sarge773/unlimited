@@ -48,6 +48,14 @@ export interface Config {
   nodeEnv: string;
   serveStaticAssets: boolean;
   /**
+   * Express `trust proxy` setting, parsed from TRUST_PROXY (#1024).
+   * - false:        do not trust forwarded headers (default; direct callers
+   *                 cannot spoof X-Forwarded-For).
+   * - true:         trust all proxies (with a security warning).
+   * - string[]:     trust only these proxy addresses/CIDRs.
+   */
+  trustProxy: boolean | string[];
+  /**
    * Tri-state override for the CSP `upgrade-insecure-requests` directive (#682).
    * - undefined: auto — emit the directive only when the request arrived over
    *   TLS (or behind an HTTPS reverse proxy that forwarded X-Forwarded-Proto).
@@ -74,11 +82,25 @@ export function loadConfig(): Config {
     requestBodyLimitBytes: parseRequestBodyLimitBytes(),
     nodeEnv: process.env.NODE_ENV ?? 'development',
     serveStaticAssets: true,
+    trustProxy: parseTrustProxy(),
     // CSP_UPGRADE_INSECURE_REQUESTS: true|false forces the directive on/off;
     // unset (the default) leaves it on auto — emit only when the request is
     // already TLS or forwarded as https, so HTTP LAN installs still render.
     cspUpgradeInsecureRequests: parseCspUpgradeInsecureRequests(),
   };
+}
+
+// Parse TRUST_PROXY (#1024). unset/empty/false → false (do not trust forwarded
+// headers); true → trust all proxies; otherwise a comma-separated list of proxy
+// addresses/CIDRs → trust only those hops.
+function parseTrustProxy(): boolean | string[] {
+  const raw = process.env.TRUST_PROXY;
+  if (raw === undefined || raw.trim() === '') return false;
+  const lower = raw.trim().toLowerCase();
+  if (lower === 'true' || lower === '1' || lower === 'yes') return true;
+  if (lower === 'false' || lower === '0' || lower === 'no') return false;
+  const addrs = raw.split(',').map(s => s.trim()).filter(Boolean);
+  return addrs.length > 0 ? addrs : false;
 }
 
 function parseCspUpgradeInsecureRequests(): boolean | undefined {
