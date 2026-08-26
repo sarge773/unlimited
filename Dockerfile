@@ -57,8 +57,7 @@ RUN mkdir -p /app/server/data && chown -R node:node /app/server/data
 # PaaS runtimes (Railway, Render) mount the persistent volume root-owned while
 # the app runs as USER node, so better-sqlite3 cannot create the DB there.
 # The entrypoint chowns the data dir as root, then drops back to node.
-COPY --chown=root:root docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # Deliberately last of the runtime layers: the SHA changes on every commit, and
 # an ARG/ENV above the COPYs invalidates the cache for all of them on each build.
