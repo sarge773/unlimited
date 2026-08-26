@@ -123,9 +123,42 @@ describe('PUT /api/settings/proxy scheme validation', () => {
     const after = await request(app, 'GET', '/api/settings/proxy', undefined, token);
 
     expect(status).toBe(400);
-    expect(body.error.message).toMatch(/http or https/);
+    expect(body.error.message).toMatch(/must use https/);
     expect(after.body.proxyMode).toBe(before.body.proxyMode);
     expect(after.body.proxyUrl).toBe(before.body.proxyUrl);
+  });
+
+  // Unlike a forward proxy, which only tunnels the TLS session, a relay is
+  // handed the provider API key and the relay token in cleartext. A plaintext
+  // hop to a remote relay puts both on the wire, so only loopback may use it.
+  it('rejects a plaintext http relay on a remote host', async () => {
+    const { status, body } = await request(app, 'PUT', '/api/settings/proxy', {
+      proxyMode: 'fetch-relay',
+      proxyUrl: 'http://relay.example.workers.dev',
+    }, token);
+    expect(status).toBe(400);
+    expect(body.error.message).toMatch(/must use https/);
+  });
+
+  for (const proxyUrl of ['http://localhost:8787', 'http://127.0.0.1:8787', 'http://[::1]:8787']) {
+    it(`accepts the loopback relay ${proxyUrl}`, async () => {
+      const { status, body } = await request(app, 'PUT', '/api/settings/proxy', {
+        proxyMode: 'fetch-relay',
+        proxyUrl,
+      }, token);
+      expect(status).toBe(200);
+      expect(body.proxyMode).toBe('fetch-relay');
+      expect(body.proxyUrl).toBe(proxyUrl);
+    });
+  }
+
+  it('rejects a malformed relay URL', async () => {
+    const { status, body } = await request(app, 'PUT', '/api/settings/proxy', {
+      proxyMode: 'fetch-relay',
+      proxyUrl: 'relay.example.workers.dev',
+    }, token);
+    expect(status).toBe(400);
+    expect(body.error.message).toMatch(/Invalid Fetch Relay URL/);
   });
 
   it('rejects an unknown proxy mode', async () => {
@@ -134,5 +167,23 @@ describe('PUT /api/settings/proxy scheme validation', () => {
     }, token);
     expect(status).toBe(400);
     expect(body.error.message).toMatch(/forward or fetch-relay/);
+  });
+
+  // A body that decides neither the URL nor the mode must not be validated
+  // against whatever getProxyUrl() currently reports — that may be an ambient
+  // ALL_PROXY the dashboard never set and cannot correct, which would leave
+  // the enabled switch and the bypass list permanently 400ing.
+  it('does not validate the ambient proxy URL on an unrelated partial update', async () => {
+    process.env.ALL_PROXY = 'not a url';
+    applyProxyUrl('');
+    try {
+      const { status, body } = await request(app, 'PUT', '/api/settings/proxy', { enabled: false }, token);
+      expect(status).toBe(200);
+      expect(body.enabled).toBe(false);
+    } finally {
+      delete process.env.ALL_PROXY;
+      applyProxyUrl('');
+      await request(app, 'PUT', '/api/settings/proxy', { enabled: true }, token);
+    }
   });
 });

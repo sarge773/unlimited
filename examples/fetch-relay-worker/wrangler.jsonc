@@ -6,9 +6,6 @@
     "enable_request_signal",
     "global_fetch_strictly_public"
   ],
-  "secrets": {
-    "required": ["RELAY_TOKEN"]
-  },
   "observability": {
     "enabled": true,
     "logs": {

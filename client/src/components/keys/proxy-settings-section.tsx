@@ -124,12 +124,12 @@ export function ProxySettingsSection() {
       ) : (
         <form onSubmit={submit} className="flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
-            <Label className="text-xs">{t('settings.compressionMode')}</Label>
+            <Label className="text-xs">{t('keys.proxyMode')}</Label>
             <Select value={proxyMode} onValueChange={value => setProxyMode(value as ProxyMode)}>
               <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="forward" label="forward">forward</SelectItem>
-                <SelectItem value="fetch-relay" label="fetch-relay">fetch-relay</SelectItem>
+                <SelectItem value="forward" label={t('keys.proxyModeForward')}>{t('keys.proxyModeForward')}</SelectItem>
+                <SelectItem value="fetch-relay" label={t('keys.proxyModeFetchRelay')}>{t('keys.proxyModeFetchRelay')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -144,7 +144,7 @@ export function ProxySettingsSection() {
           </div>
           {proxyMode === 'fetch-relay' && (
             <div className="space-y-1.5 flex-1">
-              <Label className="text-xs">Relay token</Label>
+              <Label className="text-xs">{t('keys.relayToken')}</Label>
               <Input
                 type="password"
                 autoComplete="new-password"
@@ -153,7 +153,7 @@ export function ProxySettingsSection() {
                   setFetchRelayToken(e.target.value)
                   setFetchRelayTokenChanged(true)
                 }}
-                placeholder={data?.fetchRelayTokenConfigured ? 'Configured — leave unchanged to keep' : 'Relay bearer token (optional)'}
+                placeholder={data?.fetchRelayTokenConfigured ? t('keys.relayTokenConfigured') : t('keys.relayTokenPlaceholder')}
                 className="font-mono text-xs"
               />
             </div>
@@ -238,6 +238,7 @@ export function ProxySettingsSection() {
         </p>
         {proxyMode === 'fetch-relay' ? (
           <p className="mt-1">
+            {t('keys.relayHeadersHint')}{' '}
             <code className="font-mono">Fetch-Relay-Target</code>
             {' + '}
             <code className="font-mono">Fetch-Relay-Authorization</code>

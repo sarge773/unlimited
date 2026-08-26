@@ -7,6 +7,7 @@ import {
   applyFetchRelayToken,
   FETCH_RELAY_AUTH_HEADER,
   FETCH_RELAY_TARGET_HEADER,
+  getProxyMode,
   probeProxyUrl,
   proxyFetch,
 } from '../../lib/proxy.js';
@@ -125,7 +126,7 @@ describe('fetch-relay transport', () => {
   });
 
   it('uses the draft relay mode and URL for connectivity probes', async () => {
-    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(new Response('unauthorized', { status: 401 }));
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
 
     const result = await probeProxyUrl('https://draft-relay.example.test/secret', {
       mode: 'fetch-relay',
@@ -133,11 +134,89 @@ describe('fetch-relay transport', () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.status).toBe(401);
+    expect(result.status).toBe(200);
     const [destination, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
     expect(destination).toBe('https://draft-relay.example.test/secret');
     expect(new Headers(init.headers).get(FETCH_RELAY_TARGET_HEADER)).toBe('https://api.provider.test/v1/models');
     expect(new Headers(init.headers).get(FETCH_RELAY_AUTH_HEADER)).toBe('Bearer relay-secret');
+  });
+
+  // A forward proxy answers the CONNECT separately from the upstream, so a 401
+  // there really is the provider talking. A relay answers on the same
+  // connection it forwards over, so a 401/403 is the relay refusing our token
+  // far more often than not. Calling that a pass is exactly how a bad token
+  // reads as a working relay.
+  it.each([401, 403])('fails the probe when the relay rejects the token (%i)', async status => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(new Response('unauthorized', { status }));
+
+    const result = await probeProxyUrl('https://draft-relay.example.test/secret', {
+      mode: 'fetch-relay',
+      targetUrl: 'https://api.provider.test/v1/models',
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe(status);
+    expect(result.error).toBe(`relay rejected the token (${status})`);
+  });
+
+  it('still passes the probe on a forward-proxy 401, which is the upstream talking', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(new Response('unauthorized', { status: 401 }));
+
+    const result = await probeProxyUrl('http://proxy.corp.test:8080', {
+      mode: 'forward',
+      targetUrl: 'https://api.provider.test/v1/models',
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe(401);
+  });
+
+  // socks5:// cannot carry an application-layer relay request at all, so
+  // keeping the mode would fail every provider call at runtime with an opaque
+  // error. Boot degrades it to the forward proxy such a URL always was.
+  it('falls back to forward when PROXY_MODE names a relay a SOCKS URL cannot serve', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    process.env.PROXY_MODE = 'fetch-relay';
+    process.env.PROXY_URL = 'socks5h://127.0.0.1:1080';
+
+    applyProxyUrl('');
+    applyProxyMode('fetch-relay');
+
+    expect(getProxyMode()).toBe('forward');
+    expect(warn.mock.calls.flat().join(' ')).toMatch(/needs an http\(s\) relay URL/);
+    delete process.env.PROXY_MODE;
+    delete process.env.PROXY_URL;
+  });
+
+  it('keeps a plaintext remote relay working but warns that it leaks the keys it carries', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    process.env.PROXY_MODE = 'fetch-relay';
+    process.env.PROXY_URL = 'http://relay.example.test';
+
+    applyProxyUrl('');
+    applyProxyMode('fetch-relay');
+
+    expect(getProxyMode()).toBe('fetch-relay');
+    expect(warn.mock.calls.flat().join(' ')).toMatch(/must use https/);
+    delete process.env.PROXY_MODE;
+    delete process.env.PROXY_URL;
+  });
+
+  it('accepts a loopback plaintext relay without warning', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    process.env.PROXY_MODE = 'fetch-relay';
+    process.env.PROXY_URL = 'http://127.0.0.1:8787';
+
+    applyProxyUrl('');
+    applyProxyMode('fetch-relay');
+
+    expect(getProxyMode()).toBe('fetch-relay');
+    expect(warn).not.toHaveBeenCalled();
+    delete process.env.PROXY_MODE;
+    delete process.env.PROXY_URL;
   });
 
   it('propagates AbortSignal cancellation to the relay fetch', async () => {

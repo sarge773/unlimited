@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { getUnifiedApiKey, regenerateUnifiedKey, getSetting, setSetting, getDb } from '../db/index.js';
-import { applyProxyUrl, applyProxyMode, applyProxyEnabled, applyProxyBypass, applyFetchRelayToken, encodeFetchRelayToken, isProxyActive, getProxyUrl, getProxyMode, getFetchRelayToken, isProxyEnabled, getProxyBypassPlatforms, probeProxyUrl, DEFAULT_PROXY_PROBE_TARGET, PROXY_MODES, PROXY_SCHEMES } from '../lib/proxy.js';
+import { applyProxyUrl, applyProxyMode, applyProxyEnabled, applyProxyBypass, applyFetchRelayToken, encodeFetchRelayToken, isProxyActive, getProxyUrl, getProxyMode, getFetchRelayToken, isProxyEnabled, getProxyBypassPlatforms, probeProxyUrl, fetchRelayUrlError, DEFAULT_PROXY_PROBE_TARGET, PROXY_MODES, PROXY_SCHEMES } from '../lib/proxy.js';
 import { getProvider } from '../providers/index.js';
 import type { Platform } from '@freellmapi/shared/types.js';
 import type { ProxyMode } from '@freellmapi/shared/types.js';
@@ -325,17 +325,18 @@ settingsRouter.get('/proxy', (_req: Request, res: Response) => {
   });
 });
 
+// A forward proxy only tunnels the TLS session, so plain http to the proxy is
+// fine. A relay is the opposite: the provider API key and the relay token ride
+// inside the request it forwards, in the clear, so the hop to the relay has to
+// be https unless the relay is on this machine. fetchRelayUrlError owns that
+// rule and the boot-time env guard applies the same one.
 function proxyUrlError(proxyUrl: string, proxyMode: ProxyMode): string | undefined {
   if (!proxyUrl) return undefined;
+  if (proxyMode === 'fetch-relay') return fetchRelayUrlError(proxyUrl);
   try {
     const protocol = new URL(proxyUrl).protocol;
-    const allowed = proxyMode === 'fetch-relay'
-      ? ['http:', 'https:']
-      : PROXY_SCHEMES;
-    if (!allowed.includes(protocol)) {
-      return proxyMode === 'fetch-relay'
-        ? 'Fetch Relay URL must use http or https scheme'
-        : 'Proxy URL must use http, https, socks5, socks5h, socks4, or socks4a scheme';
+    if (!PROXY_SCHEMES.includes(protocol)) {
+      return 'Proxy URL must use http, https, socks5, socks5h, socks4, or socks4a scheme';
     }
   } catch {
     return 'Invalid proxy URL — must be a valid URL like socks5://host:port';
@@ -360,12 +361,18 @@ settingsRouter.put('/proxy', (req: Request, res: Response) => {
     return;
   }
 
-  const nextMode = proxyMode ?? getProxyMode();
-  const nextUrl = typeof proxyUrl === 'string' ? proxyUrl.trim() : getProxyUrl();
-  const urlError = proxyUrlError(nextUrl, nextMode);
-  if (urlError) {
-    res.status(400).json({ error: { message: urlError, type: 'invalid_request_error' } });
-    return;
+  // Only validate the URL when this request actually decides it. A body that
+  // touches neither proxyUrl nor proxyMode — the enabled switch, the
+  // per-platform bypass list — must not 400 on an ambient ALL_PROXY value the
+  // dashboard never set and cannot fix (getProxyUrl may return exactly that).
+  if (typeof proxyUrl === 'string' || proxyMode !== undefined) {
+    const nextMode = proxyMode ?? getProxyMode();
+    const nextUrl = typeof proxyUrl === 'string' ? proxyUrl.trim() : getProxyUrl();
+    const urlError = proxyUrlError(nextUrl, nextMode);
+    if (urlError) {
+      res.status(400).json({ error: { message: urlError, type: 'invalid_request_error' } });
+      return;
+    }
   }
 
   // --- proxyUrl ---

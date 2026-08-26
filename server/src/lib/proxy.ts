@@ -52,6 +52,33 @@ export const PROXY_MODES: readonly ProxyMode[] = ['forward', 'fetch-relay'];
 export const FETCH_RELAY_TARGET_HEADER = 'fetch-relay-target';
 export const FETCH_RELAY_AUTH_HEADER = 'fetch-relay-authorization';
 
+// A Fetch Relay carries the provider API key AND the relay token inside the
+// request it forwards, so the hop to the relay must be encrypted. Plain http
+// is only tolerable when the relay never leaves the machine.
+const LOOPBACK_RELAY_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
+
+/** True for a hostname that cannot leave the local machine. `new URL()` keeps
+ *  the brackets on an IPv6 literal, hence both spellings of ::1. */
+export function isLoopbackRelayHostname(hostname: string): boolean {
+  const host = hostname.toLowerCase();
+  return LOOPBACK_RELAY_HOSTNAMES.has(host) || /^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host);
+}
+
+/** Why a URL cannot serve as a Fetch Relay endpoint, or undefined when it can.
+ *  Shared by the settings validator and the boot-time env guard so the
+ *  dashboard and a headless install agree on what a usable relay looks like. */
+export function fetchRelayUrlError(url: string): string | undefined {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return 'Invalid Fetch Relay URL. Use a full URL like https://relay.example.workers.dev';
+  }
+  if (parsed.protocol === 'https:') return undefined;
+  if (parsed.protocol === 'http:' && isLoopbackRelayHostname(parsed.hostname)) return undefined;
+  return 'Fetch Relay URL must use https, or http only for a loopback relay. The provider API key and the relay token travel inside the relayed request.';
+}
+
 /** True when the URL names a SOCKS scheme (so it needs SocksProxyAgent, not undici). */
 export function isSocksProxyUrl(url: string): boolean {
   const colon = url.indexOf(':');
@@ -215,7 +242,29 @@ export function applyProxyUrl(dbValue: string): void {
   } else {
     console.log('[proxy] Not configured — outbound requests go direct.');
   }
+  enforceRelayUrlPolicy();
   _initialized = true;
+}
+
+/**
+ * Refuse to run a relay over a URL it cannot speak. A relay hop is an ordinary
+ * HTTP request, so a socks5:// (or otherwise non-HTTP) endpoint would fail
+ * every provider call at runtime with an opaque error. Say so once at boot and
+ * degrade to a forward proxy, which is what such a URL was always good for. A
+ * plaintext relay to a remote host does work, but leaks the provider key and
+ * the relay token it carries, so that one only earns a warning.
+ */
+function enforceRelayUrlPolicy(): void {
+  if (_proxyMode !== 'fetch-relay' || !_proxyUrl) return;
+  let protocol = '';
+  try { protocol = new URL(_proxyUrl).protocol; } catch { /* handled below */ }
+  if (protocol !== 'http:' && protocol !== 'https:') {
+    console.warn(`[proxy] fetch-relay mode needs an http(s) relay URL; ${redactProxyUrl(_proxyUrl)} is not one. Falling back to a forward proxy.`);
+    _proxyMode = 'forward';
+    return;
+  }
+  const error = fetchRelayUrlError(_proxyUrl);
+  if (error) console.warn(`[proxy] ${error}`);
 }
 
 /**
@@ -247,6 +296,7 @@ export function applyProxyMode(dbValue: string): void {
   const envMode = readEnv('PROXY_MODE');
   const candidate = envMode || (_proxyUrlSource === 'dashboard' ? dbValue.trim() : 'forward');
   _proxyMode = candidate === 'fetch-relay' ? 'fetch-relay' : 'forward';
+  enforceRelayUrlPolicy();
 }
 
 export function getProxyMode(): ProxyMode {
@@ -887,11 +937,13 @@ export async function probeProxyUrl(
   // routes/settings.ts); the constant is only the no-providers fallback.
   const target = (options.targetUrl ?? '').trim() || DEFAULT_PROXY_PROBE_TARGET;
 
+  const relayMode = Boolean(url) && (options.mode ?? getProxyMode()) === 'fetch-relay';
+
   try {
     let response: Response;
     if (!url) {
       response = await fetch(target, { signal: AbortSignal.timeout(timeoutMs) });
-    } else if ((options.mode ?? getProxyMode()) === 'fetch-relay') {
+    } else if (relayMode) {
       response = await fetchRelayFetch(url, target, {
         method: 'GET',
         signal: AbortSignal.timeout(timeoutMs),
@@ -907,8 +959,23 @@ export async function probeProxyUrl(
         response = await fetch(target, { ...{ signal: AbortSignal.timeout(timeoutMs) }, dispatcher: resolved.dispatcher } as unknown as RequestInit);
       }
     }
-    // Any HTTP response proves the proxy route works; the upstream may still
-    // answer 401/403 without a key, which is connectivity, not proxy failure.
+    // A relay answers on the same connection it forwards over, so a 401/403
+    // here is far more likely to be the relay refusing our token than the
+    // provider refusing a key we never sent. Reporting that as a pass is what
+    // makes a misconfigured token look like a working relay, so fail it and
+    // name the hop. A provider that genuinely answers 401 through a good relay
+    // is the rare false negative, and the reason still points at the token.
+    if (relayMode && (response.status === 401 || response.status === 403)) {
+      return {
+        ok: false,
+        latencyMs: Date.now() - started,
+        status: response.status,
+        target,
+        error: `relay rejected the token (${response.status})`,
+      };
+    }
+    // Any other HTTP response proves the proxy route works; the upstream may
+    // still answer 4xx without a key, which is connectivity, not proxy failure.
     return { ok: true, latencyMs: Date.now() - started, status: response.status, target };
   } catch (err: any) {
     return { ok: false, latencyMs: Date.now() - started, target, error: err?.message ?? String(err) };
