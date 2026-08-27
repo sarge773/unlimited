@@ -93,9 +93,22 @@ function isTrustworthyOrigin(req: express.Request): boolean {
   return isHttpsRequest(req) || LOOPBACK_HOST_RE.test(req.hostname ?? '');
 }
 
+// Express only honors X-Forwarded-For when "trust proxy" is enabled. The
+// TRUST_PROXY env var opts in (issue #1024): unset/empty/"false" leaves it
+// off (the safe, default-as-shipped behavior); "true"/"1"/"yes" enables it,
+// "loopback" trusts loopback hops, and anything else is passed through to
+// Express (ip/cidr/number-of-hops). See client-context.ts for how the header
+// is then consumed.
+function configureTrustProxy(app: express.Express): void {
+  const raw = process.env.TRUST_PROXY;
+  if (!raw || raw.toLowerCase() === 'false' || raw === '0') return;
+  app.set('trust proxy', raw.toLowerCase() === 'true' || raw === '1' || raw.toLowerCase() === 'yes' ? true : raw);
+}
+
 export function createApp(config?: Config) {
   const cfg = config ?? loadConfig();
   const app = express();
+  configureTrustProxy(app);
   const allowedCorsOrigins = new Set([
     ...DEFAULT_DASHBOARD_ORIGINS,
     ...cfg.dashboardOrigins,

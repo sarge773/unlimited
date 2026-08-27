@@ -15,8 +15,9 @@ const storage = new AsyncLocalStorage<ClientContext>();
 
 // Resolve the client IP from the socket peer address. The X-Forwarded-For
 // header is only trusted when Express's "trust proxy" setting is enabled
-// (opt-in via app.set('trust proxy', ...) or the TRUST_PROXY env var in
-// run.ts). Without that, a spoofed header from a LAN client is ignored.
+// (opt-in via app.set('trust proxy', ...) or the TRUST_PROXY env var, which
+// createApp() applies). Without that, a spoofed header from a LAN client is
+// ignored.
 function resolveClientIp(req: Request): string | null {
   const trustProxy = req.app?.get('trust proxy') ?? false;
   let raw: string | null;
