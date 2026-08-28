@@ -24,6 +24,8 @@ import {
   groupMaxContext,
   type FallbackEntry,
   type ModelGroupRow,
+  type QuotaSummaryData,
+  type QuotaSummaryRow,
   type RateLimitUsageData,
   type RoutingData,
   type RoutingStrategy,
@@ -151,6 +153,21 @@ export default function FallbackPage() {
     [rateLimitUsage],
   )
 
+  // Provider-quota headroom per (platform, modelId) for the current window.
+  const { data: quotaSummary } = useQuery<QuotaSummaryData>({
+    queryKey: ['fallback', 'quota-summary'],
+    queryFn: () => apiFetch('/api/fallback/quota-summary'),
+    refetchInterval: 15_000,
+  })
+  const quotaByModel = useMemo(() => {
+    const m = new Map<string, QuotaSummaryRow>()
+    if (!quotaSummary?.rows) return m
+    for (const row of quotaSummary.rows) {
+      m.set(`${row.platform}::${row.modelId ?? '*'}`, row)
+    }
+    return m
+  }, [quotaSummary])
+
   const saveMutation = useMutation({
     mutationFn: (data: { modelDbId: number; priority: number; enabled: boolean }[]) =>
       apiFetch('/api/fallback', { method: 'PUT', body: JSON.stringify(data) }),
@@ -229,6 +246,18 @@ export default function FallbackPage() {
       if (!hay.includes(query)) return false
     }
     return true
+  }).sort((a, b) => {
+    // Exhausted models sink to the bottom (#1015).
+    const aExhausted = quotaByModel && a.members.every(m => {
+      const q = quotaByModel.get(`${m.platform}::${m.modelId}`) ?? quotaByModel.get(`${m.platform}::${null}`)
+      return q != null && q.remaining === 0
+    })
+    const bExhausted = quotaByModel && b.members.every(m => {
+      const q = quotaByModel.get(`${m.platform}::${m.modelId}`) ?? quotaByModel.get(`${m.platform}::${null}`)
+      return q != null && q.remaining === 0
+    })
+    if (aExhausted !== bExhausted) return aExhausted ? 1 : -1
+    return 0
   })
   const draggable = isManual && !filtersActive
 
@@ -561,7 +590,7 @@ export default function FallbackPage() {
                     <SortableContext items={renderedGroups.map(g => `grp:${g.key}`)} strategy={verticalListSortingStrategy}>
                       <tbody>
                         {renderedGroups.map(g => (
-                          <SortableGroupRow key={g.key} group={g} rank={rankByKey.get(g.key) ?? 0} onToggleGroup={handleGroupToggle} allRows={rows} rateUsage={rateUsageByModel} />
+                          <SortableGroupRow key={g.key} group={g} rank={rankByKey.get(g.key) ?? 0} onToggleGroup={handleGroupToggle} allRows={rows} rateUsage={rateUsageByModel} quotaUsage={quotaByModel} />
                         ))}
                       </tbody>
                     </SortableContext>
