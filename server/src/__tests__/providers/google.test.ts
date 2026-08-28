@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GoogleProvider } from '../../providers/google.js';
+import { GoogleProvider, diffCumulativeText } from '../../providers/google.js';
 
 describe('GoogleProvider', () => {
   let provider: GoogleProvider;
@@ -682,6 +682,53 @@ describe('GoogleProvider', () => {
     expect(chunks[chunks.length - 1].choices[0].finish_reason).toBe('stop');
   });
 
+  it('diffs cumulative streamGenerateContent chunks into true incremental deltas', async () => {
+    // Regression: Gemini (notably with thinking/structured output) can resend
+    // the full accumulated text per chunk instead of only new fragments.
+    // Downstream delta-append consumers rendered duplicated output when the
+    // cumulative chunk was forwarded as-is. Each emitted delta.content must be
+    // a strictly incremental suffix.
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce(sseResponse([
+      'data: {"candidates":[{"content":{"parts":[{"text":"Qual"}]}}]}\n\n',
+      'data: {"candidates":[{"content":{"parts":[{"text":"Qual deles"}]}}]}\n\n',
+      'data: {"candidates":[{"content":{"parts":[{"text":"Qual deles você quer atacar?"}]}}]}\n\n',
+      'data: {"candidates":[{"content":{"parts":[]},"finishReason":"STOP"}]}\n\n',
+    ]));
+
+    const chunks = await collect(provider.streamChatCompletion(
+      'test-key',
+      [{ role: 'user', content: 'Hi' }],
+      'gemini-2.5-pro',
+    ));
+
+    const deltas = chunks.map(c => c.choices[0].delta.content).filter((d): d is string => Boolean(d));
+    // strictly incremental — no delta repeats text already emitted
+    expect(deltas).toEqual(['Qual', ' deles', ' você quer atacar?']);
+    expect(deltas.join('')).toBe('Qual deles você quer atacar?');
+    expect(chunks[chunks.length - 1].choices[0].finish_reason).toBe('stop');
+  });
+
+  it('cumulative diffing does not corrupt reasoning_content or tool calls', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce(sseResponse([
+      'data: {"candidates":[{"content":{"parts":[{"text":"thinking hard","thought":true}]}}]}\n\n',
+      'data: {"candidates":[{"content":{"parts":[{"text":"Answer"}]}}]}\n\n',
+      'data: {"candidates":[{"content":{"parts":[{"functionCall":{"name":"get_weather","args":{"city":"Uberaba"}}}]},"finishReason":"STOP"}]}\n\n',
+    ]));
+
+    const chunks = await collect(provider.streamChatCompletion(
+      'test-key',
+      [{ role: 'user', content: 'Hi' }],
+      'gemini-2.5-pro',
+    ));
+
+    const reasoning = chunks.map(c => c.choices[0].delta.reasoning_content ?? '').join('');
+    const text = chunks.map(c => c.choices[0].delta.content ?? '').join('');
+    expect(reasoning).toBe('thinking hard'); // thought parts bypass the text diff
+    expect(text).toBe('Answer');
+    const tools = chunks.flatMap(c => c.choices[0].delta.tool_calls ?? []);
+    expect(tools.length).toBe(1);
+  });
+
   it('skips a malformed SSE frame instead of aborting the whole stream', async () => {
     // Regression: previously an unguarded JSON.parse would propagate, killing
     // the stream after a single bad chunk. Other providers (openai-compat,
@@ -702,6 +749,50 @@ describe('GoogleProvider', () => {
     const text = chunks.map(c => c.choices[0].delta.content ?? '').join('');
     expect(text).toBe('Hello');
     expect(chunks[chunks.length - 1].choices[0].finish_reason).toBe('stop');
+  });
+
+  // Regression: Gemini's streamGenerateContent doesn't guarantee incremental
+  // chunks — some responses resend the full candidate text accumulated so
+  // far in each chunk. Forwarding that as-is duplicated/overlapped text for
+  // every downstream consumer of this OpenAI-compatible stream (#observed as
+  // duplicated paragraphs in ATLAS's chat surfaces routed through Gemini).
+  it('diffs cumulative chunks down to the true incremental delta', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce(sseResponse([
+      'data: {"candidates":[{"content":{"parts":[{"text":"Qual deles"}]}}]}\n\n',
+      'data: {"candidates":[{"content":{"parts":[{"text":"Qual deles você quer atacar?"}]}}]}\n\n',
+      'data: {"candidates":[{"content":{"parts":[]},"finishReason":"STOP"}]}\n\n',
+    ]));
+
+    const chunks = await collect(provider.streamChatCompletion(
+      'test-key',
+      [{ role: 'user', content: 'Hi' }],
+      'gemini-2.5-pro',
+    ));
+
+    const text = chunks.map(c => c.choices[0].delta.content ?? '').join('');
+    expect(text).toBe('Qual deles você quer atacar?');
+  });
+
+  describe('diffCumulativeText', () => {
+    it('forwards the first chunk unchanged', () => {
+      expect(diffCumulativeText('', 'Qual deles')).toBe('Qual deles');
+    });
+
+    it('diffs a cumulative chunk down to the new suffix', () => {
+      expect(diffCumulativeText('Qual deles você quer', 'Qual deles você quer atacar?')).toBe(' atacar?');
+    });
+
+    it('forwards a genuinely incremental chunk as-is', () => {
+      expect(diffCumulativeText('Qual deles', ' você quer')).toBe(' você quer');
+    });
+
+    it('drops an exact repeat of already-sent text', () => {
+      expect(diffCumulativeText('Qual deles', 'Qual deles')).toBeNull();
+    });
+
+    it('drops a chunk that is a strict prefix of already-sent text', () => {
+      expect(diffCumulativeText('Qual deles você quer', 'Qual deles')).toBeNull();
+    });
   });
 
   it('streams functionCall parts as tool_calls with finish_reason=tool_calls', async () => {

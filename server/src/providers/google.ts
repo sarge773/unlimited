@@ -522,6 +522,24 @@ function extractReasoningContent(parts: GeminiPart[] | undefined): string | null
   return text.length > 0 ? text : null;
 }
 
+/**
+ * Normalizes a Gemini stream chunk's text against what's already been sent
+ * on this stream, returning just the new incremental piece.
+ *
+ * Handles both chunking modes Gemini uses in the wild: genuinely incremental
+ * chunks (`chunkText` doesn't overlap `previousText`, forwarded as-is) and
+ * cumulative chunks (`chunkText` restates everything sent so far plus more,
+ * sliced down to the new suffix). A chunk that is a strict prefix of, or
+ * identical to, what's already been sent carries no new content.
+ */
+export function diffCumulativeText(previousText: string, chunkText: string): string | null {
+  if (!previousText) return chunkText;
+  if (chunkText === previousText) return null;
+  if (chunkText.startsWith(previousText)) return chunkText.slice(previousText.length);
+  if (previousText.startsWith(chunkText)) return null;
+  return chunkText;
+}
+
 function toGeminiStopSequences(stop: CompletionOptions['stop']): string[] | undefined {
   if (!stop) return undefined;
   return Array.isArray(stop) ? stop : [stop];
@@ -686,6 +704,16 @@ export class GoogleProvider extends BaseProvider {
     let sawToolCalls = false;
 
     const seenToolCallKeys = new Set<string>();
+    // Gemini's streamGenerateContent does not guarantee incremental chunks —
+    // some responses (notably when thinking/structured output is involved)
+    // resend the full candidate text accumulated so far in each chunk rather
+    // than just the new fragment. Every downstream consumer of this
+    // OpenAI-compatible stream (including ATLAS's delta buffer and chat
+    // renderers) trusts `delta.content` to be a true incremental delta;
+    // forwarding a cumulative chunk as-is duplicates/overlaps the rendered
+    // text. Track what's already been emitted and diff cumulative chunks
+    // down to just the new suffix before yielding.
+    let previousText = '';
 
     // Same mid-stream inactivity watchdog as readSseStream (#553): this adapter
     // parses Gemini's own frame format, so it reads the body itself and used to
@@ -742,7 +770,12 @@ export class GoogleProvider extends BaseProvider {
           const candidate = chunk.candidates?.[0];
           const parts = candidate?.content?.parts ?? [];
 
-          const text = extractText(parts);
+          const rawText = extractText(parts);
+          // Gemini may resend cumulative text; diff to a true incremental delta.
+          // (L2 fix: duplicated output in downstream delta-append consumers.)
+          const deltaText = rawText ? diffCumulativeText(previousText, rawText) : null;
+          if (deltaText) previousText += deltaText;
+          const text = deltaText ?? null;
           const reasoningContent = extractReasoningContent(parts);
           const toolCalls = extractToolCalls(parts).filter(call => {
             const key = `${call.id}:${call.function.name}:${call.function.arguments}`;
