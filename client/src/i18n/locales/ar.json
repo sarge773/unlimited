@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "استكشاف النماذج غير المقيسة",
-    "exploreHint": "يمنح النماذج التي لا توجد لها بيانات موثوقية أو سرعة فرصة بنسبة 10% لتُجرَّب أولاً حتى تراكم سجلاً. ما يُرسَل هو طلبك الحقيقي، لذا قد يجيب عنه نموذج لم يُختبر بعد. أما نقطة النهاية المخصّصة فاختبرها من صفحة المفاتيح عبر «اختبار نقطة النهاية» دون استهلاك حركة حقيقية.",
+    "exploreHint": "امنح النماذج التي لا تملك بيانات موثوقية/سرعة فرصة 10% للتجربة حتى تجمع عينات.",
     "keySelection": "اختيار المفتاح",
     "keySelectionAuto": "تلقائي",
     "keySelectionLeastRemaining": "الأقل تبقياً",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "Explorar modelos sem medições",
-    "exploreHint": "Dá aos modelos sem dados de confiabilidade ou de velocidade 10% de chance de irem primeiro, para que acumulem histórico. O que sai é a sua requisição real, então ela pode ser respondida por um modelo não testado. Para um endpoint personalizado, use «Testar o endpoint» na página Chaves e evite o tráfego real.",
+    "exploreHint": "Dá aos modelos sem dados de confiabilidade/velocidade 10% de chance de serem testados para que acumulem amostras.",
     "keySelection": "Seleção de chave",
     "keySelectionAuto": "Automática",
     "keySelectionLeastRemaining": "Menor restante",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

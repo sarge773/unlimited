@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "探索未测模型",
-    "exploreHint": "让没有可靠性或速度数据的模型有 10% 的几率优先尝试，以便积累记录。发出的是你的真实请求，因此它可能由未经测试的模型来回答。若是自定义端点，可在「密钥」页面用「立即探测」测试，无需动用真实流量。",
+    "exploreHint": "给尚无可靠性/速度数据的模型 10% 的尝试机会，以便积累样本。",
     "keySelection": "密钥选择",
     "keySelectionAuto": "自动",
     "keySelectionLeastRemaining": "按剩余额度",
@@ -596,7 +596,14 @@
     "bulkDelete": "批量删除",
     "bulkDeleteConfirm": "删除 {count} 个？",
     "bulkResult": "已更新 {done} 个；失败 {failed} 个。",
-    "bulkDeleteResult": "已删除 {done} 个；失败 {failed} 个。"
+    "bulkDeleteResult": "已删除 {done} 个；失败 {failed} 个。",
+    "degradedActive": "降级模式生效中",
+    "degradedNormal": "正常运行",
+    "degradedOverride": "手动覆盖：{mode}",
+    "degradedSummary": "{healthy}/{total} 个提供方健康（{pct}%）",
+    "degradedAuto": "自动",
+    "degradedForceNormal": "强制正常",
+    "degradedForceDegraded": "强制降级"
   },
   "backups": {
     "title": "备份",

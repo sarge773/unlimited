@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { getDb } from '../db/index.js';
 import { checkKeyHealth, checkAllKeys } from '../services/health.js';
-import { getDegradationStatus } from '../services/degradation.js';
+import { getDegradationStatus, setDegradationOverride, type DegradationOverride } from '../services/degradation.js';
 import { hasProvider } from '../providers/index.js';
 import { getQuotaStateForKeys } from '../services/provider-quota.js';
 
@@ -77,4 +77,21 @@ healthRouter.post('/check/:keyId', async (req: Request, res: Response) => {
 healthRouter.post('/check-all', async (_req: Request, res: Response) => {
   await checkAllKeys({ force: true });
   res.json({ success: true });
+});
+
+// #952: manual override for the degraded-mode machine. An operator who has
+// fixed the cause of a fleet-wide failure (or whose deployment is too small /
+// too flappy for the automatic flip) can pin the gateway out of degraded mode
+// ('normal'), or pin it in ('degraded') to stop exploration during a known
+// outage the health probe hasn't caught up with yet. 'auto' hands control back
+// to the ratio-based state machine.
+healthRouter.post('/degradation', (req: Request, res: Response) => {
+  const raw = (req.body as { override?: unknown } | undefined)?.override;
+  const override = typeof raw === 'string' ? raw as DegradationOverride : undefined;
+  if (override !== 'auto' && override !== 'normal' && override !== 'degraded') {
+    res.status(400).json({ error: { message: "override must be 'auto', 'normal', or 'degraded'" } });
+    return;
+  }
+  const status = setDegradationOverride(override);
+  res.json(status);
 });

@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "ਬਿਨਾਂ ਮਾਪੇ ਮਾਡਲਾਂ ਦੀ ਖੋਜ ਕਰੋ",
-    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
+    "exploreHint": "ਭਰੋਸੇਯੋਗਤਾ/ਸਪੀਡ ਡੇਟਾ ਤੋਂ ਬਿਨਾਂ ਮਾਡਲਾਂ ਨੂੰ ਨਮੂਨੇ ਇਕੱਠੇ ਕਰਨ ਲਈ 10% ਅਜ਼ਮਾਉਣ ਦਾ ਮੌਕਾ ਦਿਓ।",
     "keySelection": "ਕੁੰਜੀ ਚੋਣ",
     "keySelectionAuto": "ਆਪਣੇ-ਆਪ",
     "keySelectionLeastRemaining": "ਸਭ ਤੋਂ ਘੱਟ ਬਾਕੀ",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

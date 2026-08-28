@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "Explore unmeasured models",
-    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
+    "exploreHint": "Give models without reliability/speed data a 10% chance to be tried so they build samples.",
     "keySelection": "Key selection",
     "keySelectionAuto": "Auto",
     "keySelectionLeastRemaining": "Least remaining",
@@ -596,7 +596,14 @@
     "bulkDelete": "Delete all",
     "bulkDeleteConfirm": "Delete {count}?",
     "bulkResult": "Updated {done}; failed {failed}.",
-    "bulkDeleteResult": "Deleted {done}; failed {failed}."
+    "bulkDeleteResult": "Deleted {done}; failed {failed}.",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

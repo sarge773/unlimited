@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "Eksploruj niezmierzone modele",
-    "exploreHint": "Daje modelom bez danych o niezawodności i szybkości 10% szansy na pierwszeństwo, żeby zebrały pomiary. Wysyłane jest twoje prawdziwe żądanie, więc może na nie odpowiedzieć nieprzetestowany model. Własny punkt końcowy sprawdzisz przyciskiem «Przetestuj punkt końcowy» na stronie Klucze, bez ruchu produkcyjnego.",
+    "exploreHint": "Daje modelom bez danych o niezawodności/prędkości 10% szansy na wypróbowanie, aby zebrały próbki.",
     "keySelection": "Wybór klucza",
     "keySelectionAuto": "Automatycznie",
     "keySelectionLeastRemaining": "Najmniej pozostało",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

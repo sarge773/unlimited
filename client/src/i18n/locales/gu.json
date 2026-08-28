@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "માપ્યા વગરના મોડલ્સ એક્સપ્લોર કરો",
-    "exploreHint": "Give models with no reliability or speed data a 10% chance to go first so they build a track record. Your real request is what gets sent, so it may be answered by an untested model. For a custom endpoint, use Probe endpoint on the Keys page to test it without live traffic.",
+    "exploreHint": "વિશ્વસનીયતા/ઝડપ ડેટા વગરના મોડલ્સને નમૂના એકત્રિત કરવા 10% અજમાવવાની તક આપો.",
     "keySelection": "કી પસંદગી",
     "keySelectionAuto": "આપોઆપ",
     "keySelectionLeastRemaining": "સૌથી ઓછું બાકી",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

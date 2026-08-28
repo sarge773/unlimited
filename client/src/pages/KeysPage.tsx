@@ -29,6 +29,8 @@ const KEYS_TABS: { id: KeysTab; labelKey: string }[] = [
   { id: 'agents', labelKey: 'keys.tabAgents' },
 ]
 
+type DegradationOverride = 'auto' | 'normal' | 'degraded'
+
 export default function KeysPage() {
   const { t } = useI18n()
   const queryClient = useQueryClient()
@@ -65,6 +67,21 @@ export default function KeysPage() {
     },
   })
 
+  // #952: manual override for the degraded-mode machine. The health pass flips
+  // the gateway into degraded mode when a large share of providers fails at
+  // once; an operator who has fixed the cause (or whose fleet is too small for
+  // the automatic flip) can pin the gateway out of it here.
+  const setDegradation = useMutation({
+    mutationFn: (override: DegradationOverride) =>
+      apiFetch('/api/health/degradation', { method: 'POST', body: JSON.stringify({ override }) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['health'] })
+    },
+  })
+
+  const degradation = healthData?.degradation
+  const degradedNow = degradation?.state === 'degraded' || degradation?.override === 'degraded'
+
   return (
     <div>
       <PageHeader
@@ -100,6 +117,42 @@ export default function KeysPage() {
       />
 
       <div className="space-y-8">
+        {degradation && tab === 'providers' && (
+          <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                <span className={degradedNow ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}>
+                  {degradedNow ? t('keys.degradedActive') : t('keys.degradedNormal')}
+                </span>
+                {degradation.override !== 'auto' && (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                    {t('keys.degradedOverride', { mode: degradation.override })}
+                  </span>
+                )}
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {t('keys.degradedSummary', {
+                  healthy: degradation.healthyProviders,
+                  total: degradation.totalProviders,
+                  pct: Math.round(degradation.ratio * 100),
+                })}
+              </p>
+            </div>
+            <span className="flex-1" />
+            <SegmentedControl
+              value={degradation.override}
+              onValueChange={value => setDegradation.mutate(value as DegradationOverride)}
+              disabled={setDegradation.isPending}
+              options={[
+                { value: 'auto', label: t('keys.degradedAuto') },
+                { value: 'normal', label: t('keys.degradedForceNormal') },
+                { value: 'degraded', label: t('keys.degradedForceDegraded') },
+              ]}
+              ariaLabel={t('keys.degradedActive')}
+            />
+          </div>
+        )}
+
         {tab === 'apiKey' && (
           <>
             <UnifiedKeySection />

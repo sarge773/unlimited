@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "Исследовать неизмеренные модели",
-    "exploreHint": "Даёт моделям без данных о надёжности и скорости 10 % шанс пойти первыми, чтобы они набрали статистику. Уходит ваш настоящий запрос, поэтому ответить может непроверенная модель. Для пользовательской конечной точки используйте «Протестировать конечную точку» на странице «Ключи» — без боевого трафика.",
+    "exploreHint": "Дает моделям без данных о надежности/скорости 10% шанс быть опробованными, чтобы они накапливали выборку.",
     "keySelection": "Выбор ключа",
     "keySelectionAuto": "Авто",
     "keySelectionLeastRemaining": "По остатку квоты",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

@@ -18,6 +18,16 @@ import { getDb } from '../db/index.js';
 
 export type DegradationState = 'normal' | 'degraded';
 
+/**
+ * Manual override for the degraded-mode machine (#952). 'auto' (default) lets
+ * the ratio-based state machine run; 'normal' pins the gateway out of degraded
+ * mode no matter what the health pass reports (an operator who has fixed the
+ * cause, or who knows the automatic flip is too sensitive for their fleet);
+ * 'degraded' pins it in — e.g. to stop exploration during a known outage the
+ * probe hasn't caught up with yet.
+ */
+export type DegradationOverride = 'auto' | 'normal' | 'degraded';
+
 export interface HealthSnapshot {
   /** Enabled providers that still have at least one usable key. */
   healthyProviders: number;
@@ -31,6 +41,8 @@ export interface DegradationStatus extends HealthSnapshot {
   state: DegradationState;
   /** ms since epoch when degraded mode was entered; null while normal. */
   degradedAt: number | null;
+  /** 'auto' (state machine) or a manual pin set via setDegradationOverride. */
+  override: DegradationOverride;
 }
 
 // Healthy keys are the ones the router can actually use. 'unknown' counts as
@@ -65,6 +77,8 @@ interface State {
   belowSince: number | null;
   /** ms since epoch the ratio first recovered to the threshold (streak start). */
   recoveredSince: number | null;
+  /** Manual pin; 'auto' = the state machine decides (#952). */
+  override: DegradationOverride;
 }
 
 const state: State = {
@@ -72,6 +86,7 @@ const state: State = {
   degradedAt: null,
   belowSince: null,
   recoveredSince: null,
+  override: 'auto',
 };
 
 let lastSnapshot: HealthSnapshot | null = null;
@@ -105,6 +120,20 @@ export function computeHealthSnapshot(): HealthSnapshot {
  *  every health pass; also callable on demand (dashboard, router entry). */
 export function updateDegradationState(now = Date.now()): DegradationStatus {
   const snapshot = computeHealthSnapshot();
+
+  // A manual pin short-circuits the ratio machine: 'normal' never degrades,
+  // 'degraded' never recovers on its own (#952). The health snapshot still
+  // refreshes so the status payload stays informative.
+  if (state.override !== 'auto') {
+    const pinned: DegradationState = state.override;
+    if (state.state !== pinned) {
+      state.state = pinned;
+      state.degradedAt = pinned === 'degraded' ? now : null;
+    }
+    state.belowSince = null;
+    state.recoveredSince = null;
+    return getDegradationStatus();
+  }
 
   // Degradation is only meaningful with enough providers to judge.
   if (snapshot.totalProviders < DEGRADED_MIN_PROVIDERS) {
@@ -151,7 +180,22 @@ export function updateDegradationState(now = Date.now()): DegradationStatus {
 }
 
 export function isDegraded(): boolean {
+  // A manual pin wins over the machine state (#952): 'degraded' forces the
+  // router to stop exploring even if the ratio looks healthy, 'normal' keeps
+  // exploration going even while the health pass reports a sick fleet.
+  if (state.override === 'degraded') return true;
+  if (state.override === 'normal') return false;
   return state.state === 'degraded';
+}
+
+/**
+ * Set or clear the manual override (#952). 'auto' hands control back to the
+ * ratio machine (the next updateDegradationState pass re-evaluates); 'normal'
+ * / 'degraded' pin the gateway. Returns the resulting status.
+ */
+export function setDegradationOverride(override: DegradationOverride, now = Date.now()): DegradationStatus {
+  state.override = override;
+  return updateDegradationState(now);
 }
 
 export function getDegradationStatus(): DegradationStatus {
@@ -160,6 +204,7 @@ export function getDegradationStatus(): DegradationStatus {
     ...snapshot,
     state: state.state,
     degradedAt: state.degradedAt,
+    override: state.override,
   };
 }
 
@@ -169,5 +214,6 @@ export function resetDegradationState(): void {
   state.degradedAt = null;
   state.belowSince = null;
   state.recoveredSince = null;
+  state.override = 'auto';
   lastSnapshot = null;
 }

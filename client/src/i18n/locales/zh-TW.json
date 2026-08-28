@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "探索未測模型",
-    "exploreHint": "讓沒有可靠性或速度資料的模型有 10% 的機率優先嘗試，以便累積紀錄。送出的是你的真實請求，因此可能由未經測試的模型回答。若是自訂端點，可在「金鑰」頁面用「立即探測」測試，不必動用真實流量。",
+    "exploreHint": "給尚無可靠性/速度資料的模型 10% 的嘗試機會，以便累積樣本。",
     "keySelection": "金鑰選擇",
     "keySelectionAuto": "自動",
     "keySelectionLeastRemaining": "依剩餘額度",
@@ -596,7 +596,14 @@
     "bulkDelete": "批次刪除",
     "bulkDeleteConfirm": "刪除 {count} 個？",
     "bulkResult": "已更新 {done} 個；失敗 {failed} 個。",
-    "bulkDeleteResult": "已刪除 {done} 個；失敗 {failed} 個。"
+    "bulkDeleteResult": "已刪除 {done} 個；失敗 {failed} 個。",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "Unvermessene Modelle erkunden",
-    "exploreHint": "Gibt Modellen ohne Zuverlässigkeits- oder Geschwindigkeitsdaten eine Chance von 10 %, zuerst versucht zu werden, damit sie Messwerte sammeln. Gesendet wird Ihre echte Anfrage – sie kann also von einem ungetesteten Modell beantwortet werden. Einen benutzerdefinierten Endpunkt prüfen Sie stattdessen auf der Seite „Schlüssel“ mit „Endpunkt testen“, ganz ohne echten Datenverkehr.",
+    "exploreHint": "Gibt Modellen ohne Zuverlässigkeits-/Geschwindigkeitsdaten eine 10-%-Chance, ausprobiert zu werden, damit sie Stichproben aufbauen.",
     "keySelection": "Schlüsselauswahl",
     "keySelectionAuto": "Automatisch",
     "keySelectionLeastRemaining": "Geringstes Restkontingent",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "未計測のモデルを探索",
-    "exploreHint": "信頼性や速度のデータがないモデルに 10% の確率で最初に試す機会を与え、実績を蓄積させます。送信されるのはあなたの実際のリクエストなので、未検証のモデルが応答することがあります。カスタムエンドポイントなら、「キー」ページの「エンドポイントをテスト」で実トラフィックを使わずに試せます。",
+    "exploreHint": "信頼性・スピードのデータがないモデルに10%の確率で試行の機会を与え、サンプルを蓄積させます。",
     "keySelection": "キーの選択",
     "keySelectionAuto": "自動",
     "keySelectionLeastRemaining": "残量が少ない順",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

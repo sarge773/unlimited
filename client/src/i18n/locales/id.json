@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "Jelajahi model yang belum terukur",
-    "exploreHint": "Memberi model tanpa data keandalan atau kecepatan peluang 10% untuk dicoba lebih dulu agar mengumpulkan rekam jejak. Yang dikirim adalah permintaan Anda yang sebenarnya, jadi bisa dijawab oleh model yang belum teruji. Untuk endpoint kustom, pakai «Uji endpoint» di halaman Kunci tanpa memakai lalu lintas nyata.",
+    "exploreHint": "Beri model tanpa data keandalan/kecepatan peluang 10% untuk dicoba agar mengumpulkan sampel.",
     "keySelection": "Pemilihan kunci",
     "keySelectionAuto": "Otomatis",
     "keySelectionLeastRemaining": "Sisa paling sedikit",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",

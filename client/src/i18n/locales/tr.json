@@ -288,7 +288,7 @@
   },
   "strategies": {
     "explore": "Ölçülmemiş modelleri keşfet",
-    "exploreHint": "Güvenilirlik veya hız verisi olmayan modellere sicil oluşturabilmeleri için %10 oranında ilk sırada denenme şansı verir. Giden şey gerçek isteğinizdir, dolayısıyla test edilmemiş bir model yanıtlayabilir. Özel bir uç nokta için Anahtarlar sayfasındaki «Uç noktayı test et» ile gerçek trafik harcamadan deneyin.",
+    "exploreHint": "Güvenilirlik/hız verisi olmayan modellere örnek toplayabilmeleri için %10 denenme şansı verir.",
     "keySelection": "Anahtar seçimi",
     "keySelectionAuto": "Otomatik",
     "keySelectionLeastRemaining": "En az kalan",
@@ -596,7 +596,14 @@
     "testProxy": "Test",
     "testingProxy": "Testing…",
     "proxyTestOk": "Proxy works — {ms}ms round trip",
-    "proxyTestFail": "Proxy failed: {reason}"
+    "proxyTestFail": "Proxy failed: {reason}",
+    "degradedActive": "Degraded mode active",
+    "degradedNormal": "Normal operation",
+    "degradedOverride": "Manual override: {mode}",
+    "degradedSummary": "{healthy}/{total} providers healthy ({pct}%)",
+    "degradedAuto": "Auto",
+    "degradedForceNormal": "Force normal",
+    "degradedForceDegraded": "Force degraded"
   },
   "backups": {
     "title": "Backups",
