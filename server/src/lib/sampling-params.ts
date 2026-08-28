@@ -403,6 +403,33 @@ export function platformDropsResponseFormat(platform: string): boolean {
   return PLATFORM_PARAM_POLICIES[platform as Platform]?.drop?.includes('response_format') ?? false;
 }
 
+/**
+ * True when a model is expected to actually honor a structured-output request
+ * (response_format json_object / json_schema) rather than answering in prose.
+ *
+ * Forward-by-default: the platform-level check (platformDropsResponseFormat)
+ * already skips platforms that strip the param before send; the residual risk
+ * is a platform that forwards it while a specific model ignores it (#933).
+ * Only families with observed evidence of ignoring the param are excluded —
+ * mirroring the conservative rule set used for supports_tools (V22), since a
+ * model that cannot emit structured tool_calls reliably is unlikely to emit a
+ * structured JSON payload either. Everything else defaults to capable so an
+ * unknown new model never gets starved of structured traffic.
+ */
+export function modelSupportsStructuredOutput(platform: string, modelId: string): boolean {
+  const id = modelId.toLowerCase();
+  // Families observed ignoring response_format / emitting text instead of
+  // structured content (same evidence base as the V22 supports_tools rules).
+  if (id.includes('hermes')) return false;            // emits tool calls as text (V22)
+  if (id.includes('gemma')) return false;             // weak at tools (V22)
+  if (id.includes('nemotron-nano')) return false;     // 30B nano incident family (V22)
+  if (id.includes('nemotron-3-9b')) return false;     // 9b variant, same weakness
+  if (id.includes('poolside')) return false;          // returns ~2-token answers (V22)
+  if (id.includes('r1-distill')) return false;        // reasoning distill, no native JSON mode
+  if (id.includes('pollinations')) return false;      // image-priority family, not structured chat
+  return true;
+}
+
 /** The advertised parameter list for a model on `platform` — the base set
  *  every surface supports, plus tools when the model does, minus the
  *  platform's droplist. */

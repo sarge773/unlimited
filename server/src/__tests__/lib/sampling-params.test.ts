@@ -5,6 +5,7 @@ import {
   supportedParametersFor,
   supportedParametersForPlatforms,
   normalizeReasoningEffort,
+  modelSupportsStructuredOutput,
   EXTENDED_SAMPLING_KEYS,
   REASONING_EFFORTS,
 } from '../../lib/sampling-params.js';
@@ -221,5 +222,26 @@ describe('live-sweep policy findings (2026-07-11 demo-box validation)', () => {
     const { platformDropsResponseFormat } = await import('../../lib/sampling-params.js');
     expect(platformDropsResponseFormat('kilo')).toBe(true);
     expect(platformDropsResponseFormat('reka')).toBe(false);
+  });
+});
+
+describe('modelSupportsStructuredOutput (#933)', () => {
+  it('defaults to capable (forward-by-default) for mainstream and unknown models', () => {
+    expect(modelSupportsStructuredOutput('groq', 'gpt-oss-20b')).toBe(true);
+    expect(modelSupportsStructuredOutput('openrouter', 'deepseek/deepseek-v4')).toBe(true);
+    expect(modelSupportsStructuredOutput('openrouter', 'qwen/qwen3-coder:free')).toBe(true);
+    expect(modelSupportsStructuredOutput('custom', 'some-relay-model')).toBe(true);
+  });
+
+  it('excludes families with observed evidence of ignoring response_format', () => {
+    expect(modelSupportsStructuredOutput('openrouter', 'hermes-3-llama-3.1-8b')).toBe(false);
+    expect(modelSupportsStructuredOutput('openrouter', 'google/gemma-3-27b-it:free')).toBe(false);
+    expect(modelSupportsStructuredOutput('nvidia', 'nemotron-nano-9b')).toBe(false);
+    expect(modelSupportsStructuredOutput('openrouter', 'deepseek/r1-distill-qwen-7b')).toBe(false);
+    expect(modelSupportsStructuredOutput('pollinations', 'pollinations/any')).toBe(false);
+  });
+
+  it('is case-insensitive on the model id', () => {
+    expect(modelSupportsStructuredOutput('openrouter', 'Hermes-3-Llama-3.1-8B')).toBe(false);
   });
 });
