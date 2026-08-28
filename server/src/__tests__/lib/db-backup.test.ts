@@ -304,3 +304,4 @@ describe('Hugging Face backup target', () => {
     expect(Buffer.isBuffer(init.body)).toBe(true);
   });
 });
+});
