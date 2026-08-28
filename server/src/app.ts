@@ -14,6 +14,7 @@ import { responsesRouter } from './routes/responses.js';
 import { anthropicRouter } from './routes/anthropic.js';
 import { fallbackRouter } from './routes/fallback.js';
 import { profilesRouter } from './routes/profiles.js';
+import { routingProfilesRouter } from './routes/routing-profiles.js';
 import { embeddingsRouter } from './routes/embeddings.js';
 import { mediaRouter } from './routes/media.js';
 import { analyticsRouter } from './routes/analytics.js';
@@ -241,6 +242,8 @@ export function createApp(config?: Config) {
   app.use('/api/logs', requireAuth, logsRouter);
   app.use('/api/models', requireAuth, modelsRouter);
   app.use('/api/profiles', requireAuth, profilesRouter);
+  // Routing profiles (#1026): named capability chains addressable as a model id.
+  app.use('/api/routing-profiles', requireAuth, routingProfilesRouter);
   app.use('/api/fallback', requireAuth, fallbackRouter);
   app.use('/api/embeddings', requireAuth, embeddingsRouter);
   app.use('/api/media', requireAuth, mediaRouter);

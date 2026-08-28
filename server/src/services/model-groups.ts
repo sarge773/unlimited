@@ -344,6 +344,27 @@ export interface DispatchMembers {
   memberDbIds: number[];
   /** Those of them that are fallbacks — hand this to resolveModelGroupCandidates. */
   demotedDbIds: Set<number>;
+  /**
+   * Per-member ordering that outranks the routing strategy (routing profiles,
+   * #1026). Present only when the requested id named a profile: each entry is
+   * the profile priority of one member, lower tries first. Pass it through
+   * resolveModelGroupCandidates' options so the chain comes out in exactly
+   * this order instead of being re-scored.
+   */
+  priorities?: ReadonlyMap<number, number>;
+}
+
+/** Options for resolveModelGroupCandidates beyond the legacy two arguments. */
+export interface GroupCandidatesOptions {
+  /** Replace each hydrated row's manual priority with the profile's. */
+  priorityOverrides?: ReadonlyMap<number, number>;
+  /**
+   * Order strictly by (overridden) priority, ignoring the routing strategy.
+   * A profile request is an explicit arrangement — "these models, in this
+   * order" — so bandit/speed scoring must not shuffle it. Failure penalties
+   * still apply (orderChain's priority branch keeps them).
+   */
+  strictPriorityOrder?: boolean;
 }
 
 /**

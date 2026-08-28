@@ -15,10 +15,12 @@ import {
   type RouteResult,
 } from '../services/router.js';
 import {
-  getModelGroups,
   isUnifyEnabled,
-  resolveRequestedIdForDispatch,
 } from '../services/model-groups.js';
+import {
+  dispatchChainOptions,
+  resolveDispatchTarget,
+} from '../services/routing-profiles.js';
 import {
   newFallbackState,
   recordUpstreamSuccess,
@@ -118,12 +120,13 @@ function resolvePin(model: string | undefined, messages: ChatMessage[], sessionI
   }
 
   const db = getDb();
+  // Ladder: real model / unify group first, then a routing-profile slug (#1026).
   const resolved = isUnifyEnabled()
-    ? resolveRequestedIdForDispatch(requested, getModelGroups())
+    ? resolveDispatchTarget(requested)
     : null;
   const members = resolved?.memberDbIds ?? null;
   if (members?.length) {
-    const strictChain = resolveModelGroupCandidates(members, resolved!.demotedDbIds);
+    const strictChain = resolveModelGroupCandidates(members, resolved!.demotedDbIds, dispatchChainOptions(resolved));
     if (strictChain.length === 0) {
       const err = new Error(`Model '${requested}' has no enabled provider with a usable key`) as Error & { status?: number; code?: string };
       err.status = 503;

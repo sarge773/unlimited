@@ -31,7 +31,7 @@ import { applyModelWeightOverride, getModelWeightOverrides } from './model-weigh
 import { modelsWithOverriddenField } from './model-state.js';
 import { parseBudget } from '../lib/budget.js';
 import { platformDropsResponseFormat } from '../lib/sampling-params.js';
-import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from './model-groups.js';
+import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch, type GroupCandidatesOptions } from './model-groups.js';
 import { getActiveProfileId } from './profile-models.js';
 import { customEndpointKeyIds } from './custom-endpoint.js';
 import { isDegraded } from './degradation.js';
@@ -149,6 +149,10 @@ export interface ChainRow {
   intelligence_rank: number;
   size_label: string;
   monthly_token_budget: string;
+  // Routing-profile chain (#1026): the row's position came from the operator's
+  // explicit profile arrangement, so routeRequest must not re-sort the chain
+  // by the active strategy (and must not explore-shuffle it either).
+  strictOrder?: boolean;
   rpm_limit: number | null;
   rpd_limit: number | null;
   tpm_limit: number | null;
@@ -1683,6 +1687,12 @@ export function resolveModelGroupCandidates(
    * which is what every other caller wants.
    */
   demotedDbIds?: ReadonlySet<number>,
+  /**
+   * Routing-profile extras (#1026): override each member's manual priority with
+   * the profile's and order strictly by it, so an explicit profile arrangement
+   * survives every routing strategy.
+   */
+  opts?: GroupCandidatesOptions,
 ): ChainRow[] {
   const db = getDb();
   const strategy = getRoutingStrategy();
@@ -1719,8 +1729,18 @@ export function resolveModelGroupCandidates(
     const row = (activeProfileId == null ? selectMember.get(id) : selectMember.get(activeProfileId, id)) as ChainRow | undefined;
     if (!row) continue;
     row.match_tier = demotedDbIds?.has(id) ? 1 : 0;
+    if (opts?.priorityOverrides?.has(id)) {
+      row.priority = opts.priorityOverrides.get(id)!;
+    }
+    // Flagged so routeRequest keeps this arrangement instead of re-sorting by
+    // the active strategy — the flag must survive into the prefetched chain.
+    if (opts?.strictPriorityOrder) row.strictOrder = true;
     rows.push(row);
   }
+  // A profile chain is an explicit arrangement: rank by the profile priority
+  // (the legacy priority branch of orderChain does dense ranking + failure
+  // penalties) rather than letting the active strategy re-score it.
+  if (opts?.strictPriorityOrder) return orderChain(rows, 'priority');
   return orderChain(rows, strategy);
 }
 
@@ -1886,7 +1906,10 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
 
   const chain = (prefetchedChain ?? getActiveChain(db)).filter(e => e.enabled);
 
-  const sortedChain = orderChain(chain, strategy);
+  // A routing-profile chain (#1026) is the operator's explicit arrangement:
+  // order it by profile priority only, never by the active strategy.
+  const strictProfileChain = chain.some(e => e.strictOrder);
+  const sortedChain = strictProfileChain ? orderChain(chain, 'priority') : orderChain(chain, strategy);
 
   // Exploration toggle (#685/#707 follow-up): when enabled, give a model with
   // no reliability/speed samples a guaranteed chance to be tried, so it stops
@@ -1904,7 +1927,7 @@ export function routeRequest(estimatedTokens = 1000, skipKeys?: Set<string>, pre
   // entirely: probing unmeasured models during a fleet-wide outage just burns
   // retry budget on the same dead providers, and the scored order of known
   // survivors is the only thing worth trying.
-  if (strategy !== 'priority' && getExploreEnabled() && !isDegraded() && Math.random() < EXPLORE_CHANCE) {
+  if (strategy !== 'priority' && !strictProfileChain && getExploreEnabled() && !isDegraded() && Math.random() < EXPLORE_CHANCE) {
     // A model the operator zeroed out via MODEL_ROUTING_OVERRIDES never wins a
     // bandit draw, so it would stay under EXPLORE_MIN_SAMPLES forever and become
     // a perpetual probe target — the explicit ban outranks exploration.

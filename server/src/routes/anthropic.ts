@@ -24,7 +24,8 @@ import { runFallbackLoop, newFallbackState, recordUpstreamSuccess, type Exhausti
 import { routedViaValue } from '../lib/header-value.js';
 import { applyTokenBudget, tokenBudgetMessage } from '../lib/guardrails.js';
 import { resolveAnthropicModel, claudeFamilyDiscoveryEntries } from '../services/anthropic-map.js';
-import { isUnifyEnabled, getModelGroups, resolveRequestedIdForDispatch } from '../services/model-groups.js';
+import { isUnifyEnabled } from '../services/model-groups.js';
+import { dispatchChainOptions, resolveDispatchTarget } from '../services/routing-profiles.js';
 import type { ReasoningEffort } from '../lib/sampling-params.js';
 import { buildModelListing } from '../services/model-listing.js';
 import { compressRequest, formatCompressionHeader } from '../services/compression/pipeline.js';
@@ -554,10 +555,10 @@ anthropicRouter.post('/messages', async (req: Request, res: Response) => {
   // leaking affinity across groups. Undefined for auto (the global scope).
   let stickyScope: string | undefined;
   if (resolved.modelId) {
-    const dispatch = isUnifyEnabled() ? resolveRequestedIdForDispatch(resolved.modelId, getModelGroups()) : null;
+    const dispatch = isUnifyEnabled() ? resolveDispatchTarget(resolved.modelId) : null;
     const members = dispatch?.memberDbIds ?? null;
     if (members && members.length > 0) {
-      const chain = resolveModelGroupCandidates(members, dispatch!.demotedDbIds);
+      const chain = resolveModelGroupCandidates(members, dispatch!.demotedDbIds, dispatchChainOptions(dispatch));
       // An empty chain would mean the pinned row is no longer routable at all;
       // this surface is lenient, so leave the legacy single-row pin in place
       // rather than failing the request.
