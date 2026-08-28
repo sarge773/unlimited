@@ -69,6 +69,34 @@ describe('OpenAICompatProvider', () => {
     expect(capturedBody.messages[0].role).toBe('user');
   });
 
+  it('forwards the Moonshot `partial` flag only to Moonshot/Kimi models (#1038)', async () => {
+    let capturedBody: any = null;
+    vi.spyOn(global, 'fetch').mockImplementation(async (_url, init) => {
+      capturedBody = JSON.parse((init as any).body);
+      return {
+        ok: true,
+        json: () => Promise.resolve({
+          id: 'test-id',
+          object: 'chat.completion',
+          created: 123,
+          model: 'test-model',
+          choices: [{ index: 0, message: { role: 'assistant', content: 'hi' }, finish_reason: 'stop' }],
+          usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+        }),
+      } as any;
+    });
+
+    const assistantPartial: any = { role: 'assistant', content: 'continue this', partial: true };
+
+    // Moonshot/Kimi model id → flag survives to the wire.
+    await provider.chatCompletion('my-key', [assistantPartial], 'kimi-latest');
+    expect(capturedBody.messages[0].partial).toBe(true);
+
+    // Non-Moonshot model id → flag stripped so strict providers don't 422.
+    await provider.chatCompletion('my-key', [assistantPartial], 'some-other-model');
+    expect(capturedBody.messages[0]).not.toHaveProperty('partial');
+  });
+
   it('uses a 60s chat timeout by default for OpenAI-compatible providers (#530)', async () => {
     const delays: number[] = [];
     const origSetTimeout = global.setTimeout;

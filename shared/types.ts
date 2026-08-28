@@ -391,6 +391,11 @@ export interface ChatMessage {
   // (DeepSeek on OpenCode Zen) require it to be replayed verbatim on the next
   // turn or they 400; the proxy preserves and forwards it. See issue #255.
   reasoning_content?: string;
+  // Moonshot's "partial" prefill flag on an assistant turn: when true, the
+  // model continues the given text instead of starting a fresh turn. Only
+  // forwarded to models that understand it (Moonshot/Kimi); stripped for all
+  // other providers. See issue #1038.
+  partial?: boolean;
 }
 
 export interface ChatCompletionRequest {
