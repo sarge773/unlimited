@@ -224,7 +224,7 @@ function opencode(ctx: GenerateContext): Generation {
     .filter(model => model.id !== 'auto')
     .map(model => [model.id, {
       name: model.name ?? model.id,
-      limit: { context: contextWindow(model) },
+      limit: { context: contextWindow(model), output: outputLimit(model) },
     }]));
   return {
     files: [{
