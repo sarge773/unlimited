@@ -1026,7 +1026,8 @@
       "dsh": "Bộ khung của DeepSeek, giữ mỗi nhà cung cấp thành một tuyến có thể chuyển đổi.",
       "mimo": "Tác nhân dòng lệnh của Xiaomi, nhánh của OpenCode, nhận mọi nhà cung cấp tương thích OpenAI.",
       "cursor": "Trình soạn thảo lấy AI làm gốc; đi qua đám mây của Cursor nên cần URL công khai.",
-      "generic": "Mọi công cụ khác nói API OpenAI, thiết lập thủ công bằng URL cơ sở và khóa."
+      "generic": "Mọi công cụ khác nói API OpenAI, thiết lập thủ công bằng URL cơ sở và khóa.",
+      "atomcode": "AtomCode is an open-source, terminal-based AI coding agent built in Rust. It connects to any OpenAI-compatible API, reads your codebase, edits files, runs commands, and verifies its work — autonomously."
     }
   },
   "update": {

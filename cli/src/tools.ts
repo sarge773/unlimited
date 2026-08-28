@@ -588,6 +588,27 @@ function cursor(ctx: GenerateContext): Generation {
   };
 }
 
+function atomcode(ctx: GenerateContext): Generation {
+  const model = primaryModel(ctx.models, ctx.requestedModelId);
+  const configDir = path.join(ctx.homeDir, '.atomcode');
+  return {
+    files: [{
+      path: path.join(configDir, 'config.toml'),
+      format: 'toml',
+      sensitive: true,
+      content: `[provider]
+name = "freellmapi"
+base_url = ${JSON.stringify(v1Url(ctx.url))}
+api_key = ${JSON.stringify(ctx.apiKey)}
+model = ${JSON.stringify(model.id)}`,
+    }],
+    notes: [
+      'AtomCode reads ~/.atomcode/config.toml by default.',
+      'Point base_url at the unified /v1 endpoint; api_key is the unified key shown on the Agents page.',
+    ],
+  };
+}
+
 function generic(ctx: GenerateContext): Generation {
   const model = primaryModel(ctx.models, ctx.requestedModelId);
   return {
@@ -615,6 +636,7 @@ const metadata = [
   ['crush', 'Crush', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-crush', 'https://github.com/charmbracelet/crush', crush],
   ['dsh', 'DeepSeek Harness', 'agent', 'file', 'OpenAI Chat', '/v1', 'setup-dsh', 'https://github.com/deepseek-ai/deepseek-harness', dsh],
   ['mimo', 'MiMo Code', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-mimo', 'https://mimo.xiaomi.com/mimocode', mimo],
+  ['atomcode', 'AtomCode', 'code', 'file', 'OpenAI Chat', '/v1', 'setup-atomcode', 'https://atomcode.atomgit.com/docs/zh/', atomcode],
   ['cursor', 'Cursor', 'code', 'guide', 'OpenAI Chat', '/v1', 'setup-cursor', 'https://docs.cursor.com', cursor],
   ['generic', 'Generic OpenAI client', 'agent', 'guide', 'OpenAI Chat', '/v1', 'setup-generic', 'https://github.com/tashfeenahmed/freellmapi', generic],
 ] as const;

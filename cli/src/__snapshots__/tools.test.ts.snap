@@ -21,6 +21,27 @@ model: "openai/fast-coder"
 }
 `;
 
+exports[`tool generators > setup-atomcode has stable golden output 1`] = `
+{
+  "files": [
+    {
+      "content": "[provider]
+name = "freellmapi"
+base_url = "http://localhost:3000/v1"
+api_key = "freellmapi-test-key"
+model = "fast-coder"",
+      "format": "toml",
+      "path": "/home/tester/.atomcode/config.toml",
+      "sensitive": true,
+    },
+  ],
+  "notes": [
+    "AtomCode reads ~/.atomcode/config.toml by default.",
+    "Point base_url at the unified /v1 endpoint; api_key is the unified key shown on the Agents page.",
+  ],
+}
+`;
+
 exports[`tool generators > setup-claude has stable golden output 1`] = `
 {
   "files": [

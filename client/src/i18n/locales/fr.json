@@ -1026,7 +1026,8 @@
       "dsh": "Le harnais de DeepSeek, qui garde chaque fournisseur comme une route commutable.",
       "mimo": "L'agent de terminal de Xiaomi, un fork d'OpenCode qui accepte tout fournisseur compatible OpenAI.",
       "cursor": "L'éditeur pensé pour l'IA ; il passe par le cloud de Cursor, il lui faut donc une URL publique.",
-      "generic": "Tout autre outil qui parle l'API OpenAI, configuré à la main avec l'URL de base et la clé."
+      "generic": "Tout autre outil qui parle l'API OpenAI, configuré à la main avec l'URL de base et la clé.",
+      "atomcode": "AtomCode is an open-source, terminal-based AI coding agent built in Rust. It connects to any OpenAI-compatible API, reads your codebase, edits files, runs commands, and verifies its work — autonomously."
     }
   },
   "update": {

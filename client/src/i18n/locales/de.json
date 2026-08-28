@@ -1026,7 +1026,8 @@
       "dsh": "DeepSeeks Harness, das jeden Anbieter als umschaltbare Route führt.",
       "mimo": "Xiaomis Terminal-Agent, ein OpenCode-Fork für jeden OpenAI-kompatiblen Anbieter.",
       "cursor": "Der KI-zentrierte Editor; er läuft über Cursors Cloud und braucht daher eine öffentliche URL.",
-      "generic": "Alles andere, was die OpenAI-API spricht — von Hand mit Basis-URL und Schlüssel eingerichtet."
+      "generic": "Alles andere, was die OpenAI-API spricht — von Hand mit Basis-URL und Schlüssel eingerichtet.",
+      "atomcode": "AtomCode is an open-source, terminal-based AI coding agent built in Rust. It connects to any OpenAI-compatible API, reads your codebase, edits files, runs commands, and verifies its work — autonomously."
     }
   },
   "update": {

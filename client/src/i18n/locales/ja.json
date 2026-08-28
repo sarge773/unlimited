@@ -1026,7 +1026,8 @@
       "dsh": "DeepSeek のハーネス。各プロバイダーを切り替え可能なルートとして保持します。",
       "mimo": "Xiaomi のターミナルエージェント。OpenCode のフォークで、OpenAI 互換なら何でも使えます。",
       "cursor": "AI 前提のエディター。Cursor のクラウド経由なので公開 URL が必要です。",
-      "generic": "OpenAI API を話すその他のツール。ベース URL とキーを手動で設定します。"
+      "generic": "OpenAI API を話すその他のツール。ベース URL とキーを手動で設定します。",
+      "atomcode": "AtomCode is an open-source, terminal-based AI coding agent built in Rust. It connects to any OpenAI-compatible API, reads your codebase, edits files, runs commands, and verifies its work — autonomously."
     }
   },
   "update": {
