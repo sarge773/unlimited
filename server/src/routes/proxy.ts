@@ -499,6 +499,11 @@ const assistantMessageSchema = z.object({
   // unless the prior turn's reasoning_content is replayed, so keep it through
   // validation instead of stripping it. See issue #255.
   reasoning_content: z.string().nullable().optional(),
+  // Moonshot/Kimi "partial" prefill: the last assistant message carries
+  // `partial: true` and the model continues that text instead of starting a
+  // fresh turn. Preserve it through validation so it reaches the provider;
+  // other providers ignore the unknown field. See issue #1038.
+  partial: z.boolean().optional(),
 });
 
 // Tool results may arrive with null/missing content (a tool that returned
