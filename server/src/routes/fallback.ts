@@ -10,6 +10,8 @@ import { getDb } from '../db/index.js';
 import { getAllPenalties, getRoutingScores, getRoutingStrategy, setRoutingStrategy, setCustomWeights, getExploreEnabled, setExploreEnabled, getPeakHoursConfig, setPeakHoursConfig, getActiveRoutingWeights, getKeySelectionStrategy, setKeySelectionStrategy } from '../services/router.js';
 import { BANDIT_PRESETS, isValidTimezone, type RoutingStrategy } from '../services/scoring.js';
 import { parseBudget } from '../lib/budget.js';
+import { inferQuotaPoolKey } from '../services/provider-quota.js';
+import type { Platform } from '@freellmapi/shared/types.js';
 import { getModelGroups } from '../services/model-groups.js';
 import { getPenaltyInspector } from '../services/penalty-inspector.js';
 import { getActiveProfileId } from '../services/profile-models.js';
@@ -496,6 +498,7 @@ fallbackRouter.get('/token-usage', (_req: Request, res: Response) => {
         displayName: m.display_name,
         platform: m.platform,
         modelId: m.model_id,
+        // Per-model budget shown in the bar's segments (scaled by usable key count)
         budget: parseBudget(m.monthly_token_budget) * keys,
         used: usageByModel.get(`${m.platform}:${m.model_id}`) ?? 0,
         enabled: m.enabled === 1,
@@ -506,8 +509,28 @@ fallbackRouter.get('/token-usage', (_req: Request, res: Response) => {
       };
     });
 
-  // Total budget counts all models (both enabled and disabled — they contribute to the pool)
-  const totalBudget = modelBudgets.reduce((s, m) => s + m.budget, 0);
+  // Total budget should count each provider *pool* once (some platforms list
+  // the same account allowance on many models). Group models by the pool key
+  // (provider knowledge in inferQuotaPoolKey) and take the largest documented
+  // budget seen for that pool, then scale by usable key count for the platform
+  // (same rule as free-tier.ts).
+  const poolMax = new Map<string, { platform: string; maxDocumented: number }>();
+  for (const m of rawModels) {
+    if (!platformSet.has(m.platform)) continue;
+    const poolKey = inferQuotaPoolKey(m.platform as Platform, m.model_id);
+    const documented = parseBudget(m.monthly_token_budget);
+    const prev = poolMax.get(poolKey);
+    if (!prev || documented > prev.maxDocumented) {
+      poolMax.set(poolKey, { platform: m.platform, maxDocumented: documented });
+    }
+  }
+
+  let totalBudget = 0;
+  for (const [poolKey, { platform, maxDocumented }] of poolMax) {
+    const keys = Math.max(1, keyCountMap.get(platform) ?? 1);
+    totalBudget += maxDocumented * keys;
+  }
+
   const totalUsed = modelBudgets.reduce((s, m) => s + m.used, 0);
 
   res.json({
